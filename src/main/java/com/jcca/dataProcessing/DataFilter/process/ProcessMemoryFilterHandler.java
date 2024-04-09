@@ -1,0 +1,99 @@
+package com.jcca.dataProcessing.DataFilter.process;
+
+import com.jcca.common.utils.AppMathUtil;
+import com.jcca.dataProcessing.Entity.ChangeInfo;
+import com.jcca.dataProcessing.Entity.CollectProcessEntity;
+import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.dataProcessing.manager.IEventInfoManagerService;
+import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
+import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
+import com.jcca.dataProcessing.support.IEvent;
+import com.jcca.dataProcessing.support.IFilterHandler;
+import com.jcca.web.event.enums.EventLevelEnum;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Date;
+
+/**
+ * @author Zhaozheng
+ * @description TODO 进程内存信息过滤处理类
+ * @className ProcessMemoryFilterHandler
+ * @date 2023/10/27 9:58
+ * @since 2.1.0.0
+ */
+@Component("processMemoryFilterHandler")
+public class ProcessMemoryFilterHandler extends IFilterHandler<CollectProcessEntity> {
+
+    @Resource
+    private IEventInfoManagerService eventInfoChangeManagerService;
+    @Resource
+    private ThresholdManager thresholdManager;
+
+
+    @Override
+    public boolean handler(CollectProcessEntity info) {
+        if(info.getStatus()!=true){
+            return true;
+        }
+        String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode()+":"+info.getName();
+        String mapKey = StatusInfoChangeTypeEnum.status_process_mem.getCode();
+        //判断数据是否有变化
+        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getMemoryRate());
+        ChangeInfo changeInfo = new ChangeInfo();
+        changeInfo.setValue(info.getMemoryRate());
+        changeInfo.setRedisKey(redisKey);
+        changeInfo.setMapKey(mapKey);
+        changeInfo.setIsChange(flag);
+        changeInfo.setCollectTime(new Date());
+        info.getMaps().put(mapKey, changeInfo);
+
+        String eventRedisKey = StatusInfoChangeTypeEnum.event_process_memory.getCode();
+        String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getName();
+        String redisThresholdKey = thresholdManager.getThresholdRedisKey(info.getAssetId(), info.getAssetIp());
+        String thresholdMapKey = thresholdManager.getThresholdMapKey(StatusInfoChangeTypeEnum.event_process_memory.getCode(),StatusInfoChangeTypeEnum.MEM.getCode(), info.getName());
+
+        ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_process_memory.getCode(), info.getAssetId(), info.getName());
+        if (threshold.baseValueIsNull()) {
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            if (event != null) {
+                this.dispatureEvent(event);
+            }
+            return true;
+        }
+
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        if (thresholdFlag) {
+            this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
+        }
+
+        if (changeInfo.getIsChange() || thresholdFlag) {
+            Boolean compare = AppMathUtil.compare(info.getMemoryRate() + "", threshold.getBaseValue() + "");
+            Integer status = compare ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
+            String keyWord=status==EventLevelEnum.NORMAL.getCode()?"":"超过";
+            AlarmTempReq alarmTempReq = new AlarmTempReq();
+            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_memory.getDescr(), info.getName(), info.getProcessId(), changeInfo.getValue(), keyWord, threshold.getBaseValue()));
+            alarmTempReq.setCollectValue(changeInfo.getValue()+"%");
+            alarmTempReq.setThresholdValue(threshold.getBaseValue()+"%");
+            alarmTempReq.setFlag( info.getName());
+            this.addEventStatus(StatusInfoChangeTypeEnum.event_process_memory.getCode(),StatusInfoChangeTypeEnum.MEM_VAL.getCode(), info.getName(), status, info, changeInfo);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            if (event != null) {
+                //被事件信息截取
+                changeInfo.setIsEvent(true);
+                event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_memory.getDescr(), info.getName(), info.getProcessId(), changeInfo.getValue(), keyWord, threshold.getBaseValue()));
+
+                this.dispatureEvent(event);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isNeedNexthandle(Boolean flag) {
+        return flag;
+    }
+
+
+}

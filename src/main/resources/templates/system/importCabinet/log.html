@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 机柜导入历史日志</span>
+    </div>
+
+    <div class="timo-table-wrap">
+        <table class="layui-table timo-table">
+            <thead>
+            <tr>
+                <th class="sortable" data-field="name">任务ID</th>
+                <th class="sortable" data-field="success">成功数量</th>
+                <th class="sortable" data-field="fail">失败数量</th>
+                <th class="sortable" data-field="count">总数量</th>
+                <th class="sortable" data-field="log">任务日志</th>
+                <th class="sortable" data-field="createTime">开始时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${list}">
+                <td th:text="${item.id}">任务ID</td>
+                <td th:text="${item.success}">成功数量</td>
+                <td th:text="${item.fail}">失败数量</td>
+                <td th:text="${item.count}">总数量</td>
+                <td th:text="${item.log}">任务日志</td>
+                <td th:text="${#dates.format(item.createTime, 'yyyy-MM-dd HH:mm:ss')}">开始时间</td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="/common/fragment :: page"></div>
+
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

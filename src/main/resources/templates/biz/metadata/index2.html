@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+
+    <style>
+        .button1 {
+            color: #fff;
+            background-color: #5FC3DE;
+            border-color: #5FC3DE;
+            display: inline-block;
+            padding: 8px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 初始数据校验</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane">
+                <div class="screen-btn-group">
+                    <button style="margin-left:1px;" type="button" class="layui-btn layui-btn-warm"
+                            id="contrastData">
+                        数据校验
+                    </button>
+
+                    <button type="button" class="button1" style="margin-left:150px;">
+                        <a th:href="@{/system/metadata/download2}" style="color:white;">
+                            </i>导出建议SQL</a>
+                    </button>
+
+                    <button style="margin-left:200px;" type="button" class="layui-btn layui-btn-danger" id="downLoad">
+                        提取初始化数据
+                    </button>
+                </div>
+
+
+            </div>
+
+        </div>
+        <div>
+            <table id="metaData" class="layui-table">
+
+            </table>
+        </div>
+        <div th:replace="/common/fragment :: page"></div>
+    </div>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script>
+    layui.use(['element', 'upload', 'table'], function () {
+        var $ = layui.jquery, upload = layui.upload;
+        var dv = $(".dict-value");
+        $(window).on("resize", function () {
+            var width = $("body").width();
+            if (width > 1200) {
+                dv.css("max-width", width * 0.32);
+            } else {
+                dv.css("max-width", width * 0.20);
+            }
+        }).resize();
+        // 生成校验文件
+        $("#downLoad").on("click", function () {
+            layer.open({
+                type: 0
+                , title: "温馨提示"
+                , content: "正在为您提取文件~"
+                , success: function () {
+                    let a = document.createElement("a");
+                    a.href = "/system/metadata/getDataExecl";
+                    a.click();
+                }
+            });
+        });
+
+
+        // 上传文件
+        var uploadInst = upload.render({
+            elem: '#contrastData'
+            , url: '/system/metadata/contrastData'
+            , accept: 'file'
+            , exts: 'xlsx|xls'
+            , done: function (res) {
+                //上传完毕回调
+                if (res.msg === "请求成功") {
+                    var tml = "<thead>" +
+                        "    <tr>" +
+                        "      <th width='50'>序号</th>" +
+                        "      <th width='150'>表名称</th>" +
+                        "      <th width='150'>关键字</th>" +
+                        "      <th>建议语句</th>" +
+                        "    </tr>" +
+                        "  </thead><tbody>";
+
+                    var meta = res.data;
+                    for (let i = 0; i < meta.length; i++) {
+                        tml += "<tr>" +
+                            "      <td>" + (i + 1) + "</td>" +
+                            "      <td>" + meta[i].ttname + "</td>" +
+                            "      <td>" + meta[i].ccname + "</td>" +
+                            "      <td>" + meta[i].command + "</td>" +
+                            "    </tr>";
+                    }
+
+                    tml += "</tbody>";
+                    $("#metaData").html(tml);
+                } else {
+                    layer.alert(res.msg);
+                }
+            }
+            , error: function () {
+                //请求异常回调
+                layer.alert("校验数据异常");
+            }
+        });
+
+    });
+</script>
+</body>
+</html>

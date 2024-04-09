@@ -1,0 +1,73 @@
+package com.jcca.dataProcessing.dataAdpater;
+
+import ch.qos.logback.classic.Level;
+import cn.hutool.core.util.StrUtil;
+import com.jcca.common.exception.ResultException;
+import com.jcca.common.log.annotation.MyLogback;
+import com.jcca.common.log.constant.LogFunctionConstant;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
+import com.jcca.dataProcessing.Entity.SyslogEventInfoEntity;
+import com.jcca.dataProcessing.enums.CollectConst;
+import com.jcca.dataProcessing.manager.DataProcessManager;
+import com.jcca.dataProcessing.manager.IEventInfoManagerService;
+import com.jcca.dataProcessing.support.IAdapter;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * @author Zhaozheng
+ * @description TODO
+ * @className DisposeBeiyangVersionAdapter
+ * @date 2023/10/20 16:07
+ * @since 2.1.0.0
+ */
+@Component("syslogAdapter")
+public class SyslogAdapter extends AssetIpAdd implements IAdapter<SyslogEventInfoEntity> {
+    @Resource(name = "dataProcessManager")
+    private DataProcessManager dataProcessManager;
+    @Resource
+    private IEventInfoManagerService eventInfoChangeManagerService;
+    ThreadPoolExecutor excutorService=new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
+
+    @Override
+    public void dispose(SyslogEventInfoEntity infoEntity) {
+        //事件监控分类
+        excutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                //获取资产信息
+                getAssetIPbyIMM(infoEntity);
+                if(StrUtil.isEmpty(infoEntity.getAssetId())){
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS, infoEntity.getIp() , "此IP在系统中不存在");
+                    return;
+                }
+                try {
+                    dataProcessManager.syslogEventHandlerRequest(infoEntity);
+                } catch (ResultException e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, infoEntity.getIp(), " syslogEventHandlerRequest 抛出异常:" + e.getMessage());
+                } catch (Exception e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + infoEntity.getIp() + " syslogEventHandlerRequest 抛出异常", e);
+
+                }
+            }
+        });
+    }
+
+    @Override
+    public String getCode() {
+        return CollectConst.SYSLOG;
+    }
+
+    @Override
+    @MyLogback(code = LogFunctionConstant.DATA_PROCESS)
+    public String dataProcess(){
+        return "当前剩余处理数量：" + excutorService.getQueue().size();
+    }
+}

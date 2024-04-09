@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:shiro="https://www.pollix.at/thymeleaf/shiro">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 用户管理</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+        <a th:href="@{/system/user/export}" shiro:hasPermission="system:user:export"><i class="fa fa-download"></i></a>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen put-row">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" th:value="${param.username}" placeholder="请输入用户名"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nickname" th:value="${param.nickname}" placeholder="请输入用户昵称"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layui-btn-normal timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn open-popup" data-title="添加用户" th:attr="data-url=@{/system/user/add}"
+                            shiro:hasPermission="system:user:add" data-size="600,570">
+                        <i class="fa fa-plus"></i> 添加
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table">
+                <thead>
+                <tr>
+                    <th class="sortable" data-field="username">用户名</th>
+                    <th class="sortable" data-field="nickname">用户昵称</th>
+                    <th class="sortable" data-field="gender">性别</th>
+                    <th class="sortable" data-field="phone">电话</th>
+                    <th class="sortable" data-field="createTime">创建时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item:${list}">
+                    <td th:text="${item.username}">用户名</td>
+                    <td th:text="${item.nickname}">用户昵称</td>
+                    <td th:text="${#dicts.keyValue('USER_GENDER', item.gender)}">性别</td>
+                    <td th:text="${item.phone}">电话</td>
+                    <td th:text="${#dates.format(item.createTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                    <td th:text="${#dicts.dataStatus(item.status)}">状态</td>
+                    <td>
+                        <a class="open-popup" data-title="编辑用户" th:attr="data-url=@{'/system/user/edit/'+${item.id}}"
+                           shiro:hasPermission="system:user:edit"
+                           data-size="500,470" href="#">编辑</a>
+                        <a class="open-popup" data-title="详细信息" th:attr="data-url=@{'/system/user/detail/'+${item.id}}"
+                           shiro:hasPermission="system:user:detail"
+                           data-size="800,600" href="#">详细</a>
+                        <a class="ajax-get" th:attr="data-msg='您是否删除'+${item.nickname}"
+                           th:href="@{/system/user/status/delete(ids=${item.id})}"
+                           shiro:hasPermission="system:user:status">删除</a>
+                        <a class="open-popup" data-title="修改密码" th:attr="data-url=@{'/system/user/pwd/'+${item.id}}"
+                           shiro:hasPermission="system:user:pwd" data-size="456,242">修改密码
+                        </a>
+                        <a class="open-popup layui-btn layui-btn-sm layui-btn-danger" data-title="角色分配" th:attr="data-url=@{'/system/user/role/'+${item.id}}"
+                           shiro:hasPermission="system:user:role" data-size="480,400" style="color: white">角色分配
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+       <div th:replace="/common/fragment :: page"></div>
+    </div>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

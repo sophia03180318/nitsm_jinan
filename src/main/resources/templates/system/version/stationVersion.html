@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body class="timo-layout-page">
+<div class="layui-card timo-tree" th:attr="data-url=@{'/system/role/list?'+${search}}">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 车站升级控制</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+
+    <div class="layui-card-body layui-row">
+        <div class="layui-col-lg2 layui-col-sm3">
+            <div class="layui-card timo-nav-tree">
+                <div class="layui-card-header">组织机构</div>
+                <div class="layui-card-body">
+                    <ul class="ztree" th:attr="data-url=@{'/system/org/list?'+${search}}" id="orgTree"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-col-lg10 layui-col-sm9">
+            <div class="layui-row timo-card-screen">
+                <div class="pull-left layui-form-pane timo-search-box">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">车站名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" th:value="${param.title}" placeholder="请输入车站名称"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">业务TAG号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="version" th:value="${param.version}" placeholder="请输入业务TAG号"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <input id="orgIdInput" type="hidden" name="orgId">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">车站IP</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="ip" th:value="${param.ip}" placeholder="请输入车站IP"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button id="queryButton" class="layui-btn layui-btn-normal timo-search-btn">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <button id="temp" class="layui-btn open-popup-param" data-title="新建更新任务"
+                                th:attr="data-url=@{/system/version/station/add}"
+                                shiro:hasPermission="system:version:station:add" data-size="500,550">
+                            <i class="layui-icon">&#xe7ae;</i>开始更新
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timo-table-wrap">
+                <table class="layui-table timo-table">
+                    <thead>
+                    <tr>
+                        <th class="timo-table-checkbox">
+                            <label class="timo-checkbox"><input type="checkbox">
+                                <i class="layui-icon layui-icon-ok"></i></label>
+                        </th>
+                        <th class="timo-table-fixed layui-table-fixed layui-table-fixed-r">操作</th>
+                        <th class="sortable" data-field="title">车站名称</th>
+                        <th class="sortable" data-field="ip">车站IP</th>
+                        <th class="sortable" data-field="targetName">业务TAG号</th>
+                        <th class="sortable" data-field="runStatus">运行状态</th>
+                        <th class="sortable" data-field="futureVersion">更新版本</th>
+                        <th class="sortable" data-field="updateRate">更新进度</th>
+                        <th class="sortable" data-field="statusStr">更新状态</th>
+                        <th class="sortable" data-field="remark">备注</th>
+                        <th class="sortable" data-field="filePath">文件存储地址</th>
+                        <th class="sortable" data-field="startDate">开始更新时间</th>
+                        <th class="sortable" data-field="endDate">结束更新时间</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item:${list}">
+                        <td>
+                            <label class="timo-checkbox">
+                                <input name="orgIdCheckBox" type="checkbox" th:value="${item.orgId}">
+                                <i class="layui-icon layui-icon-ok"></i>
+                            </label>
+                        </td>
+                        <td>
+                            <a class="open-popup" data-title="详细信息"
+                               th:attr="data-url=@{'/system/version/station/detail/'+${item.orgId}}"
+                               shiro:hasPermission="system:version:manager:detail"
+                               data-size="500,500" href="#">详细</a>
+
+                            <a th:onclick="openStation([[${item.stationUrl}]])" href="#">跳转车站</a>
+
+                            <a th:onclick="refreshStation([[${item.orgId}]])" href="#">刷新状态</a>
+
+                            <a th:if="${item.status} eq 'UPLOAD_FAIL'or ${item.status} eq 'UPDATE_FAIL'"
+                               th:onclick="removeUpdateLog([[${item.orgId}]])" href="#">删除此次更新状态</a>
+
+                            <a class="open-popup" data-title="设置存储路径"
+                               th:attr="data-url=@{'/system/version/station/setFilePath/'+${item.orgId}}"
+                               shiro:hasPermission="system:version:station:setFilePath" data-size="500,200">设置存储地址</a>
+                        </td>
+                        <td th:text="${item.title}">车站名称</td>
+                        <td th:text="${item.ip}">车站IP</td>
+                        <td th:text="${item.version}">当前版本</td>
+                        <td th:text="${item.runStatus}">运行状态</td>
+                        <td th:text="${item.futureVersion}">更新版本</td>
+                        <td th:text="${#dicts.keyValue('STATION_BAR',item.updateRate)}">更新进度</td>
+                        <td th:text="${item.statusStr}">更新状态</td>
+
+                        <td th:text="${item.remark}">备注</td>
+                        <td th:text="${item.filePath}">文件存储地址</td>
+                        <td th:text="${#dates.format(item.startDate, 'yyyy-MM-dd HH:mm:ss')}">开始更新时间</td>
+                        <td th:text="${#dates.format(item.endDate, 'yyyy-MM-dd HH:mm:ss')}">结束更新时间</td>
+
+
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div th:replace="/common/fragment :: page"></div>
+    </div>
+</div>
+
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/lib/zTree_v3/js/jquery.ztree.core.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/timoTree.js}"></script>
+
+<script>
+    function myrefresh() {
+        window.location.reload();
+    }
+
+    window.onload = function () {
+        initOrgTree();
+        pmgressBar();
+    }
+
+
+    function pmgressBar() {
+        $.ajax({
+            url: "/system/version/station/status",
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                if (data.data == 1) {
+
+                }else{
+
+                }
+            },
+
+        });
+    }
+
+
+    function pmgressBar() {
+        $.ajax({
+            url: "/system/version/station/getStatus",
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                if (data.data == 1) {
+                    setTimeout('myrefresh()', 60000);
+                }
+            },
+            error: function () {
+                alert("进度获取失败");
+            }
+        });
+    }
+
+    //刷新车站状态
+    function refreshStation(stationId) {
+        $.ajax({
+            type: "post",
+            url: "/system/version/station/refreshStationStatus",
+            async: false,
+            data: {'stationId': stationId},
+            dataType: "json",
+            success: function (data) {
+                document.getElementById("queryButton").click();
+                layer.msg('刷新成功');
+            },
+            error: function () {
+                layer.msg('刷新失败');
+            }
+        });
+    }
+
+    //删除此次更新
+    function removeUpdateLog(stationId) {
+        $.ajax({
+            type: "post",
+            url: "/system/version/station/removeUpdateLog",
+            async: false,
+            data: {'stationId': stationId},
+            dataType: "json",
+            success: function (data) {
+                document.getElementById("queryButton").click();
+                layer.msg('处理成功');
+            },
+            error: function () {
+                layer.msg('处理失败');
+            }
+        });
+    }
+
+    //跳转车站
+    function openStation(url) {
+        console.log("1111");
+        console.log(url);
+        if (url != null && url != 'undefined' && url != '') {
+            window.open(url);
+        }
+    }
+
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+        check: {
+            enable: true,
+            chkboxType: {"Y": "", "N": ""}
+        },
+        callback: {
+            onClick: function (event, treeId, treeNode) {
+                var category = $("#topo_ul .layui-this").attr("id");
+                editor.orgId = treeNode.id
+                editor(editor);
+            }
+        }
+    };
+
+    function initOrgTree() {
+        $.get($("#orgTree").data("url"), function (result) {
+            var zNodes = [];
+            result.data.forEach(function (item) {
+                var org = {
+                    id: item.id,
+                    pId: item.pid,
+                    name: item.title
+                };
+                if (item.pid === "0" || item.pid === "1") {
+                    org.open = true;
+                    org.checked = true;
+                }
+                zNodes.push(org);
+            });
+            $.fn.zTree.init($("#orgTree"), setting, zNodes);
+        });
+    }
+
+    //点击左侧树触发此方法，入参是orgId
+    function editor(orgObj) {
+        console.log(orgObj.orgId);
+        document.getElementById("orgIdInput").value = orgObj.orgId;
+    }
+</script>
+</body>
+
+<style>
+
+</style>
+</html>

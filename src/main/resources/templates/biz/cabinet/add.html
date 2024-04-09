@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form th:action="@{/system/cabinet/save}">
+        <input type="hidden" name="id" th:if="${cabinet}" th:value="${cabinet.id}"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">机柜名称</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="name" placeholder="请输入机柜名称" required th:value="${cabinet?.name}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">机柜编号</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" name="code" placeholder="请输入机柜数字编号" th:value="${cabinet?.code}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">识别号</label>
+            <div class="layui-input-inline">
+                <input class="layui-input"  name="qrCodeNum" placeholder="请输入机柜识别号" th:value="${cabinet?.qrCodeNum}">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">所属机房</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" id="orgTreeOrg" th:attr="data-value=${cabinet?.roomId}"
+                       type="text" name="roomId" placeholder="请输入机房" th:value="${cabinet?.roomId}" lay-filter="orgTreeOrg">
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">横向索引</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" name="rowIndex" placeholder="请输入机柜横向索引"
+                       th:value="${cabinet?.rowIndex}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">纵向索引</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" name="columnIndex" required placeholder="请输入机柜纵向索引"
+                       th:value="${cabinet?.columnIndex}">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea" name="remark">[[${cabinet?.remark}]]</textarea>
+            </div>
+        </div>
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript">
+    layui.use(['form'], function () {
+        window.form = layui.form;
+    });
+</script>
+
+<script type="text/javascript" th:src="@{/js/plugins/jquery-2.2.4.min.js}"></script>
+<script type="text/javascript" th:src="@{/lib/zTree_v3/js/jquery.ztree.core.min.js}"></script>
+<script type="text/javascript">
+    var nowId = document.getElementById("orgTreeOrg").value;
+    layui.config({
+        base: '../../../js/module/'
+    }).extend({
+        treeSelect: 'treeSelect/treeSelect'
+    });
+    layui.use(['form','treeSelect'], function () {
+        window.form = layui.form;
+        // 初始化排序下拉选项
+        var id = document.getElementById("orgTreeOrg").value;
+        if (id != undefined&&id!="") {
+            var obj=new Object();
+            var current=new Object();
+            current.id=id;
+            current.pid=id;
+            obj.current=current;
+            sortRender(obj);
+        }
+
+        var treeSelect= layui.treeSelect;
+
+        treeSelect.render({
+            // 选择器
+            elem: '#orgTreeOrg',
+            // 数据
+            data: '/system/cabinet/roomList',
+            // 异步加载方式：get/post，默认get
+            type: 'get',
+            // 占位符
+            placeholder: '修改默认提示信息',
+            // 是否开启搜索功能：true/false，默认false
+            search: true,
+            // 点击回调
+            click: function(d){
+                sortRender(d)
+            },
+            // 加载完成后的回调函数
+            success: function (d) {
+                console.log(d.data);
+//                选中节点，根据id筛选
+                if(nowId) {
+                    treeSelect.checkNode('orgTreeOrg', nowId);
+                }
+            }
+        });
+    });
+
+
+    // 更新渲染排序下拉选项(手动)
+    function sortRender(nodes) {
+        var treeNode = nodes.current
+        var pid = treeNode.pid;
+        var sort = $(".select-sort");
+        var id = sort.data('id') ? sort.data('id') : 0;
+        var url = sort.data('url') + "/" + pid + "/" + id;
+        $.get(url, function (result) {
+            var options = '';
+            var sortNum = Object.keys(result).length;
+            if (pid === document.getElementById("orgTreeOrg").value && sort.data('sort')) {
+                sortNum = sort.data('sort') - 1;
+            }
+            result[0] = "首位";
+            for (var key in result) {
+                var selected = sortNum == key ? "selected=''" : "";
+                options += "<option value='" + key + "' " + selected + ">" + result[key] + "</option>";
+            }
+            sort.html(options);
+            form.render('select');
+        });
+    }
+
+</script>
+</body>
+</html>

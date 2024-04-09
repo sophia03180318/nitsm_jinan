@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form th:action="@{/biz/station/save}">
+        <input type="hidden" id="station-title" name="title" th:value="${station?.title}"/>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">选择车站</label>
+            <div class="layui-input-inline">
+                <select name="orgId" lay-search lay-filter="station" id="station"></select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">车站IP1</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="ip" placeholder="请输入IP1" th:value="${station?.ip}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">车站IP2</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="ip2" placeholder="请输入IP2" th:value="${station?.ip2}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label ">代理URL</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="proxyUrl" placeholder="代理URL" th:value="${station?.proxyUrl}">
+            </div>
+            <P style="color: red">代理url格式 192.168.51.157:5501</P>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">端口</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" name="port" placeholder="请输入端口" th:value="${station?.port}" th:if="${station}">
+                <input class="layui-input" type="number" name="port" placeholder="请输入端口" th:value="9083" th:unless="${station}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">车站分组</label>
+            <div class="layui-input-inline">
+                <select name="stationGroup" mo:dict="STATION_GROUP" mo-selected="${station?.stationGroup}" mo-empty=""
+                           lay-verify="stationGroup" lay-search></select>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea" name="remark">[[${station?.remark}]]</textarea>
+            </div>
+        </div>
+
+
+
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script th:inline="javascript">
+    layui.use(['form'], function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+
+        var station = [[${station}]];
+        var orgId = "";
+        if (station) {
+            orgId = station.orgId;
+        }
+
+        $.post("/biz/station/list", "", function (result) {
+            var list = result.data;
+            $("#station").empty();
+            $("#station").append("<option value=''>请选择</option>");
+            for (var k in list) {
+                let id = list[k].id;
+                var option = "<option data-code='" + list[k].title + "' value='" + id + "'>" + list[k].title + "</option>";
+                if (orgId === id) {
+                    option = "<option data-code='" + list[k].title + "' value='" + id + "' selected>" + list[k].title + "</option>";
+                }
+                $("#station").append(option);
+            }
+            form.render();
+        });
+
+        form.on('select(station)', function (data) {
+            var title = $(data.elem).find('option:selected').data('code');
+            $("#station-title").val(title);
+        });
+
+    });
+</script>
+</body>
+</html>

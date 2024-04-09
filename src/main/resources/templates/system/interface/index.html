@@ -1,0 +1,90 @@
+<!DOCTYPE>
+<html xmlns:th="https://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/grapheditor.css}" type="text/css">
+    <style>
+        .status-container {
+            text-align: center;
+            position: absolute;
+            overflow: hidden;
+            bottom: 0px;
+            max-height: 24px;
+            height: 36px;
+            color: white;
+            padding: 6px;
+        }
+
+        .timo-tree {
+            width: 350px;
+            left: 0px;
+            position: absolute;
+            overflow: auto;
+            height: 95%;
+        }
+        img.mxToolbarMode{
+			width:90%;
+		}
+		.type img{
+			height:35px;
+			max-width:100%;
+			margin:5px 0;
+		}
+		.type-name{
+			height:35px;
+			line-height:35px;
+			font-size:16px;
+			border-bottom:1px solid #eaeaea;
+		}
+		.type-item-img{
+			padding-left:20px;
+		}
+		.type-item-number img{
+			height:13px;
+		}
+    </style>
+</head>
+<body>
+<div style="padding-left:350px;position:relative;height:98%;width:auto">
+	<div class="layui-card timo-tree" style="overflow:hidden;">
+		<div class="layui-card-body ">
+		 <div class="layui-tab layui-tab-card timo-nav-tree" style="overflow:auto;">
+	        <ul class="layui-tab-title">
+	            <li class="layui-this">资产列表</li>
+	            <li>面板列表</li>
+	        </ul>
+	        <div class="layui-tab-content ">
+	            <div class="layui-tab-item layui-show">
+	             	<ul class="ztree" th:attr="data-url=@{'/system/graphInterface/list'}" id="orgTree"></ul>
+	            </div>
+	            <div class="layui-tab-item " id="panel-list">
+	                <ul id="assetImages">
+	                	
+	                </ul>
+	            </div>
+	        </div>
+		 </div>
+		</div>
+	</div>
+    <!-- 绘图区 -->
+    <div id="topoContainer" class="topo-container"></div>
+    <!-- 创建底部状态栏 -->
+    <div id="statusContainer" class="status-container"></div>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript"> mxBasePath = '/graph/'; </script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/graph/js/mxClient.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/myGraphEditorUI.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/myGraphEditor.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Graph.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Shapes.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Actions.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Pages.js}"></script>
+
+<script type="text/javascript" th:src="@{/lib/zTree_v3/js/jquery.ztree.core.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/timoTree.js}"></script>
+<script type="text/javascript" th:src="@{/js/interface/index.js}"></script>
+</body>
+</html>
+

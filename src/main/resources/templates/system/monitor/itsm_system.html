@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <title>Layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="/lib/layui-v2.3.0/css/layui.css"  media="all">
+</head>
+<body>
+
+<div>
+
+    <div class="layui-tab layui-tab-brief" lay-filter="layui-tab_1">
+        <ul class="layui-tab-title">
+            <li  class="layui-this">线程池监控</li>
+            <li >线程监控</li>
+        </ul>
+        <div class="layui-tab-content">
+        	<div class="layui-tab-item layui-show">
+        		<form class="layui-form" action="" style="margin-top: 20px;font-size:14px">
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">中心采集器主节点地址:</label>
+		                    <div class="layui-input-inline">
+		                        <a id="masterurl" style="margin-top: 10px;display: block;" target="_blank" th:href="'http://'+${COLLECT_MASTER_URL}" th:text="${COLLECT_MASTER_URL}"></a>
+		                    </div>
+		                </div>
+		            </div>
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">阈值处理队列长度:</label>
+		                    <div class="layui-input-inline">
+		                        <input id="" type="text"   autocomplete="off" class="layui-input" th:value="${_threshold_queue}">
+		                    </div>
+		                </div>
+		            </div>
+		            
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">非阈值处理队列:</label>
+		                    <div class="layui-input-inline">
+		                        <input type="text"   autocomplete="off" class="layui-input" th:value="${_alarm_queue}">
+		                    </div>
+		                </div>
+		            </div>
+		            
+		             <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">事件添加队列长度:</label>
+		                    <div class="layui-input-inline">
+		                        <input type="text"   autocomplete="off" class="layui-input" th:value="${EVENT_ALARM_ADD_TOTAL}">
+		                    </div>
+		                </div>
+		            </div>
+		            
+		            
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">redis卡斯柯队列长度:</label>
+		                    <div class="layui-input-inline">
+		                        <input type="text"   autocomplete="off" class="layui-input" th:value="${_casco_alarm_queue}">
+		                    </div>
+		                </div>
+		            </div>
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">redis告警前端推动队列长度:</label>
+		                    <div class="layui-input-inline">
+		                        <input type="text"   autocomplete="off" class="layui-input" th:value="${_alarm_push_front_queue}">
+		                    </div>
+		                </div>
+		            </div>
+		            
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">事件告警分发队列长度:</label>
+		                    <div class="layui-input-inline">
+		                        <input type="text"   autocomplete="off" class="layui-input" th:value="${_event_alarm_group}">
+		                    </div>
+		                </div>
+		            </div>
+		          
+		            <div class="layui-form-item">
+		                <div class="layui-inline">
+		                    <label class="layui-form-label" style="width: 180px">事件告警处理队列总长度:</label>
+		                    <div class="layui-input-inline">
+		                        <input type="text"   autocomplete="off" class="layui-input" th:value="${EVENT_ALARM_EXE_TOTAL}">
+		                    </div>
+		                </div>
+		            </div>
+		            
+		            <table class="layui-hide" id="dataTable1" ></table>
+		        </form>
+        	</div>
+	        <div class="layui-tab-item">
+	        	<form class="layui-form" action="" style="margin-top: 20px;font-size:14px">
+	            	<table class="layui-hide" id="dataTable2" ></table>
+	        	</form>
+	        </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+</body>
+
+<style>
+    .layui-table-view .layui-table[lay-size=lg] .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell, .layui-table-tool-panel li {
+        overflow: hidden;
+        text-overflow: inherit;
+        white-space: inherit;
+    }
+
+    .layui-table-cell {
+         padding: inherit
+
+    }
+    .layui-table-cell{
+        height:36px;
+        line-height: 36px;
+    }
+</style>
+<script src="/lib/layui-v2.3.0/layui.js" charset="utf-8"></script>
+<script th:inline="none">
+	
+	layui.use('element', function(){
+	  var element = layui.element;
+	  
+	  //…
+	});
+	
+
+	layui.use('table', function(){
+		var table = layui.table;
+		table.render({
+			elem: '#dataTable1'
+			,url:'/system/itsmmonitor/getThreadPoolMonitorNode'
+			,cellMinWidth: 80
+			,cols: [[
+				// {field:'id', width:80, title: '序号', sort: true},
+				 {field: 'poolName',  title: '线程池名称',width:200}
+                , {field: 'poolSize',  title: '当前线程数'}
+                , {field: 'corePoolSize', title: '核心线程数'}
+                , {field: 'activeCount', title: '正在执行的任务数量'}
+                , {field: 'completedTaskCount', title: '已完成任务数量'}
+                , {field: 'taskCount', title: '任务总数'}
+                , {field: 'queueSize', title: '队列里缓存的任务数量'}
+                , {field: 'largestPoolSize', title: '池中存在的最大线程数'}
+                , {field: 'maximumPoolSize', title: '最大允许的线程数'}
+                , {field: 'shutdown', title: '线程池是否关闭'}
+                , {field: 'terminated', title: '线程池是否终止'}
+			]]
+		});
+	});
+
+	layui.use('table', function(){
+		var table = layui.table;
+		table.render({
+			elem: '#dataTable2'
+			,url:'/system/itsmmonitor/getThread'
+			,cellMinWidth: 80
+			,cols: [[
+				// {field:'id', width:80, title: '序号', sort: true},
+				 {field: 'id',  title: '线程ID',width:200}
+                , {field: 'name',  title: '线程名称'}
+                , {field: 'state',  title: '线程状态'}
+			]]
+		});
+	});
+
+	
+</script>
+</html>

@@ -1,0 +1,16 @@
+package com.jcca.web2.dao;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jcca.web2.entity.AssetManufacturer;
+import org.apache.ibatis.annotations.Select;
+
+/**
+ * @description: 资产厂商
+ * @author: sophia
+ * @create: 2023/11/01 10:20
+ **/
+public interface AssetManufacturerMapper extends BaseMapper<AssetManufacturer> {
+
+    @Select("SELECT MAX(ID) FROM ASSET_MANUFACTURER ")
+    Long getMaxId();
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form id="jarUploadForm" th:action="@{/system/version/station/beginUpdate}">
+        <div class="layui-form-item">
+            <label class="layui-form-label">最新版本</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" disabled="true" th:value=${maxVersion}>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">升级版本</label>
+            <div class="layui-input-inline">
+                <select name="versionId" lay-search>
+                    <option th:each="item:${versionList}"  th:value="${item.id}">[[${item.version}]]</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">流量限速</label>
+            <div class="layui-input-inline">
+                <select name="rateLimi" mo:dict="UPLOADING" mo-selected="5KB"></select>
+            </div>
+
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">上传间隔</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="number" name="intervalTime" placeholder="请输入上传间隔（单位秒）" >
+            </div>
+        </div>
+
+        <input type="hidden" name="stationIdListStr" th:value="${orgIdList}" >
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">选中车站</label>
+            <div class="layui-input-inline">
+                <textarea disabled="true"  th:placeholder=${orgNameStr} class="layui-textarea"></textarea>
+            </div>
+        </div>
+        
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 开始更新</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+
+<script>
+window.onload=function(){
+
+}
+
+
+</script>
+
+</body>
+</html>

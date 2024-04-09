@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+    <style>
+        .button1 {
+            color: #fff;
+            background-color: #DEB887;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .button2 {
+            color: #fff;
+            background-color: #A9A9A9;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 采集指标配置</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+
+    <div class="layui-row timo-card-screen put-row">
+        <div class="pull-left layui-form-pane timo-search-box">
+
+            <div class="layui-inline">
+                <label class="layui-form-label">适配类型</label>
+                <div class="layui-input-block timo-search-status">
+                    <select class="timo-search-select" id="assetMode" name="assetMode" mo:dict="COLLECTOR_ASSET_MODE"
+                            mo-selected="${param.assetMode}"
+                            mo-empty="全部"></select>
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:7px;">
+                <label class="layui-form-label">适配型号</label>
+                <div class="layui-input-block timo-search-status">
+                    <select class="timo-search-select" style="width:140px;" id="assetImage" name="assetImage"
+                            mo:dict="COLLECTOR_ASSET_IMAGE"
+                            mo-selected="${param.assetImage}"
+                            mo-empty="全部"></select>
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:75px;">
+                <label class="layui-form-label">适配厂家</label>
+                <div class="layui-input-block timo-search-status">
+                    <select class="timo-search-select" id="manufacturerId" name="manufacturerId" mo:dict="ASSET_FACTORY"
+                            mo-selected="${param.manufacturerId}"
+                            mo-empty="全部"></select>
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:7px;">
+                <label class="layui-form-label">执行代码</label>
+                <div class="layui-input-block timo-search-status">
+                    <select class="timo-search-select" style="width:180px;" id="specId" name="specId"
+                            mo:dict="SPEC_DICT"
+                            mo-selected="${param.specId}"
+                            mo-empty="全部"></select>
+                </div>
+            </div>
+
+
+            <div class="layui-inline" style="margin-left:115px;">
+                <button class="layui-btn layui-btn-normal timo-search-btn">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn" id="resetBut" style="margin-left:7px;" data-title="清空"
+                        th:onclick="|resetBut()|">
+                    <i class="fa fa-undo"></i> 清空
+                </button>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn layui-btn-warm open-popup" style="margin-left:15px;" data-title="增加"
+                        th:attr="data-url=@{/system/collector/add}" data-size="600,450">
+                    <i class="fa fa-plus"></i> 增加
+                </button>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <div id=table class="timo-table-wrap">
+        <table class="layui-table timo-table">
+            <thead>
+            <tr>
+                <th class="sortable" data-field="assetMode">适配类型</th>
+                <th class="sortable" data-field="assetImage">适配型号</th>
+                <th class="sortable" data-field="manufacturerId">适配厂家</th>
+                <th class="sortable" data-field="systemType">适配操作系统</th>
+                <th class="sortable" data-field="specId">执行代码</th>
+                <th class="sortable" data-field="createDate">创建时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${list}">
+                <td th:text="${#dicts.keyValue('COLLECTOR_ASSET_MODE', item.assetMode)}">适配类型</td>
+                <td th:text="${item.assetImage}">适配型号</td>
+                <td th:text="${#dicts.keyValue('ASSET_FACTORY', item.manufacturerId)}">适配厂家</td>
+                <td th:text="${#dicts.keyValue('SYSTEM_TYPE', item.systemType)}">适配操作系统</td>
+                <td th:text="${#dicts.keyValue('SPEC_DICT', item.specId)}">执行代码</td>
+                <td th:text="${#dates.format(item.createDate, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                <td>
+                    <div class="button1">
+                        <a class="open-popup" data-title="编辑模板"
+                           th:attr="data-url=@{'/system/collector/edit/'+${item.id}}"
+                           data-size="600,450" href="#" style="color:#FFFFFF">编辑</a>
+                    </div>
+                    <div class="button2" style="margin-left: 10px">
+                        <a class="ajax-get" th:attr="data-msg='是否确认删除?'"
+                           th:href="@{/system/collector/deleteById(id=${item.id})}"
+                           style="color:#FFFFFF">删除</a>
+                    </div>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="/common/fragment :: page"></div>
+</div>
+
+<script>
+    function resetBut() {
+        $("#assetMode").val(null).trigger("change");
+        $("#assetImage").val(null).trigger("change");
+        $("#manufacturerId").val(null).trigger("change");
+        $("#specId").val(null).trigger("change");
+    }
+</script>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

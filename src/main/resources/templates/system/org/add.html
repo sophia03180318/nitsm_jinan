@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form th:action="@{/system/org/save}">
+        <input type="hidden" name="id" th:if="${org}" th:value="${org.id}"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">组织名称</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="title" placeholder="可输入多个组织名，用’,‘分割" th:value="${org?.title}">
+                <span title="添加的时候,用,隔开,可一次性添加多个组织,示例: 组织A,组织B,组织C;编辑的时候,只能编辑一个组织名">提示</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">父级组织</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" id="orgTreeOrg" th:attr="data-value=${pOrg?.id}"
+                       type="text" name="pid" placeholder="请输入父级组织" th:value="${pOrg?.id}" lay-filter="orgTreeOrg">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">组织类型</label>
+            <div class="layui-input-inline">
+                <select name="type" mo:dict="ORG_TYPE" mo-selected="${org?.type}" mo-empty=""
+                        lay-verify="type" lay-search></select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">排序</label>
+            <div class="layui-input-inline">
+                <select class="select-sort" name="sort"
+                        th:attr="data-url=@{/system/org/sortList}, data-id=${org?.id}, data-sort=${org?.sort}"
+                        lay-verify="sort" lay-search></select>
+            </div>
+            <div class="layui-input-info">（之后）</div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea" name="remark">[[${org?.remark}]]</textarea>
+            </div>
+        </div>
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-2.2.4.min.js}"></script>
+<script type="text/javascript" th:src="@{/lib/zTree_v3/js/jquery.ztree.core.min.js}"></script>
+<!---<script type="text/javascript" th:src="@{/js/timoTree.js}"></script>-->
+<script type="text/javascript">
+    var nowId = document.getElementById("orgTreeOrg").value;
+	layui.config({
+	    base: '../../../js/module/'
+	}).extend({
+	    treeSelect: 'treeSelect/treeSelect'
+	});
+    layui.use(['form','treeSelect'], function () {
+        window.form = layui.form;
+        // 初始化排序下拉选项
+        var pid = document.getElementById("orgTreeOrg").value;
+        if (pid != undefined&&pid!="") {
+            var obj=new Object();
+            var current=new Object();
+            current.id=pid;
+            obj.current=current;
+            sortRender(obj);
+        }
+        
+        var treeSelect= layui.treeSelect;
+        
+        treeSelect.render({
+            // 选择器
+            elem: '#orgTreeOrg',
+            // 数据
+            data: '/system/org/list',
+            // 异步加载方式：get/post，默认get
+            type: 'get',
+            // 占位符
+            placeholder: '修改默认提示信息',
+            // 是否开启搜索功能：true/false，默认false
+            search: true,
+            // 点击回调
+            click: function(d){
+                sortRender(d)
+            },
+            // 加载完成后的回调函数
+            success: function (d) {
+                console.log(d.data);
+//                选中节点，根据id筛选\
+                if(nowId) {
+                    treeSelect.checkNode('orgTreeOrg', nowId);
+                }
+//                获取zTree对象，可以调用zTree方法
+//                var treeObj = treeSelect.zTree('tree');
+//                console.log(treeObj);
+
+//                刷新树结构
+//                treeSelect.refresh();
+            }
+        });
+    });
+
+  
+    
+
+    // 更新渲染排序下拉选项(手动)
+    function sortRender(nodes) {
+		var treeNode = nodes.current
+        var pid = treeNode.id;
+        var sort = $(".select-sort");
+        var id = sort.data('id') ? sort.data('id') : 0;
+        var url = sort.data('url') + "/" + pid + "/" + id;
+        $.get(url, function (result) {
+            var options = '';
+            var sortNum = Object.keys(result).length;
+            if (pid === document.getElementById("orgTreeOrg").value && sort.data('sort')) {
+                sortNum = sort.data('sort') - 1;
+            }
+            result[0] = "首位";
+            for (var key in result) {
+                var selected = sortNum == key ? "selected=''" : "";
+                options += "<option value='" + key + "' " + selected + ">" + result[key] + "</option>";
+            }
+            sort.html(options);
+            form.render('select');
+        });
+    }
+
+    // 更新渲染排序下拉选项(自动)
+    function autoSortRender(pid) {
+		// var treeNode = nodes.current
+        var pid = pid;
+        var sort = $(".select-sort");
+        var id = sort.data('id') ? sort.data('id') : 0;
+        var url = sort.data('url') + "/" + pid + "/" + id;
+        $.get(url, function (result) {
+            var options = '';
+            var sortNum = Object.keys(result).length;
+            if (pid === $(".select-tree").data('value') && sort.data('sort')) {
+                sortNum = sort.data('sort') - 1;
+            }
+            result[0] = "首位";
+            for (var key in result) {
+                var selected = sortNum == key ? "selected=''" : "";
+                options += "<option value='" + key + "' " + selected + ">" + result[key] + "</option>";
+            }
+            sort.html(options);
+            form.render('select');
+        });
+    }
+</script>
+</body>
+</html>

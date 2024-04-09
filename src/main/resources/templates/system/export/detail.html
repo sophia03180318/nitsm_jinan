@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="timo-detail-page">
+    <div class="timo-detail-title layui-btn-container">属性信息</div>
+    <table class="layui-table timo-detail-table">
+        <tbody>
+        <tr>
+            <th >模板名称</th>
+            <td th:text="${template.templateName}"></td>
+            <th >模板类型</th>
+            <td>资产</td>
+        </tr>
+
+        <tr>
+            <th >模板属性</th>
+            <td th:text="${template.attribute}"></td>
+            <th>备注信息</th>
+            <td th:text="${template.remark}"></td>
+        </tr>
+
+
+        </tbody>
+    </table>
+
+
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="timo-detail-page">
+    <div class="timo-detail-title">基本信息</div>
+    <table class="layui-table timo-detail-table">
+        <tbody>
+        <tr>
+            <th width='100px'>模板名称</th>
+            <td th:text="${msg.name}"></td>
+            <th width='100px'>模板标题</th>
+            <td th:text="${msg.title}"></td>
+        </tr>
+        <tr>
+            <th>模板内容</th>
+            <td colspan="4" th:text="${msg.content}"></td>
+        </tr>
+        <tr>
+            <th width='100px'>消息类别</th>
+            <td th:text="${msg.category}"></td>
+            <th width='100px'>备注</th>
+            <td th:text="${msg.remark}"></td>
+        </tr>
+        <tr>
+            <th>创建时间</th>
+            <td th:text="${#dates.format(msg.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <th>最后修改</th>
+            <td th:text="${#dates.format(msg.modifyTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="/common/fragment :: log(${msg})"></div>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="timo-detail-page">
+    <div class="timo-detail-title">基本信息</div>
+    <table class="layui-table timo-detail-table">
+        <tbody>
+        <tr>
+            <th width='100px'>日志编号</th>
+            <td th:text="${actionLog.id}"></td>
+            <th width='100px'>模块名称</th>
+            <td th:text="${actionLog.logModel}"></td>
+        </tr>
+        <tr>
+            <th>日志类型</th>
+            <td th:text="${#dicts.keyValue('LOG_TYPE', actionLog.logType)}"></td>
+            <th>操作IP地址</th>
+            <td th:text="${actionLog.operUserIp}"></td>
+        </tr>
+        <tr>
+            <th>操作动作</th>
+            <td th:text="${actionLog.logName}"></td>
+            <th>操作结果</th>
+            <td th:text="${actionLog.logMsg}"></td>
+        </tr>
+        <tr>
+            <th>操作人</th>
+            <td th:if="${actionLog.creator eq null}">[[${actionLog.creator}]]</td>
+            <td th:if="${actionLog.creator ne null}">
+                <a th:href="@{/system/user/index(id=${actionLog.creator})}">[[${actionLog.creator}]]（[[${actionLog.creator}]]）</a>
+            </td>
+            <th>记录时间</th>
+            <td th:text="${#dates.format(actionLog.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+        <tr>
+            <th>请求位置</th>
+            <td colspan="4" th:text="${actionLog.logClass}+'.'+${actionLog.logMethod}+'()'"></td>
+        </tr>
+        <tr>
+            <th>请求参数</th>
+            <td colspan="4">
+                <pre>[[${actionLog.recordId}]]</pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+
+</html>

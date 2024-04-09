@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form th:action="@{/system/redisManager/addRedis}">
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">key</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="key" placeholder="请输入key" th:value="${redis?.key}">
+            </div>
+        </div>
+
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label required">value</label>
+            <div class="layui-input-block">
+                <textarea style="width: 240px;height: 200px;" placeholder="请输入Value" class="layui-textarea" name="value">[[${redis?.value}]]</textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label ">过期时间(s)</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="expireTime" placeholder="(秒)" th:value="${redis?.expireTime}">
+            </div>
+        </div>
+
+        <div class="layui-form-item timo-finally">
+            <button style="margin-left: 140px" class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

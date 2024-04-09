@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})"></head>
+<body>
+<div class="timo-detail-page">
+    <table class="layui-table timo-detail-table">
+	    <colgroup>
+	      <col width="150">
+	      <col width="300">
+	    </colgroup>
+    	<tbody>
+    		<tr>
+            	<th>描述：</th>
+            	<td th:text="${detailObj.descStr}" colspan="4"></td>
+       	 	</tr>
+    		<tr>
+            	<th>备注：</th>
+            	<td th:text="${detailObj.remark}" colspan="4"></td>
+       	 	</tr>
+    	</tbody>
+    </table>
+</div>
+<script th:replace="/common/template :: script"></script>
+
+</body>
+</html>

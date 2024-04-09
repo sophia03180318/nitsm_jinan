@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <style>
+        .layui-form-label {
+            width: 160px;
+        }
+    </style>
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>info日志输出控制</legend>
+    </fieldset>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <div class="layui-btn-container">
+                <button type="button" class="layui-btn" name="info" value="1">打开全部info</button>
+                <button type="button" class="layui-btn layui-btn-warm" name="info" value="0">关闭全部info</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline" pane="" th:each="item:${infoLogs}">
+                <label class="layui-form-label" th:text="${item.descStr}"></label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" th:checked="${item.value}" th:name="${item.name}" typeStr="info"
+                           lay-skin="switch" lay-filter="switchLog" lay-text="ON|OFF">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="layui-card">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>error日志输出控制</legend>
+    </fieldset>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <div class="layui-btn-container">
+                <button type="button" class="layui-btn" name="error" value="1">打开全部error</button>
+                <button type="button" class="layui-btn layui-btn-warm" name="error" value="0">关闭全部error</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline" pane="" th:each="item:${errorLogs}">
+                <label class="layui-form-label" th:text="${item.descStr}"></label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" th:checked="${item.value}" th:name="${item.name}" typeStr="error"
+                           lay-skin="switch" lay-filter="switchLog" lay-text="ON|OFF">
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div th:replace="/common/fragment :: page"></div>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script>
+    layui.use(['element', 'form'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        $("button").on("click", function () {
+            var obj = {"type": $(this).attr("name"), "value": $(this).val()};
+            $.ajax({
+                type: "POST",
+                url: "/system/logConfig/setAll",
+                data: JSON.stringify(obj),
+                contentType: 'application/json;charset=utf-8',
+                success: function (result) {
+                    layer.msg(result.msg);
+                    if ("成功" === result.msg) {
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+
+        form.on('switch(switchLog)', function () {
+            var obj = {"name": $(this).attr("name"), "value": this.checked ? 1 : 0, "type": $(this).attr("typeStr")};
+            $.ajax({
+                type: "POST",
+                url: "/system/logConfig/setConf",
+                data: JSON.stringify(obj),
+                contentType: 'application/json;charset=utf-8',
+                success: function (result) {
+                    layer.msg(result.msg);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

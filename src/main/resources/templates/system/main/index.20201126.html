@@ -1,0 +1,69 @@
+<!DOCTYPE>
+<html xmlns:th="https://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/grapheditor.css}" type="text/css">
+    <style>
+        .status-container {
+            text-align: center;
+            position: absolute;
+            overflow: hidden;
+            bottom: 0px;
+            max-height: 24px;
+            height: 36px;
+            color: white;
+            padding: 6px;
+        }
+
+        .timo-tree {
+            width: 220px;
+            left: 0px;
+            position: absolute;
+            overflow: auto;
+            height: 95%;
+        }
+    </style>
+</head>
+<body>
+<div style="padding-left:220px;position:relative;height:98%;width:auto">
+    <div class="layui-card timo-tree">
+        <div class="layui-card-header">组织结构</div>
+        <div class="layui-card-body">
+            <ul class="ztree" th:attr="data-url=@{'/system/org/list?'+${search}}" id="orgTree"></ul>
+        </div>
+    </div>
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this" id="cabinet_topo">机柜拓扑</li>
+            <li  id="net_topo">网络拓扑</li>
+            <li id="pc_topo">调度台</li>
+            <li id="biz_topo">业务拓扑</li>
+
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <!-- 绘图区 -->
+                <div id="topoContainer" class="topo-container"></div>
+                <!-- 创建底部状态栏 -->
+                <div id="statusContainer" class="status-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript"> mxBasePath = '/graph/'; </script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/graph/js/mxClient.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/myGraphEditorUI.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/myGraphEditor.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Graph.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Shapes.js}"></script>
+<script type="text/javascript" th:src="@{/js/myGraph/Actions.js}"></script>
+
+<script type="text/javascript" th:src="@{/lib/zTree_v3/js/jquery.ztree.core.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/timoTree.js}"></script>
+<script type="text/javascript" th:src="@{/js/main/index.js}"></script>
+</body>
+</html>
+

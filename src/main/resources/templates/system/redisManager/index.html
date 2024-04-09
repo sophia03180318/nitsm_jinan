@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+    <style>
+        .button1 {
+            color: #fff;
+            background-color: #F4A460;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .button2 {
+            color: #fff;
+            background-color: #dea5a1;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .button3 {
+            color: #fff;
+            background-color: #deb597;
+            border-color: #DE9C99;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .button4 {
+            color: #fff;
+            background-color: #F49F85;
+            border-color: #F49F85;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> REDIS缓存管理</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+
+    <div class="layui-row timo-card-screen put-row">
+        <div class="pull-left layui-form-pane timo-search-box">
+            <div class="layui-inline">
+                <label class="layui-form-label">KEY</label>
+                <div class="layui-input-block">
+                    <input style="width:280px" type="text" name="key" th:value="${param.key}" placeholder="请输入KEY"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:7px;">
+                <label class="layui-form-label">数据类型</label>
+                <div class="layui-input-block timo-search-status">
+                    <select class="timo-search-select" style="width:80px;" name="type" mo:dict="REDIS_TYPE"
+                            mo-selected="${param.type}"
+                            mo-empty="全部"></select>
+
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:15px;">
+                <button class="layui-btn layui-btn-normal timo-search-btn">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn  open-popup"  data-title="增加"
+                        th:attr="data-url=@{/system/redisManager/add}" data-size="490,480">
+                    增加
+                </button>
+            </div>
+
+
+
+            <div class="layui-inline" style="margin-left:15px;">
+                <label class="layui-form-label">IP<->ID</label>
+                <div class="layui-input-block">
+                    <input style="width:180px" id="ip" type="text" name="ip" placeholder="输IP出ID;输ID出IP"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <button type="button" class="layui-btn" style="margin-left:2px;" onclick="findByIp()">
+                <i class="fa fa-search"></i>
+            </button>
+
+
+            <div class="layui-inline" style="margin-left:15px;">
+                <label class="layui-form-label">批量删除</label>
+                <div class="layui-input-block">
+                    <input style="width:220px" id="deleteKey" type="text" name="deleteKey" placeholder="请输入key,空值则清空redis"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <button type="button" class="layui-btn" style="margin-left:2px;" onclick="deleteKeys()">
+                删除
+            </button>
+
+            <div class="button4" style="margin-left:10px;">
+                <a class="ajax-get" th:attr="data-msg='清空后,采集器将向ITSM推送一次所有现告警状态信息,是否确认执行'"
+                   th:href="@{/system/redisManager/pushAll}"
+                   shiro:hasPermission="system:redisManager:pushAll" style="color:#FFFFFF"
+                > <i class="fa fa-undo"></i>推送状态信息</a>
+            </div>
+
+            <div class="button1" style="margin-left:5px;">
+                <a class="ajax-get" th:attr="data-msg='<-慎用!->清空告警队列所有缓存信息,只适用于队列堆积情况,不可恢复!是否确认执行?'"
+                   th:href="@{/system/redisManager/flushAll}"
+                   shiro:hasPermission="system:redisManager:flushAll" style="color:#FFFFFF"
+                > <i class="fa fa-trash-o"></i>清空缓存信息</a>
+            </div>
+        </div>
+    </div>
+
+    <div id=table class="timo-table-wrap">
+        <table class="layui-table timo-table">
+            <thead>
+            <tr>
+                <th>操作</th>
+                <th class="sortable" data-field="key">KEY(前30条数据)</th>
+                <th th:width="200" class="sortable" data-field="value">VALUE</th>
+                <th class="sortable" data-field="expireTime">过期时间(s)</th>
+
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${list}">
+                <td>
+                    <div class="button3">
+                        <a class="ajax-get" th:attr="data-msg='您是否删除'+${item.key}+'这条数据?'"
+                           th:href="@{/system/redisManager/deleteByKey(key=${item.key})}"
+                           shiro:hasPermission="system:redisManager:deleteByKey" style="color:#FFFFFF"
+                        >删除</a>
+                    </div>
+
+                    <button class="button2 open-popup popup-add" data-title="编辑"
+                            th:attr="data-url=@{/system/redisManager/update(key=${item.key})}"
+                            data-size="500,480">编辑
+                    </button>
+                </td>
+                <td th:text="${item.key}">KEY</td>
+                <td th:width="200" th:text="${item.value}">VALUE</td>
+                <td th:text=" ${item.expireTime}">过期时间</td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="/common/fragment :: page"></div>
+</div>
+
+
+<script th:replace="/common/template :: script"></script>
+<script>
+    function findByIp() {
+        let tex = document.getElementById("ip").value.toString();
+        $.ajax({
+            url: "/system/redisManager/findByIp?ip="+tex,
+            type: "POST",
+            data: tex,
+            dataType: "json",
+            async: false,
+            success: function (dat) {
+                document.getElementById("ip").value = dat.msg;
+            }
+        })
+    }
+
+    function deleteKeys() {
+        let tex = document.getElementById("deleteKey").value.toString();
+
+        if (confirm("前后模糊匹配删除机制,空值则清空redis,确认删除么?")){
+        $.ajax({
+            url: "/system/redisManager/deleteKeys?key="+tex,
+            type: "POST",
+            data: tex,
+            dataType: "json",
+            async: false,
+            success: function (dat) {
+              alert("删除成功~")
+            }
+        })
+    }}
+</script>
+</body>
+</html>

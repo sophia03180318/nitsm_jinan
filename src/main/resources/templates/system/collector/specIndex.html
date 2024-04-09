@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+    <style>
+        .dict-value {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ping-value {
+            max-width: 20px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .button1 {
+            color: #fff;
+            background-color: #DEB887;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .button2 {
+            color: #fff;
+            background-color: #F4A460;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .button3 {
+            color: #fff;
+            background-color: #A9A9A9;
+            border-color: #DAA520;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            text-decoration: none;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+    </style>
+
+
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i>执行代码配置</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+
+    <div class="layui-row timo-card-screen put-row">
+        <div style="width: 100%" class="pull-left layui-form-pane timo-search-box">
+
+            <div class="layui-inline" style="margin-left:7px;">
+                <label class="layui-form-label">指标</label>
+                <div class="layui-input-block timo-search-status">
+                    <input style="width:135px;" id="input1" type="text" name="targetDescription"
+                           th:value="${param.targetDescription}" placeholder="请输入指标名称" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:75px;">
+                <label class="layui-form-label">命令</label>
+                <div class="layui-input-block timo-search-status">
+                    <input style="width:220px;" id="input2" type="text" name="comman" th:value="${param.comman}"
+                           placeholder="请输入命令" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:160px;">
+                <label class="layui-form-label">执行匹配码</label>
+                <div class="layui-input-block timo-search-status">
+                    <input style="width:250px;" id="input3" type="text" name="targetHandle"
+                           th:value="${param.targetHandle}" placeholder="请输入执行匹配码" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-inline" style="margin-left:190px;">
+                <label class="layui-form-label">是否PING</label>
+                <div class="layui-input-block timo-search-status">
+                    <select style="width: 100px" id="select4" class="timo-search-select" name="pingTunnel" mo:dict="IS_PING"
+                            mo-selected="${param.pingTunnel}"
+                            mo-empty="全部"></select>
+
+                </div>
+            </div>
+
+
+            <div class="layui-inline" style="margin-left:40px;">
+                <button class="layui-btn layui-btn-normal timo-search-btn">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+
+            <div class="layui-inline">
+                <button class="layui-btn" id="resetBut" style="margin-left:7px;" data-title="清空"
+                        th:onclick="|resetBut()|">
+                    <i class="fa fa-undo"></i> 清空
+                </button>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <div id=table class="timo-table-wrap">
+        <table class="layui-table timo-table">
+            <thead>
+            <tr>
+                <th class="sortable" data-field="targetDescription">指标名称</th>
+                <th class="sortable" data-field="comman">命令</th>
+                <th class="sortable" data-field="commandName">命令名称</th>
+                <th class="sortable" data-field="targetHandle">执行类匹配码</th>
+                <th class="sortable" data-field="cronExpress">采集频率</th>
+                <th class="sortable" data-field="pingTunnel">PING隧道</th>
+                <th class="sortable" data-field="createTime">创建时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${list}">
+                <td th:text="${item.targetDescription}">指标名称</td>
+                <td th:text="${item.comman}" class="dict-value">命令</td>
+                <td th:text="${item.commandName}" class="dict-value">命令名称</td>
+                <td th:text="${item.targetHandle}">执行类匹配码</td>
+                <td th:text="${item.cronExpress}">采集频率</td>
+
+                <td class="ping-value" th:text="${#dicts.keyValue('IS_PING', item.pingTunnel)}">是否采用PING隧道</td>
+
+                <td th:text="${#dates.format(item.createTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                <td>
+                    <div class="button1">
+                        <a class="open-popup" data-title="改时间"
+                           th:attr="data-url=@{'/system/collector/setTime/'+${item.id}}"
+                           data-size="350,200" href="#" style="color:#FFFFFF">更改时间</a>
+                    </div>
+                    <div class="button2">
+                        <a class="open-popup" data-title="测试采集"
+                           th:attr="data-url=@{'/system/collector/testSnmp/'+${item.id}}"
+                           data-size="520,400" href="#" style="color:#FFFFFF">测试采集</a>
+                    </div>
+                    <div class="button3">
+                        <a id="ping" class="ajax-get" th:attr="data-msg='是否更改隧道配置?'"
+                           th:href="@{/system/collector/setPing(id=${item.id})}" style="color:#FFFFFF"
+                        >PING隧道</a>
+                    </div>
+
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="/common/fragment :: page"></div>
+</div>
+
+<script>
+    function resetBut() {
+        $("#input1").val(null).trigger("change");
+        $("#input2").val(null).trigger("change");
+        $("#input3").val(null).trigger("change");
+        $("#select4").val(null).trigger("change");
+    }
+
+</script>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

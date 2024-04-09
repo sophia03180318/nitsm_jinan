@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.6.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.jcca</groupId>
+    <artifactId>nitsm</artifactId>
+    <version>2.0.0.0</version>
+    <packaging>jar</packaging>
+    <name>nitsm_preview</name>
+    <description>ITSM监控系统2.1版本</description>
+
+    <properties>
+        <skipTests>true</skipTests>
+        <java.version>1.8</java.version>
+        <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <mybatis-plus>3.2.0</mybatis-plus>
+        <ehcache.version>2.10.5</ehcache.version>
+        <shiro.version>1.5.1</shiro.version>
+        <druid.version>1.1.21</druid.version>
+        <hutool.version>5.2.5</hutool.version>
+        <jwt.version>3.10.2</jwt.version>
+        <poi.version>4.1.2</poi.version>
+        <thymeleaf-shiro.version>2.0.0</thymeleaf-shiro.version>
+        <swagger.version>2.9.2</swagger.version>
+        <wmq-version>7.5</wmq-version>
+        <plugs-path>${pom.basedir}/src/main/resources/lib</plugs-path>
+        <kotlin.version>1.5.10</kotlin.version>
+    </properties>
+
+    <!-- maven仓库改为阿里云 -->
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <name>Aliyun</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>aliyun</id>
+            <name>Aliyun</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencies>
+        <!--swagger2接口文档 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+
+        <!-- jwt处理框架 -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${jwt.version}</version>
+        </dependency>
+
+        <!-- hutool工具包 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+        <!-- freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.28</version>
+        </dependency>
+
+
+        <!--ehcache缓存框架 -->
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
+        </dependency>
+
+        <!-- shiro权限 -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring</artifactId>
+            <version>${shiro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-ehcache</artifactId>
+            <version>${shiro.version}</version>
+        </dependency>
+        <!--shiro模板视图权限标签扩展 -->
+        <dependency>
+            <groupId>com.github.theborakompanioni</groupId>
+            <artifactId>thymeleaf-extras-shiro</artifactId>
+            <version>${thymeleaf-shiro.version}</version>
+        </dependency>
+
+        <!-- mybatisplus -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis-plus}</version>
+        </dependency>
+
+        <!-- 连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+
+        <!-- oracle -->
+        <dependency>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- lombok工具包 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--解决编译时javax.annotation.meta.When不存在问题 -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <!-- 用于解决： 不支持的字符集 (在类路径中添加 orai18n.jar): ZHS16GBK; -->
+        <dependency>
+            <groupId>cn.easyproject</groupId>
+            <artifactId>orai18n</artifactId>
+            <version>12.1.0.2.0</version>
+        </dependency>
+
+        <!-- springboot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <!-- redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>lettuce-core</artifactId>
+                    <groupId>io.lettuce</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <!-- 开发工具 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- snmp -->
+        <dependency>
+            <groupId>org.snmp4j</groupId>
+            <artifactId>snmp4j</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <!-- ssh -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.54</version>
+        </dependency>
+        <!-- websocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <!--commons-net -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.6</version>
+        </dependency>
+
+        <!-- aspose -->
+        <dependency>
+            <groupId>aspose-words-14.9</groupId>
+            <artifactId>aspose-words-14.9</artifactId>
+            <version>14.9</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/aspose-words-14.9.jar</systemPath>
+        </dependency>
+        <!-- syslog4j -->
+        <dependency>
+            <groupId>syslog4j-0.946</groupId>
+            <artifactId>syslog4j-0.946</artifactId>
+            <version>0.946</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/syslog4j-0.946.jar</systemPath>
+        </dependency>
+
+        <!-- WMQ -->
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>commonservices</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/com.ibm.mq.commonservices.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>headers</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/com.ibm.mq.headers.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>mq</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/com.ibm.mq.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>pcf</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/com.ibm.mq.pcf.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>jmqi</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/com.ibm.mq.jmqi.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>mqjms</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/com.ibm.mqjms.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>connector</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/connector.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>dhbcore</artifactId>
+            <version>${wmq-version}</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/dhbcore.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jcca</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.14</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/poi/jcca-poi-3.14.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.jcca</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.14</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/poi/jcca-poi-ooxml-3.14.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.jcca</groupId>
+            <artifactId>poi-schemas</artifactId>
+            <version>3.14</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/poi/jcca-poi-schemas-3.14.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.ipmi</groupId>
+            <artifactId>vxIPMI-sources</artifactId>
+            <version>3.14</version>
+            <scope>system</scope>
+            <systemPath>${plugs-path}/ipmi/vxIPMI.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.7.2</version>
+         <!--   <scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <!-- 编译插件 -->
+    <build>
+        <finalName>nitsm</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <offline>true</offline>
+                    <verbose>true</verbose>
+                    <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${pom.basedir}/src/main/resources/git.properties
+                    </generateGitPropertiesFilename>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

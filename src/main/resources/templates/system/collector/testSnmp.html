@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <div class="layui-form-item" style="margin-top:10px;margin-bottom: 30px;margin-left: 50px">
+        <font  color="#006666" size="5" style="font-family:宋体">测试此采集指标是否可正确采集录入资产</font>
+    </div>
+    <form id="form1" action="/system/collector/testSnmp" method="post">
+        <input type="hidden" name="id" th:if="${perform}" th:value="${perform.id}"/>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">ip</label>
+            <div class="layui-input-block">
+                <input placeholder="请输入资产ip" class="layui-input"
+                       name="ip">[[${perform?.ip}]]</input>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">团体名</label>
+            <div class="layui-input-block">
+                <input placeholder="请输入团体名称" class="layui-input"
+                       name="community">[[${perform?.community}]]</input>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">团体名</label>
+            <div style="margin-left: 60px" class="layui-input-block">
+                <input type="radio" name="type" value="WALK" title="WALK" checked="">
+                <input type="radio" name="type" value="GET" title="GET">
+            </div>
+        </div>
+
+
+
+
+            <button style="margin-left: 130px;margin-top: 10px" class="layui-btn layui-btn-warm" onclick="commanResult()"><i
+                    class="fa fa-check-circle"></i>
+                开始测试
+            </button>
+
+            <button style="margin-top: 10px" class="layui-btn  btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+
+
+    </form>
+</div>
+
+<script>
+    function commanResult() {
+        $.ajax({
+            url: "/system/collector/testSnmp",
+            type: "POST",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: $('#form1').serialize(),
+            async: false
+        }).done(function (list) {
+       /*     for(var i=0;i<list.length;i++){
+                var command = list[i].command;
+                var result=list[i].result;}*/
+        }).fail(function () {
+            alert("error");
+        })
+    }
+</script>
+<script th:replace="/common/template :: script"></script>
+</body>
+
+</html>

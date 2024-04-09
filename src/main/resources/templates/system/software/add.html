@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <style>
+        .dict-value {
+            max-width: 358px;
+            height: 130px;
+            border: 1px solid #e6e6e6;
+        }
+
+        .dict-value:hover,
+        .dict-value:hover .control {
+            border-color: #C9C9C9;
+        }
+
+        .dict-value .control {
+            padding: 4px 8px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .dict-value .control button {
+            margin: 0;
+            border-color: #ffffff;
+        }
+
+        .dict-value .control button:hover {
+            border-color: #888888;
+        }
+
+        .dict-value .control button .fa {
+            margin-right: 4px;
+            color: #888888;
+        }
+
+        .dict-value .control .field-order .fa {
+            margin: 0;
+        }
+
+        .dict-value .control .field-order.active {
+            border-color: #C9C9C9;
+        }
+
+        .dict-value .content {
+            height: 95px;
+            padding: 2px 0;
+            overflow: auto;
+        }
+
+        .dict-value .content .dict-option {
+            margin: 0;
+            padding: 2px 0;
+            display: block;
+            width: 100%;
+            border: none;
+            text-indent: 4px;
+            font-size: 14px;
+        }
+
+        .dict-value .content .dict-option:hover {
+            background-color: rgba(1, 170, 237, 0.17);
+        }
+
+        .dict-value .content .dict-option.active {
+            background-color: rgba(1, 170, 237, 0.37);
+            font-weight: bold;
+        }
+
+        .dict-value .content .dict-option.error {
+            background-color: rgba(255, 16, 0, 0.41);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form th:action="@{/system/software/add}">
+        <input type="hidden" name="id" th:if="${softwareType}" th:value="${softwareType.id}"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">类型名称</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="name" placeholder="" th:value="${softwareType?.name}">
+            </div>
+        </div>
+        <!-- <div class="layui-form-item">
+             <label class="layui-form-label required">配置项value</label>
+             <div class="layui-input-inline">
+                 <input class="layui-input" type="text" name="value" placeholder="请输入配置值" th:value="${config?.value}">
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label required">服务类型</label>
+             <div class="layui-input-inline">
+                 <input class="layui-input" type="text" name="serviceType" placeholder="请输入服务类型" th:value="${config?.serviceType}">
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label required">组织结构</label>
+             <div class="layui-input-inline">
+                 <input class="layui-input" type="text" name="orgId" placeholder="请输入组织结构" th:value="${config?.orgId}">
+             </div>
+         </div>-->
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">类型描述</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea"
+                          name="remark">[[${softwareType?.remark}]]</textarea>
+            </div>
+        </div>
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

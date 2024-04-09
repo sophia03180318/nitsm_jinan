@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="layui-form timo-compile">
+
+    <form th:action="@{/system/redisManager/save}">
+        <input type="hidden" name="key" th:if="${redis}" th:value="${redis.key}"/>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">VALUE<br /><br /><font size="5px" color="red">别<br />动<br />格<br />式<br />!!!  </font></label>
+            <div class="layui-input-block">
+                <textarea style="width: 450px;height: 320px;" placeholder="Hash和Set格式数据暂时不可编辑!" class="layui-textarea" name="value">[[${redis?.value}]]</textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item timo-finally">
+            <button style="margin-left: 180px" class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form id="jarUploadForm" th:action="@{/system/version/manager/save}">
+        <div class="layui-form-item">
+            <label class="layui-form-label required">上传文件：</label>
+        	<button type="button" class="layui-btn" id="jarFile">
+				<i class="layui-icon">&#xe67c;</i>上传文件
+			</button>
+			<i id="jarStyle" class="layui-icon" style="color:#009688;display: none;font-size: 20px;">&#x1005;</i>
+        </div>
+        
+        <input id="jarFileId" type="hidden" name="sysFileId" />
+        <input id="jarFilePath" type="hidden" name="filePath" />
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">版本号：</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="versionNum" placeholder="请输入版本号" >
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">描述：</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入描述信息" class="layui-textarea" name="descStr"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea" name="remark"></textarea>
+            </div>
+        </div>
+        
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+
+<script>
+layui.use('upload', function(){
+	var upload = layui.upload;
+	//执行实例
+	var uploadInst = upload.render({
+	  elem: '#jarFile' //绑定元素
+	  ,url: '/system/version/manager/uploadJar?jarType=stationJar' //上传接口
+	  , field: 'file' //文件域的字段名
+	  ,done: function(res){
+	    //上传完毕回调
+	    var code = res.code;
+	    var msg = res.msg;
+	    var body = res.data;
+	    if(code==200){
+			document.getElementById("jarFileId").value=body.id;
+			document.getElementById("jarFilePath").value=body.filePath;
+			document.getElementById("jarStyle").style.display='inline';
+			
+			layer.msg('上传成功');	 
+	    }else{
+	    	document.getElementById("jarFileId").value='';
+			document.getElementById("jarFilePath").value='';
+	    	document.getElementById("jarStyle").style.display='none';
+	    	layer.msg(msg);
+	    }
+	  }
+	  ,accept: 'file'
+	  ,error: function(){
+	    //请求异常回调
+	    document.getElementById("jarFileId").value='';
+		document.getElementById("jarFilePath").value='';
+	    document.getElementById("jarStyle").style.display='none';
+		layer.msg('上传异常');
+	  }
+	});
+});
+
+</script>
+
+</body>
+</html>

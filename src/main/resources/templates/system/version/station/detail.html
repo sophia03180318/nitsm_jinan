@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <div style="padding: 20px;">
+    	<ul class="layui-timeline" th:each="obj,iterStat:${scheduleList}">
+    		<li class="layui-timeline-item">
+    			<i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+    			<div class="layui-timeline-content layui-text">
+    				<h3 class="layui-timeline-title" th:text="${obj.name}"></h3>
+  				    <p th:text="${obj.remark}">
+			        </p>
+    			</div>
+    		</li>
+    	</ul>
+    </div>
+    
+    <input  id="buttonController" type="hidden" th:value="${showButton}" />
+    <form id="detailForm" th:action="@{/system/version/station/disposeError}">
+    	<input name="stationId" id="stationId" type="hidden" th:value="${stationId}" />
+    	
+	    <div id="showTwo" style="height: 30px;line-height: 30px;display: none;" align="center" >
+	    	 <button id="buttonOne"  class="layui-btn ajax-submit" ><span th:text="${buttonName}" ></span></button>
+	    	 <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+	    </div>
+	    <div id="showOne" style="height: 30px;line-height: 30px;display: none;" align="center" >
+	    	 <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+	    </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+
+<script>
+window.onload=function(){
+	isHiddentButton();	
+}
+
+function isHiddentButton(){
+	var show = document.getElementById("buttonController").value;
+	console.log(show);
+	if(show == 'hidden'){
+		document.getElementById("showOne").style.display='block';
+	}else{
+		document.getElementById("showTwo").style.display='block';
+	}
+}
+
+
+</script>
+
+</body>
+</html>

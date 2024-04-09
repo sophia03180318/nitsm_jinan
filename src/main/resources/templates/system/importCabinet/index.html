@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 机柜导入</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+
+    <div class="layui-row timo-card-screen put-row">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">机房名</label>
+                    <div class="layui-input-block">
+                        <input id="select1"  type="text" name="roomName" th:value="${param.roomName}" placeholder="请输入机房名"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">导入结果</label>
+
+                    <div id="select2" class="layui-input-block timo-search-status">
+                        <select class="timo-search-select" name="status" mo:dict="IMPORT_STATUS"
+                                mo-selected="${param.status}"
+                                mo-empty="全部"></select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layui-btn-normal timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn" id="resetBut" style="margin-left:7px;" data-title="清空"
+                            th:onclick="|resetBut()|">
+                        <i class="fa fa-undo"></i> 清空
+                    </button>
+                </div>
+
+                <button type="button" class="layui-btn layui-btn-warm" style="margin-left:20px;">
+                    <a th:href="@{/system/importCabinet/download}" style="color:white;">
+                        <i class="fa fa-download"></i>下载模板</a>
+                </button>
+
+                <button type="button" class="layui-btn layui-btn-danger" style="margin-left:10px;" id="uploadFile"><i
+                        class="fa fa-plus"></i>上传文件
+                </button>
+
+                <button type="button" class="layui-btn" style="margin-left:10px;" id="import" onclick="myrefresh()"><i
+                        class="fa fa-check"></i>开始导入
+                </button>
+
+                <button class="layui-btn  open-popup  layui-btn-primary layui-border-green" style="margin-left:280px;" data-title="历史任务"  th:attr="data-url=@{/system/importCabinet/log}" data-size="600,570">
+                    <i class="fa fa-list"></i> 历史任务
+                </button>
+            </div>
+        </div>
+
+    <div id=progressBar class="layui-progress layui-progress-big" lay-filter="demo"
+         style="margin-bottom:8px;margin-left:5px;margin-right:5px;">
+        <div id="demo1" class="layui-progress-bar layui-bg-red"></div>
+    </div>
+    <div class="layui-tab-item layui-show" style="margin-left:15px;margin-bottom:15px;"><font color="#006666"
+                                                                                              size="4"
+                                                                                              style="font-family:宋体"><strong
+            id="bar"></strong></font></div>
+
+    <div id=table class="timo-table-wrap">
+        <table class="layui-table timo-table">
+            <thead>
+            <tr>
+                <th class="sortable" data-field="orgName">组织名称</th>
+                <th class="sortable" data-field="roomName">机房名称</th>
+                <th class="sortable" data-field="name">机柜名称</th>
+                <th class="sortable" data-field="status">导入状态</th>
+                <th class="sortable" data-field="ErrorLog">导入日志</th>
+                <th class="sortable" data-field="remark">备注信息</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item:${list}">
+                <td th:text="${item.orgName}">组织名称</td>
+                <td th:text="${item.roomName}">机房名称</td>
+                <td th:text="${item.name}">机柜名称</td>
+                <td th:text="${#dicts.keyValue('IMPORT_STATUS', item.status)}">导入状态</td>
+                <td th:text="${item.ErrorLog}">导入日志</td>
+                <td th:text="${item.remark}">备注信息</td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="/common/fragment :: page"></div>
+</div>
+
+<script>
+    function myrefresh() {
+        window.location.reload();
+        /* $("#progressBar").load(location.href + " #progressBar");
+                 $("#bar").load(location.href + " #bar");
+                 $("#table").load(location.href + " #table");
+              */
+    }
+    window.onload = function () {
+        pmgressBar;
+    };
+    var pmgressBar = layui.use('element', function () {
+        var element = layui.element;
+        $.ajax({
+            url: "/system/importCabinet/pmgressBar",
+            type: "POST",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            async: false
+        }).done(function (dat) {
+            document.getElementById("bar").innerHTML = "  共执行 :" + dat.count + " 条数据,现成功: " + dat.success + " 条,失败: " + dat.fail + " 条!";
+            element.progress('demo', dat.bar)
+            /*$("#demo1").attr("lay-percent", "80%"),*/
+            element.init();
+            if (dat.status == 1) {
+                setTimeout('myrefresh()', 500);
+            }
+        }).fail(function () {
+            alert("进度条获取error");
+        })
+    })
+</script>
+<script>
+    layui.use('upload', function () {
+        var upload = layui.upload;
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#uploadFile'
+            , url: '/system/importCabinet/cabinetImport'
+            , auto: false
+            , size: 10240 //限制文件大小，单位 KB
+            , accept: 'file' //普通文件
+            , exts: 'xlsx|xls' //只允许Execl文件
+            , bindAction: '#import'
+            , done: function (res) {
+                layer.msg('开始导入');
+                console.log(res);
+                //上传完毕回调
+            }
+            , error: function () {
+                //请求异常回调
+            }
+        });
+    });
+</script>
+<script>
+    function resetBut() {
+        $("#select1").val(null).trigger("change");
+        $("#select2").val(null).trigger("change");
+    }
+</script>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

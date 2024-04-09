@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body class="timo-layout-page">
+<div class="layui-card">
+    <div class="layui-card-header timo-card-header">
+        <span><i class="fa fa-bars"></i> 消息模板管理</span>
+        <i class="layui-icon layui-icon-refresh refresh-btn"></i>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-row timo-card-screen">
+            <div class="pull-left layui-form-pane timo-search-box">
+                <div class="layui-inline">
+                    <label class="layui-form-label">模板名称 </label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" th:value="${param.name}" placeholder="请输入模板名称" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">模板标题 </label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" th:value="${param.title}" placeholder="请输入模板标题"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layui-btn-normal timo-search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="pull-right screen-btn-group">
+                <div class="btn-group-right">
+                    <button class="layui-btn open-popup" data-title="添加模板" th:attr="data-url=@{/system/msg/add}"
+                            shiro:hasPermission="system:msg:add" data-size="500,540">
+                        <i class="fa fa-plus"></i> 添加
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="timo-table-wrap">
+            <table class="layui-table timo-table timo-table-fixed">
+                <thead>
+                <tr>
+                    <!--<th class="timo-table-checkbox">
+                        <label class="timo-checkbox"><input type="checkbox">
+                            <i class="layui-icon layui-icon-ok"></i></label>
+                    </th>-->
+                    <th style="width: 12%" data-field="name">模板名称</th>
+                    <th style="width: 12%" data-field="title">模板标题</th>
+                    <th style="width: 28%" data-field="content">模板内容</th>
+                    <th style="width: 12%" data-field="category">模板类别</th>
+                    <th style="width: 12%" data-field="modifyTime">更新时间</th>
+                    <th style="width: 6%" data-field="creator">创建人</th>
+                    <th style="width: 10%">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item:${list}">
+                    <!--<td><label class="timo-checkbox"><input type="checkbox" th:value="${item.id}">
+                        <i class="layui-icon layui-icon-ok"></i></label></td>-->
+                    <td th:text="${item.name}">模板名称</td>
+                    <td th:text="${item.title}">模板标题</td>
+                    <td th:text="${item.content}">模板内容</td>
+                    <td th:text="${item.category}">模板类别</td>
+                    <td th:text="${#dates.format(item.modifyTime, 'yyyy-MM-dd HH:mm:ss')}">更新时间</td>
+                    <td th:text="${item.creator}">创建人</td>
+                    <td>
+                        <a class="open-popup" data-title="编辑模板" th:attr="data-url=@{'/system/msg/edit/'+${item.id}}"
+                           shiro:hasPermission="system:msg:edit"
+                           data-size="500,540" href="#">编辑</a>
+                        <a class="open-popup" data-title="详细信息"
+                           th:attr="data-url=@{'/system/msg/detail/'+${item.id}}"
+                           shiro:hasPermission="system:msg:detail" data-size="800,600"
+                           href="#">详细</a>
+                        <a class="ajax-get" data-msg="您是否确认删除"
+                           th:href="@{/system/msg/status/delete(ids=${item.id})}"
+                           shiro:hasPermission="system:msg:del">删除</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:replace="/common/fragment :: page"></div>
+    </div>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

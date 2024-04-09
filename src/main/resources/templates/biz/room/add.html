@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form th:action="@{/system/room/save}">
+        <input type="hidden" name="id" th:if="${room}" th:value="${room.id}"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">机房名称</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="name" placeholder="可输入多个机房名称，用,分割" th:value="${room?.name}">
+                <span title="添加的时候,用,隔开,可一次性添加多个机房,示例: 机房A,机房B,机房C;编辑的时候,只能编辑一个机房名">提示</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">所属组织</label>
+            <div class="layui-input-inline"> 
+                <input class="layui-input" id="orgTree" th:attr="data-value=${pOrg?.id}"
+                       type="text" name="orgId" placeholder="请输入父级组织" th:value="${pOrg?.id}" lay-filter="orgTree">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea" name="remark">[[${room?.remark}]]</textarea>
+            </div>
+        </div>
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-2.2.4.min.js}"></script>
+<script type="text/javascript" th:src="@{/lib/zTree_v3/js/jquery.ztree.core.min.js}"></script>
+<!----<script type="text/javascript" th:src="@{/js/timoTree.js}"></script> -->
+<!--<script type="text/javascript" th:src="@{/js/module/treeSelect/treeSelect.js}"></script>-->
+<script type="text/javascript">
+    // 编辑时获取所属组织的id
+    var nowId = document.getElementById("orgTree");
+    var nid = nowId.value;
+	layui.config({
+	    base: '../../../js/module/'
+	}).extend({
+	    treeSelect: 'treeSelect/treeSelect'
+	});
+    layui.use(['form','treeSelect'], function () {
+	
+        window.form = layui.form;
+        // 初始化排序下拉选项
+        var pid = $(".select-tree").data('value');
+        if (pid != undefined) {
+            sortRender({id: pid});
+        }
+        var treeSelect= layui.treeSelect;
+        
+        treeSelect.render({
+            // 选择器
+            elem: '#orgTree',
+            // 数据
+            data: '/system/org/list',
+            // 异步加载方式：get/post，默认get
+            type: 'get',
+            // 占位符
+            placeholder: '修改默认提示信息',
+            // 是否开启搜索功能：true/false，默认false
+            search: true,
+            // 点击回调
+            click: function(d){
+            },
+            // 加载完成后的回调函数
+            success: function (d) {
+                console.log(d.data);
+//                选中节点，根据id筛选. 编辑时的回显
+                if(nid) {
+                    treeSelect.checkNode('orgTree', nid);
+                }
+//                获取zTree对象，可以调用zTree方法
+//                var treeObj = treeSelect.zTree('tree');
+//                console.log(treeObj);
+
+//                刷新树结构
+//                treeSelect.refresh();
+            }
+        });
+    });
+
+    // 初始化下拉树
+   // $.fn.selectTree({
+   //     rootTree: '顶级',
+        // 选中后事件
+  //      onSelected: sortRender
+  //  });
+
+    // 更新渲染排序下拉选项
+    function sortRender(treeNode) {
+        var pid = treeNode.id;
+        var sort = $(".select-sort");
+        var id = sort.data('id') ? sort.data('id') : 0;
+        var url = sort.data('url') + "/" + pid + "/" + id;
+        $.get(url, function (result) {
+            var options = '';
+            var sortNum = Object.keys(result).length;
+            if (pid === $(".select-tree").data('value') && sort.data('sort')) {
+                sortNum = sort.data('sort') - 1;
+            }
+            result[0] = "首位";
+            for (var key in result) {
+                var selected = sortNum == key ? "selected=''" : "";
+                options += "<option value='" + key + "' " + selected + ">" + result[key] + "</option>";
+            }
+            sort.html(options);
+            form.render('select');
+        });
+    }
+</script>
+</body>
+</html>

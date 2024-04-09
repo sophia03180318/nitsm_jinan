@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+</head>
+<body>
+
+<div class="layui-form timo-compile">
+    <form th:action="@{/system/export/save}">
+        <input type="hidden" name="id" th:if="${template}" th:value="${template.id}"/>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">模板名</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="templateName" placeholder="请输入模板名称"
+                       th:value="${template?.templateName}">
+            </div>
+        </div>
+
+       <!-- <div class="layui-inline">
+            <label class="layui-form-label required">模板类型</label>
+            <div class="layui-input-block timo-search-status">
+                <select name="type" mo:dict="TEMPLATE_TYPE"
+                        mo-selected="${template?.type}" mo-empty=""
+                ></select>
+            </div>
+        </div>-->
+        <div class="layui-form-item">
+            <label class="layui-form-label">需求字段</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="name" value="name" title="资产名称"  th:checked="checked">
+                <input type="checkbox" name="assetMode" value="assetMode" title="资产类型"
+                       th:checked="checked">
+                <input type="checkbox" name="assetImage" value="assetImage" title="资产型号"
+                       th:checked="checked">
+                <input type="checkbox" name="manufacturerId" value="manufacturerId" title="资产厂商"
+                       th:checked="checked">
+                <input type="checkbox" name="orgId" value="orgId" title="组织机构" th:checked="checked">
+                <input type="checkbox" name="roomId" value="roomId" title="机房"
+                       th:checked="checked">
+                <input type="checkbox" name="cabinetId" value="cabinetId" title="机柜"
+                       th:checked="${template?.cabinetId}eq'cabinetId'">
+                <input type="checkbox" name="startPosition" value="startPosition" title="起始位置"
+                       th:checked="${template?.startPosition}eq'startPosition'">
+                <input type="checkbox" name="endPosition" value="endPosition" title="结束位置"
+                       th:checked="${template?.endPosition}eq'endPosition'">
+                <input type="checkbox" name="ip" value="ip" title="ip地址1" th:checked="${template?.ip}eq'ip'">
+                <input type="checkbox" name="ip2" value="ip2" title="ip地址2" th:checked="${template?.ip2}eq'ip2'">
+                <input type="checkbox" name="assetCode" value="assetCode" title="资产编号"
+                       th:checked="${template?.assetCode}eq'assetCode'">
+                <input type="checkbox" name="watch" value="watch" title="是否监控" th:checked="${template?.watch}eq'watch'">
+                <input type="checkbox" name="showTopo" value="showTopo" title="是否topo显示"
+                       th:checked="${template?.showTopo}eq'showTopo'">
+                <input type="checkbox" name="ntpFlag" value="ntpFlag" title="是否采集系统时间"
+                       th:checked="${template?.ntpFlag}eq'ntpFlag'">
+                <input type="checkbox" name="CR" value="CR" title="是否为核心网络设备"
+                       th:checked="${template?.CR}eq'CR'">
+                <input type="checkbox" name="collectionType" value="collectionType" title="采集类型"
+                       th:checked="${template?.collectionType}eq'collectionType'">
+                <input type="checkbox" name="osUser" value="osUser" title="登录用户名/团体名"
+                       th:checked="${template?.osUser}eq'osUser'">
+                <input type="checkbox" name="osPassword" value="osPassword" title="登录密码"
+                       th:checked="${template?.osPassword}eq'osPassword'">
+                <input type="checkbox" name="ipmiIp" value="ipmiIp" title="管理口ip"
+                       th:checked="${template?.ipmiIp}eq'ipmiIp'">
+                <input type="checkbox" name="ipmiUser" value="ipmiUser" title="管理口账号"
+                       th:checked="${template?.ipmiUser}eq'ipmiUser'">
+                <input type="checkbox" name="ipmiPwd" value="ipmiPwd" title="管理口密码"
+                       th:checked="${template?.ipmiPwd}eq'ipmiPwd'">
+                <input type="checkbox" name="loginPort" value="loginPort" title="登录端口"
+                       th:checked="${template?.loginPort}eq'loginPort'">
+                <input type="checkbox" name="aBFlag" value="aBFlag" title="AB机标识"
+                       th:checked="${template?.aBFlag}eq'aBFlag'">
+                <input type="checkbox" name="operationSystem" value="operationSystem" title="操作系统版本"
+                       th:checked="${template?.operationSystem}eq'operationSystem'">
+                <input type="checkbox" name="onlineTime" value="onlineTime" title="上架时间"
+                       th:checked="${template?.onlineTime}eq'onlineTime'">
+                <input type="checkbox" name="downlineTime" value="downlineTime" title="下架时间"
+                       th:checked="${template?.downlineTime}eq'downlineTime'">
+                <input type="checkbox" name="cpuModel" value="cpuModel" title="CPU型号"
+                       th:checked="${template?.cpuModel}eq'cpuModel'">
+                <input type="checkbox" name="cpuNumber" value="cpuNumber" title="CPU个数"
+                       th:checked="${template?.cpuNumber}eq'cpuNumber'">
+                <input type="checkbox" name="cpuFrequency" value="cpuFrequency" title="CPU主频"
+                       th:checked="${template?.cpuFrequency}eq'cpuFrequency'">
+                <input type="checkbox" name="cpuCoreNumber" value="cpuCoreNumber" title="CPU核数"
+                       th:checked="${template?.cpuCoreNumber}eq'cpuCoreNumber'">
+                <input type="checkbox" name="assetSupplier" value="assetSupplier" title="供货商"
+                       th:checked="${template?.assetSupplier}eq'assetSupplier'">
+                <input type="checkbox" name="runModel" value="runModel" title="主机运行方式"
+                       th:checked="${template?.runModel}eq'runModel'">
+                <input type="checkbox" name="validityDate" value="validityDate" title="质保期限"
+                       th:checked="${template?.validityDate}eq'validityDate'">
+                <input type="checkbox" name="powerTotal" value="powerTotal" title="电源模块个数"
+                       th:checked="${template?.powerTotal}eq'powerTotal'">
+                <input type="checkbox" name="powerModel" value="powerModel" title="电源模块型号"
+                       th:checked="${template?.powerModel}eq'powerModel'">
+                <input type="checkbox" name="diskCapacity" value="diskCapacity" title="单硬盘容量"
+                       th:checked="${template?.diskCapacity}eq'diskCapacity'">
+                <input type="checkbox" name="diskTotal" value="diskTotal" title="硬盘个数"
+                       th:checked="${template?.diskTotal}eq'diskTotal'">
+                <input type="checkbox" name="memory" value="memory" title="内存"
+                       th:checked="${template?.memory}eq'memory'">
+                <input type="checkbox" name="serialNumber" value="serialNumber" title="序列号"
+                       th:checked="${template?.serialNumber}eq'serialNumber'">
+                <input type="checkbox" name="hostNumber" value="hostNumber" title="主机编号"
+                       th:checked="${template?.hostNumber}eq'hostNumber'">
+                <input type="checkbox" name="displayerTotal" value="displayerTotal" title="连接显示器数量"
+                       th:checked="${template?.displayerTotal}eq'displayerTotal'">
+                <input type="checkbox" name="displayerPortModel" value="displayerPortModel" title="视频线接口类型"
+                       th:checked="${template?.displayerPortModel}eq'displayerPortModel'">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea" name="remark">[[${template?.remark}]]</textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item timo-finally" >
+            <button style="margin-left: 180px" class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+
+<script th:replace="/common/template :: script"></script>
+</body>
+
+</html>

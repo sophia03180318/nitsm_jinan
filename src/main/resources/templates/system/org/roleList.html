@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <style>
+        a {
+            color: #009688;
+        }
+
+        a:hover {
+            color: #004a43;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="timo-detail-page">
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>角色名称</th>
+            <th>角色标识</th>
+            <th>角色状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item:${list}">
+            <td>[[${item?.title}]]</td>
+            <td>[[${item?.name}]]</td>
+            <td>正常</td>
+            <td><a class="open-popup" data-title="详细信息" th:attr="data-url=@{'/system/role/detail/'+${item.id}}"
+                   data-size="800,600" href="#">查看</a></td>
+        </tr>
+        <tr th:if="${list.isEmpty()}">
+            <td style="text-align: center" colspan="4">没有给该组织分配角色</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

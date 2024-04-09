@@ -1,0 +1,193 @@
+package com.jcca.dataProcessing.dataAdpater;
+
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
+import com.jcca.common.log.annotation.MyLogback;
+import com.jcca.common.log.constant.LogFunctionConstant;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.MyIdUtil;
+import com.jcca.component.enums.ThreadPoolEnum;
+import com.jcca.dataProcessing.Entity.CollectRaidSystemFattenEntity;
+import com.jcca.dataProcessing.Entity.DiskEntity;
+import com.jcca.dataProcessing.enums.CollectConst;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.dataProcessing.manager.DataProcessManager;
+import com.jcca.dataProcessing.manager.IEventInfoManagerService;
+import com.jcca.dataProcessing.support.IAdapter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static com.jcca.web.asset.controller.ApiRaidController.getNetFileSizeDescription;
+import static java.lang.Long.parseLong;
+
+/**
+ * @author sophia
+ * @description TODO 宏杉存储信息适配器
+ * @className RaidInfoAdapter
+ * @date 2023/10/20 16:28
+ * @since 2.1.0.0
+ */
+@Slf4j
+@Component("HsRaidInfoAdapter")
+public class HsRaidInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
+    @Resource(name = "dataProcessManager")
+    private DataProcessManager dataProcessManager;
+    @Resource(name = ThreadPoolEnum.thresholdDataDisposePool)
+    private ThreadPoolExecutor thresholdDisposePool;
+
+
+    @Resource
+    private IEventInfoManagerService eventInfoChangeManagerService;
+    ThreadPoolExecutor excutorService = new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
+
+    @Override
+    public void dispose(JSONArray data) {
+
+        List<CollectRaidSystemFattenEntity> beanList = JSONUtil.toList(data, CollectRaidSystemFattenEntity.class);
+        CollectRaidSystemFattenEntity collectRaidSystemFattenEntity = beanList.get(0);
+
+        eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_storage.getCode(), "monitor", true);
+        excutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+
+                List<DiskEntity> drivers = collectRaidSystemFattenEntity.getDrives();
+                List<DiskEntity> groupList = collectRaidSystemFattenEntity.getGroupList();
+                List<DiskEntity> mdiskList = collectRaidSystemFattenEntity.getMdiskList();
+                List<DiskEntity> vdiskList = collectRaidSystemFattenEntity.getVdiskList();
+                Integer size = drivers.size() + groupList.size() + mdiskList.size() + vdiskList.size() + 1;
+
+                CountDownLatch cdh = new CountDownLatch(size);
+                if (true) {
+                    Long time = collectRaidSystemFattenEntity.getCollectTime();
+                    DiskEntity diskEntity = new DiskEntity();
+                    diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
+                    diskEntity.setCapacity(collectRaidSystemFattenEntity.getTotalCapacity());
+                    diskEntity.setCapacityStr(getNetFileSizeDescription(parseLong(collectRaidSystemFattenEntity.getTotalCapacity())));
+                    diskEntity.setUsedCapacity(collectRaidSystemFattenEntity.getUsedCapacity());
+                    diskEntity.setUsedCapacityStr(getNetFileSizeDescription(parseLong(collectRaidSystemFattenEntity.getUsedCapacity())));
+                    diskEntity.setDiskType(3);
+                    diskEntity.setId(MyIdUtil.getId());
+                    diskEntity.setCollectTime(time);
+                    diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            dataProcessManager.raidInfoHandlerRequest(diskEntity);
+                        } catch (Exception e) {
+                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + diskEntity.getAssetIp() + "raidInfoHandlerRequest 抛出异常", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+                }
+
+
+                for (int i = 0; i < groupList.size(); i++) {
+                    DiskEntity diskEntity = groupList.get(i);
+                    diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
+                    diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
+                    diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
+
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            setAssetIp(diskEntity);
+                            dataProcessManager.raidInfoHandlerRequest(diskEntity);
+                        } catch (Exception e) {
+                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + diskEntity.getAssetIp() + "raidInfoHandlerRequest 抛出异常", e);
+
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+
+                }
+                for (int i = 0; i < mdiskList.size(); i++) {
+                    DiskEntity diskEntity = mdiskList.get(i);
+                    diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
+                    diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
+                    diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
+
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            setAssetIp(diskEntity);
+                            dataProcessManager.raidInfoHandlerRequest(diskEntity);
+                        } catch (Exception e) {
+                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + diskEntity.getAssetIp() + "raidInfoHandlerRequest 抛出异常", e);
+
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+
+                }
+                for (int i = 0; i < drivers.size(); i++) {
+                    DiskEntity diskEntity = drivers.get(i);
+                    diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
+                    diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
+                    diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
+
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            setAssetIp(diskEntity);
+                            dataProcessManager.raidInfoHandlerRequest(diskEntity);
+                        } catch (Exception e) {
+                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + diskEntity.getAssetIp() + "raidInfoHandlerRequest 抛出异常", e);
+
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+
+                }
+
+                for (int i = 0; i < vdiskList.size(); i++) {
+                    DiskEntity diskEntity = vdiskList.get(i);
+                    diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
+                    diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
+                    diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            setAssetIp(diskEntity);
+                            dataProcessManager.raidInfoHandlerRequest(diskEntity);
+                        } catch (Exception e) {
+                            log.error("红杉存储处理错误", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+
+                }
+                try {
+                    cdh.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+    @Override
+    public String getCode() {
+        return CollectConst.HS_RAID_SYSTEM_MSG;
+    }
+    @Override
+    @MyLogback(code = LogFunctionConstant.DATA_PROCESS)
+    public String dataProcess(){
+        return "当前剩余处理数量：" + excutorService.getQueue().size();
+    }
+
+}

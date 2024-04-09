@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+</head>
+<body>
+<div class="timo-detail-page">
+    <div class="timo-detail-title">基本信息</div>
+    <table class="layui-table timo-detail-table">
+        <colgroup>
+            <col width="100px">
+            <col>
+            <col width="100px">
+            <col>
+        </colgroup>
+        <tbody>
+        <tr>
+            <th>主键ID</th>
+            <td th:text="${org.id}"></td>
+            <th>组织名称</th>
+            <td th:text="${org.title}"></td>
+        </tr>
+        <tr>
+            <th>父级编号</th>
+            <td th:text="${org.pid}"></td>
+            <th>排序</th>
+            <td th:text="${org.sort}"></td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+            <th>创建时间</th>
+            <td th:text="${#dates.format(org.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <th>更新时间</th>
+            <td th:text="${#dates.format(org.modifyTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+            <th>创建者</th>
+            <td th:text="${org.creator}"></td>
+            <th>更新者</th>
+            <td th:text="${org.modifier}"></td>
+        </tr>
+        <tr>
+            <th>类型</th>
+            <td th:text="${#dicts.keyValue('ORG_TYPE', org.type)}"></td>
+            <th>备注</th>
+            <td th:text="${org.remark}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <div th:replace="/common/fragment :: log(${org})"></div>
+</div>
+<script th:replace="/common/template :: script"></script>
+</body>
+</html>

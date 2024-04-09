@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/hanwone">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/plugins/font-awesome-4.7.0/css/font-awesome.min.css}" media="all">
+    <link rel="stylesheet" th:href="@{/lib/layui-v2.3.0/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/css/main.css}" media="all">
+    <script type="text/javascript" src="/js/plugins/jquery-3.3.1.min.js"></script>
+    <script src="/lib/layui-v2.3.0/layui.all.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="layui-form timo-compile">
+
+    <form th:action="@{/system/collector/save}">
+        <input type="hidden" name="id" th:if="${template}" th:value="${template.id}"/>
+
+        <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label required">适配类型</label>
+            <div style="width: 150px" class="layui-input-block timo-search-status">
+                <select name="assetMode"
+                        mo:dict="COLLECTOR_ASSET_MODE"
+                        mo-selected="${template?.assetMode}" mo-empty=""
+                ></select>
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label required">适配型号</label>
+            <div style="width: 180px" class="layui-input-block timo-search-status">
+                <select name="assetImage"
+                        mo:dict="COLLECTOR_ASSET_IMAGE"
+                        mo-selected="${template?.assetImage}" mo-empty=""
+                ></select>
+            </div>
+        </div>
+        </div>
+
+        <div style="margin-top: 20px" class="layui-form-item">
+            <div class="layui-inline">
+
+                <!--
+                 <label class="layui-form-label required">适配厂家</label>
+                <div style="width: 150px" class="layui-input-block timo-search-status">
+                    <select name="manufacturerId" mo:dict="ASSET_FACTORY"
+                            mo-selected="${template?.manufacturerId}" mo-empty=""
+                    ></select>
+                </div>-->
+                <label class="layui-form-label required">适配厂家</label>
+                <div class="layui-input-inline">
+                    <select name="manufacturerId" lay-search lay-filter="manufacturerList" id="manufacturerList"></select>
+                </div>
+            </div>
+            <div class="layui-inline">
+            <label class="layui-form-label required">操作系统</label>
+            <div style="width: 180px" class="layui-input-block timo-search-status">
+                <select name="systemType" mo:dict="SYSTEM_TYPE"
+                        mo-selected="${template?.systemType}" mo-empty=""
+                ></select>
+            </div>
+            </div>
+        </div>
+        <div style="margin-top: 20px" class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label required">执行代码</label>
+                <div style="width: 455px" class="layui-input-block timo-search-status">
+                    <select name="specId" mo:dict="SPEC_DICT"
+                            mo-selected="${template?.specId}" mo-empty=""
+                    ></select>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div  class="layui-input-block">
+                <textarea style="width:455px" placeholder="请输入内容" class="layui-textarea" name="remark">[[${template?.remark}]]</textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item timo-finally" >
+            <button style="margin-left: 180px" class="layui-btn ajax-submit"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script th:inline="javascript">
+
+    layui.use(['form'], function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+        var manufacturer = [[${manufacturer}]];
+        var manufacturerId = "";
+        if (manufacturer) {
+            manufacturerId = manufacturer.id;
+        }
+
+        $.post("/system/collector/manufacturerList", "", function (result) {
+            var list = result.data;
+            $("#manufacturerList").empty();
+            $("#manufacturerList").append("<option value=''>请选择</option>");
+            for (var k in list) {
+                let id = list[k].id;
+                var option = "<option data-code='" + list[k].title + "' value='" + id + "'>" + list[k].name + "</option>";
+                if (manufacturerId == id) {
+                    option = "<option data-code='" + list[k].title + "' value='" + id + "' selected>" + list[k].name + "</option>";
+                }
+                $("#manufacturerList").append(option);
+            }
+            form.render();
+        });
+
+        form.on('select(manufacturerList)', function (data) {
+
+        });
+
+    });
+
+
+    function setSecond() {
+        var val =  document.getElementById('frist').innerText;
+        alert(val)
+        var sec = document.getElementById('second');
+        sec.options[0] = new Option("PUB", "PUB");
+        if (val == '183') {
+            sec.options[2]=newOption("IBM3650","IBM3650");
+            sec.options[3]=newOption("IBM3750","IBM3750");
+            sec.options[4]=newOption("IBM3850","IBM3850");
+            sec.options[5]=newOption("SR550","SR550");
+            sec.options[6]=newOption("SR650","SR650");
+            sec.options[7]=newOption("SR860","SR860");
+            sec.options[8]=newOption("SR860","SR860");
+            sec.options[9]=newOption("ThinkStationP720","ThinkStationP720");
+            sec.options[10]=newOption("ThinkStationC30","ThinkStationC30");
+            sec.options[11]=newOption("IBMp870","IBMp870");
+            sec.options[12]=newOption("IBMp720p750","IBMp720p750");
+            sec.options[13]=newOption("IBMp570","IBMp570");
+            sec.options[14]=newOption("浪潮980","浪潮980");
+            sec.options[15]=newOption("YH610L","YH610L");
+            sec.options[16]=newOption("YH610H","YH610H");
+        } else if (val == '42') {
+            sec.options[2]=newOption("ASR1006","ASR1006");
+            sec.options[3]=newOption("CISCO2900","CISCO2900");
+            sec.options[4]=newOption("CISCO7200","CISCO7200");
+            sec.options[5]=newOption("CISCO3925","CISCO3925");
+            sec.options[6]=newOption("CISCO4431","CISCO4431");
+            sec.options[7]=newOption("CISCO3800","CISCO3800");
+            sec.options[8]=newOption("CISCO3845C","CISCO3845C");
+            sec.options[9]=newOption("H3CMSR3610","H3CMSR3610");
+            sec.options[10]=newOption("HUAWEIAIR1200","HUAWEIAIR1200");
+            sec.options[11]=newOption("H3CMSR2630","H3CMSR2630");
+        } else if (val == '201') {
+            sec.options[2]=newOption("CISCO3650","CISCO3650");
+            sec.options[3]=newOption("CISCO3750","CISCO3750");
+            sec.options[4]=newOption("CISCO3850","CISCO3850");
+            sec.options[5]=newOption("CISCO3900","CISCO3900");
+            sec.options[6]=newOption("CISCO4506","CISCO4506");
+            sec.options[7]=newOption("CISCO4948","CISCO4948");
+            sec.options[8]=newOption("CISCON7K","CISCON7K");
+            sec.options[9]=newOption("MOXA","MOXA");
+        }else{
+            sec.options[1] = new Option("oracle", "oracle");
+        }
+        element.init();
+    }
+</script>
+
+</body>
+
+</html>
