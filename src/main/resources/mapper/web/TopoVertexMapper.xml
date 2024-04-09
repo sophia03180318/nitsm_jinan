@@ -65,7 +65,7 @@
         <if test="name != null and name != ''">
             and REGEXP_LIKE(t.name, #{name})
         </if>
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
 
@@ -88,7 +88,7 @@
         <if test="name != null and name != ''">
             and REGEXP_LIKE(t.name, #{name})
         </if>
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
 
@@ -104,7 +104,7 @@
         <if test="name != null and name != ''">
             and REGEXP_LIKE(t.name, #{name})
         </if>
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
     <select id="selectNetworkAssetTopoNodeByAsset"
@@ -162,7 +162,7 @@
           and t.SHOW_TOPO = 1
           and (t.ASSET_MODE = #{mode1} or t.ASSET_MODE = #{mode2})
           and IS_DEL = 1
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
     <select id="selectNodeAlarmLevelByAsset2"
@@ -200,7 +200,7 @@
           and (t.ASSET_MODE = #{mode1} or t.ASSET_MODE = #{mode2} or t.ASSET_MODE = 183 or t.ASSET_MODE = 318)
 
           and IS_DEL = 1
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
     <select id="topoNetWorkVertexStatus"
             resultType="com.jcca.web.graph.vo.TopoVertexAlarmStatusVo">
@@ -218,7 +218,7 @@
 
         where IS_DEL = 1
           and v.is_port is null
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
 
@@ -257,7 +257,7 @@
         and t.IS_DEL = 1
         and v.is_port is null
         and v.NODE_TYPE= #{nodeType}
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
     <select id="selectPcTopoNodeAlarmLevelByAsset"
@@ -286,7 +286,7 @@
           and t.DESK = 1831
           and v.NODE_TYPE = #{nodeType}
           and IS_DEL = 1
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
     <select id="selectNetWorkTopoNodeAlarmLevelByAsset"
@@ -314,7 +314,7 @@
         where t.ORG_ID = #{orgId}
           and t.SHOW_TOPO = 1
           and IS_DEL = 1
-        order by v.name
+        order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
     <select id="selectNodeAlarmLevelByCabnet"

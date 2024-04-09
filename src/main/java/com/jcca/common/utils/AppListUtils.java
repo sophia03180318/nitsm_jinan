@@ -8,6 +8,8 @@ import java.util.List;
 public class AppListUtils {
 
     public static List<List<String>> inSplit(List<String> resources, Integer size) {
+        //统一改 达梦支持600以内
+        size = 600;
         List<List<String>> resp = new ArrayList<List<String>>();
         List<String> itemList = new ArrayList<String>();
         for (String item : resources) {

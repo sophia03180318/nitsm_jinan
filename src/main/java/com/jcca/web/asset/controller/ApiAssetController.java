@@ -210,7 +210,7 @@ public class ApiAssetController {
      * @param assetId
      * @return
      */
-    @GetMapping("/queryPortUsedMsg")
+    @GetMapping("/`queryPortUsedMsg`")
     public ResultVo<?> queryPortUsedMsg(String assetId) {
         QueryWrapper<CollectPort> queryWrapper = new QueryWrapper<CollectPort>();
         queryWrapper.eq("ASSET_ID", assetId);
@@ -415,14 +415,14 @@ public class ApiAssetController {
 
         if (Objects.nonNull(assetQueryReq.getSort()) && !assetQueryReq.getSort().isEmpty()) {
             if (Objects.nonNull(assetQueryReq.getOrder()) && assetQueryReq.getOrder().equals("ascending")) {
-                wrapper.orderByAsc(assetQueryReq.getSort(), "cast(id as integer)");
+                wrapper.orderByAsc(assetQueryReq.getSort(), "id");
                 wrapper.orderByDesc("modify_time");
             } else {
-                wrapper.orderByDesc(assetQueryReq.getSort(), "modify_time", "cast(id as integer)");
+                wrapper.orderByDesc(assetQueryReq.getSort(), "modify_time", "id");
             }
         } else {//descending
             wrapper.orderByDesc("modify_time");
-            wrapper.orderByAsc("cast(id as integer)");
+            wrapper.orderByAsc("id");
         }
 
         if (Objects.nonNull(assetQueryReq.getMonitorStatus())) {

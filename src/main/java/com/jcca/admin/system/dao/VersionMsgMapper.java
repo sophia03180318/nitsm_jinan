@@ -15,7 +15,7 @@ import java.util.List;
 @Mapper
 public interface VersionMsgMapper extends BaseMapper<VersionMsg> {
 
-    @Select("select * from M_VERSION_MSG where id = (select max(cast(id as integer)) from M_VERSION_MSG)")
+    @Select("select * from M_VERSION_MSG where id = (select max(id) from M_VERSION_MSG)")
     VersionMsg selectMaxVersion();
 
     /**

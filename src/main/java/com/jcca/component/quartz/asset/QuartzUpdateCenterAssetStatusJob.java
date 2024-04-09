@@ -88,7 +88,7 @@ public class QuartzUpdateCenterAssetStatusJob extends QuartzJobBean {
             return;
         }
 
-        List<List<Asset>> inSplitAsset = AppListUtils.inSplitAsset(assetList, 900);
+        List<List<Asset>> inSplitAsset = AppListUtils.inSplitAsset(assetList, 800);
         for (List<Asset> list : inSplitAsset) {
             assetServ.updateBatchById(list);
         }

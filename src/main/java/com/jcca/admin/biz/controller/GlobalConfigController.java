@@ -121,7 +121,9 @@ public class GlobalConfigController {
     @ResponseBody
     @ActionLog(name = "保存配置信息", title = "系统配置", key = LogTypeConstant.ADD)
     public ResultVo save(SysModuleConfig config) {
-
+        if(StrUtil.isEmpty(config.getName())||StrUtil.isEmpty(config.getValue())||StrUtil.isEmpty(config.getOrgId())){
+            return ResultVoUtil.error("缺少必填参数");
+        }
         config.setCreator(ShiroUtil.getSubject().getUsername());
         config.setCreateTime(new Date());
         if (StrUtil.isNotBlank(config.getId())) {

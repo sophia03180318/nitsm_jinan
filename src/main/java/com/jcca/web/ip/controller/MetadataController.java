@@ -758,8 +758,10 @@ public class MetadataController {
     private String getCreateTableComman(String str) {
         String c1 = str.replace("\"ITSM\".", "");
         int tablespace = c1.indexOf("TABLESPACE");
-
-        String c2 = c1.substring(0, tablespace) + ");";
+        String c2 = c1;
+        if(tablespace>0||tablespace==0){
+            c2 = c1.substring(0, tablespace) + ");";
+        }
 
         return c2;
     }

@@ -22,7 +22,7 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param orgId
      * @return
      */
-    @Select("select * from M_STATION_VERSION_LOG  where id = (select max(CAST(id as integer)) from M_STATION_VERSION_LOG where STATION_ID = #{orgId})")
+    @Select("select * from M_STATION_VERSION_LOG  where id = (select max(id) from M_STATION_VERSION_LOG where STATION_ID = #{orgId})")
     StationVersionLog selectLasterLogByStationId(@Param("orgId") String orgId);
 
     /**
@@ -59,7 +59,7 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param jarName
      * @return
      */
-    @Select("select * from M_STATION_VERSION_LOG e where id = (select max(CAST(id as integer)) from M_STATION_VERSION_LOG t where t.STATION_ID = #{stationId} and t.STATUS = 'UPDATE_SUCCESS' and t.JAR_NAME=#{jarName})")
+    @Select("select * from M_STATION_VERSION_LOG e where id = (select max(id) from M_STATION_VERSION_LOG t where t.STATION_ID = #{stationId} and t.STATUS = 'UPDATE_SUCCESS' and t.JAR_NAME=#{jarName})")
     StationVersionLog lastLog(@Param("stationId") String stationId, @Param("jarName") String jarName);
 
     /**
@@ -68,7 +68,7 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param stationId
      * @param id
      */
-    @Select("select * from M_STATION_VERSION_LOG e where id = (select max(CAST(id as integer)) from M_STATION_VERSION_LOG t where t.STATION_ID = #{stationId} and t.STATUS = 'UPDATE_SUCCESS' and t.VERSION_MSG_ID=#{versionMsgId})")
+    @Select("select * from M_STATION_VERSION_LOG e where id = (select max(id) from M_STATION_VERSION_LOG t where t.STATION_ID = #{stationId} and t.STATUS = 'UPDATE_SUCCESS' and t.VERSION_MSG_ID=#{versionMsgId})")
     StationVersionLog selectBySuccessLog(@Param("versionMsgId") String versionMsgId, @Param("stationId") String stationId);
 
 

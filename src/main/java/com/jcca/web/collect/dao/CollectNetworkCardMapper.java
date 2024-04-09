@@ -40,7 +40,7 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
      * @param atPhysAddress
      * @return
      */
-    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.id=(SELECT MAX(cast(id as INTEGER)) AS code FROM COLLECT_NETWORK_CARD WHERE MAC_ADDRESS=#{atPhysAddress})")
+    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.id=(SELECT MAX(id) AS code FROM COLLECT_NETWORK_CARD WHERE MAC_ADDRESS=#{atPhysAddress})")
     CollectNetworkCard selectByMacAddress(@Param("atPhysAddress") String atPhysAddress);
 
     /**

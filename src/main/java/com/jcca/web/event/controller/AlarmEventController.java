@@ -156,7 +156,7 @@ public class AlarmEventController {
             queryWrapper.like("EVENT_MSG", req.getOrgMsg());
         }
 
-        queryWrapper.orderByDesc("cast(ID as integer)");
+        queryWrapper.orderByDesc("ID");
 
         IPage<AlarmEvent> pageResult = eventServ.page(page, queryWrapper);
         List<AlarmEvent> records = pageResult.getRecords();

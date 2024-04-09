@@ -128,10 +128,10 @@ public class IpControllerV2 {
                 ipVo.setStatus(IpStatusEnum.ALLOT.getCode());
             }
         }
+
         List<IpVo> sortList = ipList.stream().sorted(Comparator.comparing(IpVo::getIpNumSort))
                 .collect(Collectors.toList());
         return ResultVoUtil.success(sortList);
-
     }
 
     /**
@@ -181,7 +181,6 @@ public class IpControllerV2 {
                 String ipNumStr = ipArr[ipArr.length - 1];
                 ipVo.setIpNumSort(Integer.valueOf(ipNumStr));
                 ipVo.setIpNum(ipNumStr);
-
                 if (StringUtils.isEmpty(ipMsg.getRemark())) {
                     ipVo.setStatus(IpStatusEnum.ALLOT.getCode());
                 } else {
@@ -189,6 +188,7 @@ public class IpControllerV2 {
                 }
                 ipList.add(ipVo);
             }
+
             List<IpVo> sortList = ipList.stream().sorted(Comparator.comparing(IpVo::getIpNumSort))
                     .collect(Collectors.toList());
 

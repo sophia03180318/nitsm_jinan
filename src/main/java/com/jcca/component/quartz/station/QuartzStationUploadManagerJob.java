@@ -43,7 +43,7 @@ public class QuartzStationUploadManagerJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         QueryWrapper<StationVersionLog> queryWrapper = new QueryWrapper<StationVersionLog>();
         queryWrapper.eq("STATUS", StationVersionStatusEnum.AWAIT_UPLOADING.name());
-        queryWrapper.orderByAsc("CAST(id as integer)");
+        queryWrapper.orderByAsc("id");
         List<StationVersionLog> needUploadList = versionLogServ.list(queryWrapper);
 
         if (!needUploadList.isEmpty()) {

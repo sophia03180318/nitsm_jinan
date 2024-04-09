@@ -40,7 +40,12 @@ public class IpVo {
      */
     private String ipNum;
 
+    /**
+     * ip的最后一位
+     */
     private Integer ipNumSort;
+
+
     /**
      * ip上的设备ID
      */

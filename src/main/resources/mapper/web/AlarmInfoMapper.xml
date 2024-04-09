@@ -206,7 +206,7 @@
                     <foreach collection="query.assetIdList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR a.ASSET_ID IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -282,7 +282,7 @@
                     <foreach collection="query.alarmLevelList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR a.ALARM_LEVEL IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -301,7 +301,7 @@
                     <foreach collection="query.orgIdList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR c.id  IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -321,7 +321,7 @@
                     <foreach collection="query.assetDeskList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR b.DESK IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -339,7 +339,7 @@
                     <foreach collection="query.alarmCodeList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR a.ALARM_LEVEL IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -358,7 +358,7 @@
                     <foreach collection="query.assetIdList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR a.ASSET_ID IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -441,7 +441,7 @@
                     <foreach collection="assetIdList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
-                                <when test="index % 1000 == 999">
+                                <when test="index % 1000 == 600">
                                     ) OR a.ASSET_ID IN (
                                 </when>
                                 <otherwise>,</otherwise>
@@ -652,7 +652,7 @@
                 <foreach collection="alarmLevelList" item="Id" index="index" open="(" close=")">
                     <if test="index != 0">
                         <choose>
-                            <when test="index % 1000 == 999">
+                            <when test="index % 1000 == 600">
                                 ) OR i.ALARM_LEVEL IN (
                             </when>
                             <otherwise>,</otherwise>
@@ -671,7 +671,7 @@
                 <foreach collection="alarmCodeList" item="Id" index="index" open="(" close=")">
                     <if test="index != 0">
                         <choose>
-                            <when test="index % 1000 == 999">
+                            <when test="index % 1000 == 600">
                                 ) OR i.ALARM_LEVEL IN (
                             </when>
                             <otherwise>,</otherwise>

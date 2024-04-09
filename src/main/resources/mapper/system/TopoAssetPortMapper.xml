@@ -68,6 +68,7 @@
         <if test="pcbId != null  and pcbId != ''">
             and t.PCB_ID = #{pcbId}
         </if>
+        order by t.point_x asc ,t.point_y asc
     </select>
 
 
@@ -97,6 +98,8 @@
         <if test="pcbId != null  and pcbId != ''">
             and t.PCB_ID = #{pcbId}
         </if>
+
+        order by t.point_x asc ,t.point_y asc
     </select>
 
     <select id="selectSonList" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">

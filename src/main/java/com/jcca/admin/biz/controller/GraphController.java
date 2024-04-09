@@ -354,6 +354,11 @@ public class GraphController {
         return ResultVoUtil.success(list);
     }
 
+    /**
+     * 主要是查询对端连接信息表中有没有对端的连接信息
+     * @param assetTargetVo
+     * @return
+     */
     @PostMapping("/queryPortIScorrect")
     @ApiOperation(value = "查询端口连线的正确性")
     @ResponseBody

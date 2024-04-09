@@ -180,7 +180,7 @@ public class AlarmEventTypeController extends ListenerManager {
     ResultVo<?> getAll() {
         QueryWrapper<AlarmEventType> queryWrapper = new QueryWrapper<AlarmEventType>();
         queryWrapper.eq("STATUS", 1);
-        queryWrapper.orderByAsc("cast(id as integer)");
+        queryWrapper.orderByAsc("id");
         List<AlarmEventType> result = eventTypeServ.list(queryWrapper);
 
         return ResultVoUtil.success(result);

@@ -80,7 +80,7 @@ public interface CollectInterfacesMapper extends BaseMapper<CollectInterfaces> {
      * @param portIndexRank
      * @return
      */
-    @Select("select * from COLLECT_INTERFACES e where e.id = (select max(cast(id as INTEGER)) from COLLECT_INTERFACES where ASSET_ID=#{assetId} and PORT_INDEX_RANK = #{portIndexRank} )")
+    @Select("select * from COLLECT_INTERFACES e where e.id = (select max(id) from COLLECT_INTERFACES where ASSET_ID=#{assetId} and PORT_INDEX_RANK = #{portIndexRank} )")
     CollectInterfaces selectByAssetIdAndPortRank(@Param("assetId") String assetId, @Param("portIndexRank") String portIndexRank);
 
 

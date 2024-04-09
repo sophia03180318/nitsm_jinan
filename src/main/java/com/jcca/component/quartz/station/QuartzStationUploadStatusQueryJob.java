@@ -30,7 +30,7 @@ public class QuartzStationUploadStatusQueryJob extends QuartzJobBean {
         // 调用车站接口查询更新情况
         QueryWrapper<StationVersionLog> queryWrapper = new QueryWrapper<StationVersionLog>();
         queryWrapper.eq("STATUS", StationVersionStatusEnum.UPDATEING.name());
-        queryWrapper.orderByAsc("CAST(id as integer)");
+        queryWrapper.orderByAsc("id");
 
         List<StationVersionLog> needUploadList = versionLogServ.list(queryWrapper);
         for (StationVersionLog item : needUploadList) {

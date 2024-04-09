@@ -36,7 +36,7 @@ public class QuartzStationCommandJob extends QuartzJobBean {
         // 调用车站接口开始发起更新jar
         QueryWrapper<StationVersionLog> queryWrapper = new QueryWrapper<StationVersionLog>();
         queryWrapper.eq("STATUS", StationVersionStatusEnum.UPLOAD_OK.name());
-        queryWrapper.orderByAsc("CAST(id as integer)");
+        queryWrapper.orderByAsc("id");
         List<StationVersionLog> needUploadList = versionLogServ.list(queryWrapper);
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, "待发起更新车站："+ JSONUtil.toJsonStr(needUploadList),"开始向车站发起jar更新命令~");

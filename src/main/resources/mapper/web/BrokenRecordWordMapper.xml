@@ -138,7 +138,7 @@
                 <foreach collection="alarmLevelList" item="Id" index="index" open="(" close=")">
                     <if test="index != 0">
                         <choose>
-                            <when test="index % 1000 == 999">
+                            <when test="index % 1000 == 600">
                                 ) OR i.ALARM_LEVEL IN (
                             </when>
                             <otherwise>,</otherwise>
@@ -157,7 +157,7 @@
                 <foreach collection="alarmCodeList" item="Id" index="index" open="(" close=")">
                     <if test="index != 0">
                         <choose>
-                            <when test="index % 1000 == 999">
+                            <when test="index % 1000 == 600">
                                 ) OR i.ALARM_LEVEL IN (
                             </when>
                             <otherwise>,</otherwise>

@@ -50,7 +50,7 @@ public class QuartzHourInterfacesJob extends QuartzJobBean {
         calendar.add(Calendar.MINUTE, -30);
         Date now = calendar.getTime();
         QueryWrapper<CollectInterfaces> collectWrapper = new QueryWrapper<CollectInterfaces>();
-
+        collectWrapper.in("PORT_TYPE",Arrays.asList(6,18,22,23,339,56));
         if (Objects.isNull(lastCreateDate)) {
             collectWrapper.orderByAsc("COLLECT_TIME");
             collectWrapper.lt("CREATE_TIME", now);

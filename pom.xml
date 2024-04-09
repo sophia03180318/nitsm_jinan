@@ -15,7 +15,7 @@
     <artifactId>nitsm</artifactId>
     <version>2.0.0.0</version>
     <packaging>jar</packaging>
-    <name>nitsm_preview</name>
+    <name>nitsm_jinan</name>
     <description>ITSM监控系统2.1版本</description>
 
     <properties>
@@ -162,6 +162,14 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+		<!-- dameng -->
+		<dependency>
+			<groupId>DmJdbcDriver18</groupId>
+			<artifactId>DmJdbcDriver18</artifactId>
+			<version>18</version>
+			<scope>system</scope>
+			<systemPath>${plugs-path}/dm/DmJdbcDriver18.jar</systemPath>
+		</dependency>
 
         <!--解决编译时javax.annotation.meta.When不存在问题 -->
         <dependency>

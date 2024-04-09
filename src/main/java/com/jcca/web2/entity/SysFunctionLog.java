@@ -27,9 +27,11 @@ public class SysFunctionLog extends Model<SysFunctionLog> implements java.io.Ser
     private String actionCode;
 
     // LogFunctionEnum
-    private String function;
+    @TableField(value = "FUNCTION_NAME")
+    private String functionName;
 
-    private String action;
+    @TableField(value = "ACTION_NAME")
+    private String actionName;
 
     private Integer status;
 
@@ -74,19 +76,19 @@ public class SysFunctionLog extends Model<SysFunctionLog> implements java.io.Ser
     }
 
     public String getFunction() {
-        return function;
+        return functionName;
     }
 
     public void setFunction(String function) {
-        this.function = function;
+        this.functionName = function;
     }
 
     public String getAction() {
-        return action;
+        return actionName;
     }
 
     public void setAction(String action) {
-        this.action = action;
+        this.actionName = action;
     }
 
     public Integer getStatus() {
