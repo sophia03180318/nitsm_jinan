@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.system.dao.SysDictMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.SysDict">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="TITLE" property="title" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="TYPE" property="type" jdbcType="SMALLINT"/>
+        <result column="VALUE" property="value" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="SMALLINT"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,TITLE,NAME,TYPE,VALUE,STATUS,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+    </sql>
+
+
+</mapper>

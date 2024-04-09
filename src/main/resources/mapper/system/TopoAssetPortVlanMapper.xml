@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.biz.dao.TopoAssetPortVlanMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.TopoAssetPortVlan">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="CONTENT" property="content" jdbcType="BLOB"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,ASSET_ID,CONTENT
+    </sql>
+
+
+</mapper>

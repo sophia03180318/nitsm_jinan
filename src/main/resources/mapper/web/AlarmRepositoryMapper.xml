@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.alarm.dao.AlarmRepositoryMapper">
+
+    <select id="pageListV2" resultType="com.jcca.web.alarm.entity.AlarmRepository">
+        select a.id,a.name,a.ALARM_LEVEL as alarmLevel,a.ALARM_CODE as alarmCode,a.STATUS_FLAG as statusFlag,a.FLAG_TYPE
+        as flagType,a.EVENT_TYPE_ID as eventTypeId,a.DESC_STR as descStr,a.PLAN_STR as planStr,
+        a.CREATE_TIME as createTime,a.CREATOR,a.MODIFY_TIME as modifyTime,a.MODIFIER,a.TEMPLATE_STR as templateStr
+        from ALARM_REPOSITORY a
+        <where>
+            <if test="query.name !=null and query.name !=''">
+                and a.name like concat(concat('%',#{query.name}),'%')
+            </if>
+            <if test="query.alarmLevel !=null">
+                and a.ALARM_LEVEL = #{query.alarmLevel}
+            </if>
+            <if test="query.alarmCode !=null and query.alarmCode != '' ">
+                and a.ALARM_CODE = #{query.alarmCode}
+            </if>
+            <if test="query.flagType !=null ">
+                and a.FLAG_TYPE = #{query.flagType}
+            </if>
+            <if test="query.eventTypeId !=null and query.eventTypeId !='' ">
+                and a.EVENT_TYPE_ID = #{query.eventTypeId}
+            </if>
+        </where>
+        <choose>
+            <when test="query.orderBy !=null and query.orderBy!='' ">
+                order by a.${query.orderBy}
+            </when>
+            <otherwise>
+                order by a.CREATE_TIME
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="query.sort !=null and query.sort!='' ">
+                ${query.sort}
+            </when>
+            <otherwise>
+                desc
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

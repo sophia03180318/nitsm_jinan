@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.biz.dao.TopoAssetGroupMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.graph.entity.TopoAssetGroup">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="CONTENT" property="content" jdbcType="BLOB"/>
+        <result column="NODE_ID" property="nodeId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,ASSET_ID,CONTENT,NODE_ID
+    </sql>
+
+
+</mapper>

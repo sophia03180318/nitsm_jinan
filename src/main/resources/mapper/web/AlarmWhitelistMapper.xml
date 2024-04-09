@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web2.dao.AlarmWhitelistMapper">
+    <select id="pageV2" resultType="com.jcca.web2.vo.WhitePageQueryVo">
+        SELECT b.NAME as assetName,c.NAME as eventTypeName,a.id,a.ASSET_ID as assetId,
+        a.FLAG ,a.ALARM_CODE as alarmCode ,a.EVENT_TYPE_ID as eventTypeId,a.CREATE_TIME as createTime,
+        a.creator
+        FROM ALARM_WHITE_LIST a
+        left join ASSET b on a.ASSET_ID = b.id
+        left join ALARM_EVENT_TYPE c on c.ID =a.EVENT_TYPE_ID
+        <where>
+            <if test="query.assetName!=null and query.assetName !=''">
+                and b.name like concat(concat('%',#{query.assetName}),'%')
+            </if>
+            <if test="query.alarmCode!=null and query.alarmCode !=''">
+                and a.ALARM_CODE = #{query.alarmCode}
+            </if>
+            <if test="query.eventTypeId!=null and query.eventTypeId!=''">
+                and a.EVENT_TYPE_ID = #{query.eventTypeId}
+            </if>
+        </where>
+        <choose>
+            <when test="query.orderBy !=null and query.orderBy!='' ">
+                order by a.${query.orderBy}
+            </when>
+            <otherwise>
+                order by a.CREATE_TIME
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="query.sort !=null and query.sort!='' ">
+                ${query.sort}
+            </when>
+            <otherwise>
+                desc
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

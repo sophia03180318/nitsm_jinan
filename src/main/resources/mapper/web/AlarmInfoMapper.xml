@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.alarm.dao.AlarmInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.alarm.entity.AlarmInfo">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="TITLE" property="title" jdbcType="VARCHAR"/>
+        <result column="ALARM_LEVEL" property="alarmLevel" jdbcType="BIGINT"/>
+        <result column="STATUS" property="status" jdbcType="BIGINT"/>
+        <result column="ALARM_STATE" property="alarmState" jdbcType="BIGINT"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="ASSET_IP" property="assetIp" jdbcType="VARCHAR"/>
+        <result column="ASSET_NAME" property="assetName" jdbcType="VARCHAR"/>
+        <result column="ORG_ID" property="orgId" jdbcType="VARCHAR"/>
+        <result column="TYPE" property="type" jdbcType="BIGINT"/>
+        <result column="OCCUR_TIME" property="occurTime" jdbcType="TIMESTAMP"/>
+        <result column="LAST_TIME" property="lastTime" jdbcType="TIMESTAMP"/>
+        <result column="CONFIRMOR" property="confirmor" jdbcType="VARCHAR"/>
+        <result column="CONFIRM_TIME" property="confirmTime" jdbcType="TIMESTAMP"/>
+        <result column="ALARM_CODE" property="alarmCode" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="CONTENT" property="content" jdbcType="VARCHAR"/>
+        <result column="ALARM_TO_RECORD" property="alarmToRecord" jdbcType="BIGINT"/>
+        <result column="OPINION" property="opinion" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="BLANK" property="blank" jdbcType="BIGINT"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="ExportResultMap" type="com.jcca.web.alarm.service.data.ExportAlarmReportBean">
+        <result column="assetName" property="assetName" jdbcType="VARCHAR"/>
+        <result column="assetIp" property="assetIp" jdbcType="VARCHAR"/>
+        <result column="orgName" property="orgName" jdbcType="VARCHAR"/>
+
+        <collection property="alarmInfos" javaType="java.util.List" resultMap="alarmInfoResult"/>
+    </resultMap>
+
+    <resultMap id="cabinetAlarmInfoVo" type="com.jcca.web2.vo.CabinetAlarmInfoVo">
+        <result column="ID" property="alarmInfoId"/>
+        <result column="TITLE" property="title"/>
+        <result column="ALARM_STATE" property="alarmState"/>
+        <result column="STATUS" property="status"/>
+        <result column="CONTENT" property="content"/>
+        <result column="occur_time" property="occurTime"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="ASSET_ID" property="assetId"/>
+        <result column="NAME" property="assetName"/>
+        <result column="ip1" property="ip1"/>
+        <result column="ip2" property="ip2"/>
+    </resultMap>
+
+    <select id="selectCabinetAlarmV2" parameterType="com.jcca.web2.dto.CabinetAlarmQueryDto"
+            resultMap="cabinetAlarmInfoVo">
+        SELECT d.ID,d.TITLE,d.ALARM_STATE,d.STATUS,d.CONTENT,d.DESCRIPTION,d.ASSET_ID,d.OCCUR_TIME,
+        c.NAME ,c.ip as ip1,c.ip2
+        FROM cabinet a
+        JOIN asset_attach b on a.id = b.CABINET_ID
+        LEFT JOIN ASSET c on c.ID = b.ASSET_ID
+        JOIN ALARM_INFO d on d.ASSET_ID = c.ID
+        WHERE a.ID = #{cabinetId}
+        <choose>
+            <when test="status != null and alarmState != null">
+                and (d.STATUS = #{status} or d.ALARM_STATE = #{alarmState} )
+            </when>
+            <when test="status != null ">
+                and d.STATUS = #{status}
+            </when>
+            <when test="alarmState != null ">
+                and d.ALARM_STATE = #{alarmState}
+            </when>
+        </choose>
+    </select>
+
+
+    <resultMap id="alarmInfoResult" type="com.jcca.web.alarm.service.data.ExportAlarmInfo">
+        <result column="alarmTitle" property="alarmTitle" jdbcType="VARCHAR"/>
+        <result column="alarmLevel" property="alarmLevel" jdbcType="VARCHAR"/>
+        <result column="alarmDescription" property="alarmDescription" jdbcType="VARCHAR"/>
+        <result column="alarmContent" property="alarmContent" jdbcType="VARCHAR"/>
+        <result column="opinion" property="opinion" jdbcType="VARCHAR"/>
+        <result column="occurTime" property="occurTime" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        ID
+        ,TITLE,ALARM_LEVEL,STATUS,ALARM_STATE,ASSET_ID,ASSET_IP,ASSET_NAME,ORG_ID,TYPE,OCCUR_TIME,LAST_TIME,CONFIRMOR,CONFIRM_TIME,
+        ALARM_CODE,DESCRIPTION,CONTENT,ALARM_TO_RECORD,OPINION,REMARK,BLANK,CREATE_TIME,MODIFY_TIME,CREATOR,MODIFIER
+    </sql>
+
+    <select id="queryAbnormalAssetV2" resultType="java.lang.Integer"
+            parameterType="com.jcca.web.alarm.service.data.AbnormalAssetQuery">
+        select count(*) from alarm_info a where a.EVENT_CATEGORY = #{eventCategory}
+        <if test="statusLogical==1">
+            <if test="status != null ">
+                and a.STATUS = #{status}
+            </if>
+            <if test="alarmState != null ">
+                and a.ALARM_STATE = #{alarmState}
+            </if>
+        </if>
+        <if test="statusLogical==2">
+            <choose>
+                <when test="status != null and alarmState != null">
+                    and (a.STATUS = #{status} or a.ALARM_STATE = #{alarmState})
+                </when>
+                <when test="status != null ">
+                    and a.STATUS = #{status}
+                </when>
+                <when test="alarmState != null ">
+                    and a.ALARM_STATE = #{alarmState}
+                </when>
+            </choose>
+        </if>
+        <if test="blank!=null ">
+            and a.blank = #{blank}
+        </if>
+    </select>
+    <update id="recoverAlarmV2">
+        update ALARM_INFO a
+        <set>
+            a.ALARM_STATE=2,
+            a.STATUS=2,
+            a.CONTENT = concat(a.CONTENT,#{msg})
+        </set>
+        <where>
+            a.ALARM_CODE = #{alarmCode}
+            <if test="assetId != null and assetId != ''">
+                and a.ASSET_ID=#{assetId}
+            </if>
+            <if test="flag != null and flag != ''">
+                and a.ALARM_FLAG= #{flag}
+            </if>
+        </where>
+    </update>
+
+    <select id="getAssetAlarmV2" resultMap="BaseResultMap">
+        select * from ALARM_INFO
+        <where>
+            <if test="alarmFlag !=null and alarmFlag !=''">
+                and ALARM_FLAG = #{alarmFlag}
+            </if>
+            and ASSET_ID = #{assetId}
+            and ALARM_CODE = #{alarmCode}
+            and (ALARM_STATE=1 or STATUS = 1)
+        </where>
+    </select>
+
+    <select id="statisticsV2" resultType="com.jcca.web2.vo.AlarmPageStatisticsVo">
+        select
+        <if test="query.groupField=='ALARM_LEVEL'">
+            a.ALARM_LEVEL as key
+        </if>
+        <if test="query.groupField=='ALARM_CODE'">
+            a.ALARM_CODE as key
+        </if>
+        ,count (*) as value
+        from ALARM_INFO a
+        left join ASSET b on a.ASSET_ID = b.ID
+        left join sys_org c on b.ORG_ID = c.ID
+        <where>
+            <if test="query.assetName !=null and query.assetName!='' ">
+                and b.NAME like concat(concat('%',#{query.assetName}),'%')
+            </if>
+            <if test="query.assetIp !=null and query.assetIp!='' ">
+                and (b.ip = #{query.assetIp} or b.ip2 = #{query.assetIp})
+            </if>
+            <if test="query.orgId !=null and query.orgId!=''">
+                and c.id = #{query.orgId}
+            </if>
+            <if test="query.title !=null and query.title!='' ">
+                and a.TITLE = #{query.title}
+            </if>
+            <if test="query.startTime !=null and query.startTime!=''">
+                and a.OCCUR_TIME &gt;= to_date(#{query.startTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="query.endTime !=null  and query.startTime!=''">
+                and a.OCCUR_TIME &lt;= to_date(#{query.endTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="query.status != null ">
+                and a.STATUS = #{query.status}
+            </if>
+            <if test="query.alarmState != null ">
+                and a.ALARM_STATE = #{query.alarmState}
+            </if>
+            <if test="query.alarmLevel != null ">
+                and a.ALARM_LEVEL = #{query.alarmLevel}
+            </if>
+            <if test="query.blank != null ">
+                and a.blank = #{query.blank}
+            </if>
+
+
+            <if test="query.alarmCode!=null and query.alarmCode!=''">
+                and a.ALARM_CODE = #{query.alarmCode}
+            </if>
+            <if test="query.assetIdList!=null">
+                <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->
+                and (a.ASSET_ID IN
+                <trim suffixOverrides=" a.ASSET_ID IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.assetIdList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR a.ASSET_ID IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+            <if test="query.showJcca==2">
+                and b.ASSET_SUPPLIER not like '%JCCA%'
+            </if>
+        </where>
+        <if test="query.groupField=='ALARM_LEVEL'">
+            group by a.ALARM_LEVEL
+        </if>
+        <if test="query.groupField=='ALARM_CODE'">
+            group by a.ALARM_CODE
+        </if>
+    </select>
+
+    <select id="pageV2" resultType="com.jcca.web2.vo.AlarmPageVo">
+        select c.TYPE as orgType,c.TITLE as orgName,
+        b.ID as assetId,b.NAME as assetName,b.IP as assetIp1,b.IP2 as assetIp2,b.ASSET_MODE as assetMode,
+        a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel,
+        a.content ,a.description,a.ALARM_CODE as alarmCode,a.OCCUR_TIME as occurTime,
+        a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
+        a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState,
+        d.name as repoName
+        from ALARM_INFO a
+        left join ASSET b on a.ASSET_ID = b.ID
+        left join sys_org c on b.ORG_ID = c.ID
+        left join ALARM_REPOSITORY d on a.ALARM_CODE = d.ALARM_CODE AND FLAG_TYPE = -1
+        <where>
+            <if test="query.assetName !=null and query.assetName!='' ">
+                and b.NAME like concat(concat('%',#{query.assetName}),'%')
+            </if>
+            <if test="query.title !=null and query.title!='' ">
+                and a.TITLE = #{query.title}
+            </if>
+            <if test="query.assetIp !=null and query.assetIp!='' ">
+                and (b.ip = #{query.assetIp} or b.ip2 = #{query.assetIp})
+            </if>
+            <if test="query.orgId !=null and query.orgId!=''">
+                and c.id = #{query.orgId}
+            </if>
+            <if test="query.startTime !=null and query.startTime!=''">
+                and a.OCCUR_TIME &gt;= to_date(#{query.startTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="query.endTime !=null  and query.endTime!=''">
+                and a.OCCUR_TIME &lt;= to_date(#{query.endTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="query.status != null ">
+                and a.STATUS = #{query.status}
+            </if>
+            <if test="query.alarmState != null ">
+                and a.ALARM_STATE = #{query.alarmState}
+            </if>
+            <if test="query.alarmLevel != null ">
+                and a.ALARM_LEVEL = #{query.alarmLevel}
+            </if>
+            <if test="query.blank != null ">
+                and a.blank = #{query.blank}
+            </if>
+            <if test="query.alarmCode != null and query.alarmCode != ''">
+                and a.ALARM_CODE = #{query.alarmCode}
+            </if>
+            <if test="query.alarmLevelList != null">
+                and (a.ALARM_LEVEL IN
+                <trim suffixOverrides=" a.ALARM_LEVEL IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.alarmLevelList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR a.ALARM_LEVEL IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+
+            <if test="query.orgIdList != null">
+                and (c.id  IN
+                <trim suffixOverrides=" c.id  IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.orgIdList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR c.id  IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+
+
+            <if test="query.assetDeskList != null">
+                and (b.DESK IN
+                <trim suffixOverrides=" b.DESK IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.assetDeskList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR b.DESK IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+            <if test="query.alarmCodeList != null">
+                and (a.ALARM_CODE IN
+                <trim suffixOverrides=" a.ALARM_CODE IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.alarmCodeList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR a.ALARM_LEVEL IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+            <if test="query.assetIdList!=null">
+                <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->
+                and (a.ASSET_ID IN
+                <trim suffixOverrides=" a.ASSET_ID IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.assetIdList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR a.ASSET_ID IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+            <if test="query.showJcca==2">
+                and b.ASSET_SUPPLIER not like '%JCCA%'
+            </if>
+        </where>
+        <choose>
+            <when test="query.orderBy !=null and query.orderBy!='' ">
+                order by a.${query.orderBy}
+            </when>
+            <otherwise>
+                order by a.OCCUR_TIME
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="query.sort !=null and query.sort!='' ">
+                ${query.sort}
+            </when>
+            <otherwise>
+                desc
+            </otherwise>
+        </choose>
+
+        , a.ID desc
+    </select>
+
+    <select id="queryDialogsVoListV2" parameterType="com.jcca.web2.dto.DialogsAlarmListDto"
+            resultType="com.jcca.web2.vo.DialogsAlarmListVo">
+        select c.TYPE as orgType,c.TITLE as orgName,
+        b.ID as assetId,b.NAME as assetName,b.IP as assetIp1,b.IP2 as assetIp2,b.ASSET_MODE as assetMode,
+        a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel,
+        a.content ,a.description,a.ALARM_CODE as alarmCode,a.OCCUR_TIME as occurTime,
+        a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
+        a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState,
+        e.NAME as cabinetName ,f.NAME as roomName
+        from ALARM_INFO a
+        left join ASSET b on a.ASSET_ID = b.ID
+        left join sys_org c on b.ORG_ID = c.ID
+        left join asset_attach d on d.ASSET_ID = b.id
+        left join cabinet e on e.id = d.CABINET_ID
+        left join room f on d.ROOM_ID = f.id
+        <where>
+            <if test="assetDesk !=null">
+                and b.DESK = #{assetDesk}
+            </if>
+            <if test="cabinetId !=null and cabinetId !=''">
+                and e.id = #{cabinetId}
+            </if>
+            <if test="startTime !=null">
+                and a.OCCUR_TIME &gt;= to_date(#{startTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="endTime !=null">
+                and a.OCCUR_TIME &lt;= to_date(#{endTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="assetId !=null and assetId !=''">
+                and b.id = #{assetId}
+            </if>
+            <if test="orgId !=null  and orgId !=''">
+                and c.id = #{orgId}
+            </if>
+            <if test="eventCategory!=null and eventCategory!=''">
+                and a.event_category = #{eventCategory}
+            </if>
+            <if test="blank!=null ">
+                and a.blank = #{blank}
+            </if>
+            <if test="assetIdList!=null">
+                <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->
+                and (a.ASSET_ID IN
+                <trim suffixOverrides=" a.ASSET_ID IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="assetIdList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 999">
+                                    ) OR a.ASSET_ID IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
+            </if>
+            <if test="alarmLevelList!=null">
+                and a.ALARM_LEVEL in
+                <foreach collection="alarmLevelList" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="showJcca==2">
+                and b.ASSET_SUPPLIER != 'JCCA'
+            </if>
+            <if test="statusLogical==1">
+                <if test="status != null ">
+                    and a.STATUS = #{status}
+                </if>
+                <if test="alarmState != null ">
+                    and a.ALARM_STATE = #{alarmState}
+                </if>
+            </if>
+            <if test="statusLogical==2">
+                <choose>
+                    <when test="status != null and alarmState != null">
+                        and (a.STATUS = #{status} or a.ALARM_STATE = #{alarmState})
+                    </when>
+                    <when test="status != null ">
+                        and a.STATUS = #{status}
+                    </when>
+                    <when test="alarmState != null ">
+                        and a.ALARM_STATE = #{alarmState}
+                    </when>
+                </choose>
+            </if>
+        </where>
+        order by a.OCCUR_TIME  desc
+    </select>
+
+    <select id="selectExportListByType" parameterType="com.jcca.web.alarm.dao.bean.QueryExportByTypeReq"
+            resultMap="ExportResultMap">
+        select a.IP as assetIp,a.NAME as assetName,
+        g.TITLE as orgName,
+        l.TITLE as alarmTitle,l.ALARM_LEVEL as alarmLevel,l.DESCRIPTION as alarmDescription,l.CONTENT as alarmContent,
+        l.OPINION as opinion,l.REMARK as remark,to_char(l.OCCUR_TIME,'yyyyMMddHH24miss') as occurTime
+        from ASSET a
+        JOIN SYS_ORG g ON a.ORG_ID = g.ID
+        right JOIN ALARM_INFO l ON a.ID = l.ASSET_ID
+        where a.IS_DEL = 1
+        <if test="type != 5">
+            and g.TYPE = #{type}
+        </if>
+        <if test="assetMode != null">
+            and a.ASSET_MODE = #{assetMode}
+        </if>
+        and l.OCCUR_TIME &gt;= to_date(#{startDate},'yyyy-MM-dd HH24:mi:ss')
+        and l.OCCUR_TIME &lt;= to_date(#{endDate},'yyyy-MM-dd HH24:mi:ss')
+        order by l.OCCUR_TIME asc
+    </select>
+
+    <select id="selectExportListByOrgIds" parameterType="com.jcca.web.alarm.dao.bean.QueryExportByTypeReq"
+            resultMap="ExportResultMap">
+        select a.IP as assetIp,a.NAME as assetName,
+        g.TITLE as orgName,
+        l.TITLE as alarmTitle,l.ALARM_LEVEL as alarmLevel,l.DESCRIPTION as alarmDescription,l.CONTENT as alarmContent,
+        l.OPINION as opinion,l.REMARK as remark,to_char(l.OCCUR_TIME,'yyyyMMddHH24miss') as occurTime
+        from ASSET a
+        JOIN SYS_ORG g ON a.ORG_ID = g.ID
+        right JOIN ALARM_INFO l ON a.ID = l.ASSET_ID
+        where a.IS_DEL = 1
+        and l.OCCUR_TIME &gt;= to_date(#{startDate},'yyyy-MM-dd HH24:mi:ss')
+        and l.OCCUR_TIME &lt;= to_date(#{endDate},'yyyy-MM-dd HH24:mi:ss')
+        <if test="assetMode != null">
+            and a.ASSET_MODE = #{assetMode}
+        </if>
+        and a.org_id in
+        <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by l.OCCUR_TIME asc
+    </select>
+
+
+    <select id="findExportAlarm" parameterType="java.util.List" resultType="com.jcca.web.alarm.vo.AlarmExportVo">
+        select decode(i.ALARM_LEVEL, 1, '一级告警', 2, '二级告警', 3, '三级告警', '未知告警') alarmLevel,
+        decode(i.ALARM_STATE, 1, '告警', 2, '恢复') alarmStatus, i.title, i.ASSET_IP,
+        a.NAME assetName, decode(i.type, 1, '硬件告警', 2, '软件告警', '未知告警') alarmType,i.DESCRIPTION,i.CONTENT, i.OCCUR_TIME,
+        decode(i.STATUS, 1, '未确认', 2, '已确认', '未知') status, i.CONFIRMOR, i.CONFIRM_TIME,i.remark
+        FROM ALARM_INFO i
+        LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+        WHERE rownum &lt; 20000 and i.ID in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by i.occur_time desc
+    </select>
+
+    <select id="findDetailById" parameterType="java.lang.String" resultType="com.jcca.web.alarm.vo.AlarmDetailVo">
+        SELECT i.TITLE,
+               i.ID,
+               i.ALARM_TO_RECORD,
+               i.OCCUR_TIME  occurTimeStr,
+               i.TYPE        typeStr,
+               i.CONTENT,
+               i.DESCRIPTION,
+               i.OPINION     opinion,
+               i.REMARK,
+               i.ALARM_LEVEL,
+               i.STATUS,
+               i.BLANK,
+               i.ALARM_CODE,
+               a.ID          assetId,
+               a.NAME        assetName,
+               a.ORG_ID      orgId,
+               a.IP,
+               a.ASSET_MODE  assetMode,
+               a.ASSET_IMAGE assetImage,
+               t.NAME        cabinetName,
+               r.NAME        roomName
+        FROM ALARM_INFO i
+                 LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                 LEFT JOIN ASSET_ATTACH c ON a.ID = c.ASSET_ID
+                 LEFT JOIN CABINET t ON t.ID = c.CABINET_ID
+                 LEFT JOIN ROOM r ON r.ID = c.ROOM_ID
+        WHERE i.id = #{id}
+    </select>
+
+    <select id="findOneAlarm" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from alarm_info i
+        where i.asset_id = #{assetId} and i.alarm_code = #{alarmCode}
+        and (i.status = 1 or (i.status = 2 and i.alarm_state = 1))
+    </select>
+
+    <select id="findUnconfirmAlarm" parameterType="java.util.Map" resultType="com.jcca.web.alarm.vo.AlarmUnconfirmVo">
+        select id, title, alarm_level, content, occur_time, type
+        from ALARM_INFO
+        where status = #{status}
+        <if test="orgIds != null">
+            and org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="assetId != null">
+            and asset_id = #{assetId}
+        </if>
+        order by occur_time desc
+    </select>
+
+    <select id="findExportAllAlarm" resultType="com.jcca.web.alarm.vo.AlarmExportVo"
+            parameterType="com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery">
+        select decode(i.ALARM_LEVEL, 1, '一级告警', 2, '二级告警', 3, '三级告警', 4, '信息通知', '未知告警') alarmLevel,
+        decode(i.ALARM_STATE, 1, '告警', 2, '恢复') alarmStatus,
+        i.title, i.ASSET_IP, a.NAME assetName, decode(i.type, 1, '硬件告警', 2, '软件告警', '未知告警') alarmType,
+        i.DESCRIPTION,i.CONTENT, i.OCCUR_TIME,
+        decode(i.STATUS, 1, '未确认', 2, '已确认', '未知') status, i.CONFIRMOR confirmor, i.CONFIRM_TIME confirmTime,i.remark
+        from alarm_info i
+        left join asset a on i.ASSET_ID = a.ID
+        where rownum &lt; 20000
+        <if test="orgId != null and orgId != ''">
+            and i.org_id = #{orgId}
+        </if>
+        <if test="orgIds != null">
+            and i.org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="ip != null and ip != ''">
+            and i.asset_ip = #{ip}
+        </if>
+        <if test="assetName != null and assetName != ''">
+            and REGEXP_LIKE(a.name, #{assetName})
+        </if>
+        <if test="status != null">
+            and i.status = #{status}
+        </if>
+        <if test="alarmState != null">
+            and i.ALARM_STATE = #{alarmState}
+        </if>
+        <if test="title != null and title != ''">
+            and REGEXP_LIKE(i.title, #{title})
+        </if>
+        <if test="alarmLevel != null">
+            and i.alarm_level = #{alarmLevel}
+        </if>
+        <if test="type != null">
+            and i.type = #{type}
+        </if>
+        <if test="blank != null and blank != ''">
+            and i.blank = #{blank}
+        </if>
+        <if test="startDate != null and endDate != null">
+            and i.occur_time between #{startDate} and #{endDate}
+        </if>
+
+        <if test="alarmLevelList != null">
+            and (i.ALARM_LEVEL IN
+            <trim suffixOverrides=" a.ALARM_LEVEL IN()">
+                <!-- 表示删除最后一个条件 -->
+                <foreach collection="alarmLevelList" item="Id" index="index" open="(" close=")">
+                    <if test="index != 0">
+                        <choose>
+                            <when test="index % 1000 == 999">
+                                ) OR i.ALARM_LEVEL IN (
+                            </when>
+                            <otherwise>,</otherwise>
+                        </choose>
+                    </if>
+                    #{Id}
+                </foreach>
+            </trim>
+            )
+        </if>
+
+        <if test="alarmCodeList != null">
+            and (i.ALARM_CODE IN
+            <trim suffixOverrides=" a.ALARM_CODE IN()">
+                <!-- 表示删除最后一个条件 -->
+                <foreach collection="alarmCodeList" item="Id" index="index" open="(" close=")">
+                    <if test="index != 0">
+                        <choose>
+                            <when test="index % 1000 == 999">
+                                ) OR i.ALARM_LEVEL IN (
+                            </when>
+                            <otherwise>,</otherwise>
+                        </choose>
+                    </if>
+                    #{Id}
+                </foreach>
+            </trim>
+            )
+        </if>
+
+
+        order by i.occur_time desc
+    </select>
+
+    <select id="findAssetAlarm" parameterType="com.jcca.web.alarm.controller.bean.AssetAlarmReq"
+            resultType="com.jcca.web.alarm.vo.AlarmUnconfirmVo">
+        select i.id,
+               i.title,
+               i.alarm_level,
+               i.content,
+               i.occur_time,
+               i.type,
+               i.status,
+               i.blank,
+               i.alarm_state,
+               i.IS_SHOW_RECOVER
+        from alarm_info i
+        where i.blank = 1
+          and i.asset_id = #{assetId}
+          and (i.status = 1 or (i.status = 2 and i.alarm_state = 1))
+
+        order by i.occur_time desc
+    </select>
+
+    <select id="findBizAlarm" parameterType="com.jcca.web.alarm.controller.bean.AssetAlarmReq"
+            resultType="com.jcca.web.alarm.vo.AlarmUnconfirmVo">
+        select i.id,
+               i.title,
+               i.alarm_level,
+               i.content,
+               i.occur_time,
+               i.type,
+               i.status,
+               i.blank,
+               i.alarm_state,
+               i.IS_SHOW_RECOVER
+        from alarm_info i
+        where i.blank = 1
+          and i.asset_id = #{assetId}
+          and (i.status = 1 or (i.status = 2 and i.alarm_state = 1))
+          and i.DESCRIPTION like '业务告警%'
+        order by i.occur_time desc
+    </select>
+
+
+    <select id="broadcastAlarmList" parameterType="com.jcca.web.config.vo.SysConfig"
+            resultType="com.jcca.web.alarm.entity.AlarmInfo">
+        select i.id,
+        i.title,
+        i.alarm_level,
+        i.occur_time,
+        i.type,
+        i.status,
+        i.alarm_state,
+        i.org_id,
+        i.asset_id,
+        i.asset_name,
+        i.CREATE_TIME
+        from alarm_info i
+        where i.blank = 1
+        and i.alarm_level in (
+        <if test="firstLevel != null and firstLevel == 'yes'">
+            1,
+        </if>
+        <if test="secondLevel != null and secondLevel == 'yes'">
+            2,
+        </if>
+        <if test="thirdLevel != null and thirdLevel == 'yes'">
+            3,
+        </if>
+        0)
+        <if test="affirmStatus != null and affirmStatus == 'yes'">
+            and i.STATUS = 1
+        </if>
+        <if test="recoveredStatus != null and recoveredStatus == 'yes'">
+            and i.ALARM_STATE = 1
+        </if>
+        order by i.occur_time desc
+    </select>
+
+
+    <select id="getLastPingAlarmInfo" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        from (SELECT *
+              FROM ALARM_INFO a
+              WHERE a.ASSET_ID = ${assetId}
+              ORDER BY a.OCCUR_TIME DESC, id) t
+        WHERE ROWNUM = 1
+    </select>
+
+
+    <select id="queryMaxAlarmLevelByOrgIds" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select min(ALARM_LEVEL) FROM ALARM_INFO WHERE (ALARM_STATE = 1 OR STATUS = 1) AND BLANK = 1 AND ORG_ID IN
+        <foreach collection='orgIds' item='id' separator=',' open='(' close=')'>
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>
+

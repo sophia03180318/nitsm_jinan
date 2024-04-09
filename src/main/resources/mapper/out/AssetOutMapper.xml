@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.common.dao.OutMapper">
+
+
+    <select id="findMasterOrSlaveTab" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ALL_TABLES
+        WHERE TABLE_NAME = UPPER(#{tabName})
+    </select>
+
+    <select id="findMasterOrSlave" parameterType="java.lang.String" resultType="java.util.List">
+        SELECT HOST_TYPE
+        from BROKER_TOPO_BUSINESS
+        where ASSET_ID = #{assetId}
+          and HOST_TYPE is not null
+    </select>
+
+    <select id="findForOutRequest" parameterType="com.jcca.web.common.controller.req.AssetOutReq"
+            resultType="com.jcca.web.asset.vo.AssetOutVo">
+        select
+        a.ID,a.NAME,a.A_B_FLAG,a.SHOW_TOPO,a.IP,a.IP2,a.OS_USER,a.OS_PASSWORD,a.ASSET_MODE,a.MANUFACTURER_ID,a.COLLECTION_TYPE,a.ASSET_IMAGE,a.ORG_ID,
+        a.NTP_FLAG,a.ASSET_CODE,a.IPMI_IP,a.IPMI_USER,a.IPMI_PWD,a.LOGIN_NAME,a.LOGIN_PWD,a.LOGIN_PORT,a.WATCH
+        from asset a
+        left join sys_org o on a.org_id = o.id
+        <if test="stationIp != null and stationIp != ''">
+            left join station s on o.id = s.org_id
+        </if>
+        where a.is_del = 1
+        <if test="stationIp != null and stationIp !=''">
+            and (s.ip = #{stationIp} or s.ip2 = #{stationIp})
+        </if>
+        <if test="type != null">
+            and o.type = #{type}
+        </if>
+        <if test="assetId != null and assetId !=''">
+            and a.id = #{assetId}
+        </if>
+        <if test="watchMode != null and watchMode != ''">
+            and (a.WATCH = 0 or a.WATCH = 1)
+        </if>
+        <if test="watchMode == null or watchMode == ''">
+            and a.WATCH = 1
+        </if>
+    </select>
+
+
+    <select id="findStationAssetByGroup" parameterType="com.jcca.web.common.controller.req.AssetOutReq"
+            resultType="com.jcca.web.asset.vo.AssetOutVo">
+        select a.ID,
+               a.NAME,
+               a.IP,
+               a.SHOW_TOPO,
+               a.ASSET_MODE assetMode,
+               s.IP         stationIp,
+               s.PORT       stationPort,
+               s.PROXY_URL  proxyUrl
+        from asset a
+                 left join station s on a.ORG_ID = s.ORG_ID
+        where a.is_del = 1
+          and watch = 1
+          and s.STATION_GROUP = #{stationGroup}
+    </select>
+</mapper>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.system.dao.TopoAssetPortMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.TopoAssetPort">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="POINT_X" property="pointX" jdbcType="BIGINT"/>
+        <result column="POINT_Y" property="pointY" jdbcType="BIGINT"/>
+        <result column="PORT_INDEX" property="portIndex" jdbcType="VARCHAR"/>
+        <result column="VLAN_ID" property="vlanId" jdbcType="VARCHAR"/>
+        <result column="NODE_ID" property="nodeId" jdbcType="VARCHAR"/>
+        <result column="PARENT_ID" property="nodeId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,ASSET_ID,POINT_X,POINT_Y,PORT_INDEX,VLAN_ID,NODE_ID,PARENT_ID
+    </sql>
+
+
+    <select id="selectAssetAllPort" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+        SELECT a.asset_id,
+               a.port_name,
+               a.port_index,
+               a.port_type,
+               t.point_x,
+               t.point_y,
+               t.port_mode,
+               t.node_id,
+               t.parent_id,
+               a.status,
+               t.update_date,
+               t.rotation
+        from (SELECT *
+              FROM COLLECT_INTERFACES b
+              WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+                                      FROM COLLECT_INTERFACES c
+                                      where c.asset_id = #{assetId})
+              order by b.PORT_INDEX_RANK) a
+                 LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
+           where (a.port_type = 6 or a.port_type = 18 or a.port_type = 22 or a.port_type = 23 or a.port_type = 39 or a.port_type = 135 or a.port_type = 56) and a.PORT_INDEX not like '%VLAN%' and a.PORT_INDEX not like '%Vlan%' and a.port_index not like concat(concat('%', '.'), '%')
+    </select>
+
+    <select id="selectAssetPort" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+        SELECT a.asset_id,
+        a.port_name,
+        a.port_index,
+        a.port_type,
+        t.point_x,
+        t.point_y,
+        t.port_mode,
+        t.node_id,
+        t.parent_id,
+        a.status,
+        t.update_date,
+        t.rotation
+        from (SELECT *
+        FROM COLLECT_INTERFACES b
+        WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+        FROM COLLECT_INTERFACES c
+        where c.asset_id = #{assetId})
+        order by b.PORT_INDEX_RANK) a
+        LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
+        where (a.port_type = 6 or a.port_type = 18 or a.port_type = 22 or a.port_type = 23 or a.port_type = 39 or
+        a.port_type = 56)
+        and a.port_link_type = #{portLinkType} 
+        and a.port_index not like concat(concat('%', '.'), '%')
+        <if test="pcbId != null  and pcbId != ''">
+            and t.PCB_ID = #{pcbId}
+        </if>
+    </select>
+
+
+    <select id="selectAssetPort2" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+        SELECT a.asset_id,
+        a.port_name,
+        a.port_index,
+        a.port_type,
+        t.point_x,
+        t.point_y,
+        t.port_mode,
+        t.node_id,
+        t.parent_id,
+        a.status,
+        t.update_date,
+        t.rotation
+        from (SELECT *
+        FROM COLLECT_INTERFACES b
+        WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+        FROM COLLECT_INTERFACES c
+        where c.asset_id = #{assetId})
+        order by b.PORT_INDEX_RANK) a
+        LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
+        where (a.port_type = 6 or a.port_type = 18 or a.port_type = 22 or a.port_type = 23 or a.port_type = 39 or
+        a.port_type = 56)
+        and a.port_index not like concat(concat('%', '.'), '%')
+        <if test="pcbId != null  and pcbId != ''">
+            and t.PCB_ID = #{pcbId}
+        </if>
+    </select>
+
+    <select id="selectSonList" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+        SELECT a.asset_id,
+               a.port_name,
+               a.port_index,
+               t.point_x,
+               t.point_y,
+               t.node_id,
+               t.parent_id,
+               a.status,
+               t.update_date
+        from (SELECT *
+              FROM COLLECT_INTERFACES b
+              WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+                                      FROM COLLECT_INTERFACES c
+                                      where c.asset_id = #{assetId})
+              order by b.PORT_INDEX_RANK) a
+                 LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
+        where a.port_index like concat(concat('%', #{portIndex}), '%')
+    </select>
+
+    <select id="querySonetSonList" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+        SELECT a.asset_id,
+               a.port_name,
+               a.port_index,
+               t.point_x,
+               t.point_y,
+               t.node_id,
+               t.parent_id,
+               a.status,
+               t.update_date
+        from (SELECT *
+              FROM COLLECT_INTERFACES b
+              WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+                                      FROM COLLECT_INTERFACES c
+                                      where c.asset_id = #{assetId})
+              order by b.PORT_INDEX_RANK) a
+                 LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
+        where a.port_index like concat(concat('%E%', #{portIndex}), '%')
+    </select>
+
+    <select id="selectAssetPortQuery" resultType="com.jcca.admin.system.vo.AssetPortVo"
+            parameterType="java.lang.String">
+        select a.asset_id, a.port_name, a.port_index, t.is_port
+        from (SELECT *
+              FROM COLLECT_INTERFACES b
+              WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+                                      FROM COLLECT_INTERFACES c
+                                      where c.asset_id = #{assetId})
+              order by b.PORT_INDEX_RANK) a
+                 LEFT JOIN TOPO_VERTEX t on a.asset_id = t.asset_id and a.port_index = t.port_index and t.is_port = 1
+        where a.port_type in(6,18,22,23,39,56)
+    </select>
+
+
+    <select id="selectAssetPortQuery2" resultType="com.jcca.admin.system.vo.AssetPortVo"
+            parameterType="java.lang.String">
+        select a.asset_id, a.port_name, a.port_index, t.is_port
+        from (SELECT *
+              FROM COLLECT_INTERFACES b
+              WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+                                      FROM COLLECT_INTERFACES c
+                                      where c.asset_id = #{assetId})
+              order by b.PORT_INDEX_RANK) a
+                 LEFT JOIN TOPO_VERTEX t on a.asset_id = t.asset_id and a.port_index = t.port_index and t.is_port = 1
+        where (a.port_type = 6 or a.port_type = 18 or a.port_type = 22 or a.port_type = 23 or a.port_type = 39 or
+    a.port_type = 56)
+    and a.port_link_type =1
+     and a.port_index not like concat(concat('%', '.'), '%')
+    </select>
+
+
+    <select id="selectAssetPortVlan" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+        SELECT asset_id, vlan_name as port_name, vlan_index as port_index
+        FROM COLLECT_VLAN b
+        WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
+                                FROM COLLECT_VLAN c
+                                where c.asset_id = #{assetId})
+        order by b.vlan_index
+    </select>
+
+
+    <select id="selectPort2" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+         SELECT asset_id,port_name,port_index,port_type,status
+         FROM COLLECT_INTERFACES
+         WHERE COLLECT_CODE = (SELECT MAX(to_number(COLLECT_CODE)) AS code
+         FROM COLLECT_INTERFACES
+         where asset_id = #{assetId}) and ASSET_ID =#{assetId}
+         and (port_type = 6 or port_type = 18 or port_type = 22 or port_type = 23 or port_type = 39 or port_type = 56)
+         and port_index not like concat(concat('%', '.'), '%')
+         order by PORT_INDEX_RANK
+    </select>
+
+
+    <select id="selectPort" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
+         SELECT asset_id,port_name,port_index,port_type,status
+         FROM COLLECT_INTERFACES
+         WHERE COLLECT_CODE = (SELECT MAX(to_number(COLLECT_CODE)) AS code
+         FROM COLLECT_INTERFACES
+         where asset_id = #{assetId}) and ASSET_ID =#{assetId}
+         and (port_type = 6 or port_type = 18 or port_type = 22 or port_type = 23 or port_type = 39 or port_type = 56)
+         and port_index not like concat(concat('%', '.'), '%')
+         and port_link_type =1
+         order by PORT_INDEX_RANK
+    </select>
+</mapper>

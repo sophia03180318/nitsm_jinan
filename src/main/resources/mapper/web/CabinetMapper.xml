@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.CabinetMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.asset.entity.Cabinet">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="CODE" property="code" jdbcType="BIGINT"/>
+        <result column="ROOM_ID" property="roomId" jdbcType="VARCHAR"/>
+        <result column="ROW_INDEX" property="rowIndex" jdbcType="BIGINT"/>
+        <result column="COLUMN_INDEX" property="columnIndex" jdbcType="BIGINT"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="cabinetBaseInfoV2" type="com.jcca.web2.vo.CabinetBaseInfoVo">
+        <id column="ID" property="cabinetId" jdbcType="VARCHAR"/>
+        <result column="name" property="cabinetName" jdbcType="VARCHAR"/>
+        <result column="SEAT_COUNT" property="seatCount" jdbcType="BIGINT"/>
+        <result column="USED_SEAT" property="usedSeat" jdbcType="BIGINT"/>
+        <result column="ASSET_SIZE" property="assetSize" jdbcType="BIGINT"/>
+        <result column="POSITION" property="position" jdbcType="VARCHAR"/>
+        <collection property="assetList" javaType="java.util.List" resultMap="assetResultV2"/>
+    </resultMap>
+
+    <resultMap id="assetResultV2" type="com.jcca.web2.vo.CabinetBaseAssetVo">
+        <id column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <id column="asset_name" property="name" jdbcType="VARCHAR"/>
+        <id column="START_POSITION" property="startPosition" jdbcType="BIGINT"/>
+        <id column="END_POSITION" property="endPosition" jdbcType="BIGINT"/>
+        <id column="alarm_size" property="alarmSize" jdbcType="BIGINT"/>
+        <id column="alarm_level" property="alarmLevel" jdbcType="BIGINT"/>
+        <id column="ASSET_MODE" property="assetMode" jdbcType="BIGINT"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        ID
+        ,NAME,CODE,ROOM_ID,ROW_INDEX,COLUMN_INDEX,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+    </sql>
+
+
+    <select id="selectCabinetBaseInfoV2" parameterType="com.jcca.web2.dto.CabinetBaseInfoQueryDto"
+            resultMap="cabinetBaseInfoV2">
+        SELECT c.ID,c.name ,c.SEAT_COUNT,
+        (select SUM(t.END_POSITION)-SUM(t.START_POSITION)+COUNT(*) from ASSET_ATTACH t where t.CABINET_ID=#{cabinetId})
+        as USED_SEAT,
+        (select COUNT(*) from ASSET_ATTACH v where v.CABINET_ID=#{cabinetId}) as ASSET_SIZE ,
+        (concat(concat(concat(c.ROW_INDEX,'行'),c.COLUMN_INDEX),'列')) as POSITION,
+        a.ASSET_ID,b.name as asset_name,b.ASSET_MODE ,a.START_POSITION,a.END_POSITION,
+        (
+        select count(*) from ALARM_INFO d where d.ASSET_ID = a.ASSET_ID
+            <if test="statusLogical==1">
+                <if test="status != null ">
+                    and d.STATUS = #{status}
+                </if>
+                <if test="alarmState != null ">
+                    and d.ALARM_STATE = #{alarmState}
+                </if>
+            </if>
+            <if test="statusLogical==2">
+                <choose>
+                    <when test="status != null and alarmState != null">
+                        and (d.STATUS = #{status} or d.ALARM_STATE = #{alarmState})
+                    </when>
+                    <when test="status != null ">
+                        and d.STATUS = #{status}
+                    </when>
+                    <when test="alarmState != null ">
+                        and d.ALARM_STATE = #{alarmState}
+                    </when>
+                </choose>
+            </if>
+            <if test="blank!=null ">
+                and d.blank = #{blank}
+            </if>
+        ) as alarm_size,
+        (
+        select min(e.ALARM_LEVEL) from ALARM_INFO e where e.ASSET_ID = a.ASSET_ID
+            <if test="statusLogical==1">
+                <if test="status != null ">
+                    and e.STATUS = #{status}
+                </if>
+                <if test="alarmState != null ">
+                    and e.ALARM_STATE = #{alarmState}
+                </if>
+            </if>
+            <if test="statusLogical==2">
+                <choose>
+                    <when test="status != null and alarmState != null">
+                        and (e.STATUS = #{status} or e.ALARM_STATE = #{alarmState})
+                    </when>
+                    <when test="status != null ">
+                        and e.STATUS = #{status}
+                    </when>
+                    <when test="alarmState != null ">
+                        and e.ALARM_STATE = #{alarmState}
+                    </when>
+                </choose>
+            </if>
+            <if test="blank!=null ">
+                and e.blank = #{blank}
+            </if>
+        ) as alarm_level
+        from CABINET c
+        left join ASSET_ATTACH a on a.CABINET_ID = c.id
+        left join asset b on a.ASSET_ID = b.id
+        where c.id = #{cabinetId}
+        <if test="showJcca==2">
+            and b.ASSET_SUPPLIER not like '%中航%'
+        </if>
+        <if test="assetIdList!=null">
+            <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->
+            and (b.ID IN
+            <trim suffixOverrides=" b.ID IN()">
+                <!-- 表示删除最后一个条件 -->
+                <foreach collection="assetIdList" item="Id" index="index" open="(" close=")">
+                    <if test="index != 0">
+                        <choose>
+                            <when test="index % 1000 == 999">
+                                ) OR a.ASSET_ID IN (
+                            </when>
+                            <otherwise>,</otherwise>
+                        </choose>
+                    </if>
+                    #{Id}
+                </foreach>
+            </trim>
+            )
+        </if>
+
+    </select>
+
+    <!-- 查询机柜最高级别告警级别 -->
+    <select id="findStatusByOrgId" parameterType="java.lang.String" resultType="com.jcca.web.graph.vo.GraphStatusVo">
+        SELECT c.ID id, MIN(i.ALARM_LEVEL) alarmLevel
+        FROM CABINET c
+                 LEFT JOIN ROOM r ON c.ROOM_ID = r.ID
+                 LEFT JOIN ASSET_ATTACH a ON a.CABINET_ID = c.ID
+                 LEFT JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID
+        WHERE (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+          AND i.BLANK = 1
+          AND r.ORG_ID = #{orgId}
+        GROUP BY c.ID
+    </select>
+
+    <!-- 查询机柜详情 -->
+    <select id="findDetailById" parameterType="java.lang.String" resultType="com.jcca.web.asset.vo.DetailCabinetVo">
+        select x.*, y.alarm_level
+        from (select a.id   assetId,
+                     a.name assetName,
+                     a.asset_image,
+                     a.asset_mode,
+                     a.ip,
+                     a.ip2,
+                     a.watch,
+                     h.end_position,
+                     h.start_position,
+                     c.name cabinetName
+              from asset a
+                       left join asset_attach h on a.id = h.asset_id
+                       left join cabinet c on h.cabinet_id = c.id
+              where a.is_del = 1
+                and a.desk != 1831
+                and a.id in (select asset_id from asset_attach where cabinet_id = #{id})) x
+                 left join
+             (select asset_id, min(alarm_level) alarm_level
+              from alarm_info i
+              where i.blank = 1
+                and (i.STATUS = 1 OR i.ALARM_STATE = 1)
+                and i.asset_id in (select asset_id from asset_attach where cabinet_id = #{id})
+              group by asset_id) y
+             on x.assetId = y.asset_id
+    </select>
+
+    <select id="findAlarmByCabinetId" parameterType="java.lang.String"
+            resultType="com.jcca.web.alarm.vo.AlarmUnconfirmVo">
+        select i.id,
+               i.title,
+               i.alarm_level,
+               i.content,
+               i.occur_time,
+               i.type,
+               i.status,
+               i.blank,
+               i.IS_SHOW_RECOVER as isShowRecover,
+               i.alarm_state
+        from alarm_info i
+        where i.blank = 1
+          and (i.status = 1 or (i.status = 2 and i.alarm_state = 1))
+          and i.asset_id in (select asset_id from asset_attach where cabinet_id = #{id})
+        order by i.occur_time desc
+    </select>
+
+</mapper>

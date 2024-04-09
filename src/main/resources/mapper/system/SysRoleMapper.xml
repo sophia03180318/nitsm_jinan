@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.system.dao.SysRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.SysRole">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="TITLE" property="title" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="PID" property="pid" jdbcType="VARCHAR"/>
+        <result column="PIDS" property="pids" jdbcType="VARCHAR"/>
+        <result column="SORT" property="sort" jdbcType="SMALLINT"/>
+        <result column="STATUS" property="status" jdbcType="SMALLINT"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,TITLE,NAME,PID,PIDS,SORT,STATUS,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+    </sql>
+
+    <select id="findRoleByUserId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select r.ID, r.TITLE, r.NAME, r.PID, r.PIDS, r.SORT, r.STATUS
+        from sys_role r
+                 left join sys_user_role ur on r.id = ur.role_id
+        where ur.user_id = #{userId}
+          and r.status = 1
+    </select>
+
+</mapper>

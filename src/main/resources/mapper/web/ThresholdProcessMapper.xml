@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.ThresholdProcessMapper">
+
+    <!--   <update id="updateGroupHostMode">
+           update THRESHOLD_PROCESS
+           set HOST_MODE = ${mode}
+           where PROCESS_NAME = #{processName}
+           and ASSET_ID IN
+           <foreach collection="assetIds" index="index" item="item" open="(" separator="," close=")">
+           #{item}
+           </foreach>
+       </update>
+       -->
+    <update id="updateGroupHostMode">
+        update THRESHOLD_PROCESS
+        set HOST_MODE = ${mode}
+        where PROCESS_NAME = #{processName}
+          and ASSET_ID =
+              #{assetIds}
+    </update>
+
+    <update id="updateByAssetIdAndProcessName">
+        update THRESHOLD_PROCESS
+        set COLLECT_STATUS = #{collectStatus}
+        <if test="processId !=null and processId!=''">
+           ,PROCESS_ID = #{processId}
+        </if>
+        where ASSET_ID = #{assetId}
+          and PROCESS_NAME = #{processName}
+    </update>
+
+    <update id="updateHostModeByAssetCode">
+        update THRESHOLD_PROCESS
+        set HOST_MODE = #{hostMode}
+        where ASSET_ID IN (select a.id from asset a where a.ASSET_CODE = #{assetCode})
+    </update>
+
+</mapper>

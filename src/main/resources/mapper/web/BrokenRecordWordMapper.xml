@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.broken.dao.BrokenRecordWordMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.broken.controller.bean.BrokenRecordWord">
+        <id column="BORKEN_ID" property="id" jdbcType="VARCHAR"/>
+        <result column="borken_alarm_state" property="alarmState" jdbcType="BIGINT"/>
+        <result column="alarm_status" property="alarmStatus" jdbcType="BIGINT"/>
+        <result column="solve_status" property="solveStatus" jdbcType="BIGINT"/>
+        <result column="TITLE" property="title" jdbcType="BIGINT"/>
+        <result column="ALARM_LEVEL" property="alarmLevel" jdbcType="BIGINT"/>
+        <result column="borken_content" property="content" jdbcType="VARCHAR"/>
+        <collection property="brokenRecordOpinions" javaType="java.util.List"
+                    ofType="com.jcca.web.broken.entity.BrokenRecordOpinion">
+            <id property="brokenRecordId" column="list_id"></id>
+            <result property="opinion" column="list_opinion"></result>
+            <result property="createTime" column="list_createTime"></result>
+            <result property="creator" column="list_creator"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="getBrokenRecordWordsV2" resultMap="BaseResultMap"
+            parameterType="com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery">
+        select a.id BORKEN_ID,a.ALARM_STATE borken_alarm_state,a.status as alarm_status,
+
+        a.content borken_content,d.broken_record_id list_id,a.TITLE as title,A.ALARM_LEVEL AS ALARM_LEVEL,
+        d.solve_status,
+        d.opinion list_opinion,d.create_time list_createTime,d.creator list_creator
+        from (
+        select alarm_info.*,asset.name,asset.asset_mode from alarm_info,asset where alarm_info.asset_id=asset.id
+        <if test="assetMode != null and assetMode != ''">
+            and asset.asset_mode = #{assetMode}
+        </if>
+        ) a
+        left join
+        (select b.alarm_id,b.status as solve_status, c.* from BROKEN_RECORD b
+        left join BROKEN_RECORD_OPINION c on b.id=c.BROKEN_RECORD_ID) d on a.id=d.alarm_id
+        where rownum &lt; 20000
+        <if test="orgId != null and orgId != ''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="orgIds != null">
+            and a.org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="assetIp != null and assetIp != ''">
+            and REGEXP_LIKE(a.asset_ip, #{assetIp})
+        </if>
+        <if test="assetName != null and assetName != ''">
+            and REGEXP_LIKE(a.name, #{assetName})
+        </if>
+        <if test="title != null and title != ''">
+            and REGEXP_LIKE(a.TITLE, #{title})
+        </if>
+        <if test="status != null">
+            and a.status = #{status}
+        </if>
+        <if test="eventCategory != null and eventCategory !='' ">
+            and a.alarm_code = #{eventCategory}
+        </if>
+        <if test="alarmLevel != null">
+            and a.alarm_level = #{alarmLevel}
+        </if>
+        <if test="type != null">
+            and a.type = #{type}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and a.occur_time between #{startTime} and #{endTime}
+        </if>
+        <if test="assetMode != null">
+            and a.asset_mode = #{assetMode}
+        </if>
+        order by a.occur_time desc
+
+    </select>
+
+    <select id="getBrokenRecordWords" resultMap="BaseResultMap"
+            parameterType="com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery">
+        select a.id BORKEN_ID,a.ALARM_STATE borken_alarm_state,a.status as alarm_status,
+
+        a.content borken_content,d.broken_record_id list_id,a.TITLE as title,A.ALARM_LEVEL AS ALARM_LEVEL,
+        d.solve_status,
+        d.opinion list_opinion,d.create_time list_createTime,d.creator list_creator
+        from (
+        select alarm_info.*,asset.name,asset.asset_mode from alarm_info,asset where alarm_info.asset_id=asset.id
+        <if test="assetMode != null and assetMode != ''">
+            and asset.asset_mode = #{assetMode}
+        </if>
+        ) a
+        left join
+        (select b.alarm_id,b.status as solve_status, c.* from BROKEN_RECORD b
+        left join BROKEN_RECORD_OPINION c on b.id=c.BROKEN_RECORD_ID) d on a.id=d.alarm_id
+        where rownum &lt; 20000
+        <if test="orgId != null and orgId != ''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="orgIds != null">
+            and a.org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="ip != null and ip != ''">
+            and REGEXP_LIKE(a.asset_ip, #{ip})
+        </if>
+        <if test="assetName != null and assetName != ''">
+            and REGEXP_LIKE(a.name, #{assetName})
+        </if>
+        <if test="title != null and title != ''">
+            and REGEXP_LIKE(a.TITLE, #{title})
+        </if>
+        <if test="status != null">
+            and a.status = #{status}
+        </if>
+        <if test="title != null and title != ''">
+            and REGEXP_LIKE(a.title, #{title})
+        </if>
+        <if test="alarmLevel != null">
+            and a.alarm_level = #{alarmLevel}
+        </if>
+        <if test="type != null">
+            and a.type = #{type}
+        </if>
+        <if test="startDate != null and endDate != null">
+            and a.occur_time between #{startDate} and #{endDate}
+        </if>
+        <if test="assetMode != null">
+            and a.asset_mode = #{assetMode}
+        </if>
+
+        <if test="alarmLevelList != null">
+            and (i.ALARM_LEVEL IN
+            <trim suffixOverrides=" a.ALARM_LEVEL IN()">
+                <!-- 表示删除最后一个条件 -->
+                <foreach collection="alarmLevelList" item="Id" index="index" open="(" close=")">
+                    <if test="index != 0">
+                        <choose>
+                            <when test="index % 1000 == 999">
+                                ) OR i.ALARM_LEVEL IN (
+                            </when>
+                            <otherwise>,</otherwise>
+                        </choose>
+                    </if>
+                    #{Id}
+                </foreach>
+            </trim>
+            )
+        </if>
+
+        <if test="alarmCodeList != null">
+            and (i.ALARM_CODE IN
+            <trim suffixOverrides=" a.ALARM_CODE IN()">
+                <!-- 表示删除最后一个条件 -->
+                <foreach collection="alarmCodeList" item="Id" index="index" open="(" close=")">
+                    <if test="index != 0">
+                        <choose>
+                            <when test="index % 1000 == 999">
+                                ) OR i.ALARM_LEVEL IN (
+                            </when>
+                            <otherwise>,</otherwise>
+                        </choose>
+                    </if>
+                    #{Id}
+                </foreach>
+            </trim>
+            )
+        </if>
+
+
+        order by a.occur_time desc
+
+    </select>
+
+    <select id="listByAlarmId" parameterType="java.lang.String" resultType="com.jcca.web2.vo.DialogsAlarmListVo">
+        select c.TYPE            as orgType,
+               c.TITLE           as orgName,
+               b.ID              as assetId,
+               b.NAME            as assetName,
+               b.IP              as assetIp1,
+               b.IP2             as assetIp2,
+               b.ASSET_MODE      as assetMode,
+               a.id              as alarmId,
+               a.TYPE            as alarmType,
+               a.TITLE,
+               a.ALARM_LEVEL     as alarmLevel,
+               a.content,
+               a.description,
+               a.ALARM_CODE      as alarmCode,
+               a.OCCUR_TIME      as occurTime,
+               a.CONFIRM_TIME    as confirmTime,
+               a.confirmor       as confirmor,
+               a.ALARM_TO_RECORD as alarmToRecord,
+               a.opinion,
+               a.remark,
+               a.blank,
+               a.status,
+               a.ALARM_STATE     as alarmState
+        from ALARM_INFO a
+                 left join ASSET b on a.ASSET_ID = b.ID
+                 left join sys_org c on b.ORG_ID = c.ID
+        where a.id = #{alarmId}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.AssetHardwareFixMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.asset.entity.AssetHardwareFix">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="FRU_BEFORE" property="fruBefore" jdbcType="VARCHAR"/>
+        <result column="FRU_NOW" property="fruNow" jdbcType="VARCHAR"/>
+        <result column="HARDWARE_TYPE" property="hardwareType" jdbcType="BIGINT"/>
+        <result column="FIX_TIME" property="fixTime" jdbcType="TIMESTAMP"/>
+        <result column="REASON" property="reason" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,ASSET_ID,FRU_BEFORE,FRU_NOW,HARDWARE_TYPE,FIX_TIME,REASON,DESCRIPTION,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+    </sql>
+
+    <select id="findByPage" resultType="com.jcca.web.asset.vo.AssetHardwareFixVo"
+            parameterType="com.jcca.web.asset.controller.bean.AssetHardwareFixReq">
+        SELECT *
+        FROM (SELECT t.*, ROWNUM AS rowno FROM (SELECT
+        h.id,
+        h.fru_before fruBefore,
+        h.fru_now fruNow,
+        h.hardware_type hardwareType,
+        h.fix_time fixTime,
+        h.reason,
+        h.description,
+        h.create_time createTime,
+        a.id assetId,
+        a.name assetName,
+        a.ip assetIp,
+        a.ipmi_ip ipmiIp,
+        a.asset_mode assetMode,
+        decode(a.desk, 183,'服务器',42,'路由器',201,'交换机',263,'数据库',1831,'终端',1832,'小型机',1833,'工控机',61,'磁盘阵列','未知' )
+        assetModeStr,
+        decode(a.MANUFACTURER_ID, 0,'惠普',1,'IBM',2,'华为',3,'ORACLE',4,'思科',5,'MOXA',6,'研华','未知' ) manufacturer,
+        decode(h.HARDWARE_TYPE,1,'CPU',2,'内存',3,'硬盘',4,'电源',5,'板卡',6,'风扇',7,'引擎',8,'CPU板',9,'IO板',10,'控制器',11,'稳压模块','未知')hardwareTypeStr
+        FROM ASSET_HARDWARE_FIX h LEFT JOIN ASSET a on a.ID = h.ASSET_ID
+        WHERE 1 = 1 and a.IS_DEL = 1
+        <if test="assetName != null and assetName !=''">
+            and a.name like concat(concat('%', #{assetName}), '%')
+        </if>
+        <if test="hardwareType != null">
+            and h.hardware_type = #{hardwareType}
+        </if>
+        <if test="assetMode != null">
+            and a.desk = #{assetMode}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and h.FIX_TIME BETWEEN TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
+            AND TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+        </if>
+        <if test="assetIdList != null">
+            and h.asset_id IN
+            <foreach collection="assetIdList" item="id" index="index" open="(" close=")" separator=",">
+                <if test="(index % 999) == 998">NULL ) OR h.asset_id IN (</if>#{id}
+            </foreach>
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+
+        ORDER BY h.CREATE_TIME DESC) t WHERE ROWNUM &lt; #{end}) tt
+        WHERE tt.rowno &gt; #{start}
+    </select>
+
+    <select id="countItem" parameterType="com.jcca.web.asset.controller.bean.AssetHardwareFixReq"
+            resultType="java.lang.Long">
+        select count(*)
+        from asset_hardware_fix h
+        left join asset a on h.asset_id = a.id
+        where 1=1 and a.IS_DEL = 1
+        <if test="assetName != null and assetName !=''">
+            and a.name like concat(concat('%', #{assetName}), '%')
+        </if>
+        <if test="hardwareType != null">
+            and h.hardware_type = #{hardwareType}
+        </if>
+        <if test="assetMode != null">
+            and a.desk = #{assetMode}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and h.FIX_TIME BETWEEN TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
+            AND TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+        </if>
+        <if test="assetIdList != null">
+            and h.asset_id in
+            <foreach collection="assetIdList" item="id" index="index" open="(" close=")" separator=",">
+                <if test="(index % 999) == 998">NULL ) OR h.asset_id IN (</if>#{id}
+            </foreach>
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="findExport" resultType="com.jcca.web.asset.vo.AssetHardwareFixExportVo"
+            parameterType="com.jcca.web.asset.controller.bean.AssetHardwareFixReq">
+        SELECT *
+        FROM (SELECT t.*, ROWNUM AS rowno FROM (SELECT
+        h.id,
+        h.fru_before fruBefore,
+        h.fru_now fruNow,
+        h.hardware_type hardwareType,
+        h.fix_time fixTime,
+        h.reason,
+        h.description,
+        h.create_time createTime,
+        a.id assetId,
+        a.name assetName,
+        a.ip assetIp,
+        a.ipmi_ip ipmiIp,
+        a.asset_mode assetMode,
+        decode(a.desk, 183,'服务器',42,'路由器',201,'交换机',263,'数据库',1831,'终端',1832,'小型机',1833,'工控机','未知' ) assetModeStr,
+        decode(a.MANUFACTURER_ID, 0,'惠普',1,'IBM',2,'华为',3,'ORACLE',4,'思科',5,'MOXA',6,'研华','未知' ) manufacturer,
+        decode(h.HARDWARE_TYPE,1,'CPU',2,'内存',3,'硬盘',4,'电源',5,'板卡',6,'风扇',7,'引擎',8,'CPU板',9,'IO板',10,'控制器',11,'稳压模块','未知')hardwareTypeStr
+        FROM ASSET_HARDWARE_FIX h LEFT JOIN ASSET a on a.ID = h.ASSET_ID
+        WHERE 1 = 1
+        <if test="assetName != null and assetName !=''">
+            and a.name like concat(concat('%', #{assetName}), '%')
+        </if>
+        <if test="hardwareType != null">
+            and h.hardware_type = #{hardwareType}
+        </if>
+        <if test="assetMode != null">
+            and a.desk = #{assetMode}
+        </if>
+        <if test="month != null and month != ''">
+            and to_char(h.fix_time, 'yyyy-mm') = #{month}
+        </if>
+        <if test="assetIdList != null">
+            and h.asset_id in
+            <foreach collection="assetIdList" item="id" index="index" open="(" close=")" separator=",">
+                <if test="(index % 999) == 998">NULL ) OR h.asset_id IN (</if>#{id}
+            </foreach>
+        </if>
+        ORDER BY h.CREATE_TIME DESC) t WHERE ROWNUM &lt; #{end}) tt
+        WHERE tt.rowno &gt; #{start}
+    </select>
+
+
+</mapper>

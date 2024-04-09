@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.biz.dao.MetadataMapper">
+
+
+    <select id="taskMenu" parameterType="java.lang.String" resultType="java.lang.String">
+       select url from SYS_MENU where status =1 order by id
+    </select>
+
+    <select id="taskAlarm" parameterType="java.lang.String" resultType="java.lang.String">
+       select CONCAT(CONCAT(ALARM_CODE, ',,'), FLAG_TYPE) from ALARM_REPOSITORY order by id
+    </select>
+
+
+    <select id="task" parameterType="java.lang.String" resultType="java.lang.String">
+        select ${columnName} from ${tableName} order by id
+    </select>
+
+    <select id="taskSql" parameterType="java.lang.String" resultType="java.lang.String">
+      ${sql}
+    </select>
+</mapper>
+

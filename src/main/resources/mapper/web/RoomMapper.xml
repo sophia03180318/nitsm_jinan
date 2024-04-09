@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.RoomMapper">
+    <resultMap type="SysRoomAssetMsgBean" id="RoomAssetResult">
+        <result column="ROOM_ID" property="roomId" jdbcType="VARCHAR"/>
+        <result column="unique_cabinet_Id" property="cabinetId" jdbcType="VARCHAR"/>
+        <association property="cabinet"    column="cabinet_id" javaType="Cabinet" resultMap="cabinetResult" />
+        <collection  property="assetList"   javaType="java.util.List"        resultMap="assetListResult" />
+    </resultMap>
+
+    <resultMap type="Cabinet" id="cabinetResult">
+        <id column="CABINET_Id" property="id" jdbcType="VARCHAR"/>
+        <result column="CABINET_NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="CODE" property="code" jdbcType="BIGINT"/>
+        <result column="ROOM_ID" property="roomId" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap type="Asset" id="assetListResult">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="ASSET_CODE" property="assetCode" jdbcType="VARCHAR"/>
+        <result column="DESK" property="desk" jdbcType="TINYINT"/>
+        <result column="IP" property="ip" jdbcType="VARCHAR"/>
+        <result column="ASSET_MODE" property="assetMode" jdbcType="INTEGER"/>
+        <result column="STATUS" property="status" jdbcType="TINYINT"/>
+        <result column="MANUFACTURER_ID" property="manufacturerId" jdbcType="INTEGER"/>
+        <result column="ORG_ID" property="orgId" jdbcType="VARCHAR"/>
+        <result column="COLLECTION_TYPE" property="collectionType" jdbcType="VARCHAR"/>
+        <result column="PROTOCOL_TYPE" property="protocolType" jdbcType="TINYINT"/>
+        <result column="ASSET_IMAGE" property="assetImage" jdbcType="VARCHAR"/>
+        <result column="IP2" property="ip2" jdbcType="VARCHAR"/>
+        <result column="assetRoomId" property="roomId" jdbcType="VARCHAR"/>
+        <result column="roomName" property="roomName" jdbcType="VARCHAR"/>
+        <result column="cabinetName" property="cabinetName" jdbcType="VARCHAR"/>
+        <result column="A_B_FLAG" property="aBFlag" jdbcType="TINYINT"/>
+        <result column="IS_DEL" property="isDel" jdbcType="TINYINT"/>
+        <result column="WATCH" property="watch" jdbcType="TINYINT"/>
+        <result column="SHOW_TOPO" property="showTopo" jdbcType="TINYINT"/>
+        <result column="NTP_FLAG" property="ntpFlag" jdbcType="TINYINT"/>
+        <result column="START_POSITION" property="startPosition" jdbcType="INTEGER"/>
+        <result column="END_POSITION" property="endPosition" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="selectRoomAssetVo">
+        select r.id as ROOM_ID,c.id as unique_cabinet_Id, c.id as CABINET_Id,c.NAME as CABINET_NAME,c.CODE,c.ROOM_ID,c.REMARK,
+        a.ID,a.NAME,a.ASSET_CODE,a.DESK,a.IP,a.ASSET_MODE,a.STATUS,a.MANUFACTURER_ID,a.ORG_ID,
+        a.COLLECTION_TYPE,a.PROTOCOL_TYPE,a.ASSET_IMAGE,a.IP2,a.A_B_FLAG,a.IS_DEL,a.WATCH,a.SHOW_TOPO,
+        a.NTP_FLAG,h.START_POSITION,h.END_POSITION,r.name as roomName,r.id as assetRoomId,c.name as cabinetName
+        from ROOM r
+        left join CABINET c on r.ID = c.ROOM_ID
+        left join ASSET_ATTACH h on h.CABINET_ID = c.id
+        left join ASSET a on a.ID = h.asset_id  and a.IS_DEL = 1
+    </sql>
+
+    <select id="selectRoomAssets" parameterType="String" resultMap="RoomAssetResult">
+        <include refid="selectRoomAssetVo"/>
+        where r.id=#{roomId} and a.ID is not null order by c.row_index,c.column_index
+    </select>
+</mapper>

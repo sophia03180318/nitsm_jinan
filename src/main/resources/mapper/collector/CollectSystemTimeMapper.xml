@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.collect.dao.CollectSystemTimeMapper">
+
+    <select id="listGroupByAsset" resultType="com.jcca.web.common.controller.bean.DurationResp">
+        select a.asset_Id                       as assetId,
+               b.name                           as assetName,
+               b.ASSET_MODE                     as assetMode,
+               b.ip                             as assetIp,
+               ROUND(a.TIMEDURATION / 86400, 0) as duration
+        from COLLECT_SYSTEM_TIME a
+                 left join ASSET b ON a.asset_Id = b.id
+    </select>
+
+    <select id="pageGroupByAsset" parameterType="java.lang.Integer"
+            resultType="com.jcca.web.common.controller.bean.DurationResp">
+        select assetId, assetName, assetMode, assetIp, duration, num
+        from (
+                 select a.asset_Id                       as assetId,
+                        b.name                           as assetName,
+                        b.ASSET_MODE                     as assetMode,
+                        b.ip                             as assetIp,
+                        ROUND(a.TIMEDURATION / 86400, 0) as duration,
+                        rownum                           as num
+                 from COLLECT_SYSTEM_TIME a
+                          join ASSET b ON a.asset_Id = b.id
+                 where b.IS_DEL = 1
+                 order by a.asset_Id asc
+             ) c
+        where c.num between ((#{pageIndex} - 1) * #{pageSize} + 1) and (#{pageIndex} * #{pageSize})
+    </select>
+
+</mapper>

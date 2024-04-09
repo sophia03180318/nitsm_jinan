@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.graph.dao.TopoVertexMapper">
+
+    <resultMap id="BaseResultMap"
+               type="com.jcca.web.graph.entity.TopoVertex">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="NODE_ID" property="nodeId" jdbcType="VARCHAR"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="A_B_FLAG" property="aBFlag" jdbcType="VARCHAR"/>
+        <result column="NODE_TYPE" property="nodeType"
+                jdbcType="VARCHAR"/>
+        <result column="NODE_STYLE" property="nodeStyle"
+                jdbcType="VARCHAR"/>
+        <result column="NODE_PARENT" property="nodeParent"
+                jdbcType="VARCHAR"/>
+
+        <result column="SERVER_ROLE" property="serverRole"
+                jdbcType="VARCHAR"/>
+        <result column="SERVER_IP" property="serverIp"
+                jdbcType="VARCHAR"/>
+        <result column="SERVER_IP2" property="serverIp2"
+                jdbcType="VARCHAR"/>
+        <result column="CLUSTER_STATUS" property="clusterStatus"
+                jdbcType="VARCHAR"/>
+
+        <result column="NODE_X" property="nodeX" jdbcType="BIGINT"/>
+        <result column="NODE_Y" property="nodeY" jdbcType="BIGINT"/>
+        <result column="NODE_WIDTH" property="nodeWidth"
+                jdbcType="BIGINT"/>
+        <result column="NODE_HEIGHT" property="nodeHeight"
+                jdbcType="BIGINT"/>
+        <result column="NODE_CONNECTABLE" property="nodeConnectable"
+                jdbcType="BIGINT"/>
+        <result column="ORG_ID" property="orgId" jdbcType="VARCHAR"/>
+        <result column="OFFSET_X" property="offsetX" jdbcType="BIGINT"/>
+        <result column="OFFSET_Y" property="offsetY" jdbcType="BIGINT"/>
+        <result column="IS_PORT" property="isPort" jdbcType="BIGINT"/>
+        <result column="PORT_INDEX" property="portIndex"
+                jdbcType="VARCHAR"/>
+        <result column="WATCH" property="WATCH"
+                jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,NODE_ID,NAME,NODE_TYPE,NODE_STYLE,NODE_PARENT,NODE_X,NODE_Y,NODE_WIDTH,NODE_HEIGHT,NODE_CONNECTABLE,ORG_ID,PORT_INDEX,WATCH
+    </sql>
+
+    <select id="selectNodeByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as
+        assetOrgId, t.asset_mode as assetMode,t.watch
+        FROM asset t
+        left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id
+        and v.node_type =#{nodeType}
+        where t.ORG_ID = #{orgId} and t.SHOW_TOPO=1
+        and
+        t.ASSET_MODE in
+        <foreach collection="assetModeList" item="mode" separator=","
+                 open="(" close=")">
+            #{mode}
+        </foreach>
+        and IS_DEL=1
+        <if test="name != null and name != ''">
+            and REGEXP_LIKE(t.name, #{name})
+        </if>
+        order by v.name
+    </select>
+
+
+    <select id="selectNodeByAsset2"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as
+        assetOrgId, t.asset_mode as assetMode,t.watch
+        FROM asset t
+        left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id and
+        v.node_type =#{nodeType}
+        where t.ORG_ID = #{orgId} and t.SHOW_TOPO=1
+        and
+        t.ASSET_MODE in
+        <foreach collection="assetModeList" item="mode" separator=","
+                 open="(" close=")">
+            #{mode}
+        </foreach>
+
+        and IS_DEL=1
+        <if test="name != null and name != ''">
+            and REGEXP_LIKE(t.name, #{name})
+        </if>
+        order by v.name
+    </select>
+
+
+    <select id="selectPcTopoNodeByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as
+        assetOrgId, t.asset_mode as assetMode,t.watch
+        FROM asset t
+        left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id and
+        v.node_type =#{nodeType}
+        where t.ORG_ID = #{orgId}
+        and t.ASSET_MODE = #{mode1} and t.DESK=1831 and IS_DEL=1
+        <if test="name != null and name != ''">
+            and REGEXP_LIKE(t.name, #{name})
+        </if>
+        order by v.name
+    </select>
+
+    <select id="selectNetworkAssetTopoNodeByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*,
+               t.name       as assetName,
+               t.id         as assetId,
+               t.org_id     as assetOrgId,
+               t.asset_mode as assetMode,
+               t.watch
+        FROM asset t
+                 left join TOPO_VERTEX v on t.id = v.asset_id and
+                                            v.node_type = 'netWorkAsset_topo' and v.core_asset_id = #{assetId}
+        where t.id in
+              (select at_asset_id
+               from COLLECT_ROUTE
+               where asset_id = #{assetId}
+                 and at_asset_id is not null)
+           or t.id = #{assetId}
+        order by is_port desc
+    </select>
+
+    <select id="selectNodeAlarmLevelByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        SELECT alarm.alarmLevel,
+               v.*,
+
+               r.status as clusterStatus,
+               r.SERVER_ROLE as serverRole,
+               r.SERVER_IP as serverIp,
+               r.SERVER_IP2 as serverIp2,
+
+               t.name        as assetName,
+               t.A_B_FLAG,
+               t.id          as assetId,
+               t.org_id      as assetOrgId,
+               t.asset_image as assetImage,
+               t.show_core   as showCore,
+               t.asset_mode  as assetMode,
+               t.watch
+        FROM asset t
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id
+                 left join COLLECT_CLUSTER r on t.id = r.ASSET_ID and v.NAME = r.SERVER_NAME
+            and v.NODE_TYPE = #{nodeType}
+                 left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM ALARM_INFO i
+                                     LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                            WHERE a.ASSET_MODE IN (42,201)
+                              AND a.ORG_ID = #{orgId}
+                              AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+                              and i.BLANK = 1
+                            GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where t.ORG_ID = #{orgId}
+          and t.SHOW_TOPO = 1
+          and (t.ASSET_MODE = #{mode1} or t.ASSET_MODE = #{mode2})
+          and IS_DEL = 1
+        order by v.name
+    </select>
+
+    <select id="selectNodeAlarmLevelByAsset2"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        SELECT alarm.alarmLevel,
+               v.*,
+               r.status as clusterStatus,
+               r.SERVER_ROLE as serverRole,
+               r.SERVER_IP as serverIp,
+               r.SERVER_IP2 as serverIp2,
+
+
+               t.name        as assetName,
+               t.id          as assetId,
+               t.org_id      as assetOrgId,
+               t.asset_image as assetImage,
+               t.show_core   as showCore,
+               t.watch,
+               t.A_B_FLAG,
+               t.asset_mode  as assetMode
+        FROM asset t
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id and v.NODE_TYPE = #{nodeType}
+                 left join COLLECT_CLUSTER r on t.id = r.ASSET_ID and v.NAME = r.SERVER_NAME
+                 left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM ALARM_INFO i
+                                     LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                            WHERE a.ASSET_MODE IN (42, 201, 183, 318)
+                              AND a.ORG_ID = #{orgId}
+                              AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+                              and i.BLANK = 1
+                            GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where t.ORG_ID = #{orgId}
+          and t.SHOW_TOPO = 1
+          and (t.ASSET_MODE = #{mode1} or t.ASSET_MODE = #{mode2} or t.ASSET_MODE = 183 or t.ASSET_MODE = 318)
+
+          and IS_DEL = 1
+        order by v.name
+    </select>
+    <select id="topoNetWorkVertexStatus"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmStatusVo">
+        SELECT alarm.alarmLevel,
+               v.node_id
+        FROM asset t
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id and
+                                            v.core_asset_id = #{assetId} and v.node_type = 'netWorkAsset_topo'
+                 left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM ALARM_INFO i
+                                     LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                            WHERE i.STATUS = 1
+                               OR (i.STATUS = 2 AND i.ALARM_STATE = 1)
+                            GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where IS_DEL = 1
+          and v.is_port is null
+        order by v.name
+    </select>
+
+
+    <select id="topoVertexStatus"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmStatusVo">
+        SELECT alarm.alarmLevel,
+        v.node_id
+        FROM asset t
+        left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id
+        left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+        FROM ALARM_INFO i
+        LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+        WHERE a.ASSET_MODE IN (42, 201)
+        <if test="orgIds != null ">
+            AND a.ORG_ID in
+            <foreach collection="orgIds" item="orgId" separator=","
+                     open="(" close=")">
+                #{orgId}
+            </foreach>
+        </if>
+        AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+        GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where
+        <if test="orgIds != null ">
+            t.ORG_ID in
+            <foreach collection="orgIds" item="orgId" separator=","
+                     open="(" close=")">
+                #{orgId}
+            </foreach>
+            and
+        </if>
+        t.SHOW_TOPO = 1
+        and (t.ASSET_MODE = 42 or t.ASSET_MODE = 201)
+        <!-- and t.DESK = 0 -->
+        and t.IS_DEL = 1
+        and v.is_port is null
+        and v.NODE_TYPE= #{nodeType}
+        order by v.name
+    </select>
+
+    <select id="selectPcTopoNodeAlarmLevelByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        SELECT alarm.alarmLevel,
+               v.*,
+               t.name       as assetName,
+               t.id         as assetId,
+               t.org_id     as assetOrgId,
+               t.watch,
+               t.asset_mode as assetMode
+        FROM asset t
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id and v.node_type = 'pc_topo'
+                 left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM ALARM_INFO i
+                                     LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                            WHERE i.BLANK = 1
+                              AND a.ASSET_MODE = #{mode1}
+                              AND a.ORG_ID = #{orgId}
+                              AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+                            GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where t.ORG_ID = #{orgId}
+          and t.SHOW_TOPO = 1
+          and t.ASSET_MODE = #{mode1}
+          and t.DESK = 1831
+          and v.NODE_TYPE = #{nodeType}
+          and IS_DEL = 1
+        order by v.name
+    </select>
+
+    <select id="selectNetWorkTopoNodeAlarmLevelByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        SELECT alarm.alarmLevel,
+               v.*,
+               t.name        as assetName,
+               t.id          as assetId,
+               t.org_id      as assetOrgId,
+               t.asset_image as assetImage,
+               t.show_core   as showCore,
+               t.watch,
+               asset_mode    as assetMode
+        FROM asset t
+                 join TOPO_VERTEX v on t.id = v.asset_id and t.org_id =
+                                                             v.org_id and v.node_type = 'netWorkAsset_topo' and
+                                       v.core_asset_id = #{assetId}
+                 left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM ALARM_INFO i
+                                     LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                            WHERE a.ORG_ID = #{orgId}
+                              AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+                            GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where t.ORG_ID = #{orgId}
+          and t.SHOW_TOPO = 1
+          and IS_DEL = 1
+        order by v.name
+    </select>
+
+    <select id="selectNodeAlarmLevelByCabnet"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        SELECT alarm.alarmLevel,
+               v.*,
+               t.name         as assetName,
+               t.id           as assetId,
+               t.org_id       as assetOrgId,
+               t.row_index    as rowIndex,
+               t.COLUMN_INDEX as columnIndex
+        FROM (select distinct t.id, t.name, t.row_index, t.COLUMN_INDEX, a.org_id
+              from cabinet t,
+                   room a
+              where a.id = t.room_id
+                and a.org_id = #{orgId}) t
+                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
+                 left join (
+            SELECT c.ID id, MIN(i.ALARM_LEVEL) alarmLevel
+            FROM CABINET c
+                     LEFT JOIN ROOM r ON c.ROOM_ID = r.ID
+                     LEFT JOIN ASSET_ATTACH a ON a.CABINET_ID = c.ID
+                     LEFT JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID
+            WHERE (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+              and i.BLANK = 1
+              AND r.ORG_ID = #{orgId}
+            GROUP BY c.ID
+        ) alarm on t.id = alarm.id
+        where t.ORG_ID = #{orgId}
+    </select>
+
+    <select id="selectNodeByCabnet"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as
+        assetOrgId,row_index,column_index
+        FROM (select distinct t.id, t.name, a.org_id,t.row_index,t.column_index
+        from cabinet t,
+        room a
+        where a.id = t.room_id and a.org_id= #{orgId} ) t
+        left join TOPO_VERTEX v on v.asset_id=t.id and v.org_id=t.org_id
+        where t.ORG_ID = #{orgId}
+        order by row_index,column_index
+    </select>
+
+    <select id="findPortStatus"
+            resultType="com.jcca.web.graph.vo.TopoPortStatus"
+            parameterType="java.util.Map">
+        select p.asset_id, p.status, v.node_id
+        from topo_asset_port p
+        left join topo_vertex v on p.asset_id = v.asset_id and p.port_index =
+        v.port_index
+        left join asset a on a.id = p.asset_id
+        where v.is_port = 1
+        and a.is_del = 1
+        <if test="params.orgIds != null">
+            and a.org_id in
+            <foreach collection="params.orgIds" item="orgId"
+                     separator="," open="(" close=")">
+                #{orgId}
+            </foreach>
+        </if>
+        <if test="params.status != null and params.status != ''">
+            and p.status = #{params.status}
+        </if>
+    </select>
+
+    <select id="findNetWorkPortStatus" parameterType="java.util.Map"
+            resultType="com.jcca.web.graph.vo.TopoPortStatus">
+        select p.asset_id, p.status, v.node_id
+        from topo_asset_port p
+                 join topo_vertex v on p.asset_id = v.asset_id and
+                                       p.port_index = v.port_index and v.node_type = 'netWorkAsset_topo' and
+                                       v.core_asset_id = #{assetId}
+                 left join asset a on a.id = p.asset_id
+        where v.is_port = 1
+          and a.is_del = 1
+    </select>
+
+    <select id="findNetWorkDownPort" parameterType="java.util.Map"
+            resultType="com.jcca.web.graph.vo.TopoPortStatus">
+        select p.asset_id, p.status, v.node_id
+        from topo_asset_port p
+                 join topo_vertex v on p.asset_id = v.asset_id and
+                                       p.port_index = v.port_index and v.node_type = 'netWorkAsset_topo' and
+                                       v.core_asset_id = #{assetId}
+                 left join asset a on a.id = p.asset_id
+        where v.is_port = 1
+          and a.is_del = 1
+          and p.STATUS = 2
+    </select>
+
+    <select id="queryTarget" parameterType="java.util.Map"
+            resultType="com.jcca.admin.biz.vo.AssetTargetVo">
+        select localAssetId, targetAssetName, targetAssetId, localPortIndex, targetPortIndex
+        from (select c.asset_id         localAssetId,
+                     a.name             targetAssetName,
+                     a.id               targetAssetId,
+                     port_index_name    localPortIndex,
+                     at_port_index_name targetPortIndex
+              from asset a,
+                   collect_route c
+              where a.id = c.at_asset_id
+                and c.asset_id = #{assetId}
+                and a.asset_mode in (201, 42))
+        group by localAssetId, targetAssetName, targetAssetId, localPortIndex, targetPortIndex
+
+    </select>
+
+    <select id="queryTargetAll" parameterType="java.util.Map"
+            resultType="com.jcca.admin.biz.vo.AssetTargetVo">
+        select c.asset_id         localAssetId,
+               a.name             targetAssetName,
+               a.id               targetAssetId,
+               port_index_name    localPortIndex,
+               at_port_index_name targetPortIndex
+        from asset a,
+             collect_route c
+        where a.id = c.at_asset_id
+          and c.asset_id = #{assetId}
+
+    </select>
+
+
+    <select id="queryPortIScorrect" parameterType="java.util.Map"
+            resultType="com.jcca.admin.biz.vo.AssetTargetVo">
+        select c.asset_id         localAssetId,
+               a.name             targetAssetName,
+               a.id
+                                  targetAssetId,
+               port_index_name    localPortIndex,
+               at_port_index_name targetPortIndex
+        from asset a,
+             collect_route c
+        where a.id = c.asset_id
+          and a.id = #{localId}
+          and c.at_asset_id = #{targetId}
+    </select>
+
+    <select id="findMaAssetAndPort" resultType="com.jcca.web.collect.controller.route.bean.AssetLinkAssetVo">
+        select asset_id, port_index, maOrAt, maAssetId, maPort
+        from (
+                 select v.asset_id, v.port_index, '1' as maOrAt, vv.asset_id maAssetId, vv.port_index maPort
+                 from topo_vertex v
+                          left join topo_edge e on v.node_id = e.edge_source
+                          left join topo_vertex vv on vv.node_id = e.edge_target
+                 where v.asset_id != vv.asset_id
+                   and v.port_index is not null
+                   and v.node_type = 'net_topo')
+        where maPort is not null
+        group by asset_id, port_index, maOrAt, maAssetId, maPort
+    </select>
+
+</mapper>

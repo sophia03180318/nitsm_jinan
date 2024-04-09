@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.ip.dao.IpInfoMapper">
+
+        <select id="selectIPVoV2" parameterType="java.lang.String" resultType="com.jcca.web2.vo.IpVo">
+            SELECT a.id,a.ip,a.status,a.AUTH_STATUS as authStatus,a.PING_STATUS as pingStatus,a.remark,a.MASK,
+                   a.GATEWAY,a.PING_DATE as pingDate,b.NAME as assetName,b.ID as assetId
+                   FROM M_IP_INFO a left join ASSET b on (a.ip = b.ip or a.ip = b.ip2 or a.ip = b.IPMI_IP)
+                    WHERE a.NET_WORK_ADDRESS_ID = #{netWorkId}
+        </select>
+
+</mapper>

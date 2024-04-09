@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.event.dao.AlarmEventMapper">
+
+
+    <select id="getWhiteSize" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM ALARM_WHITE_LIST b
+                 LEFT JOIN ALARM_EVENT a on a.ASSET_ID = b.ASSET_ID and a.EVENT_TYPE_ID = b.EVENT_TYPE_ID and
+                                            b.ALARM_CODE = a.UNIQUE_CODE
+            and b.FLAG = a.FLAG
+
+        where a.id = #{eventId}
+    </select>
+
+
+    <select id="pageEventListV2" resultType="com.jcca.web2.vo.EventPageVo">
+        SELECT b.NAME as eventType,a.EVENT_LEVEL as eventLevel,a.UNIQUE_CODE as uniqueCode,b.id as eventTypeId,a.ID as
+        eventId,
+        c.NAME as assetName,c.IP as assetIp1,c.IP2 as assetIp2,c.id as assetId,
+        a.EVENT_MSG as eventMsg,a.CREATE_TIME as createTime,a.flag
+        FROM ALARM_EVENT a
+        LEFT JOIN ALARM_EVENT_TYPE b ON a.EVENT_TYPE_ID = b.ID
+        LEFT JOIN ASSET c ON c.ID = a.ASSET_ID
+
+        <where>
+            <if test="query.assetName!=null and query.assetName!=''">
+                and c.name like concat(concat('%',#{query.assetName}),'%')
+            </if>
+            <if test="query.eventTypeId!=null and query.eventTypeId!=''">
+                and c.EVENT_TYPE_ID = #{query.eventTypeId}
+            </if>
+            <if test="query.assetIp!=null and query.assetIp!=''">
+                and (c.ip =#{query.assetIp} or c.ip2 =#{query.assetIp} )
+            </if>
+            <if test="query.orgId!=null and query.orgId!=''">
+                and c.ORG_ID = #{query.orgId}
+            </if>
+            <if test="query.eventLevel!=null">
+                and a.EVENT_LEVEL = #{query.eventLevel}
+            </if>
+            <if test="query.eventMsg!=null  and query.eventMsg!='' ">
+                and a.EVENT_MSG like concat(concat('%',#{query.eventMsg}),'%')
+            </if>
+            <if test="query.uniqueCode!=null  and query.uniqueCode!='' ">
+                and a.UNIQUE_CODE = #{query.uniqueCode}
+            </if>
+            <if test="query.eventTypeId!=null  and query.eventTypeId!=''">
+                and a.EVENT_TYPE_ID = #{query.eventTypeId}
+            </if>
+            <if test="query.eventType!=null and query.eventType==1">
+                and a.EVENT_TYPE_ID !=1
+            </if>
+            <if test="query.eventType!=null and query.eventType==2">
+                and a.EVENT_TYPE_ID = 1
+            </if>
+            <if test="query.eventType!=null and query.eventType==4">
+                and a.EVENT_LEVEL is null
+            </if>
+            <if test="query.startTime !=null and query.startTime!=''">
+                and a.CREATE_TIME &gt;= to_date(#{query.startTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="query.endTime !=null and query.endTime!=''">
+                and a.CREATE_TIME &lt;= to_date(#{query.endTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+        </where>
+        <choose>
+            <when test="query.orderBy !=null and query.orderBy!='' ">
+                order by a.${query.orderBy}
+            </when>
+            <otherwise>
+                order by a.CREATE_TIME
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="query.sort !=null and query.sort!='' ">
+                ${query.sort}
+            </when>
+            <otherwise>
+                desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <update id="updateInfoByUniqueCode">
+        update ALARM_EVENT a
+        set a.EVENT_TYPE_ID=#{eventTypeId},
+            a.REPOSITORY_ID=#{repositoryId}
+        where a.UNIQUE_CODE = #{uniqueCode}
+    </update>
+
+</mapper>
+

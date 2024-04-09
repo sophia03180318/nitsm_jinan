@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.ip.dao.NetWorkAddressMapper">
+    <resultMap id="netWorkAddressMap" type="com.jcca.web2.vo.StationNetObj">
+        <result column="id" property="stationOrgId"/>
+        <result column="TITLE" property="stationName"/>
+
+        <collection property="netWorkAddressList" javaType="java.util.List" resultMap="netObjResult"/>
+    </resultMap>
+
+    <resultMap id="netObjResult" type="com.jcca.web2.vo.NetObj">
+        <result column="net_id" property="netId" jdbcType="VARCHAR"/>
+        <result column="net_name" property="netName" jdbcType="VARCHAR"/>
+        <result column="gateway" property="gateway" jdbcType="VARCHAR"/>
+        <result column="used" property="used" />
+        <result column="unused" property="unused" />
+        <result column="mask" property="mask" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+
+    <select id="getLineNetMsgV2" resultMap="netWorkAddressMap" parameterType="java.lang.String">
+        SELECT a.id,a.TITLE,
+               b.id as net_id,b.NAME as net_name,
+               b.GATEWAY as gateway,
+               b.remark,b.mask
+
+               FROM SYS_ORG a
+        left join M_NET_WORK_ADDRESS b on a.id = b.ORG_ID where PID = #{lineOrgId} order BY a.id ASC,b.NAME ASC
+    </select>
+
+</mapper>

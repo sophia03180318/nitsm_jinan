@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.biz.dao.QMgrDataMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.ibmMQ.entity.IBMQMgrData">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="CAPTURETIME" property="capturetime" jdbcType="TIMESTAMP"/>
+        <result column="HEALTHSTATE" property="healthstate" jdbcType="VARCHAR"/>
+        <result column="QUEUEMANAGERSTATUS" property="queuemanagerstatus" jdbcType="VARCHAR"/>
+        <result column="MONITOR_ID" property="monitorId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,CAPTURETIME,HEALTHSTATE,QUEUEMANAGERSTATUS,MONITOR_ID
+    </sql>
+
+
+</mapper>

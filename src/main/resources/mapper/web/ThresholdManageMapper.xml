@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web2.dao.ThresholdManageMapper">
+
+    <select id="getList" parameterType="com.jcca.web2.dto.ThresholdManageQuery"
+            resultType="com.jcca.web2.vo.ThresholdManageVo">
+        select m.id, m.category, m.general, m.range_min, m.range_max, m.step_high, m.step_higher, m.step_highest,
+        m.auto_flag, a.name assetName, md.name deskStr, o.title orgName, a.ip assetIp, bt.name serviceTypeStr,
+        o.id orgId, bt.id serviceTypeId, md.CODE assetDesk, a.id assetId
+        from threshold_manage m
+        left join asset a on a.id = m.asset_id
+        left join asset_mode md on m.asset_desk = md.code
+        left join sys_org o on m.org_id = o.id
+        left join businessservice_service_type bt on m.service_type_id = bt.id
+        where a.is_del = 1
+        <if test="orgIds != null">
+            and m.org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and m.org_id = #{orgId}
+        </if>
+        <if test="assetDesk != null and assetDesk != ''">
+            and m.asset_desk = #{assetDesk}
+        </if>
+        <if test="autoFlag != null and autoFlag != ''">
+            and m.auto_flag = #{autoFlag}
+        </if>
+        <if test="category != null and category != ''">
+            and m.category = #{category}
+        </if>
+        <if test="serviceTypeId != null and serviceTypeId != ''">
+            and m.service_type_id = #{serviceTypeId}
+        </if>
+        <if test="assetName != null and assetName != ''">
+            and a.name like concat(concat('%', #{assetName}), '%')
+        </if>
+        <if test="assetIp != null and assetIp != ''">
+            and a.ip = #{assetIp} or a.ip2 = #{assetIp}
+        </if>
+        order by m.modify_time desc
+
+    </select>
+
+    <select id="batchList" parameterType="com.jcca.web2.dto.ThresholdDto"
+            resultType="com.jcca.web2.vo.ThresholdManageVo">
+        select m.category,
+        m.org_id,
+        m.asset_desk,
+        m.general,
+        m.range_min,
+        m.range_max,
+        m.step_high,
+        m.step_higher,
+        m.step_highest,
+        m.org_id,
+        m.auto_flag,
+        o.title orgName, md.name deskStr
+        from THRESHOLD_MANAGE m
+        left join asset a on a.id = m.asset_id
+        left join asset_mode md on m.asset_desk = md.code
+        left join sys_org o on m.org_id = o.id
+        where m.auto_flag = 1 and a.is_del = 1
+        <if test="orgIds != null">
+            and m.org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and m.org_id = #{orgId}
+        </if>
+        <if test="category != null and category != ''">
+            and m.category = #{category}
+        </if>
+        <if test="assetDesk != null and assetDesk != ''">
+            and m.asset_desk = #{assetDesk}
+        </if>
+        group by category, m.org_id, m.asset_desk, m.general, m.range_min, m.range_max, m.step_high, m.step_higher,
+        m.step_highest, m.org_id, md.name, o.title, m.auto_flag
+        order by m.org_id
+
+    </select>
+
+</mapper>

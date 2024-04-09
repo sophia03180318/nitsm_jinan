@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.statistics.dao.StatisticsMapper">
+    <select id="getOrgAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo" parameterType="java.util.Map">
+        select total, name from (
+        select count(*) total, o.title name from alarm_info r
+        left join sys_org o on r.org_id = o.id
+        where to_char(r.occur_time,'yyyy-MM') = #{params.currentMonth_} and o.id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by o.title order by total desc)
+        where rownum &lt; 6
+    </select>
+
+    <select id="getAssetAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo" parameterType="java.util.Map">
+        select total, name from (
+        select count(*) total, a.name from alarm_info r
+        left join asset a on r.asset_id = a.id
+        where a.is_del = 1 and to_char(r.occur_time,'yyyy-MM') = #{params.currentMonth_} and r.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by a.name order by total desc)
+        where rownum &lt; 6
+    </select>
+
+    <select id="getCategoryAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select total, name from (
+        select count(*) total, c.name from alarm_info r
+        left join alarm_category c on r.alarm_category = c.id
+        where to_char(r.occur_time,'yyyy-MM') = #{params.currentMonth_} and r.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by c.name)
+        where rownum &lt; 6
+        order by total desc
+    </select>
+
+    <select id="getLevelAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select total, decode(alarm_level, 1, '一级告警', 2, '二级告警', 3, '三级告警', 4, '信息通知', '未知') name from
+        (select count(*) total, r.alarm_level from alarm_info r
+        where to_char(r.occur_time, 'yyyy-MM') = #{params.currentMonth_} and r.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by r.alarm_level) t
+    </select>
+
+    <select id="getDayLevelAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select total, alarm_level name from
+        (select count(*) total, r.alarm_level from alarm_info r
+        where to_char(r.occur_time, 'yyyy-MM-dd') = #{params.today_}
+        and r.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by r.alarm_level) t
+        order by name
+    </select>
+
+    <select id="getYearAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select count(*) total, to_char(r.occur_time,'MM') name
+        from alarm_info r
+        where to_char(r.occur_time,'yyyy') = #{params.year_} and r.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by to_char(r.occur_time,'MM')
+    </select>
+
+    <select id="getMonthAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select count(*) total, 'all' name, to_char(occur_time,'yyyy-MM') occurMonth
+        from alarm_info
+        where to_char(occur_time,'yyyy-MM') = #{params.currentMonth_} and org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by to_char(occur_time,'yyyy-MM'), 'all'
+        union all
+        select count(*) total, 'first' name, to_char(occur_time,'yyyy-MM') occurMonth
+        from alarm_info
+        where to_char(occur_time,'yyyy-MM') = #{params.currentMonth_} and alarm_level = 1 and org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by to_char(occur_time,'yyyy-MM'), 'first'
+    </select>
+
+    <select id="getToayAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select count(*) total, occur_hour name
+        from alarm_info
+        where occur_time = #{params.year_}
+        and occur_month = #{params.month_}
+        and occur_day = #{params.day_}
+        and org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by occur_hour
+        order by occur_hour
+    </select>
+
+    <select id="get7Days" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select count(*) total, to_char(occur_time, 'yyyy-MM-dd') name
+        from alarm_info
+        where occur_time &gt; to_date(#{params.startDate}, 'yyyy-MM-dd')
+        <if test="params.orgIds != null">
+            and org_id in
+            <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by to_char(occur_time, 'yyyy-MM-dd')
+        order by name
+    </select>
+
+    <select id="getSevenDaysAlarmLineV2" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select count(*) total, to_char(occur_time, 'yyyy-MM-dd') as name, alarm_level as id
+        from alarm_info
+        where blank = 1 and alarm_level in (1,2,3)
+        and occur_time &gt; to_date(#{params.startDate}, 'yyyy-MM-dd')
+        <if test="params.orgIds != null">
+            and org_id in
+            <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by to_char(occur_time, 'yyyy-MM-dd'), alarm_level
+        order by to_char(occur_time, 'yyyy-MM-dd')
+    </select>
+
+
+    <select id="getYearCategoryFix" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select t.name, count(t.type) total
+        from asset_hardware_fix f
+        left join asset_hardware_type t on f.hardware_type = t.type
+        left join asset a on f.asset_id = a.id
+        where a.is_del = 1 and regexp_like(to_char(f.fix_time, 'yyyy-MM-dd'), #{params.yearMonth}) and a.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by t.type, t.name
+    </select>
+
+    <select id="getUnconfirmAlarm" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select count(1) total
+        from alarm_info i
+        left join sys_org o on i.org_id = o.id
+        where i.status = #{params.status_} and i.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getHourFlow" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.Map">
+        select total, name from
+        (select (port_in+port_out)/(1024*1024) total, a.name
+        from hour_interfaces i
+        left join asset a on i.asset_id = a.id
+        left join sys_org o on a.org_id = o.id
+        where i.statistics_year = #{params.year_} and i.statistics_month = #{params.month_}
+        and i.statistics_day = #{params.day_} and i.statistics_hour = #{params.hour_}
+        and a.is_del = 1 and a.org_id in
+        <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by total desc) t
+        where rownum &lt; 6
+    </select>
+
+    <select id="findAssetAlarmByAssetModeV2" parameterType="java.lang.String"
+            resultType="com.jcca.web2.vo.StatisticsVo">
+        select m.name, tt.desk as id, tt.total
+        from (select t.desk, count(t.desk) total
+              from (select a.desk
+                    from alarm_info i
+                             left join asset a
+                                       on i.asset_id = a.id and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and
+                                          a.ASSET_MODE not like '7%'
+                    where a.is_del = 1
+                    group by a.id, a.desk) t
+              group by t.desk) tt
+                 left join asset_mode m on tt.desk = m.code
+    </select>
+
+
+    <!-- =================================================以下为设备统计================================================================== -->
+    <select id="getDeskAsset" parameterType="com.jcca.web.statistics.vo.AssetStatisticsReq"
+            resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo">
+        select m.name, count(a.desk) total
+        from asset a
+        left join asset_mode m on a.desk = m.code
+        where a.is_del = 1
+        <if test="orgId != null and orgId !=''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by a.desk, m.name
+    </select>
+
+    <select id="getManufacturerAsset" parameterType="com.jcca.web.statistics.vo.AssetStatisticsReq"
+            resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo">
+        select m.name, count(a.MANUFACTURER_ID) total, m.id from asset a left join asset_manufacturer m on
+        a.MANUFACTURER_ID =
+        m.ID
+        where a.is_del = 1 and m.id is not null and a.desk not like '7%'
+        <if test="desk != null">
+            and a.desk = #{desk}
+        </if>
+        <if test="assetImage != null and assetImage !=''">
+            and a.asset_image = #{assetImage}
+        </if>
+        <if test="orgId != null and orgId !=''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by m.name, m.id
+    </select>
+
+    <select id="getModelAsset" parameterType="com.jcca.web.statistics.vo.AssetStatisticsReq"
+            resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo">
+        select a.asset_image name, count(a.asset_image) total from asset a
+        where a.asset_image is not null and a.is_del = 1
+        <if test="desk != null">
+            and a.desk = #{desk}
+        </if>
+        <if test="orgId != null and orgId !=''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="manufacturerId != null">
+            and a.manufacturer_id = #{manufacturerId}
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by a.asset_image
+    </select>
+
+    <select id="findAssetByPage" parameterType="com.jcca.web.statistics.vo.AssetStatisticsReq"
+            resultType="com.jcca.web.statistics.vo.AssetInfo">
+        select * from (select * from (select a.name assetName, a.ip assetIp, m.name assetModeStr , am.name
+        assetManufacturer, o.title orgName, a.id
+        assetId, rownum as rowno,
+        nvl(c.name, '-') cabinetName,concat(concat(att.start_position, '-'), att.end_position) assetPosition
+        from asset a
+        left join asset_mode m on a.desk = m.code
+        left join ASSET_MANUFACTURER am on a.MANUFACTURER_ID = am.ID
+        left join sys_org o on a.org_id = o.id
+        left join asset_attach att on a.id = att.asset_id
+        left join cabinet c on att.cabinet_id = c.id
+        where a.is_del = 1
+        <if test="orgId != null and orgId !=''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="desk != null">
+            and a.desk = #{desk}
+        </if>
+        <if test="assetImage != null and assetImage !=''">
+            and a.asset_image = #{assetImage}
+        </if>
+        <if test="manufacturerId != null">
+            and a.manufacturer_id = #{manufacturerId}
+        </if>
+        <if test="assetName != null and assetName !=''">
+            and a.name like concat(concat('%',#{assetName}),'%')
+        </if>
+        <if test="assetIp != null and assetIp !=''">
+            and a.ip = #{assetIp}
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        ) where rownum &lt; #{end}) tt where tt.rowno &gt; #{start} order by tt.assetName asc
+    </select>
+
+    <select id="countAssetInfo" parameterType="com.jcca.web.statistics.vo.AssetStatisticsReq"
+            resultType="java.lang.Long">
+        select count(*) from asset a
+        where a.is_del = 1
+        <if test="orgId != null and orgId !=''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="desk != null">
+            and a.desk = #{desk}
+        </if>
+        <if test="assetImage != null and assetImage !=''">
+            and a.asset_image = #{assetImage}
+        </if>
+        <if test="manufacturerId != null">
+            and a.manufacturer_id = #{manufacturerId}
+        </if>
+        <if test="assetName != null and assetName !=''">
+            and a.name like concat(concat('%',#{assetName}),'%')
+        </if>
+        <if test="assetIp != null and assetIp !=''">
+            and a.ip = #{assetIp}
+        </if>
+        <if test="orgIdList != null">
+            and a.org_id in
+            <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectAssetRunTimeList" resultType="com.jcca.web.statistics.service.bean.AssetRunTime">
+        select round(e.TIMEDURATION / 3600, 2) as runTime, a.NAME as assetName, a.IP as assetIp
+        from COLLECT_SYSTEM_TIME e
+                 join
+             ASSET a on e.ASSET_ID = a.ID
+        WHERE a.is_del = 1
+    </select>
+
+    <select id="cpuHourList" parameterType="java.util.Map" resultType="com.jcca.web.statistics.entity.HourCpu">
+        select c.ASSET_ID         as assetId,
+               c.CPU_USED_RATE       cpuUsedRate,
+               c.STATISTICS_YEAR  as statisticsYear,
+               c.STATISTICS_MONTH as statisticsMonth,
+               c.STATISTICS_DAY   as statisticsDay,
+               c.STATISTICS_HOUR  as statisticsHour,
+               a.name             as assetName
+        from HOUR_CPU c
+                 join asset a on c.asset_id = a.id
+        where c.END_TIME &lt;= to_date(#{params.endDate}, 'yyyy-MM-dd HH24:mi:ss')
+          and c.END_TIME &gt;= to_date(#{params.startDate}, 'yyyy-MM-dd HH24:mi:ss')
+        order by c.END_TIME asc
+    </select>
+
+    <select id="memoryHourList" parameterType="java.util.Map" resultType="com.jcca.web.statistics.entity.HourMemory">
+        select c.ASSET_ID         as assetId,
+               c.MEM_USED_RATE       memUsedRate,
+               c.STATISTICS_YEAR  as statisticsYear,
+               c.STATISTICS_MONTH as statisticsMonth,
+               c.STATISTICS_DAY   as statisticsDay,
+               c.STATISTICS_HOUR  as statisticsHour,
+               a.name             as assetName
+        from HOUR_MEMORY c
+                 join asset a on c.asset_id = a.id
+        where c.END_TIME &lt;= to_date(#{params.endDate}, 'yyyy-MM-dd HH24:mi:ss')
+          and c.END_TIME &gt;= to_date(#{params.startDate}, 'yyyy-MM-dd HH24:mi:ss')
+        order by c.END_TIME asc
+    </select>
+
+    <select id="tempHourList" parameterType="java.util.Map" resultType="com.jcca.web.statistics.entity.HourTemp">
+        select c.ASSET_ID         as assetId,
+               c.TEMP_VALUE          tempValue,
+               c.STATISTICS_YEAR  as statisticsYear,
+               c.STATISTICS_MONTH as statisticsMonth,
+               c.STATISTICS_DAY   as statisticsDay,
+               c.STATISTICS_HOUR  as statisticsHour,
+               a.name             as assetName
+        from HOUR_TEMP c
+                 join asset a on c.asset_id = a.id
+        where c.END_TIME &lt;= to_date(#{params.endDate}, 'yyyy-MM-dd HH24:mi:ss')
+          and c.END_TIME &gt;= to_date(#{params.startDate}, 'yyyy-MM-dd HH24:mi:ss')
+        order by c.END_TIME asc
+    </select>
+
+
+    <select id="cpuMinuteList" parameterType="java.util.Map" resultType="com.jcca.web.statistics.entity.HourCpu">
+        select c.ASSET_ID         as assetId,
+               c.CPU_USED_RATE       cpuUsedRate,
+               c.STATISTICS_YEAR  as statisticsYear,
+               c.STATISTICS_MONTH as statisticsMonth,
+               c.STATISTICS_DAY   as statisticsDay,
+               c.STATISTICS_HOUR  as statisticsHour,
+               a.name             as assetName
+        from HOUR_CPU c
+                 join asset a on c.asset_id = a.id
+        where c.END_TIME &lt;= to_date(#{params.endDate}, 'yyyy-MM-dd HH24:mi:ss')
+          and c.END_TIME &gt;= to_date(#{params.startDate}, 'yyyy-MM-dd HH24:mi:ss')
+        order by c.END_TIME asc
+    </select>
+
+    <select id="memoryMinuteList" parameterType="java.util.Map" resultType="com.jcca.web.statistics.entity.HourMemory">
+        select c.ASSET_ID         as assetId,
+               c.MEM_USED_RATE       memUsedRate,
+               c.STATISTICS_YEAR  as statisticsYear,
+               c.STATISTICS_MONTH as statisticsMonth,
+               c.STATISTICS_DAY   as statisticsDay,
+               c.STATISTICS_HOUR  as statisticsHour,
+               a.name             as assetName
+        from HOUR_MEMORY c
+                 join asset a on c.asset_id = a.id
+        where c.END_TIME &lt;= to_date(#{params.endDate}, 'yyyy-MM-dd HH24:mi:ss')
+          and c.END_TIME &gt;= to_date(#{params.startDate}, 'yyyy-MM-dd HH24:mi:ss')
+        order by c.END_TIME asc
+    </select>
+
+    <select id="tempMinuteList" parameterType="java.util.Map" resultType="com.jcca.web.statistics.entity.HourTemp">
+        select c.ASSET_ID         as assetId,
+               c.TEMP_VALUE          tempValue,
+               c.STATISTICS_YEAR  as statisticsYear,
+               c.STATISTICS_MONTH as statisticsMonth,
+               c.STATISTICS_DAY   as statisticsDay,
+               c.STATISTICS_HOUR  as statisticsHour,
+               a.name             as assetName
+        from HOUR_TEMP c
+                 join asset a on c.asset_id = a.id
+        where c.END_TIME &lt;= to_date(#{params.endDate}, 'yyyy-MM-dd HH24:mi:ss')
+          and c.END_TIME &gt;= to_date(#{params.startDate}, 'yyyy-MM-dd HH24:mi:ss')
+        order by c.END_TIME asc
+    </select>
+
+    <select id="getRollAlarmV2" resultType="com.jcca.web2.vo.RollAlarmVo">
+        select 1 code, o.title orgName, a.name assetName, a.id assetId, o.id orgId, count(i.status) alarmCount
+        from asset a
+                 left join (select asset_id, status
+                            from alarm_info
+                            where status = 1
+                              and alarm_state = 1
+                              and blank = 1) i on i.asset_id = a.id
+                 left join sys_org o on a.org_id = o.id
+        where a.is_del = 1
+          and o.id is not null
+          and a.asset_mode not like '7%'
+        group by o.title, a.name, a.id, o.id, 1
+    </select>
+
+    <select id="getStationAlarmV2" resultType="com.jcca.web2.vo.RollAlarmVo">
+        select min(alarm_level) alarmLevel, orgId, orgName, stationx, stationy
+        from (
+                 select i.alarm_level, o.stationx, o.stationy, o.title orgName, o.id orgId
+                 from asset a
+                          left join alarm_info i on a.id = i.asset_id
+                          left join sys_org o on a.org_id = o.id and o.status = 1
+                 where a.is_del = 1
+                   and o.stationx is not null
+                   and o.stationy is not null
+                   and i.status = 1
+                   and i.alarm_state = 1
+                   and i.blank = 1
+                 group by i.alarm_level, o.stationx, o.stationy, o.title, o.id)
+        group by orgName, stationx, stationy, orgName, orgId
+    </select>
+
+</mapper>

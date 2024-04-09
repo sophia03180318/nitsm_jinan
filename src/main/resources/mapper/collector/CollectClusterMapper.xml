@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.collect.dao.CollectClusterMapper" >
+    <resultMap id="BaseResultMap"
+               type="com.jcca.web.graph.entity.TopoVertex">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="NODE_ID" property="nodeId" jdbcType="VARCHAR"/>
+        <result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="A_B_FLAG" property="abFlag" jdbcType="VARCHAR"/>
+        <result column="NODE_TYPE" property="nodeType"
+                jdbcType="VARCHAR"/>
+        <result column="NODE_STYLE" property="nodeStyle"
+                jdbcType="VARCHAR"/>
+        <result column="NODE_PARENT" property="nodeParent"
+                jdbcType="VARCHAR"/>
+        <result column="NODE_X" property="nodeX" jdbcType="BIGINT"/>
+        <result column="NODE_Y" property="nodeY" jdbcType="BIGINT"/>
+        <result column="NODE_WIDTH" property="nodeWidth"
+                jdbcType="BIGINT"/>
+        <result column="NODE_HEIGHT" property="nodeHeight"
+                jdbcType="BIGINT"/>
+        <result column="NODE_CONNECTABLE" property="nodeConnectable"
+                jdbcType="BIGINT"/>
+        <result column="ORG_ID" property="orgId" jdbcType="VARCHAR"/>
+        <result column="OFFSET_X" property="offsetX" jdbcType="BIGINT"/>
+        <result column="OFFSET_Y" property="offsetY" jdbcType="BIGINT"/>
+        <result column="IS_PORT" property="isPort" jdbcType="BIGINT"/>
+        <result column="PORT_INDEX" property="portIndex"
+                jdbcType="VARCHAR"/>
+        <result column="WATCH" property="WATCH"
+                jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="selectNodeById" resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, c.SERVER_NAME as assetName,t.A_B_FLAG as abFlag, t.id as assetId, t.org_id as
+        assetOrgId, t.asset_mode as assetMode,t.watch
+        FROM COLLECT_CLUSTER c left join asset t on c.ASSET_ID = t.id
+        left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id
+        and v.node_type ='net_topo'
+        where c.ASSET_ID = #{assetId}
+        order by v.name
+    </select>
+
+
+</mapper>

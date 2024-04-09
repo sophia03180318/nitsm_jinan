@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.system.dao.ImportTemplateMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.ImportTemplate">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="TYPE" property="type" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,NAME,REMARK,TYPE,CREATE_TIME,MODIFY_TIME
+    </sql>
+
+    <select id="selectByType" parameterType="java.lang.String" resultType="com.jcca.admin.system.entity.ImportTemplate">
+        select
+        <include refid="Base_Column_List"/>
+        from import_template i
+        where i.type = #{type}
+    </select>
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.system.dao.SysMenuMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.SysMenu">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="TITLE" property="title" jdbcType="VARCHAR"/>
+        <result column="PID" property="pid" jdbcType="VARCHAR"/>
+        <result column="PIDS" property="pids" jdbcType="VARCHAR"/>
+        <result column="URL" property="url" jdbcType="VARCHAR"/>
+        <result column="PERMS" property="perms" jdbcType="VARCHAR"/>
+        <result column="ICON" property="icon" jdbcType="VARCHAR"/>
+        <result column="TYPE" property="type" jdbcType="SMALLINT"/>
+        <result column="SORT" property="sort" jdbcType="SMALLINT"/>
+        <result column="STATUS" property="status" jdbcType="SMALLINT"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,TITLE,PID,PIDS,URL,PERMS,ICON,TYPE,SORT,STATUS,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+    </sql>
+
+    <select id="findMenuByRoleId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select m.*
+        from sys_menu m
+                 left join sys_role_menu rm on m.id = rm.menu_id
+        where rm.role_id = #{roleId}
+          and m.status = 1
+    </select>
+
+    <select id="getPermsByUserId" resultType="java.lang.String" parameterType="java.lang.String">
+        select m.perms
+        from sys_menu m
+                 left join sys_role_menu rm on m.id = rm.menu_id
+                 left join sys_user_role ur on rm.role_id = ur.role_id
+        where ur.user_id = #{userId}
+          and m.status = 1
+        group by m.perms
+    </select>
+
+    <select id="getDirsByUserId" resultType="java.lang.String" parameterType="java.lang.String">
+        select m.url
+        from sys_menu m
+        left join sys_role_menu rm on m.id = rm.menu_id
+        left join sys_user_role ur on rm.role_id = ur.role_id
+        where m.status = 1 and m.type = 1
+        <if test="userId != null and userId != ''">
+            and ur.user_id = #{userId}
+        </if>
+        group by m.url
+    </select>
+
+    <select id="getAllPerms" resultType="java.lang.String" parameterType="java.lang.String">
+        select m.perms
+        from sys_menu m
+                 left join sys_role_menu rm on m.id = rm.menu_id
+                 left join sys_user_role ur on rm.role_id = ur.role_id
+        where m.status = 1
+        group by m.perms
+    </select>
+</mapper>

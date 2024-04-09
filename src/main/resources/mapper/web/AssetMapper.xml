@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.AssetMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.web.asset.entity.Asset">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="ASSET_CODE" property="assetCode" jdbcType="VARCHAR"/>
+        <result column="DESK" property="desk" jdbcType="TINYINT"/>
+        <result column="IP" property="ip" jdbcType="VARCHAR"/>
+        <result column="OS_USER" property="osUser" jdbcType="VARCHAR"/>
+        <result column="OS_PASSWORD" property="osPassword" jdbcType="VARCHAR"/>
+        <result column="ASSET_MODE" property="assetMode" jdbcType="INTEGER"/>
+        <result column="STATUS" property="status" jdbcType="TINYINT"/>
+        <result column="MANUFACTURER_ID" property="manufacturerId" jdbcType="INTEGER"/>
+        <result column="ORG_ID" property="orgId" jdbcType="VARCHAR"/>
+        <result column="OPERATION_SYSTEM" property="operationSystem" jdbcType="VARCHAR"/>
+        <result column="IPMI_IP" property="ipmiIp" jdbcType="VARCHAR"/>
+        <result column="ONLINE_TIME" property="onlineTime" jdbcType="TIMESTAMP"/>
+        <result column="DOWNLINE_TIME" property="downlineTime" jdbcType="TIMESTAMP"/>
+        <result column="SKIP_URL" property="skipUrl" jdbcType="VARCHAR"/>
+        <result column="COLLECTION_TYPE" property="collectionType" jdbcType="VARCHAR"/>
+        <result column="PROTOCOL_TYPE" property="protocolType" jdbcType="TINYINT"/>
+        <result column="INITATIVE" property="initative" jdbcType="TINYINT"/>
+        <result column="ASSET_IMAGE" property="assetImage" jdbcType="VARCHAR"/>
+        <result column="CPU_NUMBER" property="cpuNumber" jdbcType="INTEGER"/>
+        <result column="CPU_CORE_NUMBER" property="cpuCoreNumber" jdbcType="INTEGER"/>
+        <result column="CPU_MODEL" property="cpuModel" jdbcType="VARCHAR"/>
+        <result column="CPU_FREQUENCY" property="cpuFrequency" jdbcType="VARCHAR"/>
+        <result column="IP2" property="ip2" jdbcType="VARCHAR"/>
+        <result column="A_B_FLAG" property="aBFlag" jdbcType="TINYINT"/>
+        <result column="IS_DEL" property="isDel" jdbcType="TINYINT"/>
+        <result column="WATCH" property="watch" jdbcType="TINYINT"/>
+        <result column="SHOW_TOPO" property="showTopo" jdbcType="TINYINT"/>
+        <result column="NTP_FLAG" property="ntpFlag" jdbcType="TINYINT"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="cabinetAssetInfoV2" type="com.jcca.web2.vo.CabinetAssetInfoVo">
+        <result column="name" property="name"/>
+        <result column="id" property="id"/>
+        <result column="cabinetName" property="cabinetName"/>
+        <result column="cabinetPosition" property="cabinetPosition"/>
+        <result column="position" property="position"/>
+        <result column="ip" property="ip1"/>
+        <result column="ip2" property="ip2"/>
+        <result column="ASSET_IMAGE" property="assetImage"/>
+        <result column="ASSET_MODE" property="assetMode"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID
+        ,NAME,ASSET_CODE,DESK,IP,OS_USER,OS_PASSWORD,ASSET_MODE,STATUS,MANUFACTURER_ID,ORG_ID,OPERATION_SYSTEM,IPMI_IP,ONLINE_TIME,DOWNLINE_TIME,
+        SKIP_URL,COLLECTION_TYPE,PROTOCOL_TYPE,INITATIVE,ASSET_IMAGE,CPU_NUMBER,CPU_CORE_NUMBER,CPU_MODEL,CPU_FREQUENCY,IP2,A_B_FLAG,
+        IS_DEL,WATCH,SHOW_TOPO,NTP_FLAG,CREATE_TIME,MODIFY_TIME,CREATOR,MODIFIER
+    </sql>
+
+    <select id="queryBaseInfoV2" parameterType="java.lang.String" resultType="com.jcca.web2.vo.AssetInfoBaseVo">
+        SELECT a.ID,
+               a.NAME,
+               a.STATUS,
+               a.watch,
+               a.ASSET_CODE       as assetCode,
+               a.ASSET_MODE       as assetMode,
+               a.MANUFACTURER_ID  as manufacturerCode,
+               a.OPERATION_SYSTEM as operationSystem,
+               a.ASSET_VERSION    as assetVersion,
+               a.ASSET_IMAGE      as assetImage,
+               a.ip               as ip1,
+               a.ip2,
+               f.PATH             as assetImagePath,
+               c.NAME             as roomName,
+               d.NAME             as cabinetName,
+               e.NAME             as manufacturerName
+        FROM ASSET a
+                 join ASSET_ATTACH b on a.ID = b.ASSET_ID
+                 left join ROOM c on c.ID = b.ROOM_ID
+                 left join CABINET d on d.ID = b.CABINET_ID
+                 left join ASSET_MANUFACTURER e on e.ID = a.MANUFACTURER_ID
+                 left join ASSET_MODEL f on a.ASSET_IMAGE = f.MODEL
+        where a.ID = #{assetId}
+    </select>
+
+    <select id="listIdByUserNameV2" parameterType="java.lang.String" resultType="java.lang.String">
+        select a.ID
+        from ASSET a
+        left join SYS_ROLE_ORG b on b.ORG_ID = a.ORG_ID
+        left join SYS_USER_ROLE c on c.ROLE_ID = b.ROLE_ID
+        left join SYS_USER d on d.ID = c.USER_ID
+        where d.USERNAME = #{username}
+        <if test="watch != null and watch !=2">
+            and a.WATCH = #{watch}
+        </if>
+    </select>
+
+    <select id="selectCabinetAssetInfoV2" resultMap="cabinetAssetInfoV2" parameterType="java.lang.String">
+        select a.name,
+               a.id,
+               a.ip,
+               a.ip2,
+               a.ASSET_IMAGE,
+               a.ASSET_MODE,
+               b.name                                                      as cabinetName,
+               concat(concat(b.name, c.END_POSITION), 'U')                 as cabinetPosition,
+               concat(concat(concat(d.name, b.name), c.END_POSITION), 'U') as position
+        from asset a
+                 left join asset_attach c
+                           on c.ASSET_ID = a.id
+                 left join cabinet b on c.cabinet_id = b.id
+                 left join room d on c.ROOM_ID = d.id
+        where a.id = #{assetId}
+    </select>
+
+    <update id="calculateHealth" parameterType="com.jcca.admin.system.vo.AssetHealthDegreeModuleConf">
+        update ASSET a
+        set a.HEALTH_DEGREE =
+                (100 -
+                 (
+                         (select DECODE(SIGN(#{oneLevelMaxScore} - count(*) * #{oneLevelScore}), 0, #{oneLevelMaxScore},
+                                        1, count(*) * #{oneLevelScore}, -1, #{oneLevelMaxScore})
+                          from ALARM_INFO r
+                          where r.ASSET_ID = a.id
+                            and r.STATUS = 1
+                            and r.ALARM_STATE = 1
+                            AND r.ALARM_LEVEL = 1)
+                         +
+                         (select DECODE(SIGN(#{twoLevelMaxScore} - count(*) * #{twoLevelScore}), 0, #{twoLevelMaxScore},
+                                        1, count(*) * #{twoLevelScore}, -1, #{twoLevelMaxScore})
+                          from ALARM_INFO r
+                          where r.ASSET_ID = a.id
+                            and r.STATUS = 1
+                            and r.ALARM_STATE = 1
+                            AND r.ALARM_LEVEL = 2)
+                         +
+                         (select DECODE(SIGN(#{threeLevelMaxScore} - count(*) * #{threeLevelScore}), 0,
+                                        #{threeLevelMaxScore}, 1, count(*) * #{threeLevelScore}, -1,
+                                        #{threeLevelMaxScore})
+                          from ALARM_INFO r
+                          where r.ASSET_ID = a.id
+                            and r.STATUS = 1
+                            and r.ALARM_STATE = 1
+                            AND r.ALARM_LEVEL = 3)
+                     )
+                    )
+        where a.IS_DEL = 1
+          and a.WATCH = 1
+    </update>
+
+    <select id="queryHealth" resultType="Double">
+        select round(avg(HEALTH_DEGREE), 2)
+        from asset
+        where IS_DEL = 1
+          and WATCH = 1
+          and HEALTH_DEGREE is not null
+    </select>
+
+    <select id="getManufacturerAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.List">
+        select t.total, t.name from (select count(a.manufacturer_id) total, m.name from asset a
+        left join asset_manufacturer m on a.manufacturer_id = m.id
+        where a.manufacturer_id is not null and a.is_del = 1 and a.org_id in
+        <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by m.name) t order by total desc
+    </select>
+
+    <!-- 20210112hanwone -->
+    <select id="getModeAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.List">
+        select count(a.desk) total, m.name, m.code as id
+        from asset a
+        left join asset_mode m on a.desk = m.code
+        where a.desk is not null and a.is_del = 1 and a.org_id in
+        <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by m.name, m.code
+    </select>
+
+    <select id="getOrgAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.util.List">
+        select t.total, o.title name from (
+        select count(org_id) total, org_id from asset a
+        where a.is_del = 1 and a.org_id in
+        <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        group by org_id) t
+        left join sys_org o on t.org_id = o.id
+        order by total desc
+    </select>
+
+    <select id="findByOrgId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from asset where org_id = #{orgId}
+    </select>
+
+    <select id="findStatusByOrgId" parameterType="java.lang.String" resultType="com.jcca.web.graph.vo.GraphStatusVo">
+        SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+        FROM ALARM_INFO i
+                 LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+        WHERE a.ASSET_MODE IN (42, 201)
+          AND a.ORG_ID = #{orgId}
+          AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+        GROUP BY a.ID, i.ALARM_LEVEL
+    </select>
+
+    <select id="findAssetBelongById" parameterType="java.lang.String" resultType="com.jcca.web.asset.vo.AssetBelong">
+        select ct.id    cabinetId,
+               rm.id    roomId,
+               so.id    orgId,
+               ct.name  cabinetName,
+               rm.name  roomName,
+               so.title orgName,
+               aa.START_POSITION,
+               aa.END_POSITION
+        from asset_attach aa
+                 left join cabinet ct on aa.cabinet_id = ct.id
+                 left join room rm on aa.room_id = rm.id
+                 left join sys_org so on aa.org_id = so.id
+        where aa.asset_id = #{id}
+    </select>
+
+    <select id="findExportAsset" parameterType="com.jcca.web.asset.controller.bean.AssetQueryReq"
+            resultType="com.jcca.web.asset.vo.AssetExportVo">
+        select a.NAME assetName, a.ip assetIp, a.ONLINE_TIME, a.IPMI_IP, a.OPERATION_SYSTEM, a.ASSET_CODE,
+        m.NAME manufacturer, o.TITLE orgName, d.NAME assetMode, DECODE(a.STATUS, 1, '在线', 0, '离线', '未知') statusStr
+        from asset a
+        left join sys_org o on a.org_id = o.id
+        left join ASSET_MANUFACTURER m on a.MANUFACTURER_ID = m.ID
+        left join ASSET_MODE d on a.DESK = d.CODE
+        where a.IS_DEL = 1 and rownum &lt; 20000
+        <if test="orgId != null and orgId != ''">
+            and a.org_id = #{orgId}
+        </if>
+        <if test="watch != null">
+            and a.watch = #{watch}
+        </if>
+        <if test="manufacturerId != null">
+            and a.manufacturer_id = #{manufacturerId}
+        </if>
+        <if test="orgIds != null">
+            and a.org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="name != null and name != ''">
+            and REGEXP_LIKE(a.name, #{name})
+        </if>
+        <if test="ip != null and ip != ''">
+            and REGEXP_LIKE(a.ip, #{ip})
+        </if>
+        <if test="desk != null">
+            and a.desk = #{desk}
+        </if>
+        <if test="overhaul == 1">
+            and to_char(a.downline_time,'yyyy-MM-dd') >=
+            (select concat(extract(year from sysdate)-1,'-'||to_char(sysdate,'MM-dd')) endTime from dual)
+        </if>
+    </select>
+
+    <select id="getOverhaulList" parameterType="java.util.List" resultType="com.jcca.web.asset.entity.Asset">
+        select * from asset
+        where is_del = 1 and to_char(downline_time,'yyyy-MM-dd') &lt;
+        (select concat(extract(year from sysdate)+1,'-'||to_char(sysdate,'MM-dd')) endTime from dual)
+        and org_id in
+        <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <select id="getCenterNetworklList" parameterType="java.util.List" resultType="com.jcca.web.asset.entity.Asset">
+        select asset.*
+        from asset,
+             sys_org
+        where asset.ASSET_MODE in (201, 42)
+          and asset.IS_DEL = 1
+          and asset.org_id = sys_org.id
+          and sys_org.type = 2
+    </select>
+
+    <select id="findGroupAssetByCode" parameterType="java.lang.String" resultType="com.jcca.web.asset.entity.Asset">
+        select *
+        from ASSET
+        where IS_DEL = 1
+          and ASSET_CODE = #{assetCode}
+    </select>
+
+    <select id="findAssetByOrgId" parameterType="String" resultType="com.jcca.web.asset.entity.Asset">
+        select *
+        from asset
+        where is_del = 1
+          and org_id = #{orgId}
+    </select>
+
+    <select id="countModeV2" resultType="com.jcca.web2.vo.AssetStatisticsVo">
+        select t.desk code, t.total total, m.name
+        from (select desk, count(*) total from asset where is_del = 1
+        <if test="map.manufacturerId != null and map.manufacturerId !=''">
+            and manufacturer_id = #{map.manufacturerId}
+        </if>
+        <if test="map.orgId != null and map.orgId !=''">
+            and org_id = #{map.orgId}
+        </if>
+        <if test="map.name != null and map.name !=''">
+            and name like concat(concat('%', #{map.name}),'%')
+        </if>
+        <if test="map.desk != null and map.desk !=''">
+            and desk = #{map.desk}
+        </if>
+        <if test="map.watch != null and map.watch !=''">
+            and watch = #{map.watch}
+        </if>
+        <if test="map.ip != null and map.ip !=''">
+            and ip = #{map.ip} or ip2 = #{map.ip} or IPMI_IP = #{map.ip}
+        </if>
+        <if test="map.orgIds != null">
+            and org_id in
+            <foreach collection="map.orgIds" open="(" close=")" separator="," item="id" index="idx">
+                <if test="idx != 0 and idx % 999 == 0 and idx != map.orgIds.size() - 1">
+                    #{id}
+                </if>
+                <if test="idx == 0 or (idx % 999 != 0 or idx == map.orgIds.size() - 1)">
+                    #{id}
+                </if>
+            </foreach>
+        </if>
+        group by desk) t
+        left join asset_mode m on t.desk = m.code
+        where m.name is not null
+    </select>
+
+    <select id="countModelV2" resultType="com.jcca.web2.vo.AssetStatisticsVo">
+        select t.asset_image code, t.total, m.model name
+        from (select asset_image, count(*) total from asset where is_del = 1
+        <if test="map.orgId != null and map.orgId !=''">
+            and org_id = #{map.orgId}
+        </if>
+        <if test="map.manufacturerId != null and map.manufacturerId !=''">
+            and manufacturer_id = #{map.manufacturerId}
+        </if>
+        <if test="map.name != null and map.name !=''">
+            and name like concat(concat('%', #{map.name}),'%')
+        </if>
+        <if test="map.desk != null and map.desk !=''">
+            and desk = #{map.desk}
+        </if>
+        <if test="map.watch != null and map.watch !=''">
+            and watch = #{map.watch}
+        </if>
+        <if test="map.ip != null and map.ip !=''">
+            and ip = #{map.ip} or ip2 = #{map.ip} or IPMI_IP = #{map.ip}
+        </if>
+        <if test="map.orgIds != null">
+            and org_id in
+            <foreach collection="map.orgIds" open="(" close=")" separator="," item="id" index="idx">
+                <if test="idx != 0 and idx % 999 == 0 and idx != map.orgIds.size() - 1">
+                    #{id}
+                </if>
+                <if test="idx == 0 or (idx % 999 != 0 or idx == map.orgIds.size() - 1)">
+                    #{id}
+                </if>
+            </foreach>
+        </if>
+        group by asset_image) t
+        left join asset_model m on t.asset_image = m.model
+        where m.model is not null
+        order by total desc
+    </select>
+
+    <select id="getAssetIdListV2" parameterType="com.jcca.web2.entity.ThresholdManage"
+            resultType="com.jcca.web2.vo.AssetBaseInfoVo">
+        select id, name, org_id from asset where is_del = 1
+        <if test="orgIds != null">
+            and org_id in
+            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="assetIds != null">
+            and id in
+            <foreach collection="assetIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="desks != null">
+            and desk in
+            <foreach collection="desks" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="serviceTypeId != null and serviceTypeId != ''">
+            and service_type_id = #{serviceTypeId}
+        </if>
+        <if test="assetDesk != null">
+            and desk = #{assetDesk}
+        </if>
+        <if test="assetImage != null and assetImage != ''">
+            and asset_image = #{assetImage}
+        </if>
+    </select>
+
+</mapper>

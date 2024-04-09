@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.ThresholdSectionMapper">
+	<resultMap id="BaseResultMap" type="com.jcca.web.asset.entity.ThresholdSection">
+		<id column="SECTION_ID" property="sectionId" jdbcType="BIGINT"/>
+		<result column="TYPE" property="type" jdbcType="VARCHAR"/>
+		<result column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
+		<result column="FLAG" property="flag" jdbcType="VARCHAR"/>
+		<result column="MIN_PRICE" property="minPrice" jdbcType="DOUBLE"/>
+		<result column="MAX_PRICE" property="maxPrice" jdbcType="DOUBLE"/>
+		<result column="STATUS" property="status" jdbcType="TINYINT"/>
+		<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+	</resultMap>
+	
+	<sql id="baseSelectVo">
+		SELECT SECTION_ID,TYPE,ASSET_ID,FLAG,MIN_PRICE,MAX_PRICE,STATUS,CREATE_DATE,UPDATE_DATE FROM THRESHOLD_SECTION 
+	</sql>
+	
+	<select id="selectSectionConf" parameterType="java.lang.String" resultMap="BaseResultMap">
+		<include refid="baseSelectVo"/>
+		<where>
+			ASSET_ID = #{assetId}  AND TYPE = #{type} 
+			<if test="flag != '' and flag!=null ">
+				AND FLAG = #{flag}
+			</if>
+			AND STATUS = 1
+		</where>
+	</select>
+
+	<select id="selectSectionConfList" parameterType="java.lang.String" resultMap="BaseResultMap">
+		<include refid="baseSelectVo"/>
+		where ASSET_ID = #{assetId} AND STATUS = 1
+	</select>
+	
+</mapper>

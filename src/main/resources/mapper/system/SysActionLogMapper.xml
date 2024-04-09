@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.admin.system.dao.SysActionLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.jcca.admin.system.entity.SysActionLog">
+        <id column="ID" property="id" jdbcType="VARCHAR"/>
+        <result column="LOG_NAME" property="logName" jdbcType="VARCHAR"/>
+        <result column="LOG_TYPE" property="logType" jdbcType="SMALLINT"/>
+        <result column="OPER_USER_IP" property="operUserIp" jdbcType="VARCHAR"/>
+        <result column="LOG_CLASS" property="logClass" jdbcType="VARCHAR"/>
+        <result column="LOG_METHOD" property="logMethod" jdbcType="VARCHAR"/>
+        <result column="LOG_MODEL" property="logModel" jdbcType="VARCHAR"/>
+        <result column="RECORD_ID" property="recordId" jdbcType="VARCHAR"/>
+        <result column="LOG_MSG" property="logMsg" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIER" property="modifier" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,LOG_NAME,LOG_TYPE,OPER_USER_IP,LOG_CLASS,LOG_METHOD,LOG_MODEL,RECORD_ID,LOG_MSG,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+    </sql>
+
+
+</mapper>

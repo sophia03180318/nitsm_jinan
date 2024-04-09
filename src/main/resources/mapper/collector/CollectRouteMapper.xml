@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.collect.dao.CollectRouteMapper">
+    <select id="getRouteMsg"
+            resultType="com.jcca.web.collect.service.bean.TopoRouteVo">
+        select CR.*
+             , CI.status
+             , round(CI.PORT_IN_SPEED / 1000, 2)  as portReceiveNum
+             , round(CI.PORT_OUT_SPEED / 1000, 2) as portSendNum
+             , to_number(CR.port_index_rank)      as num
+        from COLLECT_ROUTE CR,
+             (SELECT *
+              FROM COLLECT_INTERFACES b
+              WHERE b.COLLECT_CODE = (SELECT MAX(COLLECT_CODE) AS code
+                                      FROM COLLECT_INTERFACES
+                                      WHERE ASSET_ID = #{assetId})) CI
+        where CR.Asset_id = CI.asset_id
+          and CR.port_index_name = CI.port_index
+          and CR.asset_id = #{assetId}
+        order by num asc
+    </select>
+
+    <select id="findAtAssetAndPort" parameterType="java.lang.String"
+            resultType="com.jcca.web.collect.controller.route.bean.AssetLinkAssetVo">
+        select i.asset_id assetId,
+        i.port_in portIn,
+        i.port_out portOut,
+        i.port_index portIndex,
+        i.status portStatus,
+        i.port_index_rank portIndexRank,
+        '2' as maOrAt,
+        r.port_ip portIp,
+        r.at_asset_id atAssetId,
+        r.at_port_index_name atPortIndexName,
+        r.at_name atName,
+        r.at_net_address atNetAddress,
+        r.at_phys_address atPhysAddress
+        from collect_interfaces i
+        left join collect_route r on i.asset_id = r.asset_id and i.port_index = r.port_index_name
+        where i.port_type in (6, 18, 22, 23, 39, 56, 135)
+        and i.port_index not like 'unrouted%'
+        <if test="assetId != null and assetId != ''">
+            and i.collect_code = (select MAX(collect_code) from collect_interfaces where asset_id = #{assetId})
+        </if>
+        <if test="assetId == null or assetId == ''">
+            and i.collect_code in (select MAX(collect_code) from collect_interfaces group by asset_id)
+        </if>
+        order by i.asset_id, i.port_index_rank
+    </select>
+</mapper>

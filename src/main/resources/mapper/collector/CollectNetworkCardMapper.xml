@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.collect.dao.CollectNetworkCardMapper" >
+
+	<select id="getRealTimeDataAllCenterPc"
+			resultType="com.jcca.web.collect.service.bean.CollectNetworkCardVo">
+		select asset.name as asset_name,asset.ip as asset_ip, cd.* from
+		(select c.* from COLLECT_NETWORK_CARD c,
+		( select max(collect_code) as collect_code,asset_id from COLLECT_NETWORK_CARD group by asset_id) m
+		where m.asset_id=c.asset_id and m.collect_code=c.collect_code) cd,
+		(select a.* from asset a,sys_org s where a.ORG_ID=s.ID and s.TYPE=2 AND a.IS_DEL=1 AND a.DESK like '%183%') asset
+		where asset.id=cd.asset_id
+	</select>
+
+
+    <update id="updateNetCardStatus">
+        update COLLECT_NETWORK_CARD
+        set STATUS = #{status}
+        where ASSET_ID = #{assetId}
+          and IP = #{ip}
+          and STATUS = #{seachStatus}
+    </update>
+
+</mapper>
