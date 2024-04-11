@@ -52,11 +52,11 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean handler(IEvent info) {
-        if(Objects.isNull(info.getEventAlarmLevelBaseEntity())||Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())){
+        if (Objects.isNull(info.getEventAlarmLevelBaseEntity()) || Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())) {
             //未设定告警级别的告警不上报，只存事件
             return true;
         }
-        if(StrUtil.isEmpty(info.getAssetId())||StrUtil.isEmpty(info.getMapKey())){
+        if (StrUtil.isEmpty(info.getAssetId()) || StrUtil.isEmpty(info.getMapKey())) {
             return true;
         }
         try {
@@ -102,20 +102,20 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 resp.setNeedSendToWeb(true);
                 resp.setAsset(asset);
                 resp.setNewAlarm(alarmInfo);
-            } else{
+            } else {
                 //更新告警
                 boolean abnormal = info.getStatus().equals(EventLevelEnum.ABNORMAL.getCode());
-                if(abnormal){
-                    alarmInfo.setContent(alarmInfo.getContent().replace("【-已恢复-】",""));
+                if (abnormal) {
+                    alarmInfo.setContent(alarmInfo.getContent().replace("【-已恢复-】", ""));
                     alarmInfo.setIsShowRecover(-1);
-                }else if(!alarmInfo.getContent().contains("【-已恢复-】")){
-                    if (info.getRecoveryProcessIdDescr() != null) {
+                } else if (!alarmInfo.getContent().contains("【-已恢复-】")) {
+              /*      if (info.getRecoveryProcessIdDescr() != null) {
                         //添加恢复进程ID的描述信息
                         alarmInfo.setContent(alarmInfo.getContent() + "【-已恢复-】" + info.getRecoveryProcessIdDescr());
                     } else {
                         alarmInfo.setContent(alarmInfo.getContent() + "【-已恢复-】");
-                    }
-
+                    }*/
+                    alarmInfo.setContent(alarmInfo.getContent() + "【-已恢复-】");
                     alarmInfo.setIsShowRecover(1);
                 }
                 alarmInfo.setAlarmState(abnormal ? AlarmStateEnum.ALARM.getCode() : AlarmStateEnum.RECOVER.getCode());
@@ -135,7 +135,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             }
 
             //保存事件缓存 使用带事务的 redisTransactionTemplate
-            eventInfoManagerService.saveRedisChange(info,redisTransactionTemplate);
+            eventInfoManagerService.saveRedisChange(info, redisTransactionTemplate);
             redisTransactionTemplate.exec();
 
         } catch (Exception e) {
