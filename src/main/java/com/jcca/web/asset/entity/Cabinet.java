@@ -32,7 +32,6 @@ public class Cabinet extends Model<Cabinet> implements java.io.Serializable {
     /**
      * 机柜名称
      */
-
     @TableField("NAME")
     @NotEmpty(message = "机柜名称不能为空")
     private String name;
