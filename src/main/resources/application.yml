@@ -1,0 +1,176 @@
+server:
+  port: 5501
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 200
+    min-spare-threads: 20
+    accept-count: 500
+    max-connections: 10000
+  connection-timeout: 60000
+  compression:
+    min-response-size: 256
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain,text/css,application/x-javascript
+
+spring:
+  quartz:
+    job-store-type: jdbc
+    # 关闭系统的时候，等待定时任务完成
+    wait-for-jobs-to-complete-on-shutdown: false
+    # 初始化后是否自动启动计划程序
+    auto-startup: true
+
+    jdbc:
+      # SQL 初始化脚本中单行注释的前缀
+      comment-prefix: --
+      # 数据库架构初始化模式--never 从不进行初始化，always 每次都清空数据库进行初始化,embedded 只初始化内存数据库（默认值）
+      initialize-schema: always
+      # 用于初始化数据库架构的SQL文件的路径
+      schema: classpath:sql/quartz/tables_oracle.sql
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: NitsmScheduler
+            instanceId: AUTO
+          threadPool:
+            #实例化ThreadPool时，使用的线程类为SimpleThreadPool
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 30
+            #优先级 默认值为5
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: qrtz_
+            isClustered: flase
+            clusterCheckinInterval: 60000
+            useProperties: false
+
+  cache:
+    type: ehcache
+  application:
+    name: nitsm
+  http:
+    encoding:
+      force: true
+      charset: utf-8
+      enabled: true
+  datasource:
+    druid:
+      #url: jdbc:dm://192.168.51.252:5236/DMSERVER
+
+      url: jdbc:oracle:thin:@192.168.51.29:1521/bhm
+      username: itsm
+      password: itsm
+
+      #      url: jdbc:oracle:thin:@localhost:1521/orcl
+      #      username: gz_pusu
+      #      password: gz_pusu
+
+      #      url: jdbc:oracle:thin:@192.168.73.66:1521/bhm
+      #      username: itsm
+      #      password: itsm
+
+      type: com.alibaba.druid.pool.DruidDataSource
+      initialSize: 5
+      minIdle: 8
+      maxActive: 20
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 160000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 230000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      keepAlive: true
+
+  servlet:
+    multipart:
+      max-request-size: 100MB
+      max-file-size: 90MB
+
+  thymeleaf:
+    servlet:
+      content-type: text/html
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: classpath:/templates
+    suffix: .html
+
+  redis:
+    host: 192.168.53.66
+    port: 6379
+    password: jcca@123
+
+    lettuce:
+      pool:
+        max-wait: -1
+        min-idle: 2
+        max-idle: 8
+        max-active: 8
+    timeout: 5000
+    database: 8
+
+mybatis-plus:
+  type-aliases-package: com.jcca.**.entity
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    enable-sql-runner: true
+  configuration:
+    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  config: classpath:logback-spring.xml
+
+project:
+  captcha-open: false                         #是否开启登录验证码
+  base-url: http://127.0.0.1:5501         #访问项目的基础路径
+  shiro:
+    remember-me-timeout: 30                    #cookie记住登录信息时间，30天（天）
+    global-session-timeout: 1296000              #Session会话超时时间，15天（秒）
+    seeeion-validation-interval: 18000          #Session会话检测间隔时间，10分钟
+    excludes: /api/free/**                      #忽略的路径规则，多个规则使用","逗号隔开
+  upload:
+    file-path: D://data//upload              #文件上传路径
+    static-path: /upload                     #上传文件静态访问路径
+    static-url: http://127.0.0.1:5502     #静态文件访问路径
+  syslog_snmp:
+    host: 192.168.20.85
+
+# 专家知识库
+kbUrl:
+  192.168.73.210
+
+# 动环配置
+threeD:
+  # 接口服务器IP
+  host: 192.168.1.28
+  # 接口服务器端口
+  port: 9996
+  #组织ID
+  orgId: 1324748685615071234
+  # 机房ID
+  roomId1: 4-110
+  # 机房ID2
+  roomId2: 4-111
+  # 告警数据推送周期
+  cron: "*/11 * * * * ?"
+  # 接口服务器IP
+  rabbitMQhost: 192.168.73.121
+  # 接口服务器端口
+  rabbitMQPort: 5672
+  # 接口服务器用户名
+  rabbitMQUsername: root
+  # 接口服务器密码
+  rabbitMQPassword: 1qaz
+  #MQ虚拟机
+  rabbitMQVirtual: /
