@@ -23,6 +23,7 @@ import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web.asset.entity.Asset;
@@ -179,6 +180,60 @@ public class GraphControllerV2 {
         query.eq("ORG_ID", orgId);
 
         List<TopoTag> topoTags = topoTagService.list(query);
+        if (!topoTags.isEmpty()) {
+            return ResultVoUtil.success(topoTags);
+        }
+
+        Integer type = org.getType();
+        if (OrgTypeConst.CENTER == type) {
+            TopoTag netTopo = new TopoTag();
+            netTopo.setId(MyIdUtil.getId());
+            netTopo.setCategory("net_topo");
+            netTopo.setName("网络拓扑");
+            netTopo.setOrgId(orgId);
+            netTopo.setRemark("手动插入");
+            topoTagService.save(netTopo);
+            topoTags.add(netTopo);
+
+            TopoTag cabinetTopo = new TopoTag();
+            cabinetTopo.setId(MyIdUtil.getId());
+            cabinetTopo.setCategory("cabinet_topo");
+            cabinetTopo.setName("机柜拓扑");
+            cabinetTopo.setOrgId(orgId);
+            cabinetTopo.setRemark("手动插入");
+            topoTagService.save(cabinetTopo);
+            topoTags.add(cabinetTopo);
+
+            TopoTag pcTopo = new TopoTag();
+            pcTopo.setId(MyIdUtil.getId());
+            pcTopo.setCategory("pc_topo");
+            pcTopo.setName("调度台拓扑");
+            pcTopo.setOrgId(orgId);
+            pcTopo.setRemark("手动插入");
+            topoTagService.save(pcTopo);
+            topoTags.add(pcTopo);
+        }
+        if (OrgTypeConst.LINE == type) {
+            TopoTag wanTopo = new TopoTag();
+            wanTopo.setId(MyIdUtil.getId());
+            wanTopo.setCategory("wan_topo");
+            wanTopo.setName("广域网拓扑");
+            wanTopo.setOrgId(orgId);
+            wanTopo.setRemark("手动插入");
+            topoTagService.save(wanTopo);
+            topoTags.add(wanTopo);
+
+        }
+        if (OrgTypeConst.STATION == type) {
+            TopoTag netTopo = new TopoTag();
+            netTopo.setId(MyIdUtil.getId());
+            netTopo.setCategory("net_topo");
+            netTopo.setName("网络拓扑");
+            netTopo.setOrgId(orgId);
+            netTopo.setRemark("手动插入");
+            topoTagService.save(netTopo);
+            topoTags.add(netTopo);
+        }
 
         return ResultVoUtil.success(topoTags);
     }
