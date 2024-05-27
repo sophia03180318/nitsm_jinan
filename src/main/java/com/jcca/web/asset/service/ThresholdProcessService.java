@@ -75,4 +75,12 @@ public interface ThresholdProcessService extends IService<ThresholdProcess> {
      * @param hostMode  模式:1双机单活,2双机双活,3普通
      */
     void updateMode(String assetCode, Integer hostMode);
+
+    /**
+     * 查询资产下设备配置的进程信息
+     * @param assetIds
+     * @return
+     */
+    List<ThresholdProcess> selectByAssetList(List<String> assetIds);
+
 }

@@ -373,5 +373,10 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
      * 查询3D机房相关告警
      */
     List<ThreeDAlarmReq> getThreeDAlarm(String roomId1, String roomId2);
-
+    /**
+     * 查找未确定或者未恢复告警通过告警码
+     * @param alarmCode
+     * @return
+     */
+    AlarmInfo selectUnOverAlarm(String alarmCode);
 }

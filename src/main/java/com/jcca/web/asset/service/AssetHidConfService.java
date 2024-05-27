@@ -33,4 +33,12 @@ public interface AssetHidConfService extends IService<AssetHidConf> {
      * @param saveList
      */
     void updateAssetPortConf(String assetId, List<AssetHidConf> saveList);
+
+    /**
+     * 查询配置的隐藏信息
+     * @param assetId
+     * @param flag
+     * @return
+     */
+    List<AssetHidConf> getHidConfigByAssetAndFlag(String assetId, String flag);
 }

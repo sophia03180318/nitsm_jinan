@@ -78,6 +78,11 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
         return cabinetMapper.findByOrgId(rowIndex, orgId);
     }
 
+    @Override
+    public List<Cabinet> findByOrgId(String orgId) {
+        return cabinetMapper.findCabinetByOrgId(orgId);
+    }
+
     /**
      * 查询组织下的所有机柜
      *

@@ -38,6 +38,13 @@ public interface CabinetService extends IService<Cabinet> {
     List<Cabinet> findByOrgId(Integer rowIndex, String orgId);
 
     /**
+     * 通过组织ID查询机柜
+     * @param orgId
+     * @return
+     */
+    List<Cabinet> findByOrgId( String orgId);
+
+    /**
      * 查询组织下的所有机柜
      *
      * @param orgId

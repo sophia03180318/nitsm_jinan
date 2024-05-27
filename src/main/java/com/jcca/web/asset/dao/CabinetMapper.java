@@ -94,4 +94,14 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
 
     @Select("select DISTINCT(CABINET_ID) from ASSET_ATTACH c join (select ID from asset where name like CONCAT(CONCAT('%', #{keyword}) , '%') or ip = #{keyword}) a on c.ASSET_ID=a.id where ROOM_ID =#{roomId}")
     List<String> topoCabinetByAssetStr(String roomId, String keyword);
+
+    /**
+     * 查询组织下的所有机柜
+     *
+     * @param orgId
+     * @return
+     */
+    @Select(value = "select c.* from cabinet c  join room r on c.room_id = r.id where r.org_id = #{orgId} order by c.column_index")
+    List<Cabinet> findCabinetByOrgId(@Param("orgId") String orgId);
+
 }
