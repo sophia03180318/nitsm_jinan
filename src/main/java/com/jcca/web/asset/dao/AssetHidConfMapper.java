@@ -12,6 +12,22 @@ import java.util.List;
 public interface AssetHidConfMapper extends BaseMapper<AssetHidConf> {
 
 
+    /**
+     * 通过资产和类型查询所有配置隐藏的信息
+     * @param assetId
+     * @param type
+     * @return
+     */
     @Select("select flag from asset_hid_conf where asset_id=#{assetId} and type=#{type} ")
     List<AssetHidConf> getFlagListByAsset(@Param("assetId") String assetId,@Param("type") String type);
+
+    /**
+     * 通过 标记和资产ID查询是否存在配置的信息。
+     * @param assetId
+     * @param flag
+     * @return
+     */
+    @Select("select * from asset_hid_conf where asset_id=#{assetId} and FLAG = #{flag} ")
+    List<AssetHidConf> selectListByAssetAndFlag(@Param("assetId") String assetId,@Param("flag") String flag);
+
 }

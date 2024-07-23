@@ -19,7 +19,7 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.common.controller.req.CollectSyslogReq;
 import com.jcca.web.common.controller.req.DsErrorLog;
 import com.jcca.web.common.controller.req.EvenLog;
-import com.jcca.web.common.controller.req.StationAlarmReq;
+import com.jcca.web.common.controller.req.StationAlarmReqV1;
 import com.jcca.web.common.entity.Alarm;
 import com.jcca.web.common.entity.Device;
 import com.jcca.web.common.entity.DhStation;
@@ -64,7 +64,7 @@ public class ApiCollectSyslogController extends ListenerManager {
 
 
     @PostMapping("/stationEventMsg")
-    public void stationRoutMsg(@RequestBody StationAlarmReq alarmReq) {
+    public void stationRoutMsg(@RequestBody StationAlarmReqV1 alarmReq) {
         if (LogInputUtils.inputInfo(ServerTypeEnum.STATION_ALARM)) {
             log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.STATION_ALARM, alarmReq.getStationIp(), JSONUtil.toJsonStr(alarmReq)));
         }

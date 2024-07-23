@@ -1,6 +1,7 @@
 package com.jcca.web.asset.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.AlarmStateEnum;
@@ -103,5 +104,15 @@ public class AssetHidConfServiceImpl extends ServiceImpl<AssetHidConfMapper, Ass
             alarmServ.updateById(alarmInfo);
         }
     }
+
+    @Override
+    public List<AssetHidConf> getHidConfigByAssetAndFlag(String assetId, String flag) {
+        if(StrUtil.isEmpty(flag)){
+            return new ArrayList<>();
+        }
+        List<AssetHidConf> assetHidConfList = confMapper.selectListByAssetAndFlag(assetId, flag);
+        return assetHidConfList;
+    }
+
 
 }

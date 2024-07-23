@@ -6,9 +6,10 @@ import java.util.Date;
 
 /**
  * 车站告警信息
+ * @author lyp
  */
 @Data
-public class StationAlarmReq {
+public class StationAlarmReqV1 {
 
     /**
      * 车站IPI

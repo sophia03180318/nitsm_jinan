@@ -238,5 +238,13 @@ public class ThresholdProcessServiceImpl extends ServiceImpl<ThresholdProcessMap
         thresholdProcessMapper.updateHostModeByAssetCode(assetCode, hostMode);
     }
 
+    @Override
+    public List<ThresholdProcess> selectByAssetList(List<String> assetList) {
+        QueryWrapper<ThresholdProcess> query = new QueryWrapper<ThresholdProcess>();
+        query.in("ASSET_ID",assetList);
+
+        return thresholdProcessMapper.selectList(query);
+    }
+
 
 }

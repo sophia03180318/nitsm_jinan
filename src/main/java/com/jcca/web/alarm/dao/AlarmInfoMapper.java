@@ -198,7 +198,6 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
 
     /**
      * 查询数量
-    /**
      * 将符合条件的告警更新为确定恢复
      *
      * @param alarmCode
@@ -208,5 +207,11 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      */
     void recoverAlarmV2(@Param("alarmCode") String alarmCode, @Param("assetId") String assetId, @Param("flag") String flag, @Param("msg") String msg);
 
-
+    /**
+     * 查询未确认或者未恢复的告警
+     *
+     * @return
+     */
+    @Select("select * from ALARM_INFO where (STATUS = 1 or ALARM_STATE = 1) and ALARM_CODE =#{alarmCode}")
+    AlarmInfo selectUnOverAlarm(@Param("alarmCode") String alarmCode);
 }
