@@ -82,7 +82,6 @@ public class ImportAsset {
     @Resource
     private AssetModeService assetModeService;
 
-    private List<AssetModel> models;
 
     public void forImportAsset(List<Map<String, Object>> rowList, List<AssetImportRecord> assetImportList, AssetImportTask assetImportTask) {
         String taskId = assetImportTask.getId();
@@ -217,16 +216,14 @@ public class ImportAsset {
                 throw new NullFieldException("资产类型字段错误");
             }
             //检查 资产类型和型号层级关系
-            if (CollectionUtils.isEmpty(models)) {
-                models = assetModelService.list();
-            }
+            List<AssetModel> models  = assetModelService.list();
 
             Integer desk = 0;
             for (AssetModel model : models) {
                 if (model.getModel().equals(asset.getAssetImage())) {
                     AssetMode one = assetModeService.getById(model.getAssetModeId());
                     if (Objects.isNull(one)) {
-                        throw new NullFieldException("资产类型和资产型号不匹配");
+                        throw new NullFieldException("未找到对应资产类型");
                     }
                     desk = one.getCode();
                     break;
