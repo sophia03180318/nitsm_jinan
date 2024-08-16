@@ -165,9 +165,9 @@ threeD:
   # 告警数据推送周期
   cron: "*/11 * * * * ?"
   # 接口服务器IP
-  rabbitMQhost: 192.168.73.121
+  rabbitMQhost: 192.168.73.22
   # 接口服务器端口
-  rabbitMQPort: 5672
+  rabbitMQPort: 15672
   # 接口服务器用户名
   rabbitMQUsername: root
   # 接口服务器密码
