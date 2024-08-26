@@ -141,6 +141,7 @@ public class GraphControllerV2 {
         }
 
         if (StringUtils.isEmpty(id)) {
+            topoTag.setId(MyIdUtil.getId());
             topoTagService.save(topoTag);
             return ResultVoUtil.success("保存成功");
         }
@@ -212,6 +213,15 @@ public class GraphControllerV2 {
             pcTopo.setRemark("手动插入");
             topoTagService.save(pcTopo);
             topoTags.add(pcTopo);
+
+            TopoTag bizTopo = new TopoTag();
+            bizTopo.setId(MyIdUtil.getId());
+            bizTopo.setCategory("biz_topo");
+            bizTopo.setName("业务拓扑");
+            bizTopo.setOrgId(orgId);
+            bizTopo.setRemark("手动插入");
+            topoTagService.save(bizTopo);
+            topoTags.add(bizTopo);
         }
         if (OrgTypeConst.LINE == type) {
             TopoTag wanTopo = new TopoTag();
@@ -233,6 +243,15 @@ public class GraphControllerV2 {
             netTopo.setRemark("手动插入");
             topoTagService.save(netTopo);
             topoTags.add(netTopo);
+
+            TopoTag cabinetTopo = new TopoTag();
+            cabinetTopo.setId(MyIdUtil.getId());
+            cabinetTopo.setCategory("cabinet_topo");
+            cabinetTopo.setName("机柜拓扑");
+            cabinetTopo.setOrgId(orgId);
+            cabinetTopo.setRemark("手动插入");
+            topoTagService.save(cabinetTopo);
+            topoTags.add(cabinetTopo);
         }
 
         return ResultVoUtil.success(topoTags);
