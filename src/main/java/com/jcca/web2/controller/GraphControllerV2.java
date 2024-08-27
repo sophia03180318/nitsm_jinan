@@ -142,6 +142,7 @@ public class GraphControllerV2 {
 
         if (StringUtils.isEmpty(id)) {
             topoTag.setId(MyIdUtil.getId());
+            topoTag.setRemark("前端创建");
             topoTagService.save(topoTag);
             return ResultVoUtil.success("保存成功");
         }
@@ -152,7 +153,7 @@ public class GraphControllerV2 {
 
     @GetMapping("/del/{id}")
     @RequiresPermissions("api:v2:graph:del")
-    @ApiOperation(value = "获取组织下拓扑页签")
+    @ApiOperation(value = "删除组织下拓扑页签")
     public ResultVo<Object> delTag(@PathVariable String id) {
         if (StringUtils.isEmpty(id)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "数据ID不能为空");
@@ -165,6 +166,7 @@ public class GraphControllerV2 {
 
     /**
      * 获取该组织下拥有的TOPO标签
+     * 有则显示 无则新建
      */
     @GetMapping("/getTopoTagList/{orgId}")
     @ApiOperation(value = "获取组织下拓扑页签")
@@ -192,7 +194,7 @@ public class GraphControllerV2 {
             netTopo.setCategory("net_topo");
             netTopo.setName("网络拓扑");
             netTopo.setOrgId(orgId);
-            netTopo.setRemark("手动插入");
+            netTopo.setRemark("自动生成");
             topoTagService.save(netTopo);
             topoTags.add(netTopo);
 
@@ -201,7 +203,7 @@ public class GraphControllerV2 {
             cabinetTopo.setCategory("cabinet_topo");
             cabinetTopo.setName("机柜拓扑");
             cabinetTopo.setOrgId(orgId);
-            cabinetTopo.setRemark("手动插入");
+            cabinetTopo.setRemark("自动生成");
             topoTagService.save(cabinetTopo);
             topoTags.add(cabinetTopo);
 
@@ -210,7 +212,7 @@ public class GraphControllerV2 {
             pcTopo.setCategory("pc_topo");
             pcTopo.setName("调度台拓扑");
             pcTopo.setOrgId(orgId);
-            pcTopo.setRemark("手动插入");
+            pcTopo.setRemark("自动生成");
             topoTagService.save(pcTopo);
             topoTags.add(pcTopo);
 
@@ -219,7 +221,7 @@ public class GraphControllerV2 {
             bizTopo.setCategory("biz_topo");
             bizTopo.setName("业务拓扑");
             bizTopo.setOrgId(orgId);
-            bizTopo.setRemark("手动插入");
+            bizTopo.setRemark("自动生成");
             topoTagService.save(bizTopo);
             topoTags.add(bizTopo);
         }
@@ -229,7 +231,7 @@ public class GraphControllerV2 {
             wanTopo.setCategory("wan_topo");
             wanTopo.setName("广域网拓扑");
             wanTopo.setOrgId(orgId);
-            wanTopo.setRemark("手动插入");
+            wanTopo.setRemark("自动生成");
             topoTagService.save(wanTopo);
             topoTags.add(wanTopo);
 
@@ -240,7 +242,7 @@ public class GraphControllerV2 {
             netTopo.setCategory("net_topo");
             netTopo.setName("网络拓扑");
             netTopo.setOrgId(orgId);
-            netTopo.setRemark("手动插入");
+            netTopo.setRemark("自动生成");
             topoTagService.save(netTopo);
             topoTags.add(netTopo);
 
@@ -249,7 +251,7 @@ public class GraphControllerV2 {
             cabinetTopo.setCategory("cabinet_topo");
             cabinetTopo.setName("机柜拓扑");
             cabinetTopo.setOrgId(orgId);
-            cabinetTopo.setRemark("手动插入");
+            cabinetTopo.setRemark("自动生成");
             topoTagService.save(cabinetTopo);
             topoTags.add(cabinetTopo);
         }
