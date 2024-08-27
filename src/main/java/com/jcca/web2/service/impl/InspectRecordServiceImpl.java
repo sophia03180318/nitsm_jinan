@@ -875,9 +875,12 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
                 List<InspectVo> list = vo.getList();
                 for (InspectVo inspectVo : list) {
                     InspectRecord record = new InspectRecord();
+                    this.setRecordData(asset, inspectVo, record);
+                    if (StringUtils.isEmpty(record.getCabinetId())) {
+                        continue;
+                    }
                     record.setModeType(modeType);
                     record.setModeName(modeName);
-                    this.setRecordData(asset, inspectVo, record);
                     record.setInspectCode(inspectCode);
                     record.setAssetDesk(asset.getDesk());
                     record.setDeskName(assetModeService.getByCode(asset.getDesk()).getName());
@@ -913,9 +916,6 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             return;
         }
 
-        if (OrgTypeConst.CENTER != org.getType() && OrgTypeConst.STATION != org.getType()) {
-            return;
-        }
         String cabinetId = virMap.get(org.getId());
         record.setCabinetName(Web2Const.VIR_CABINET_NAME);
         record.setCabinetId(cabinetId);
