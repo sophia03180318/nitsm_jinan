@@ -46,7 +46,7 @@ public interface Web2Const {
 
     // 虚拟机柜ID，存放不在机柜内的设备
     String VIR_CABINET_ID = "0";
-    String VIR_CABINET_NAME = "其它";
+    String VIR_CABINET_NAME = "终端";
 
     // 资产阈值启用状态 0不可用，1可用
     Integer UNAVAILABLE = 0;

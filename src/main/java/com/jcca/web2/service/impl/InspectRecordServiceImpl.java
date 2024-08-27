@@ -11,6 +11,7 @@ import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.enums.SystemTypeEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -770,9 +771,12 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      */
     @Override
     public void prepareRecord() {
-
-        List<SysOrg> orgList = orgService.getListByOrgType(OrgTypeConst.CENTER);
         if (virMap.isEmpty()) {
+            QueryWrapper<SysOrg> query = Wrappers.query();
+            query.in("TYPE", Arrays.asList(OrgTypeConst.CENTER, OrgTypeConst.STATION));
+            query.eq("STATUS", StatusEnum.OK.getCode());
+            List<SysOrg> orgList = orgService.list(query);
+
             int i = 0;
             for (SysOrg org : orgList) {
                 virMap.put(org.getId(), String.valueOf(i++));
@@ -909,7 +913,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             return;
         }
 
-        if (OrgTypeConst.CENTER != org.getType()) {
+        if (OrgTypeConst.CENTER != org.getType() && OrgTypeConst.STATION != org.getType()) {
             return;
         }
         String cabinetId = virMap.get(org.getId());
