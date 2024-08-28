@@ -2,6 +2,7 @@ package com.jcca.web2.controller;
 
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.StatusConst;
@@ -113,6 +114,11 @@ public class ProcessConfigControllerV2 extends ListenerManager {
         QueryWrapper<PromptInfo> wrapper = Wrappers.query();
         wrapper.eq("SOFTWARETYPE_ID", id);
         promptInfoService.remove(wrapper);
+
+        UpdateWrapper<Asset> update = Wrappers.update();
+        update.eq("SERVICE_TYPE_ID", id);
+        update.set("SERVICE_TYPE_ID", null);
+        assetService.update(update);
 
         return ResultVoUtil.REMOVE_SUCCESS;
     }
