@@ -111,6 +111,7 @@ public class GraphControllerV2 {
     @PostMapping("/setTopoTagList")
     @RequiresPermissions("api:v2:graph:setTopoTagList")
     @ApiOperation(value = "设置组织下拓扑页签")
+    @ActionLog(name = "查看组织页签", title = "拓扑图页签", key = LogTypeConstant.QUERY)
     public ResultVo<Object> setTopoTagList(@RequestBody TopoTag topoTag) {
         if (StringUtils.isEmpty(topoTag.getOrgId())) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
@@ -154,6 +155,7 @@ public class GraphControllerV2 {
     @GetMapping("/del/{id}")
     @RequiresPermissions("api:v2:graph:del")
     @ApiOperation(value = "删除组织下拓扑页签")
+    @ActionLog(name = "删除页签", title = "拓扑图页签", key = LogTypeConstant.REMOVEE)
     public ResultVo<Object> delTag(@PathVariable String id) {
         if (StringUtils.isEmpty(id)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "数据ID不能为空");
