@@ -604,17 +604,18 @@ var editorCabinet = null
 var graphCabinet = null
 var cabinetCurrentPage = null
 var roomId = ''
+var roomData = []
 function getRoomData (graph, editor, currentPage) {
 	$.ajax({
 		url: "/api/room/list/" + editor.orgId,
 		type: "get",
 		contentType: 'application/json;charset=utf-8',
 		success: function(result) {
-			let roomData = result.data
+			roomData = result.data
 			$('#roomContainer').empty()
 			roomData.forEach((elm,index) => {
 				$('#roomContainer').append(
-					'<li class="item pointer" id="'+elm.id+'" onclick="changeRoom('+elm.id+','+index+')">'+elm.name+'</li>'
+					'<li class="item pointer" onclick="changeRoom('+index+')">'+elm.name+'</li>'
 				)
 			})
 			roomId = roomData[0].id
@@ -632,7 +633,7 @@ function getRoomData (graph, editor, currentPage) {
 // 图形回显
 function viewGraph(graph, editor, currentPage,isShowRoom) {
 	if(currentPage.category == 'cabinet_topo'){
-		var v = { "orgId": editor.orgId,roomId:roomId, "category": currentPage.category,"assetId":currentPage.getId() };
+		var v = { "orgId": editor.orgId,roomId: roomId, "category": currentPage.category,"assetId":currentPage.getId() };
 	}else{
 		var v = { "orgId": editor.orgId, "category": currentPage.category,"assetId":currentPage.getId() };
 	}
@@ -686,10 +687,10 @@ function viewGraph(graph, editor, currentPage,isShowRoom) {
 		 }
 	  });
 }
-function changeRoom (id,index) {
+function changeRoom (index) {
 	$('#roomContainer .layui-tab-title li').eq(index).addClass('layui-this').siblings().removeClass('layui-this');
 	$('#roomContainer .layui-tab-item ').eq(index).addClass('layui-show').siblings().removeClass('layui-show');
-	roomId = id
+	roomId = roomData[index].id
 
 
 	viewGraph(graphCabinet, editorCabinet, cabinetCurrentPage)
