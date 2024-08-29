@@ -40,6 +40,7 @@ import com.jcca.web.collect.service.CollectRouteService;
 import com.jcca.web.graph.entity.TopoAssetGroup;
 import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
+import com.jcca.web.graph.entity.TopoVertex;
 import com.jcca.web.graph.service.*;
 import com.jcca.web.graph.vo.TopoVertexAlarmLevelVo;
 import com.jcca.web.graph.vo.TopoVertexVo;
@@ -572,7 +573,14 @@ public class GraphControllerV2 {
         topoEdgeService.deleteTopoEdge(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
         topoAssetGroupService.deleteAssetGroup(topoNodeGraph.getOrgId(), topoNodeGraph.getCategory());
         topoAssetMarkService.deleteAssetMark(topoNodeGraph.getOrgId(), topoNodeGraph.getCategory());
-        topoVertexService.saveNodes(topoNodeGraph.getNodes());
+
+        List<TopoVertex> nodes = topoNodeGraph.getNodes();
+        if (topoType[1].equals(topoNodeGraph.getCategory())) {
+            for (TopoVertex node : nodes) {
+                node.setOrgId(topoNodeGraph.getOrgId()); // 机柜拓扑使用机房ID做为组织ID
+            }
+        }
+        topoVertexService.saveNodes(nodes);
         topoPointsService.saveTopoPoints(topoNodeGraph.getPoints());
         topoEdgeService.saveTopoEdge(topoNodeGraph.getEdges());
         List<String> groups = topoNodeGraph.getGroups();
