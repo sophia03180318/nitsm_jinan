@@ -60,6 +60,10 @@ public class TopoVertexVo implements java.io.Serializable {
      * 组织结构ID
      */
     private String orgId;
+    /**
+     * 机房ID
+     */
+    private String roomId;
 
     /**
      * 资产Id
