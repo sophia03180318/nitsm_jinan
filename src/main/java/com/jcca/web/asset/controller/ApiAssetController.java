@@ -1435,9 +1435,9 @@ public class ApiAssetController {
         }
         List<String> headerList = new ArrayList<>();
         List<String> titleList = new ArrayList<>();
-        Collections.addAll(headerList, "资产名称", "资产编号", "IP地址1", "资产类型", "资产型号", "资产厂商", "组织机构", "*机房", "机柜", "起始位置",
+        Collections.addAll(headerList, "资产名称", "资产编号", "IP地址1", "IP地址2","资产类型", "资产型号", "资产厂商", "组织机构", "*机房", "机柜", "起始位置",
                 "结束位置", "设备状态", "采集类型", "上架时间", "监控状态");
-        Collections.addAll(titleList, "name", "assetCode", "ip", "assetMode", "assetImage", "manufacturerId", "orgId",
+        Collections.addAll(titleList, "name", "assetCode", "ip","ip2", "assetMode", "assetImage", "manufacturerId", "orgId",
                 "roomId", "cabinetId", "startPosition", "endPosition", "status", "collectionType", "onlineTime", "monitorStatus");
 
         SXSSFWorkbook excel = AssetReportUtil.exportAssetExecl(headerList, titleList, assetImportRecords);
@@ -1594,6 +1594,11 @@ public class ApiAssetController {
                     headerList.add("机柜");
                     headerList.add("起始位置");
                     headerList.add("结束位置");
+                } else if(key.equals("ip")){
+                    titleList.add("ip2");
+                    headerList.add("IP2");
+                    titleList.add(key);
+                    headerList.add(value);
                 } else {
                     titleList.add(key);
                     headerList.add(value);
