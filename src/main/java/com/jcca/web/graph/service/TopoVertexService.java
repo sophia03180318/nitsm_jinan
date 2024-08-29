@@ -100,7 +100,7 @@ public interface TopoVertexService extends IService<TopoVertex> {
      * @param orgId
      * @return
      */
-    List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId, String roomId);
+    List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId);
 
 
     /**
@@ -218,4 +218,12 @@ public interface TopoVertexService extends IService<TopoVertex> {
      * @return BizTopoCenterVo
      */
     List<BizTopoCenterVo> findTopoCenterQuery(String orgId, String serviceTypeId);
+
+    /**
+     * 查询机房内机柜拓扑
+     *
+     * @param roomId 机房ID
+     * @return 机柜拓扑
+     */
+    List<TopoVertexVo> selectCabinetNodeV2(String roomId);
 }

@@ -27,7 +27,7 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
 
     List<TopoVertexVo> selectNodeByAsset2(@Param("nodeType") String nodeType, @Param("orgId") String orgId, @Param("assetModeList") List<Integer> assetModeList, @Param("name") String name);
 
-    List<TopoVertexVo> selectNodeByCabnet(@Param("nodeStyle") String nodeStyle, @Param("orgId") String orgId, @Param("roomId") String roomId);
+    List<TopoVertexVo> selectNodeByCabnet(@Param("nodeStyle") String nodeStyle, @Param("orgId") String orgId);
 
     List<TopoVertexVo> selectPcTopoNodeByAsset(@Param("nodeType") String nodeType, @Param("orgId") String orgId, @Param("mode1") Integer mode1, @Param("name") String name);
 
@@ -148,4 +148,6 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
             "from asset a left join broker_topo_business b on a.id = b.asset_id " +
             "where a.service_type_id is not null and a.org_id = #{orgId} and a.service_type_id = #{serviceTypeId}")
     List<BizTopoCenterVo> findTopoCenterQuery(String orgId, String serviceTypeId);
+
+    List<TopoVertexVo> selectCabinetNodeV2(@Param("roomId") String roomId);
 }

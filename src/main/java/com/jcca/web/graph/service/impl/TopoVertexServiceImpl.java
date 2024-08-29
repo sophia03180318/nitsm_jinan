@@ -148,8 +148,8 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
     }
 
     @Override
-    public List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId, String roomId) {
-        return topoVertexMapper.selectNodeByCabnet(nodeType, orgId, roomId);
+    public List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId) {
+        return topoVertexMapper.selectNodeByCabnet(nodeType, orgId);
     }
 
 
@@ -402,6 +402,17 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
     @Override
     public List<BizTopoCenterVo> findTopoCenterQuery(String orgId, String serviceTypeId) {
         return topoVertexMapper.findTopoCenterQuery(orgId, serviceTypeId);
+    }
+
+    /**
+     * 查询机房内机柜拓扑
+     *
+     * @param roomId 机房ID
+     * @return 机柜拓扑
+     */
+    @Override
+    public List<TopoVertexVo> selectCabinetNodeV2(String roomId) {
+        return topoVertexMapper.selectCabinetNodeV2(roomId);
     }
 
 }

@@ -613,6 +613,7 @@ public class GraphControllerV2 {
         return ResultVoUtil.success("保存成功！");
     }
 
+
     @PostMapping("/topoNode")
     @ApiOperation(value = "获取拓扑图V2")
     @ResponseBody
@@ -685,7 +686,7 @@ public class GraphControllerV2 {
         // 机柜
         if (topoType[1].equals(category)) {
             String roomId = graph.getRoomId();
-            List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId, roomId);
+            List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
             map.put("vertex", list);
         }
         // 业务设备

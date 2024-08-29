@@ -349,23 +349,32 @@
     <select id="selectNodeByCabnet"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
         SELECT v.*,
-        t.name as assetName,
-        t.id as assetId,
-        t.org_id as assetOrgId,
-        t.roomId,
-        row_index,
-        column_index
-        FROM (select distinct t.id, t.name, a.org_id, t.row_index, t.column_index, a.id roomId
-        from cabinet t,
-        room a
-        where a.id = t.room_id
-        and a.org_id = #{orgId}
-        <if test="roomId != null and roomId != ''">
-            and a.id = #{roomId}
-        </if>
-        ) t
-        left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
+               t.name   as assetName,
+               t.id     as assetId,
+               t.org_id as
+                           assetOrgId,
+               row_index,
+               column_index
+        FROM (select distinct t.id, t.name, a.org_id, t.row_index, t.column_index
+              from cabinet t,
+                   room a
+              where a.id = t.room_id
+                and a.org_id = #{orgId}) t
+                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
         where t.ORG_ID = #{orgId}
+        order by row_index, column_index
+    </select>
+
+    <select id="selectCabinetNodeV2"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as assetOrgId, row_index, column_index
+        FROM (select distinct c.id, c.name, r.id as org_id, c.row_index, c.column_index
+              from cabinet c,
+                   room r
+              where r.id = c.room_id
+                and r.id = #{roomId}) t
+                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
+        where t.ORG_ID = #{roomId}
         order by row_index, column_index
     </select>
 

@@ -173,7 +173,7 @@ public class GraphController {
         }
         // 机柜
         if (topoType[1].equals(category)) {
-            List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId, null);
+            List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId);
             map.put("vertex", list);
         }
         // 业务设备
