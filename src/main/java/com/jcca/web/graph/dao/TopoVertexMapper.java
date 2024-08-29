@@ -27,7 +27,7 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
 
     List<TopoVertexVo> selectNodeByAsset2(@Param("nodeType") String nodeType, @Param("orgId") String orgId, @Param("assetModeList") List<Integer> assetModeList, @Param("name") String name);
 
-    List<TopoVertexVo> selectNodeByCabnet(@Param("nodeStyle") String nodeStyle, @Param("orgId") String orgId);
+    List<TopoVertexVo> selectNodeByCabnet(@Param("nodeStyle") String nodeStyle, @Param("orgId") String orgId, @Param("roomId") String roomId);
 
     List<TopoVertexVo> selectPcTopoNodeByAsset(@Param("nodeType") String nodeType, @Param("orgId") String orgId, @Param("mode1") Integer mode1, @Param("name") String name);
 

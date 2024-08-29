@@ -27,6 +27,7 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetAttach;
 import com.jcca.web.asset.service.AssetAttachService;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web.collect.service.CollectRouteService;
@@ -96,6 +97,8 @@ public class ApiGraphController {
     private SysModuleConfigService configService;
     @Resource
     private CollectInterfacesService interfacesServ;
+    @Resource
+    private RoomService roomService;
 
 
     @PostMapping("/showMsg")
@@ -206,6 +209,7 @@ public class ApiGraphController {
             // 机柜
             List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet(category, orgId);
             map.put("vertex", list);
+            map.put("room", roomService.listByOrgId(orgId)); // 适应一个组织下多个机房 20240829
         } else if (topoType[2].equals(category)) {
             // 业务设备
 

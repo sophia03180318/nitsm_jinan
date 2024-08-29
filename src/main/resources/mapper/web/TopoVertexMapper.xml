@@ -349,18 +349,22 @@
     <select id="selectNodeByCabnet"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
         SELECT v.*,
-               t.name   as assetName,
-               t.id     as assetId,
-               t.org_id as assetOrgId,
-               t.roomId,
-               row_index,
-               column_index
+        t.name as assetName,
+        t.id as assetId,
+        t.org_id as assetOrgId,
+        t.roomId,
+        row_index,
+        column_index
         FROM (select distinct t.id, t.name, a.org_id, t.row_index, t.column_index, a.id roomId
-              from cabinet t,
-                   room a
-              where a.id = t.room_id
-                and a.org_id = #{orgId}) t
-                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
+        from cabinet t,
+        room a
+        where a.id = t.room_id
+        and a.org_id = #{orgId}
+        <if test="roomId != null and roomId != ''">
+            and a.id = #{roomId}
+        </if>
+        ) t
+        left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
         where t.ORG_ID = #{orgId}
         order by row_index, column_index
     </select>

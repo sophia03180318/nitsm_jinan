@@ -164,8 +164,7 @@ public class CabinetController {
         QueryWrapper<SysOrg> wq = Wrappers.query();
         wq.in("id", orgIds);
         List<SysOrg> list = orgService.list(wq);
-        ArrayList<SysOrg> sysOrgs = new ArrayList<>();
-        sysOrgs.addAll(list);
+        ArrayList<SysOrg> sysOrgs = new ArrayList<>(list);
         for (SysOrg sysOrg : list) {
             List<RoomVo> roomVos = roomService.listByOrgId(sysOrg.getId());
             for (RoomVo roomVo : roomVos) {

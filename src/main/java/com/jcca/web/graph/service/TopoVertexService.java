@@ -100,7 +100,7 @@ public interface TopoVertexService extends IService<TopoVertex> {
      * @param orgId
      * @return
      */
-    List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId);
+    List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId, String roomId);
 
 
     /**

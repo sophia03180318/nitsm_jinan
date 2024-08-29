@@ -684,9 +684,9 @@ public class GraphControllerV2 {
         }
         // 机柜
         if (topoType[1].equals(category)) {
-            List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId);
+            String roomId = graph.getRoomId();
+            List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId, roomId);
             map.put("vertex", list);
-            map.put("room", roomService.listByOrgId(orgId)); // 适应一个组织下多个机房 20240829
         }
         // 业务设备
         if (topoType[2].equals(category)) {

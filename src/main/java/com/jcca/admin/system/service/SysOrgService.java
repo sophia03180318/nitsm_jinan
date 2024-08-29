@@ -156,11 +156,4 @@ public interface SysOrgService extends IService<SysOrg> {
      * @return 组织列表
      */
     List<SysOrg> getListByOrgType(byte orgType);
-
-    /**
-     * 获取带有中心机房的组织结构
-     *
-     * @return 组织
-     */
-    List<SysOrg> getOrgAndRoom();
 }

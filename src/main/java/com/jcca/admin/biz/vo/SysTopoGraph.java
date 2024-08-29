@@ -19,4 +19,5 @@ public class SysTopoGraph implements java.io.Serializable {
     private String orgId;
     private String filename;
     private String assetId;
+    private String roomId;
 }

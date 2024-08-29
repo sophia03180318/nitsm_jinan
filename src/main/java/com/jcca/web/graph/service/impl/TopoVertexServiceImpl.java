@@ -148,9 +148,8 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
     }
 
     @Override
-    public List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId) {
-        List<TopoVertexVo> list = topoVertexMapper.selectNodeByCabnet(nodeType, orgId);
-        return list;
+    public List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId, String roomId) {
+        return topoVertexMapper.selectNodeByCabnet(nodeType, orgId, roomId);
     }
 
 
