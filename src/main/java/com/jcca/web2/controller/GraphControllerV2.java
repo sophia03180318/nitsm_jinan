@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.jcca.admin.biz.vo.SysTopoGraph;
 import com.jcca.admin.biz.vo.TopoNodeGraph;
 import com.jcca.admin.system.entity.SysModuleConfig;
 import com.jcca.admin.system.entity.SysOrg;
@@ -29,15 +30,19 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
+import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.AssetLinkAssetService;
+import com.jcca.web.collect.service.CollectClusterService;
 import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web.collect.service.CollectRouteService;
 import com.jcca.web.graph.entity.TopoAssetGroup;
 import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
 import com.jcca.web.graph.service.*;
 import com.jcca.web.graph.vo.TopoVertexAlarmLevelVo;
+import com.jcca.web.graph.vo.TopoVertexVo;
 import com.jcca.web2.entity.BusinessServiceType;
 import com.jcca.web2.entity.TopoTag;
 import com.jcca.web2.enums.TopoCategoryEnum;
@@ -88,8 +93,6 @@ public class GraphControllerV2 {
     @Resource
     private CollectInterfacesService intefacesServ;
     @Resource
-    private SysOrgService orgServ;
-    @Resource
     private SysModuleConfigService configService;
     @Resource
     private TopoTagService topoTagService;
@@ -103,6 +106,12 @@ public class GraphControllerV2 {
     private SysOrgService orgService;
     @Resource
     private AssetLinkAssetService linkAssetService;
+    @Resource
+    private CollectClusterService collectClusterService;
+    @Resource
+    private CollectRouteService collectRouteService;
+    @Resource
+    private RoomService roomService;
 
 
     /**
@@ -176,7 +185,7 @@ public class GraphControllerV2 {
         if (StringUtils.isEmpty(orgId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
         }
-        SysOrg org = orgServ.getById(orgId);
+        SysOrg org = orgService.getById(orgId);
         if (Objects.isNull(org)) {
             throw new ResultException(ResultEnum.CANNOT_FIND.getCode(), "无此组织：" + orgId);
         }
@@ -271,7 +280,7 @@ public class GraphControllerV2 {
         if (Objects.isNull(orgId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
         }
-        SysOrg org = orgServ.getById(orgId);
+        SysOrg org = orgService.getById(orgId);
         if (OrgTypeEnum.CENTER.getCode() != org.getType()) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织类型不是中心");
         }
@@ -303,7 +312,7 @@ public class GraphControllerV2 {
         if (Objects.isNull(orgId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
         }
-        SysOrg org = orgServ.getById(orgId);
+        SysOrg org = orgService.getById(orgId);
         Integer type = org.getType();
         Map<String, Object> map = new HashMap<>();
         if (OrgTypeEnum.GROUP.getCode() == type || OrgTypeEnum.PARENT.getCode() == type) {
@@ -384,7 +393,7 @@ public class GraphControllerV2 {
         if (Objects.isNull(orgId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
         }
-        SysOrg org = orgServ.getById(orgId);
+        SysOrg org = orgService.getById(orgId);
         if (OrgTypeEnum.CENTER.getCode() != org.getType()) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织类型不是中心");
         }
@@ -402,7 +411,7 @@ public class GraphControllerV2 {
         if (Objects.isNull(orgId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
         }
-        SysOrg org = orgServ.getById(orgId);
+        SysOrg org = orgService.getById(orgId);
         if (OrgTypeEnum.STATION.getCode() != org.getType()) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织类型不是车站");
         }
@@ -540,11 +549,13 @@ public class GraphControllerV2 {
         return portList;
     }
 
+    private static String[] topoType = {"net_topo", "cabinet_topo", "biz_topo", "pc_topo", "netWorkAsset_topo"};
+
     @PostMapping("/saveTopoNode")
-    @ApiOperation(value = "保存拓扑图")
+    @ApiOperation(value = "保存拓扑图V2")
     @ResponseBody
-    @ActionLog(name = "保存拓扑图", title = "拓扑图", key = LogTypeConstant.MODIFY)
-    public ResultVo saveTopoNode(@RequestBody TopoNodeGraph topoNodeGraph) {
+    @ActionLog(name = "保存拓扑图V2", title = "拓扑图", key = LogTypeConstant.MODIFY)
+    public ResultVo<Object> saveTopoNode(@RequestBody TopoNodeGraph topoNodeGraph) {
         List<TopoEdge> edges = topoNodeGraph.getEdges();
         for (TopoEdge edge : edges) {
             try {
@@ -600,6 +611,134 @@ public class GraphControllerV2 {
         }
 
         return ResultVoUtil.success("保存成功！");
+    }
+
+    @PostMapping("/topoNode")
+    @ApiOperation(value = "获取拓扑图V2")
+    @ResponseBody
+    public ResultVo topoNode(@RequestBody SysTopoGraph graph) {
+        // 获取组织结构Id
+        String orgId = graph.getOrgId();
+        if (Objects.isNull(orgId)) {
+            return ResultVoUtil.error("请选择组织");
+        }
+        // 获取分类
+        String category = graph.getCategory();
+        Map<String, Object> map = new HashMap<>();
+        // 网络设备 网络设备界面
+        if (topoType[0].equals(category)) {
+            SysOrg org = orgService.getById(orgId);
+
+            List<TopoVertexVo> list;
+            if (OrgTypeEnum.LINE.getCode() == org.getType()) {
+                list = topoVertexService.selectLineNetTopo(orgId);
+            } else {
+                int config = this.getConfig();
+                switch (config) {
+                    case 3:
+                        //全部开启
+                        list = topoVertexService.selectNodeByAsset2(category, orgId);
+                        break;
+                    case 1:
+                        //只开启中心
+                        if (OrgTypeEnum.CENTER.getCode() == org.getType()) {
+                            list = topoVertexService.selectNodeByAsset2(category, orgId);
+
+                        } else {
+                            list = topoVertexService.selectNodeByAsset(category, orgId);
+                        }
+                        break;
+                    case 2:
+                        //只开启车站
+                        if (OrgTypeEnum.STATION.getCode() == org.getType()) {
+                            list = topoVertexService.selectNodeByAsset2(category, orgId);
+                        } else {
+                            list = topoVertexService.selectNodeByAsset(category, orgId);
+                        }
+                        break;
+                    default:
+                        list = topoVertexService.selectNodeByAsset(category, orgId);
+                }
+            }
+            List<TopoVertexVo> addList = new ArrayList<>();
+            List<TopoVertexVo> removeList = new ArrayList<>();
+            for (TopoVertexVo topoVertexVo : list) {
+                if (CLUSTER.equals(topoVertexVo.getABFlag())) {
+                    //集群 需要根据集群信息在查一遍
+                    List<TopoVertexVo> clusterTopo = collectClusterService.selectNodeById(topoVertexVo.getAssetId());
+                    if (!clusterTopo.isEmpty()) {
+                        addList.addAll(clusterTopo);
+                    }
+                    removeList.add(topoVertexVo);
+                }
+            }
+            if (!addList.isEmpty()) {
+                list.addAll(addList);
+            }
+            if (!removeList.isEmpty()) {
+                list.removeAll(removeList);
+            }
+
+            map.put("vertex", list);
+
+        }
+        // 机柜
+        if (topoType[1].equals(category)) {
+            List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId);
+            map.put("vertex", list);
+            map.put("room", roomService.listByOrgId(orgId)); // 适应一个组织下多个机房 20240829
+        }
+        // 业务设备
+        if (topoType[2].equals(category)) {
+        }
+        // 调度台设备
+        if (topoType[3].equals(category)) {
+            List<TopoVertexVo> list = topoVertexService.selectPcTopoNodeByAsset(category, orgId);
+            map.put("vertex", list);
+        }
+        //网络设备资产连线拓扑
+        if (topoType[4].equals(category)) {
+            List<TopoVertexVo> list = topoVertexService.selectNetworkAssetTopoNodeByAsset(category, graph.getAssetId());
+
+            map.put("vertex", list);
+            List<TopoEdge> topoEdgeList = topoEdgeService.queryNetWorkEdge(category, graph.getAssetId());
+            //如果曾经已经配置过设备连线
+            if (topoEdgeList == null || topoEdgeList.size() == 0) {
+                map.put("AssetEdge", collectRouteService.queryCollectRoute(graph.getAssetId()));
+            }
+            map.put("edge", topoEdgeList);
+            map.put("points", topoPointsService.queryNetWorkPoints(category, graph.getAssetId()));
+        } else {
+            map.put("edge", topoEdgeService.getTopoEdge(category, orgId));
+            map.put("points", topoPointsService.getTopoPoints(category, orgId));
+        }
+
+        // 拓扑图分组
+        List<TopoAssetGroup> list = null;
+        if (topoType[4].equals(category)) {
+            list = topoAssetGroupService.queryNetWorkAssetGroup(graph.getAssetId(), category);
+        } else {
+            list = topoAssetGroupService.queryAssetGroup(orgId, category);
+        }
+
+        for (TopoAssetGroup topoAssetGroup : list) {
+            String str = new String(topoAssetGroup.getContent());
+            topoAssetGroup.setContentStr(str);
+        }
+        map.put("groups", list);
+        // 拓扑图编辑备注
+        List<TopoAssetMark> marks = null;
+        if (topoType[4].equals(category)) {
+            marks = topoAssetMarkService.queryNetWorkAssetMark(graph.getAssetId(), category);
+        } else {
+            marks = topoAssetMarkService.queryAssetMark(orgId, category);
+        }
+        for (TopoAssetMark topoAssetMark : marks) {
+            String str = new String(topoAssetMark.getContent(), StandardCharsets.UTF_8);
+            topoAssetMark.setContentStr(str);
+        }
+        map.put("marks", marks);
+        return ResultVoUtil.success(map);
     }
 
 }

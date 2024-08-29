@@ -66,11 +66,12 @@ public interface SysOrgService extends IService<SysOrg> {
 
     /**
      * 查询组织  资产 列表
+     *
      * @param userId
-     * @param watch 传入会根据此条件筛选 不传不筛选
+     * @param watch  传入会根据此条件筛选 不传不筛选
      * @return
      */
-    List<SysOrg> getOrgsAsset(String userId,String watch);
+    List<SysOrg> getOrgsAsset(String userId, String watch);
 
     /**
      * 根据组织ID获取所有子组织
@@ -134,6 +135,7 @@ public interface SysOrgService extends IService<SysOrg> {
 
     /**
      * 查询线下所有的车站ID列表
+     *
      * @param lineId
      * @return
      */
@@ -154,4 +156,11 @@ public interface SysOrgService extends IService<SysOrg> {
      * @return 组织列表
      */
     List<SysOrg> getListByOrgType(byte orgType);
+
+    /**
+     * 获取带有中心机房的组织结构
+     *
+     * @return 组织
+     */
+    List<SysOrg> getOrgAndRoom();
 }

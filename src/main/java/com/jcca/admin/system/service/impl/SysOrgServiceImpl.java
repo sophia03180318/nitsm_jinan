@@ -18,6 +18,8 @@ import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.shiro.util.ShiroUtil;
+import com.jcca.web.asset.service.RoomService;
+import com.jcca.web.asset.vo.RoomVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +40,8 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     private SysRoleOrgMapper roleOrgMapper;
     @Resource
     private StationService stationService;
+    @Resource
+    private RoomService roomService;
 
     /**
      * 根据父级组织ID获取本级全部组织
@@ -112,11 +116,11 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     }
 
     @Override
-    public List<SysOrg> getOrgsAsset(String userId,String watch) {
+    public List<SysOrg> getOrgsAsset(String userId, String watch) {
         if (userId.equals("1")) {
-            return sysOrgMapper.getRootOrgsAsset(userId,watch);
+            return sysOrgMapper.getRootOrgsAsset(userId, watch);
         }
-        return sysOrgMapper.getOrgsAsset(userId,watch);
+        return sysOrgMapper.getOrgsAsset(userId, watch);
     }
 
     /**
@@ -264,7 +268,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<SysOrg> findAllByName(String content) {
         QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<SysOrg>();
         queryWrapper.eq("title", content);
-        queryWrapper.eq("status",1);
+        queryWrapper.eq("status", 1);
         return sysOrgMapper.selectList(queryWrapper);
     }
 
@@ -280,7 +284,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
     @Override
     public List<String> getStationOrgIdByLineId(String lineId) {
-        if(StrUtil.isEmpty(lineId)){
+        if (StrUtil.isEmpty(lineId)) {
             return new ArrayList<>();
         }
         return sysOrgMapper.getStationOrgIdByLineId(lineId);
@@ -323,6 +327,34 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
         queryWrapper.eq("status", StatusEnum.OK.getCode());
 
         return sysOrgMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 获取带有中心机房的组织结构
+     *
+     * @return 组织
+     */
+    @Override
+    public List<SysOrg> getOrgAndRoom() {
+        List<SysOrg> orgs = ShiroUtil.getSubjectOrgs();
+        if (orgs.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<SysOrg> list = new ArrayList<>(orgs);
+        for (SysOrg org : orgs) {
+            if (OrgTypeConst.CENTER == org.getType()) {
+                List<RoomVo> roomVos = roomService.listByOrgId(org.getId());
+                for (RoomVo vo : roomVos) {
+                    SysOrg rorg = new SysOrg();
+                    rorg.setId(vo.getId());
+                    rorg.setTitle(vo.getName());
+                    rorg.setPid(org.getId());
+                    list.add(rorg);
+                }
+            }
+        }
+
+        return list;
     }
 
 }

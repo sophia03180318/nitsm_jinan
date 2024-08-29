@@ -28,6 +28,7 @@ import com.jcca.web.asset.entity.Room;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.RoomService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -285,5 +286,14 @@ public class OrgControllerV2 {
         return ResultVoUtil.success("成功");
     }
 
+    @GetMapping("/getOrgRoom")
+    @ApiOperation(value = "获取带有中心机房的组织结构")
+    @ResponseBody
+    public ResultVo<Object> getOrgRoom() {
+
+        List<SysOrg> list = orgService.getOrgAndRoom();
+
+        return ResultVoUtil.success(list);
+    }
 
 }
