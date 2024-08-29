@@ -395,7 +395,13 @@
 		var currentPage = editorUi.pages[0];
 		currentPage.category=category;
 		editorUi.selectPage(currentPage);
-		viewGraph(graph, editor, currentPage);
+
+		$('#roomContainer').empty()
+		if(currentPage.category == 'cabinet_topo'){
+			getRoomData(graph, editor, currentPage)
+		}else{
+			viewGraph(graph, editor, currentPage);
+		}
 	});
 
 	$("#topo_link_content").on('click', 'tr', function(event) {
@@ -517,7 +523,7 @@ Action.prototype.saveGraph = function(editor,ui) {
 
 function saveTopoNode(nodes, edges, points, groups, marks, editor,currentPage) {
 	if(currentPage.category == 'cabinet_topo'){
-		var v = { "nodes": nodes, "edges": edges, "points": points, "groups": groups, "marks": marks, "category": currentPage.category, "orgId": roomId , };
+		var v = { "nodes": nodes, "edges": edges, "points": points, "groups": groups, "marks": marks, "category": currentPage.category, "orgId": roomId };
 	}else{
 		var v = { "nodes": nodes, "edges": edges, "points": points, "groups": groups, "marks": marks, "category": currentPage.category, "orgId": editor.orgId , };
 	}
@@ -573,6 +579,7 @@ function initOrgTree(graph, editor,editorUi) {
 				var currentPage = editorUi.pages[0]
 				currentPage.category=category;
 				editorUi.selectPage(currentPage);
+				$('#roomContainer').empty()
 				if(currentPage.category == 'cabinet_topo'){
 					getRoomData(graph, editor, currentPage)
 				}else{
@@ -612,11 +619,22 @@ function getRoomData (graph, editor, currentPage) {
 		contentType: 'application/json;charset=utf-8',
 		success: function(result) {
 			roomData = result.data
+			if(roomData.length == 0){
+				editor.graph.model.clear();
+				return false
+			}
 			$('#roomContainer').empty()
 			roomData.forEach((elm,index) => {
-				$('#roomContainer').append(
-					'<li class="item pointer" onclick="changeRoom('+index+')">'+elm.name+'</li>'
-				)
+				if(index == 0){
+					$('#roomContainer').append(
+						'<li class="item pointer layui-this" onclick="changeRoom('+index+')">'+elm.name+'</li>'
+					)
+				}else{
+					$('#roomContainer').append(
+						'<li class="item pointer" onclick="changeRoom('+index+')">'+elm.name+'</li>'
+					)
+				}
+
 			})
 			roomId = roomData[0].id
 			editorCabinet = editor
