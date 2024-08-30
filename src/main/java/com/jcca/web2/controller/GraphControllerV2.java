@@ -193,7 +193,7 @@ public class GraphControllerV2 {
 
         QueryWrapper<TopoTag> query = Wrappers.query();
         query.eq("ORG_ID", orgId);
-
+        query.orderByDesc("CATEGORY");
         List<TopoTag> topoTags = topoTagService.list(query);
         if (!topoTags.isEmpty()) {
             return ResultVoUtil.success(topoTags);
