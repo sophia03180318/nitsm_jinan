@@ -30,7 +30,6 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
-import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.AssetLinkAssetService;
@@ -111,8 +110,6 @@ public class GraphControllerV2 {
     private CollectClusterService collectClusterService;
     @Resource
     private CollectRouteService collectRouteService;
-    @Resource
-    private RoomService roomService;
 
 
     /**
