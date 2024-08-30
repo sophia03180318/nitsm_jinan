@@ -412,7 +412,17 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
      */
     @Override
     public List<TopoVertexVo> selectCabinetNodeV2(String roomId) {
-        return topoVertexMapper.selectCabinetNodeV2(roomId);
+        List<TopoVertexVo> topoVertexVos = topoVertexMapper.selectCabinetNodeV2(roomId);
+        Room room = roomService.getById(roomId);
+        List<CabinetTopoVo> alarms = topoVertexMapper.selectAlarmByCenterCabinetV2(room.getOrgId());
+        for (TopoVertexVo topoVertexVo : topoVertexVos) {
+            for (CabinetTopoVo alarm : alarms) {
+                if (topoVertexVo.getAssetId().equals(alarm.getCabinetId())) {
+                    topoVertexVo.setAlarmLevel(alarm.getAlarmLevel());
+                }
+            }
+        }
+        return topoVertexVos;
     }
 
 }
