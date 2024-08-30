@@ -19,7 +19,6 @@ import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.OrgTypeEnum;
 import com.jcca.common.enums.ResultEnum;
-import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -126,8 +125,8 @@ public class GraphControllerV2 {
 
         String orgId = topoTag.getOrgId();
         SysOrg one = orgService.getById(orgId);
-        if (OrgTypeConst.CENTER != one.getType() && OrgTypeConst.LINE != one.getType() && OrgTypeConst.STATION != one.getType()) {
-            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "该组织没有拓扑图");
+        if (Objects.isNull(one)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织不存在");
         }
 
         String category = topoTag.getCategory();
@@ -185,7 +184,7 @@ public class GraphControllerV2 {
         }
         SysOrg org = orgService.getById(orgId);
         if (Objects.isNull(org)) {
-            throw new ResultException(ResultEnum.CANNOT_FIND.getCode(), "无此组织：" + orgId);
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "无此组织：" + orgId);
         }
 
         QueryWrapper<TopoTag> query = Wrappers.query();
@@ -198,75 +197,34 @@ public class GraphControllerV2 {
 
         Integer type = org.getType();
         if (OrgTypeConst.CENTER == type) {
-            TopoTag netTopo = new TopoTag();
-            netTopo.setId(MyIdUtil.getId());
-            netTopo.setCategory("net_topo");
-            netTopo.setName("网络拓扑");
-            netTopo.setOrgId(orgId);
-            netTopo.setRemark("自动生成");
-            topoTagService.save(netTopo);
-            topoTags.add(netTopo);
-
-            TopoTag cabinetTopo = new TopoTag();
-            cabinetTopo.setId(MyIdUtil.getId());
-            cabinetTopo.setCategory("cabinet_topo");
-            cabinetTopo.setName("机柜拓扑");
-            cabinetTopo.setOrgId(orgId);
-            cabinetTopo.setRemark("自动生成");
-            topoTagService.save(cabinetTopo);
-            topoTags.add(cabinetTopo);
-
-            TopoTag pcTopo = new TopoTag();
-            pcTopo.setId(MyIdUtil.getId());
-            pcTopo.setCategory("pc_topo");
-            pcTopo.setName("调度台拓扑");
-            pcTopo.setOrgId(orgId);
-            pcTopo.setRemark("自动生成");
-            topoTagService.save(pcTopo);
-            topoTags.add(pcTopo);
-
-            TopoTag bizTopo = new TopoTag();
-            bizTopo.setId(MyIdUtil.getId());
-            bizTopo.setCategory("biz_topo");
-            bizTopo.setName("业务拓扑");
-            bizTopo.setOrgId(orgId);
-            bizTopo.setRemark("自动生成");
-            topoTagService.save(bizTopo);
-            topoTags.add(bizTopo);
+            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo("机柜拓扑", TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
+            this.addTopo("调度台拓扑", TopoCategoryEnum.PC_TOPO.category, orgId, topoTags);
+            this.addTopo("业务拓扑", TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.LINE == type) {
-            TopoTag wanTopo = new TopoTag();
-            wanTopo.setId(MyIdUtil.getId());
-            wanTopo.setCategory("wan_topo");
-            wanTopo.setName("广域网拓扑");
-            wanTopo.setOrgId(orgId);
-            wanTopo.setRemark("自动生成");
-            topoTagService.save(wanTopo);
-            topoTags.add(wanTopo);
-
+            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo("业务拓扑", TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.STATION == type) {
-            TopoTag netTopo = new TopoTag();
-            netTopo.setId(MyIdUtil.getId());
-            netTopo.setCategory("net_topo");
-            netTopo.setName("网络拓扑");
-            netTopo.setOrgId(orgId);
-            netTopo.setRemark("自动生成");
-            topoTagService.save(netTopo);
-            topoTags.add(netTopo);
-
-            TopoTag cabinetTopo = new TopoTag();
-            cabinetTopo.setId(MyIdUtil.getId());
-            cabinetTopo.setCategory("cabinet_topo");
-            cabinetTopo.setName("机柜拓扑");
-            cabinetTopo.setOrgId(orgId);
-            cabinetTopo.setRemark("自动生成");
-            topoTagService.save(cabinetTopo);
-            topoTags.add(cabinetTopo);
+            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo("机柜拓扑", TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
         }
 
         return ResultVoUtil.success(topoTags);
     }
+
+    private void addTopo(String name, String category, String orgId, List<TopoTag> topoTags) {
+        TopoTag topoTag = new TopoTag();
+        topoTag.setId(MyIdUtil.getId());
+        topoTag.setCategory(category);
+        topoTag.setName(name);
+        topoTag.setOrgId(orgId);
+        topoTag.setRemark("自动生成");
+        topoTagService.save(topoTag);
+        topoTags.add(topoTag);
+    }
+
 
     /**
      * 获取中心组织下的业务页签

@@ -42,7 +42,7 @@ public enum TopoCategoryEnum {
                     || WAN_TOPO.category.equals(category);
         }
         if (OrgTypeConst.LINE == orgType) {
-            return NET_TOPO.category.equals(category);
+            return NET_TOPO.category.equals(category) || BIZ_TOPO.category.equals(category);
         }
         if (OrgTypeConst.STATION == orgType) {
             return NET_TOPO.category.equals(category) || CABINET_TOPO.category.equals(category);
