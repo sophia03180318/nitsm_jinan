@@ -2,7 +2,6 @@ package com.jcca.web2.controller;
 
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.StatusConst;
@@ -109,16 +108,7 @@ public class ProcessConfigControllerV2 extends ListenerManager {
     @ActionLog(name = "进程配置相关", title = "删除业务类型", key = LogTypeConstant.REMOVEE)
     public ResultVo<String> bizDel(@PathVariable("id") String id) {
 
-        bizTypeService.removeById(id);
-
-        QueryWrapper<PromptInfo> wrapper = Wrappers.query();
-        wrapper.eq("SOFTWARETYPE_ID", id);
-        promptInfoService.remove(wrapper);
-
-        UpdateWrapper<Asset> update = Wrappers.update();
-        update.eq("SERVICE_TYPE_ID", id);
-        update.set("SERVICE_TYPE_ID", null);
-        assetService.update(update);
+        promptInfoService.removePrompt(id);
 
         return ResultVoUtil.REMOVE_SUCCESS;
     }
