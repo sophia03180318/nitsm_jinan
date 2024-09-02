@@ -41,6 +41,7 @@ import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.AssetModel;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.AssetModelService;
+import com.jcca.web2.service.BusinessServiceTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -81,6 +82,8 @@ public class ImportAsset {
     private AssetModelService assetModelService;
     @Resource
     private AssetModeService assetModeService;
+    @Resource
+    private BusinessServiceTypeService businessServiceTypeService;
 
     private List<AssetModel> models;
 
@@ -392,12 +395,17 @@ public class ImportAsset {
                         asset.setShowTopo((byte) 0);
                     }
 
-
-                    if (assetModeStr.length() > 3) {//区分小类型
-                        asset.setAssetMode(183);
-                        asset.setDesk(Integer.parseInt(assetModeStr.substring(assetModeStr.length() - 1)));
+                    if (rowMap.containsKey("serviceTypeId")){
+                      String serviceType= rowMap.get("serviceTypeId").toString().trim();
+                        String typeByName = businessServiceTypeService.getTypeByName(serviceType);
+                        asset.setServiceTypeId(typeByName);
                     }
-                    break;
+
+                if (assetModeStr.length() > 3) {//区分小类型
+                    asset.setAssetMode(183);
+                    asset.setDesk(Integer.parseInt(assetModeStr.substring(assetModeStr.length() - 1)));
+                }
+                break;
 
                 case 201:
                 case 42:
