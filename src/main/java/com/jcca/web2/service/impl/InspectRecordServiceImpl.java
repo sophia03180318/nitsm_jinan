@@ -794,8 +794,14 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         }
     }
 
+    boolean flag = false;
+
     @Override
     public void checkRecord() {
+        if (flag) {
+            return;
+        }
+        flag = true;
         String inspectCode = "";
         int count = this.count();
         if (count == 0) {
@@ -831,6 +837,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
                 this.saveOrUpdateBatch(nlist, 2000);
             }
         }
+        flag = false;
     }
 
     private List<InspectRecord> checkReadyRecords() {
