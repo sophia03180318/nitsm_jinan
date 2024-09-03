@@ -220,12 +220,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     throw new AddAssetException(AddAssetException.VERIFY_ERROR, "监控设备必须录入IP", null);
                 }
                 // 检测IP网段是否配置
-                if (!ipIsEmpty) {
+/*                if (!ipIsEmpty) {
                     Boolean examineIp = ipInfoService.examineIp(ip);
                     if (!examineIp) {
                         throw new AddAssetException(AddAssetException.VERIFY_ERROR, "请先配置IP网段", null);
                     }
-                }
+                }*/
             }
         }
         // 检查IP是否已分配
