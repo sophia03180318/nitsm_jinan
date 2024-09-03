@@ -30,14 +30,14 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     public int saveMenus(String roleId, List<String> menuIds) {
         roleMenuMapper.deleteByRoleId(roleId);
 
-        List<SysRoleMenu> roleMenuList = new ArrayList<>();
         if (menuIds != null) {
-            menuIds.forEach(menuId -> {
+            List<SysRoleMenu> roleMenuList = new ArrayList<>();
+            for (String menuId : menuIds) {
                 SysRoleMenu rm = new SysRoleMenu();
                 rm.setRoleId(roleId);
                 rm.setMenuId(menuId);
                 roleMenuList.add(rm);
-            });
+            }
             roleMenuService.saveBatch(roleMenuList);
             return menuIds.size();
         }
