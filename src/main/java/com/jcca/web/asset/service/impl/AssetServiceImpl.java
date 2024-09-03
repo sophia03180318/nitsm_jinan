@@ -1574,13 +1574,21 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         }
 
         Asset oldasset = this.getOneByAllIp(ip);
-        if (Objects.nonNull(oldasset)) {
+        if (Objects.nonNull(oldasset) && StringUtils.isEmpty(req.getId())) {
+            throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP1已经被其他设备占用");
+        }
+
+        if (Objects.nonNull(oldasset) && !StringUtils.isEmpty(req.getId()) && !oldasset.getId().equals(req.getId())) {
             throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP1已经被其他设备占用");
         }
 
         if (!StringUtils.isEmpty(ip2)) {
             oldasset = this.getOneByAllIp(ip2);
-            if (Objects.nonNull(oldasset)) {
+            if (Objects.nonNull(oldasset) && StringUtils.isEmpty(req.getId())) {
+                throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP2已经被其他设备占用");
+            }
+
+            if (Objects.nonNull(oldasset) && !StringUtils.isEmpty(req.getId()) && !oldasset.getId().equals(req.getId())) {
                 throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP2已经被其他设备占用");
             }
         }
