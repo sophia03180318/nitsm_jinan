@@ -153,7 +153,7 @@ kbUrl:
 # 动环配置
 threeD:
   # 接口服务器IP
-  host: 192.168.1.28
+  host: 172.22.90.240
   # 接口服务器端口
   port: 9996
   #组织ID
@@ -165,9 +165,10 @@ threeD:
   # 告警数据推送周期
   cron: "*/11 * * * * ?"
   # 接口服务器IP
-  rabbitMQhost: 192.168.73.121
+  rabbitMQhost: 172.22.90.240
   # 接口服务器端口
-  rabbitMQPort: 5672
+  rabbitMQPort: 15672
+
   # 接口服务器用户名
   rabbitMQUsername: root
   # 接口服务器密码

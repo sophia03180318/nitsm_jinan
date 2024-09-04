@@ -67,7 +67,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     List<String> listTitle();
 
 
-    @Select("select min(ALARM_LEVEL) from ALARM_INFO where (ALARM_STATE=1 or STATUS = 1) and BLANK=1 and ASSET_ID=#{assetId}")
+    @Select("select min(ALARM_LEVEL) from ALARM_INFO where (STATUS = 1 OR (STATUS = 2 AND ALARM_STATE = 1)) and BLANK=1 and ASSET_ID=#{assetId}")
     Byte queryMaxAlarmLevel(@Param("assetId") String assetId);
 
     @Select("select a.ORG_ID,a.OCCUR_TIME,o.TYPE  from SYS_ORG o RIGHT join (select ORG_ID,max(OCCUR_TIME) as OCCUR_TIME from ALARM_INFO a where  STATUS=1 and ALARM_LEVEL =1 and ALARM_STATE=1 and BLANK!=2 group BY ORG_ID) a on a.ORG_ID=o.ID")

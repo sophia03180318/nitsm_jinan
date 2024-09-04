@@ -370,7 +370,7 @@
                 )
             </if>
             <if test="query.showJcca==2">
-                and b.ASSET_SUPPLIER not like '%JCCA%'
+                and (b.ASSET_SUPPLIER not like '%JCCA%' or b.ASSET_SUPPLIER is null)
             </if>
         </where>
         <choose>

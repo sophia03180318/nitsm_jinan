@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * @author sophia
@@ -37,6 +38,7 @@ public class TopoTag {
      * 页签名称
      */
     @TableField("NAME")
+    @Length(max = 60, message = "标签名称不能超过60个字符")
     private String name;
 
     /**

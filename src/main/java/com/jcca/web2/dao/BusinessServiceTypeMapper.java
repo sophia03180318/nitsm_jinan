@@ -19,4 +19,7 @@ public interface BusinessServiceTypeMapper extends BaseMapper<BusinessServiceTyp
 
     @Select("select max(sort) from BUSINESSSERVICE_SERVICE_TYPE ")
     Integer getMaxSort();
+
+    @Select("select id from BUSINESSSERVICE_SERVICE_TYPE where name = #{name}")
+    List<String> getTypeByName(String name);
 }
