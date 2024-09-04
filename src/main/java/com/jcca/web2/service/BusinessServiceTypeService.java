@@ -22,5 +22,4 @@ public interface BusinessServiceTypeService extends IService<BusinessServiceType
 
     String getTypeByName(String name);
 
-
 }

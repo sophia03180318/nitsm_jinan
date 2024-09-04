@@ -73,6 +73,8 @@ import com.jcca.web.ip.service.IpInfoService;
 import com.jcca.web.statistics.service.HourCpuService;
 import com.jcca.web.statistics.service.HourInterfacesService;
 import com.jcca.web.statistics.service.HourMemoryService;
+import com.jcca.web2.entity.BusinessServiceType;
+import com.jcca.web2.service.BusinessServiceTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -169,6 +171,8 @@ public class ApiAssetController {
     private OutService outServ;
     @Resource
     private AssetTemplateService assetTemplateService;
+    @Resource
+    private BusinessServiceTypeService businessServiceTypeService;
 
 
     @GetMapping("/getConfig")
@@ -2147,6 +2151,13 @@ public class ApiAssetController {
 
             assetRecord.setOrgId(sysOrgServ.getById(attach.getOrgId()).getTitle());
             assetRecord.setRoomId(roomService.getById(attach.getRoomId()).getName());
+
+            if (ObjectUtil.isNotNull(asset.getServiceTypeId())) {
+                BusinessServiceType businessServiceType = businessServiceTypeService.getById(asset.getServiceTypeId());
+                if (ObjectUtil.isNotNull(businessServiceType)){
+                    assetRecord.setServiceTypeId(businessServiceType.getName());
+                }
+            }
 
             if (ObjectUtil.isNotNull(attach.getCabinetId())) {
                 assetRecord.setCabinetId(cabinetService.getById(attach.getCabinetId()).getName());

@@ -88,8 +88,8 @@ public class ThreeDServiceImpl implements ThreeDService {
         }
 
         for (ShelvesReq shelvesReq : shelvesReqs) {
-            shelvesReq.setCategoryId("2_2");
-            shelvesReq.setThreeModel("201");
+            shelvesReq.setCategoryId("209");
+            shelvesReq.setThreeModel("casco01-2U");
         }
         String s = JSONUtil.toJsonStr(shelvesReqs);
         log.info("3D机房发送信息  "+s);

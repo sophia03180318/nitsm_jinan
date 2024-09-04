@@ -243,12 +243,18 @@ public class AssetImportRecord extends Model<AssetImportRecord> implements java.
     @TableField("SERIALNUMBER")
     private String serialNumber;
 
+    /**
+     * 业务类型
+     */
+    @TableField(value = "SERVICE_TYPE_ID")
+    private String serviceTypeId;
 
     /**
      * 错误日志
      */
     @TableField("STATUS")
     private String status;
+
 
     /**
      * 错误日志

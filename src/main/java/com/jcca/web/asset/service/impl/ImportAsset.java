@@ -603,7 +603,7 @@ public class ImportAsset {
             }
 
             //查询ip是否可用
-            QueryWrapper<IpInfo> queryWrapper = new QueryWrapper<>();
+/*            QueryWrapper<IpInfo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("IP", asset.getIp());
             List<IpInfo> ipList = ipInfoService.list(queryWrapper);
             if (ipList.size() == 0) {
@@ -611,7 +611,7 @@ public class ImportAsset {
                 testVo.setCode(ERR_CODE);
                 testVo.setMsg("该ip不可用,未录入网段");
                 return ResultVoUtil.error(ResultEnum.SUCCESS.getCode(), "", testVo);
-            }
+            }*/
         }
 
 
