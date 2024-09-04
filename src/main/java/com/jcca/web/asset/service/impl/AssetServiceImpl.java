@@ -2291,6 +2291,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         fixList.addAll(recordList);
         //设备的上下架时间
         Asset asset = assetMapper.selectById(assetId);
+        if (Objects.isNull(asset)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "资产不存在");
+        }
         Date onlineTime = asset.getOnlineTime();
         Date downLineTime = asset.getDownlineTime();
         if (Objects.nonNull(onlineTime)) {
