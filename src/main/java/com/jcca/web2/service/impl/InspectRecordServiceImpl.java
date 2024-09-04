@@ -794,7 +794,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         }
     }
 
-    boolean flag = false;
+    private volatile boolean flag = false;
 
     @Override
     public void checkRecord() {
