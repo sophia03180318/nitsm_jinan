@@ -884,8 +884,8 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 					y = vertex.nodeY == null ? (vertex.rowIndex - 1) * 32 : y;
 				}else{
 					style = "shape=RECTANGLE;fillColor=rgba(40, 122, 212, 0.3);strokeColor=#00acff;fontColor=#00ACFF;fontStyle=1;rounded=1;verticalLabelPosition=center";
-					x = vertex.nodeX == null ? 108 * (vertex.columnIndex-1) + 15 : x;
-					y = vertex.nodeY == null ? 26 * (vertex.rowIndex - 1) + 15*(vertex.rowIndex - 1) +15  : y;
+					x = vertex.nodeX == null ? 108 * (vertex.rowIndex-1) + 15* (vertex.rowIndex-1) + 15 : x;
+					y = vertex.nodeY == null ? 26 * (vertex.columnIndex - 1) + 15  : y;
 				}
 
 
