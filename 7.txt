@@ -1,1 +1,0 @@
-{"content":"[{\"collectTime\":\"1704360486022\",\"descStr\":\"Switch#1, Sensor#1, Status is GREEN \",\"assetId\":\"1742485418932445184\",\"sensorType\":\"GAUGE\",\"collectCode\":\"1742840314420940800\",\"serialNumberName\":\"Switch#1, Sensor#1, Status is GREEN \",\"value\":\"46\",\"status\":1}]","category":"7"}

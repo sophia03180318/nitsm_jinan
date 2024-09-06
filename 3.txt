@@ -1,1 +1,0 @@
-{"content":"[{\"collectTime\":\"1704359886022\",\"memFree\":503198528,\"memTotal\":712939424,\"swapTotal\":0,\"assetIp\":\"192.168.53.102\",\"memSwapUsedRate\":0,\"memRate\":30,\"swapUsed\":0,\"assetId\":\"1742485418932445184\",\"memUsed\":209740896}]","category":"3"}

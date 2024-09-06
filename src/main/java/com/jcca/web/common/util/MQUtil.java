@@ -8,6 +8,9 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
 /**
  * @description: rabbitMQ工具类
  * @author: sophia
@@ -61,12 +64,20 @@ public class MQUtil {
                 connectionFactory.setUsername(getUsername());
                 connectionFactory.setPassword(getPassword());
                 connectionFactory.setVirtualHost(getVirtual());
-                connection = connectionFactory.newConnection();
+                if (ObjectUtil.isNull(connection)){
+                    connection = connectionFactory.newConnection();
+                }
                 channel = connection.createChannel();
             }
             return channel;
         } catch (Exception e) {
             log.error("获取RabbitMQ通道失败：" + e.getMessage());
+            try {
+                connection.close();
+                channel.close();
+            } catch (IOException ex) {
+            } catch (TimeoutException ex) {
+            }
             return null;
         }
     }
