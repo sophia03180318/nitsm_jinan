@@ -12,6 +12,7 @@ import com.jcca.common.bean.PageQuery;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.DBTypeEnum;
+import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.AppListUtils;
@@ -127,6 +128,9 @@ public class ApiStatisticsDbController {
             return ResultVoUtil.paramError("ID 不存在", String.class);
         }
         Asset asset = assetService.getById(db.getAssetId());
+        if (Objects.isNull(asset)) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "资产不存在");
+        }
         List<CollectDB> collectDbList = collectDbServ.getRealTimeData(db.getAssetId());
 
         StatisticsDbBaseMsgVo vo = new StatisticsDbBaseMsgVo();
