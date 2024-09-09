@@ -84,23 +84,20 @@ public class LinuxIoAdapterImpl implements XunjianV2Adapter {
                     sys = sys.add(new BigDecimal(cellArray[2].trim()));
                     count = count.add(new BigDecimal(1));
                 }
-                if (lineTrim.startsWith("AVG")) {
-                    flag = true;
-                } else {
-                    flag = false;
+                flag = lineTrim.startsWith("AVG");
+            }
+            if (count.intValue() != 0) {
+                BigDecimal userAvg = user.divide(count, 2, BigDecimal.ROUND_HALF_UP);
+                BigDecimal sysAvg = sys.divide(count, 2, BigDecimal.ROUND_HALF_UP);
+                if (user.doubleValue() > maxThreshold || sys.doubleValue() > maxThreshold) {
+                    //异常
+                    String errorStr = String.format("【User】: %s,【system】: %s", userAvg.doubleValue(), sysAvg.doubleValue());
+                    xunjianDetail.setInputErrorStr(errorStr);
+                    xunjianDetail.setNormalFlag(XunjianDetailV2.EXCEPTION_FLAG);
+                    xunjianDetail.setNormalFlagStr(XunjianDetailV2.EXCEPTION_FLAG_STR);
                 }
             }
 
-            BigDecimal userAvg = user.divide(count, 2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal sysAvg = sys.divide(count, 2, BigDecimal.ROUND_HALF_UP);
-
-            if (user.doubleValue() > maxThreshold || sys.doubleValue() > maxThreshold) {
-                //异常
-                String errorStr = String.format("【User】: %s,【system】: %s", userAvg.doubleValue(), sysAvg.doubleValue());
-                xunjianDetail.setInputErrorStr(errorStr);
-                xunjianDetail.setNormalFlag(XunjianDetailV2.EXCEPTION_FLAG);
-                xunjianDetail.setNormalFlagStr(XunjianDetailV2.EXCEPTION_FLAG_STR);
-            }
             xunjianDetail.setInputOrgStr(sshResult);
             return xunjianDetail;
         } catch (Exception e) {
