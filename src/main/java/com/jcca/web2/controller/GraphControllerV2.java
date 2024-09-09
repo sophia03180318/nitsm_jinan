@@ -390,6 +390,11 @@ public class GraphControllerV2 {
         Map<String, Object> map = new HashMap<>();
         List<TopoVertexAlarmLevelVo> list = topoVertexService.selectPcTopoNodeAlarmLevelByAsset(category, orgId);
         map.put("vertex", list);
+        if (CollectionUtils.isEmpty(list)) {
+            List<TopoVertexVo> topoVertexVos = topoVertexService.selectPcTopoNodeByAsset(category, orgId);
+            map.put("vertex", topoVertexVos);
+        }
+
         // 拓扑图分组
         List<TopoAssetGroup> groupList = topoAssetGroupService.queryAssetGroup(orgId, category);
         for (TopoAssetGroup topoAssetGroup : groupList) {
