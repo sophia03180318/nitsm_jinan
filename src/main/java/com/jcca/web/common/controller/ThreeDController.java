@@ -75,9 +75,8 @@ public class ThreeDController {
     public ResultVo getMonitoringItem(@RequestParam("refuseList") List<String> refuseList) {
         List<MonitoringItemVo> voList = alarmInfoServ.getMonitoringItemV2(refuseList);
         for (MonitoringItemVo monitoringItemVo : voList) {
-                DialogsAlarmListDto query = new DialogsAlarmListDto();
-                query.setUserName("root");
-                List<DialogsAlarmListVo> alarmList = alarmInfoServ.queryCenterDialogsVoListV2(query);
+               String eventCategory =monitoringItemVo.getCode();
+                List<DialogsAlarmListVo> alarmList = alarmInfoServ.queryCenterDialogsVoListV2(eventCategory);
                 monitoringItemVo.setTotal(alarmList.size());
         }
         return ResultVoUtil.success(voList);

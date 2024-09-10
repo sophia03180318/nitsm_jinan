@@ -165,7 +165,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      * @author SOPHIA
      */
 
-    List<DialogsAlarmListVo> queryCenterDialogsVoListV2(DialogsAlarmListDto query);
+    List<DialogsAlarmListVo> queryCenterDialogsVoListV2(@Param("eventCategory") String eventCategory);
 
 
     /**

@@ -393,7 +393,7 @@
         , a.ID desc
     </select>
 
-    <select id="queryCenterDialogsVoListV2" parameterType="com.jcca.web2.dto.DialogsAlarmListDto"
+    <select id="queryCenterDialogsVoListV2" parameterType="java.lang.String"
             resultType="com.jcca.web2.vo.DialogsAlarmListVo">
     select c.TYPE as orgType, c.TITLE as orgName,
      a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel,
@@ -401,30 +401,10 @@
      a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
      a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState
      from ALARM_INFO a
-     join sys_org c on a.ORG_ID = c.ID
-     where
-     a.blank = 1
+     join SYS_ORG c on a.ORG_ID = c.ID
+     where a.blank = 1 and c.type=2
+     and a.event_category = #{eventCategory}
      and a.STATUS = 1 and a.ALARM_STATE = 1
-        <if test="assetIdList!=null">
-            <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->
-            and (a.ASSET_ID IN
-            <trim suffixOverrides=" a.ASSET_ID IN()">
-                <!-- 表示删除最后一个条件 -->
-                <foreach collection="assetIdList" item="Id" index="index" open="(" close=")">
-                    <if test="index != 0">
-                        <choose>
-                            <when test="index % 1000 == 600">
-                                ) OR a.ASSET_ID IN (
-                            </when>
-                            <otherwise>,</otherwise>
-                        </choose>
-                    </if>
-                    #{Id}
-                </foreach>
-            </trim>
-            )
-        </if>
-
      order by a.OCCUR_TIME  desc
     </select>
 

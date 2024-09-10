@@ -313,7 +313,7 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     /**
      * 查询3D告警列表
      */
-    List<DialogsAlarmListVo> queryCenterDialogsVoListV2(DialogsAlarmListDto query);
+    List<DialogsAlarmListVo> queryCenterDialogsVoListV2(String eventCategory);
 
 
     /**
