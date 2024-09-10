@@ -893,7 +893,7 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 			if (currentPage.category == "pc_topo") {
 				var xNew = 25 + 85 * ((i) % 16);
 				x = vertex.nodeX == null ? xNew : x;
-				var yNew = Math.floor((i) / 16) * 120;
+				var yNew = Math.floor((i) / 16) * 120 + 40;
 				y = vertex.nodeY == null ? yNew : y;
 				style = "image=/graph/images/picture/server.png;spacingBottom=15px";
 			}
