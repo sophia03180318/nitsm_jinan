@@ -86,7 +86,7 @@ public class CabinetController {
         List<String> roomIds = rooms.stream().map(Room::getId).collect(Collectors.toList());
         roomIds.add("x");
         wrapper.in("room_id", roomIds);
-        wrapper.orderByDesc("modify_time", "ID");
+        wrapper.orderByAsc("row_index", "column_index");
         List<Cabinet> records = cabinetService.list(wrapper);
         //List<Cabinet> records = iPage.getRecords();
         // 封装数据

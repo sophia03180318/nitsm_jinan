@@ -95,7 +95,7 @@
     <select id="selectPcTopoNodeByAsset"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
         SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as
-        assetOrgId, t.asset_mode as assetMode,t.watch
+        assetOrgId, t.asset_mode as assetMode,t.watch, '0' alarmLevel
         FROM asset t
         left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id and
         v.node_type =#{nodeType}
