@@ -12,10 +12,7 @@ import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.RestBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AlarmBlankConst;
-import com.jcca.common.enums.AlarmLevelEnum;
-import com.jcca.common.enums.AlarmStateEnum;
-import com.jcca.common.enums.AlarmStatusEnum;
-import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.enums.*;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -303,6 +300,9 @@ public class AlarmControllerV2 {
             copy.setStatus(AlarmStatusEnum.getMsg(alarmPageVo.getStatus().byteValue()));
             copy.setAlarmStatus(AlarmStateEnum.getMsg(alarmPageVo.getAlarmState().byteValue()));
             copy.setAlarmLevel(AlarmLevelEnum.getMsg(alarmPageVo.getAlarmLevel().byteValue()));
+            if(Objects.nonNull(alarmPageVo.getAlarmType())){
+                copy.setAlarmType(AlarmTypeEnum.getMsg(alarmPageVo.getAlarmType().intValue()));
+            }
             exportList.add(copy);
         }
 
@@ -312,8 +312,9 @@ public class AlarmControllerV2 {
 
         writer.addHeaderAlias("title", "标题");
         writer.addHeaderAlias("assetName", "资产名称");
-        writer.addHeaderAlias("assetIp1", "资产IP");
+        writer.addHeaderAlias("assetIp", "资产IP");
         writer.addHeaderAlias("alarmLevel", "告警级别");
+        writer.addHeaderAlias("alarmType", "告警类型");
 
         writer.addHeaderAlias("content", "告警内容");
         writer.addHeaderAlias("description", "原始告警");
