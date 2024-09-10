@@ -2,7 +2,6 @@ package com.jcca.web.common.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.web.alarm.entity.AlarmInfo;
@@ -23,11 +22,15 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.MessageProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -59,11 +62,12 @@ public class ThreeDServiceImpl implements ThreeDService {
     @Value("${threeD.roomId2}")
     private String roomId2;
 
+
     /**
      * RabbitMQ连接
      */
     private static Channel channel;
-
+    private HashMap<String, String> modelMap;
 
     @Override
     public ThreeDResult syncAssetByRoom() {
@@ -76,16 +80,18 @@ public class ThreeDServiceImpl implements ThreeDService {
         }
         List<ShelvesReq> shelvesReqs = roomService.pushAssetByRoom(roomId1, roomId2);
         if (ObjectUtil.isNull(shelvesReqs) || shelvesReqs.isEmpty()) {
+            threeDResult.setLog("未检测到设备");
             return threeDResult;
         }
 
         for (ShelvesReq shelvesReq : shelvesReqs) {
-            shelvesReq.setCategoryId("209");
-            shelvesReq.setThreeModel("casco01-2U");
+            getModel(shelvesReq);
         }
-        String req = JSONUtil.toJsonStr(shelvesReqs);
-        String s1 = JSONUtil.toJsonStr(new ThreeMap("syncShelves", req));
-        log.info("3D机房发送信息: "+s1);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("key", "syncShelves");
+        jsonObject.put("value", shelvesReqs);
+        String s1 = jsonObject.toString();
+        log.info("3D机房发送信息: " + s1);
         try {
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
@@ -122,11 +128,9 @@ public class ThreeDServiceImpl implements ThreeDService {
         if (!StringUtils.isEmpty(asset.getIp2())) {
             shelvesReq.setIp2(asset.getIp2());
         }
-        shelvesReq.setThreeModel(asset.getAssetImage());
-        shelvesReq.setCategoryId(asset.getDesk().toString());
-        shelvesReq.setCategoryId("2_2");
-        shelvesReq.setCategoryId("201");
         shelvesReq.setAreaId(asset.getRoomId());
+        shelvesReq.setThreeModel(asset.getAssetImage());
+        getModel(shelvesReq);
         //有机柜 放入机柜信息
         if (ObjectUtil.isNull(asset.getCabinetId())) {
             shelvesReq.setCabinetId(asset.getCabinetId());
@@ -135,9 +139,11 @@ public class ThreeDServiceImpl implements ThreeDService {
         shelvesReq.setStartU(String.valueOf(asset.getStartPosition()));
 
         try {
-            String req = JSONUtil.toJsonStr(shelvesReq);
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("upShelves", req));
-            log.info("3D机房发送信息: "+s1);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", "upShelves");
+            jsonObject.put("value", shelvesReq);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
 /*          channel.exchangeDeclare("dcimNorth","direct", true, false, false, null);
             channel.queueDeclare("dcimNorth", true, false, false, null);
@@ -178,17 +184,17 @@ public class ThreeDServiceImpl implements ThreeDService {
         }
         shelvesReq.setName(asset.getName());
         shelvesReq.setThreeModel(asset.getAssetImage());
-        shelvesReq.setCategoryId(asset.getDesk().toString());
-        shelvesReq.setCategoryId("2_2");
-        shelvesReq.setCategoryId("201");
+        getModel(shelvesReq);
         shelvesReq.setAreaId(asset.getRoomId());
         shelvesReq.setCabinetId(asset.getCabinetId());
         shelvesReq.setCabinetName(cabinetService.getById(asset.getCabinetId()).getName());
         shelvesReq.setStartU(String.valueOf(asset.getStartPosition()));
         try {
-            String req = JSONUtil.toJsonStr(shelvesReq);
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("updateShelves", req));
-            log.info("3D机房发送信息: "+s1);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", "updateShelves");
+            jsonObject.put("value", shelvesReq);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
@@ -212,11 +218,13 @@ public class ThreeDServiceImpl implements ThreeDService {
             return threeDResult;
         }
         try {
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put("assetId", id);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("assetId", id);
-            String req = jsonObject.toString();
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("offShelves", req));
-            log.info("3D机房发送信息: "+s1);
+            jsonObject.put("key", "offShelves");
+            jsonObject.put("value", jsonObject1);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
@@ -235,9 +243,11 @@ public class ThreeDServiceImpl implements ThreeDService {
             if (ObjectUtil.isNull(threeDAlarms) || threeDAlarms.isEmpty()) {
                 threeDAlarms = new ArrayList<>();
             }
-            String req = JSONUtil.toJsonStr(threeDAlarms);
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("pushAlarm", req));
-            log.info("3D机房发送信息: "+s1);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", "pushAlarm");
+            jsonObject.put("value", threeDAlarms);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
@@ -260,13 +270,15 @@ public class ThreeDServiceImpl implements ThreeDService {
         if (!isAsset(alarmInfo.getAssetId())) {
             return threeDResult;
         }
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", alarmInfo.getId());
-        jsonObject.put("assetId", alarmInfo.getAssetId());
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("id", alarmInfo.getId());
+        jsonObject1.put("assetId", alarmInfo.getAssetId());
         try {
-            String req = jsonObject.toString();
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("cancelAlarm", req));
-            log.info("3D机房发送信息: "+s1);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", "cancelAlarm");
+            jsonObject.put("value", jsonObject1);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
@@ -303,9 +315,11 @@ public class ThreeDServiceImpl implements ThreeDService {
             threeDPropertyReqs.add(threeDPropertyReq);
         }
         try {
-            String req = JSONUtil.toJsonStr(threeDPropertyReqs);
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("pushProprty", req));
-            log.info("3D机房发送信息: "+s1);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", "pushProprty");
+            jsonObject.put("value", threeDPropertyReqs);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
@@ -333,7 +347,7 @@ public class ThreeDServiceImpl implements ThreeDService {
         ArrayList<ThreeDLinkReq> threeDLinkReqs = new ArrayList<>();
         for (ThreeDLinkReq threeDLink : threeDLinks) {
 
-            if (ObjectUtil.isNull(threeDLink.getPortAId()) || ObjectUtil.isNull(threeDLink.getPortBId())||!threeDLink.getPortBId().contains("G")) {
+            if (ObjectUtil.isNull(threeDLink.getPortAId()) || ObjectUtil.isNull(threeDLink.getPortBId()) || !threeDLink.getPortBId().contains("G")) {
                 continue;
             }
 
@@ -375,10 +389,12 @@ public class ThreeDServiceImpl implements ThreeDService {
             }*/
             threeDLinkReqs.add(threeDLink);
         }
-        String req = JSONUtil.toJsonStr(threeDLinkReqs);
         try {
-            String s1 = JSONUtil.toJsonStr(new ThreeMap("pushLink", req));
-            log.info("3D机房发送信息: "+s1);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", "pushLink");
+            jsonObject.put("value", threeDLinkReqs);
+            String s1 = jsonObject.toString();
+            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
@@ -406,6 +422,47 @@ public class ThreeDServiceImpl implements ThreeDService {
         return (ObjectUtil.isNotNull(list) && !list.isEmpty());
     }
 
+
+    /**
+     * 型号转模型
+     */
+    private void getModel(ShelvesReq req) {
+        if (ObjectUtil.isNull(modelMap)) {
+            HashMap<String, String> map = new HashMap<>();
+            String filePath = "/threeDModel.txt";
+            BufferedReader reader;
+
+            try {
+                try {
+                    reader = new BufferedReader(new FileReader(filePath));
+                } catch (Exception e) {
+                    ClassPathResource resource = new ClassPathResource("templates/system/export/threeDModel.txt");
+                    InputStream inputStream = resource.getInputStream();
+                    reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                }
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] keyValue = line.split("&&");
+                    if (keyValue.length == 2) {
+                        map.put(keyValue[0], keyValue[1]);
+                    }
+                }
+                modelMap = map;
+                reader.close();
+
+            } catch (Exception e) {
+                req.setThreeModel("225");
+            }
+        }
+
+        String image = req.getThreeModel();
+        if (modelMap.containsKey(image)) {
+            String[] split = modelMap.get(image).split("&&");
+            req.setThreeModel(split[0]);
+        } else {
+            req.setThreeModel("225");
+        }
+    }
 
     /**
      * 获取队列连接

@@ -1,1 +1,0 @@
-2024-09-06 10:11:09.767 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送链路异常，channel is already closed due to channel error; protocol method: #method<channel.close>(reply-code=404, reply-text=NOT_FOUND - no exchange 'dcim_3d' in vhost '/', class-id=60, method-id=40)

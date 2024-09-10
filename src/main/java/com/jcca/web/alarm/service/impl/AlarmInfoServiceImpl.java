@@ -876,6 +876,27 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         return alarmInfoMapper.queryDialogsVoListV2(query);
     }
 
+
+    @Override
+    public List<DialogsAlarmListVo> queryCenterDialogsVoListV2(DialogsAlarmListDto query) {
+        String username = query.getUserName();
+        try {
+            if (StrUtil.isEmpty(username)) {
+                username = ShiroUtil.getSubject().getUsername();
+            }
+        } catch (Exception e) {
+            username = IndexPageServiceImpl.ROOT;
+        }
+        if (!IndexPageServiceImpl.ROOT.equals(username)) {
+            List<String> assetIds = assetService.listIdByUserNameV2(username, 1);
+            if (assetIds.isEmpty()) {
+                return new ArrayList<>();
+            }
+            query.setAssetIdList(assetIds);
+        }
+        return alarmInfoMapper.queryCenterDialogsVoListV2(query);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void disposeAlarmV2(DisposeAlarmDto dto) {
