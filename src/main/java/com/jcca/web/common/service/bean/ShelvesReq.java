@@ -35,7 +35,7 @@ public class ShelvesReq implements Serializable {
     /**
      * 资产型号
      */
-    private String categoryId;
+    private String categoryId="2_2";
 
     /**
      * 机房ID
@@ -45,7 +45,7 @@ public class ShelvesReq implements Serializable {
     /**
      * 三维模型ID
      * */
-    private String threeModel;
+    private String threeModel="225";
 
     /**
      * 机柜ID

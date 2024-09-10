@@ -156,6 +156,18 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      */
     List<DialogsAlarmListVo> queryDialogsVoListV2(DialogsAlarmListDto query);
 
+
+    /**
+     * 查3D页面告警列表
+     *
+     * @param query
+     * @return
+     * @author SOPHIA
+     */
+
+    List<DialogsAlarmListVo> queryCenterDialogsVoListV2(DialogsAlarmListDto query);
+
+
     /**
      * 查询告警列表
      *

@@ -188,6 +188,16 @@ public interface StatisticsService {
      **/
     List<StatisticsVo> findAssetAlarmByAssetModeV2(String day);
 
+
+    /**
+     * @description: 3D机房分设备类型
+     * @author: sophia
+     * @date: 2023/10/26 16:00
+     * @param: [day]
+     * @return: java.util.List<com.jcca.web2.vo.StatisticsVoV2>
+     **/
+    List<StatisticsVo> findAssetCenterAlarmByAssetModeV2();
+
     /**
      * @description: 查看大屏 地图中车站数据
      * @author: HanHW
@@ -216,6 +226,15 @@ public interface StatisticsService {
     List<StatisticsAlarmVo> getSevenDaysAlarmLineV2();
 
     /**
+     * @description: 近七天中心告警折线图
+     * @author: sophia
+     * @date: 2024/09/10 11:54
+     * @param: []
+     * @return: java.util.List<com.jcca.web.statistics.vo.StatisticsAlarmVo>
+     **/
+    List<StatisticsAlarmVo> getSevenDaysCenterAlarmLineV2();
+
+    /**
      * @description: 采集指标实时监测
      * @author: HanHW
      * @date: 2023/11/1 10:12
@@ -241,6 +260,11 @@ public interface StatisticsService {
      * @return: void
      **/
     List<RollAlarmVo> rollAlarmV2();
+
+    /**
+     *  未确认中心告警数量 用于3D推送
+     * */
+    List<RollAlarmVo> rollCenterAlarmV2();
 
     /**
      * @description: 获取有告警的车站

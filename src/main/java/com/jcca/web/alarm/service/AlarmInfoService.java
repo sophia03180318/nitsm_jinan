@@ -309,6 +309,13 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
      */
     List<DialogsAlarmListVo> queryDialogsVoListV2(DialogsAlarmListDto query);
 
+
+    /**
+     * 查询3D告警列表
+     */
+    List<DialogsAlarmListVo> queryCenterDialogsVoListV2(DialogsAlarmListDto query);
+
+
     /**
      * 处理告警V2
      *
@@ -332,6 +339,7 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
      * @return
      */
     Integer queryAbnormalAssetV2(AbnormalAssetQuery query);
+
     /**
      * 查询机柜中的告警列表
      *
@@ -358,7 +366,6 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     List<AlarmPageStatisticsVo> statisticsV2(AlarmPageDto query);
 
 
-
     /**
      * 符合条件的告警状态更新为恢复
      *
@@ -373,8 +380,10 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
      * 查询3D机房相关告警
      */
     List<ThreeDAlarmReq> getThreeDAlarm(String roomId1, String roomId2);
+
     /**
      * 查找未确定或者未恢复告警通过告警码
+     *
      * @param alarmCode
      * @return
      */
