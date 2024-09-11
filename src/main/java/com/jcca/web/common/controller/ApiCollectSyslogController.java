@@ -208,6 +208,9 @@ public class ApiCollectSyslogController extends ListenerManager {
     public void pullDeviceAlarm(@RequestBody @Validated Alarm alarm) {
 
         AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
+        if(Objects.isNull(asset)){
+            log.error("动环告警收到非法数据，资产ID不存在："+JSONUtil.toJsonStr(alarm));
+        }
         try {
             DongHuanEntity dongHuanEntity = new DongHuanEntity();
             dongHuanEntity.setAssetIp(asset.getIp());
