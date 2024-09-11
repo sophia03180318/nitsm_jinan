@@ -90,8 +90,8 @@ public class QuartzDhStatusJob extends QuartzJobBean {
                     dongHuanEntity.setCreateTime(alarm.getCreateTime());
                     dongHuanEntity.setOriginalMsg(alarm.getDescc());
                     dongHuanEntity.setAssetName(asset.getAssetName());
+                    log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
                     DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
-                    log.info("动环推送告警: " + JSONUtil.toJsonStr(dhAdapter));
                     dhAdapter.dispose(dongHuanEntity);
                 } catch (Exception e2) {
                     log.error("接收动环推送设备告警失败: " + e2.toString());
