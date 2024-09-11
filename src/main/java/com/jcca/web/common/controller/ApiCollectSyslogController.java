@@ -185,11 +185,15 @@ public class ApiCollectSyslogController extends ListenerManager {
         for (Device device : deviceList) {
             Asset asset = new Asset();
             asset.setId(device.getDeviceId());
+            asset.setAssetCode(device.getDeviceId());
             asset.setName(device.getName());
+            asset.setAssetMode(30);
+            asset.setManufacturerId(30);
+            asset.setWatch((byte)2);
             if (device.getDeviceType() < 10) {
-                asset.setAssetMode(Integer.getInteger("500" + device.getDeviceType().toString()));
+                asset.setAssetImage("500" + device.getDeviceType());
             } else {
-                asset.setAssetMode(Integer.getInteger("50" + device.getDeviceType().toString()));
+                asset.setAssetImage("50" + device.getDeviceType().toString());
             }
             asset.setOnlineTime(device.getBeginRunTime());
             if (!stationMap.containsKey(device.getParentID())) {
