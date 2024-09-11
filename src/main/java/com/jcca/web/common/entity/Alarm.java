@@ -25,11 +25,11 @@ public class Alarm {
     private String propertyId;
 
     //告警等级
-    @TableField("ALARM_LEVEL")
+    @TableField("LEVELL")
     private Integer levell;
 
     //告警描述
-    @TableField("ALARM_DESC")
+    @TableField("DESCC")
     private String descc;
 
     //设备ID

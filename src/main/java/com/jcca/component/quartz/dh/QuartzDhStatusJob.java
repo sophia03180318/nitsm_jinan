@@ -62,41 +62,42 @@ public class QuartzDhStatusJob extends QuartzJobBean {
     private PropertyService propertyService;
 
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    protected void executeInternal(JobExecutionContext context)  {
         try {
             String body = HttpRequest.get(dhUrl + ":9993/tcp/getAlarm").setReadTimeout(10000).setConnectionTimeout(10000).execute().body();
             String code = JSONUtil.parseObj(body).getStr("code", "999");
             if (!"200".equals(code)) {
-                log.error("动环告警通讯返回失败, code:"+code);
-            } else {
-                List<Alarm> alarmLists = alarmService.getAlarm();
-                for (Alarm alarm : alarmLists) {
-                    if (ObjectUtil.isNull(alarm.getDeviceId())){
-                        alarm.setDeviceId( propertyService.getById(alarm.getPropertyId()).getParentID());
-                    }
-                    AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
-                    if (Objects.isNull(asset)) {
-                        log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
-                    }
-                    try {
-                        DongHuanEntity dongHuanEntity = new DongHuanEntity();
-                        dongHuanEntity.setAssetIp(asset.getIp());
-                        dongHuanEntity.setAssetId(alarm.getDeviceId());
-                        dongHuanEntity.setFlag(alarm.getPropertyId());
-                        dongHuanEntity.setCreateTime(alarm.getCreateTime());
-                        dongHuanEntity.setOriginalMsg(alarm.getDescc());
-                        dongHuanEntity.setAssetName(asset.getAssetName());
-                        DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
-                        dhAdapter.dispose(dongHuanEntity);
-                    } catch (Exception e2) {
-                        log.error("接收动环推送设备告警失败: "+e2.toString());
-                    }
-                }
-            }
-        } catch (Exception e) {
+                log.error("动环告警通讯返回失败, code:" + code);
+            } } catch (Exception e) {
             log.error("动环告警通讯失败: " + e.toString());
 
         }
+
+            List<Alarm> alarmLists = alarmService.getAlarm();
+            for (Alarm alarm : alarmLists) {
+                if (ObjectUtil.isNull(alarm.getDeviceId())) {
+                    alarm.setDeviceId(propertyService.getById(alarm.getPropertyId()).getParentID());
+                }
+                AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
+                if (Objects.isNull(asset)) {
+                    log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
+                }
+                try {
+                    DongHuanEntity dongHuanEntity = new DongHuanEntity();
+                    dongHuanEntity.setAssetIp(asset.getIp());
+                    dongHuanEntity.setAssetId(alarm.getDeviceId());
+                    dongHuanEntity.setFlag(alarm.getPropertyId());
+                    dongHuanEntity.setCreateTime(alarm.getCreateTime());
+                    dongHuanEntity.setOriginalMsg(alarm.getDescc());
+                    dongHuanEntity.setAssetName(asset.getAssetName());
+                    DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
+                    log.info("动环推送告警: " + JSONUtil.toJsonStr(dhAdapter));
+                    dhAdapter.dispose(dongHuanEntity);
+                } catch (Exception e2) {
+                    log.error("接收动环推送设备告警失败: " + e2.toString());
+                }
+            }
+
     }
 }
 
