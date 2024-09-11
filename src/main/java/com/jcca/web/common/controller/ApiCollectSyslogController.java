@@ -26,6 +26,8 @@ import com.jcca.web.common.entity.DhStation;
 import com.jcca.web.common.service.DeviceService;
 import com.jcca.web.common.service.DhStationService;
 import com.jcca.web.event.enums.EventLevelEnum;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
@@ -46,6 +48,7 @@ import java.util.stream.Collectors;
  *
  * @author lyp
  */
+@Api(tags = "接收外事件")
 @Slf4j
 @RestController
 @RequestMapping("/api/free/syslog")
@@ -192,6 +195,7 @@ public class ApiCollectSyslogController extends ListenerManager {
     /***
      * 接收动环告警信息
      */
+    @ApiOperation(value = "接收动环告警信息")
     @PostMapping("pullDeviceAlarm")
     public void pullDeviceAlarm(@RequestBody @Validated Alarm alarm) {
         CreateEventReq addEventReq = new CreateEventReq();
@@ -200,7 +204,7 @@ public class ApiCollectSyslogController extends ListenerManager {
         addEventReq.setCreateTime(alarm.getCreateTime());
         addEventReq.setEventLevel(EventLevelEnum.NOTIFY.getCode());
         addEventReq.setOriginalMsg(alarm.getDesc());
-        addEventReq.setUniqueCode("DH_ALARM");
+        addEventReq.setUniqueCode(StatusInfoChangeTypeEnum.event_environment_notify.getCode());
         addEventReq.setFlag(alarm.getPropertyId());
         try {
             eventLogicServ.addEvent(addEventReq);
