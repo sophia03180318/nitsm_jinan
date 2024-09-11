@@ -3,6 +3,7 @@ package com.jcca.dataProcessing.Entity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @description: 动环BEAN
@@ -15,5 +16,12 @@ public class DongHuanEntity extends CommonEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String flag;
+
+    private Date createTime;
+
+    /**
+     * 原本的信息
+     */
+    private String originalMsg;
 
 }

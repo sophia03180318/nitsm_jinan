@@ -12,10 +12,15 @@ import com.jcca.component.event.EventLogicService;
 import com.jcca.component.event.bean.CreateEventReq;
 import com.jcca.component.thresholds.bean.EventLogBean;
 import com.jcca.dataProcessing.Entity.CustomEvent;
+import com.jcca.dataProcessing.Entity.DongHuanEntity;
+import com.jcca.dataProcessing.dataAdpater.DongHuanAdapter;
+import com.jcca.dataProcessing.dataAdpater.MQAdapter;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.ListenerManager;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.common.controller.req.CollectSyslogReq;
 import com.jcca.web.common.controller.req.DsErrorLog;
 import com.jcca.web.common.controller.req.EvenLog;
@@ -64,6 +69,9 @@ public class ApiCollectSyslogController extends ListenerManager {
     private DeviceService deviceService;
     @Resource
     private DhStationService stationService;
+
+    @Resource
+    private DataProcessManager dataProcessManager;
 
 
     @PostMapping("/stationEventMsg")
@@ -198,19 +206,24 @@ public class ApiCollectSyslogController extends ListenerManager {
     @ApiOperation(value = "接收动环告警信息")
     @PostMapping("pullDeviceAlarm")
     public void pullDeviceAlarm(@RequestBody @Validated Alarm alarm) {
-        CreateEventReq addEventReq = new CreateEventReq();
-        addEventReq.setGroupFlag(MyIdUtil.getId());
-        addEventReq.setAssetId(alarm.getDeviceId());
-        addEventReq.setCreateTime(alarm.getCreateTime());
-        addEventReq.setEventLevel(EventLevelEnum.NOTIFY.getCode());
-        addEventReq.setOriginalMsg(alarm.getDesc());
-        addEventReq.setUniqueCode(StatusInfoChangeTypeEnum.event_environment_notify.getCode());
-        addEventReq.setFlag(alarm.getPropertyId());
+
+        AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
         try {
-            eventLogicServ.addEvent(addEventReq);
+            DongHuanEntity dongHuanEntity = new DongHuanEntity();
+            dongHuanEntity.setAssetIp(asset.getIp());
+
+            dongHuanEntity.setAssetId(alarm.getDeviceId());
+            dongHuanEntity.setFlag(alarm.getPropertyId());
+            dongHuanEntity.setCreateTime(alarm.getCreateTime());
+            dongHuanEntity.setOriginalMsg(alarm.getDesc());
+
+            DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
+            dhAdapter.dispose(dongHuanEntity);
         } catch (Exception e) {
             log.error("接收采集器推送磁盘阵列设备管理口日志失败:{}", e.toString(), e);
         }
+
+
     }
 
 }

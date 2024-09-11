@@ -1084,6 +1084,10 @@ public class DataProcessManager {
 
     }
 
+    public void donghuanHandlerRequest(DongHuanEntity dongHuanEntity) throws Exception {
+        donghuanHandler.handleRequest(dongHuanEntity,true);
+    }
+
     public void cascoThreshOldHandlerRequest(ItsmQueueEntity itsmQueueReq) throws Exception {
         cascoThresholdHandler.handleRequest(itsmQueueReq, true);
 

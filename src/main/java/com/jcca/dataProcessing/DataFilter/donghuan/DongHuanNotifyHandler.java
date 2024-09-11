@@ -33,7 +33,7 @@ public class DongHuanNotifyHandler extends IFilterHandler<DongHuanEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_environment.getCode();
         String mapKey = info.getFlag();
 
-        boolean flag= eventInfoChangeManagerService.infoIschange(redisKey, mapKey,info.getFlag());
+
 
 
         return true;
