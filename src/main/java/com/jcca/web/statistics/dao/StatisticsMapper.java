@@ -93,6 +93,20 @@ public interface StatisticsMapper {
      **/
     List<StatisticsVo> findAssetAlarmByAssetModeV2(@Param("day") String day);
 
+
+@Select("select m.name, tt.desk as id, tt.total " +
+        "from (select t.desk, count(t.desk) total " +
+        "from (select a.desk " +
+        "from alarm_info i " +
+        "join asset a  on i.asset_id = a.id " +
+        "join SYS_ORG o on i.org_id = o.id " +
+        "and o.type=2 and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and\n" +
+        "a.ASSET_MODE not like '7%' " +
+        "where a.is_del = 1 " +
+        "group by a.id, a.desk) t " +
+        "group by t.desk) tt " +
+        "left join asset_mode m on tt.desk = m.code")
+    List<StatisticsVo> findAssetCenterAlarmByAssetModeV2();
     /**
      * @description: 近七天告警折线图
      * @author: HanHW
@@ -101,6 +115,15 @@ public interface StatisticsMapper {
      * @return: java.util.List<com.jcca.web.statistics.vo.StatisticsAlarmVo>
      **/
     List<StatisticsAlarmVo> getSevenDaysAlarmLineV2(@Param("params") Map<String, Object> paramMap);
+
+    /**
+     * @description: 近七天中心告警折线图
+     * @author: sophia
+     * @date: 2024/09/10 11:43
+     * @param: [paramMap]
+     * @return: java.util.List<com.jcca.web.statistics.vo.StatisticsAlarmVo>
+     **/
+    List<StatisticsAlarmVo> getSevenDaysCenterAlarmLineV2(@Param("startDate") String startDate);
 
     /**
      * @description: 查找厂商设备数量
@@ -130,6 +153,17 @@ public interface StatisticsMapper {
      * @return: void
      **/
     List<RollAlarmVo> getRollAlarmV2();
+
+
+
+    /**
+     * @description: 未确认未恢复中心告警数量 用于大屏推送
+     * @author: sophia
+     * @date: 2024/09/10 11:35
+     * @param: []
+     * @return: void
+     **/
+    List<RollAlarmVo> getRollCenterAlarmV2();
 
     /**
      * @description: 获取有告警的车站 用于大飞展示

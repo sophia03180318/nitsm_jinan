@@ -2,6 +2,7 @@ package com.jcca.web.common.controller;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileWriter;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.jcca.common.input.LogInputUtils;
@@ -12,10 +13,14 @@ import com.jcca.component.event.EventLogicService;
 import com.jcca.component.event.bean.CreateEventReq;
 import com.jcca.component.thresholds.bean.EventLogBean;
 import com.jcca.dataProcessing.Entity.CustomEvent;
+import com.jcca.dataProcessing.Entity.DongHuanEntity;
+import com.jcca.dataProcessing.dataAdpater.DongHuanAdapter;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.ListenerManager;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.common.controller.req.CollectSyslogReq;
 import com.jcca.web.common.controller.req.DsErrorLog;
 import com.jcca.web.common.controller.req.EvenLog;
@@ -24,8 +29,12 @@ import com.jcca.web.common.entity.Alarm;
 import com.jcca.web.common.entity.Device;
 import com.jcca.web.common.entity.DhStation;
 import com.jcca.web.common.service.DeviceService;
+import com.jcca.web.common.service.DhAlarmService;
 import com.jcca.web.common.service.DhStationService;
+import com.jcca.web.common.service.PropertyService;
 import com.jcca.web.event.enums.EventLevelEnum;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
@@ -46,6 +55,7 @@ import java.util.stream.Collectors;
  *
  * @author lyp
  */
+@Api(tags = "接收外事件")
 @Slf4j
 @RestController
 @RequestMapping("/api/free/syslog")
@@ -61,6 +71,13 @@ public class ApiCollectSyslogController extends ListenerManager {
     private DeviceService deviceService;
     @Resource
     private DhStationService stationService;
+    @Resource
+    private DataProcessManager dataProcessManager;
+    @Resource
+    private DhAlarmService alarmService;
+    @Resource
+    private PropertyService propertyService;
+
 
 
     @PostMapping("/stationEventMsg")
@@ -188,25 +205,37 @@ public class ApiCollectSyslogController extends ListenerManager {
             assetServ.saveDevice(assets);
         }
     }
-
     /***
      * 接收动环告警信息
      */
+    @ApiOperation(value = "接收动环告警信息")
     @PostMapping("pullDeviceAlarm")
-    public void pullDeviceAlarm(@RequestBody @Validated Alarm alarm) {
-        CreateEventReq addEventReq = new CreateEventReq();
-        addEventReq.setGroupFlag(MyIdUtil.getId());
-        addEventReq.setAssetId(alarm.getDeviceId());
-        addEventReq.setCreateTime(alarm.getCreateTime());
-        addEventReq.setEventLevel(EventLevelEnum.NOTIFY.getCode());
-        addEventReq.setOriginalMsg(alarm.getDesc());
-        addEventReq.setUniqueCode("DH_ALARM");
-        addEventReq.setFlag(alarm.getPropertyId());
-        try {
-            eventLogicServ.addEvent(addEventReq);
-        } catch (Exception e) {
-            log.error("接收采集器推送磁盘阵列设备管理口日志失败:{}", e.toString(), e);
+    public void pullDeviceAlarm() {
+        List<Alarm> alarmLists = alarmService.getAlarm();
+        for (Alarm alarm : alarmLists) {
+            if (ObjectUtil.isNull(alarm.getDeviceId())) {
+                alarm.setDeviceId(propertyService.getById(alarm.getPropertyId()).getParentID());
+            }
+            AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
+            if (Objects.isNull(asset)) {
+                log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
+            }
+            try {
+                DongHuanEntity dongHuanEntity = new DongHuanEntity();
+                dongHuanEntity.setAssetId(alarm.getDeviceId());
+                dongHuanEntity.setFlag(alarm.getPropertyId());
+                dongHuanEntity.setCreateTime(alarm.getCreateTime());
+                dongHuanEntity.setOriginalMsg("动环告警: "+alarm.getDescc());
+                dongHuanEntity.setAssetName(asset.getAssetName());
+                log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
+                DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
+                dhAdapter.dispose(dongHuanEntity);
+            } catch (Exception e2) {
+                log.error("接收动环推送设备告警失败: " + e2.toString());
+            }
         }
+
+
     }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -75,7 +76,7 @@ public class alarmTest {
                     String interfacestr="";
 
                     try {
-                        File file = new File("C:\\Users\\lyp\\Desktop\\data\\4.txt");
+                        File file = new File("");
                         Scanner scanner = new Scanner(file);
                         while (scanner.hasNextLine()) {
                             String line = scanner.nextLine();

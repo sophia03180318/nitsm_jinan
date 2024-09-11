@@ -60,6 +60,10 @@ public class TopoVertexVo implements java.io.Serializable {
      * 组织结构ID
      */
     private String orgId;
+    /**
+     * 机房ID
+     */
+    private String roomId;
 
     /**
      * 资产Id
@@ -115,4 +119,9 @@ public class TopoVertexVo implements java.io.Serializable {
      * 1完成0未完成
      */
     private Integer findFinishFlag;
+
+    /**
+     * 告警级别
+     */
+    private Integer alarmLevel;
 }

@@ -1,6 +1,5 @@
 package com.jcca.web.test;
 
-import com.jcca.common.redis.service.RedisService;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
@@ -30,9 +29,29 @@ public class ThreeDTest {
     private ThreeDService threeDService;
     @Resource
     private AssetService assetService;
-    @Resource
-    private RedisService redisService;
 
+
+    @Test
+    public void mqTest(){
+        String s="测试消息";
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost("192.168.51.29");
+        connectionFactory.setPort(5672);
+        connectionFactory.setUsername("root");
+        connectionFactory.setPassword("123456");
+        connectionFactory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = connectionFactory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s.getBytes());
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        } catch (TimeoutException e) {
+            System.out.println(e.toString());
+        }
+
+    }
 
     @Test
     public void syncAssetByRoom() {

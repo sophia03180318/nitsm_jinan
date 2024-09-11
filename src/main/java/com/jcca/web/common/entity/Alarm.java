@@ -25,39 +25,48 @@ public class Alarm {
     private String propertyId;
 
     //告警等级
-    @TableField("ALARM_LEVEL")
-    private Integer level;
+    @TableField("LEVELL")
+    private Integer levell;
 
     //告警描述
-    @TableField("ALARM_DESC")
-    private String desc;
+    @TableField("DESCC")
+    private String descc;
 
     //设备ID
     @TableField("DEVICE_ID")
     private String deviceId;
 
     //告警序号
+    @TableField("ALARM_ID")
     private String alarmId;
 
     //设备?名称
+    @TableField("NAME")
     private String name;
 
     //发生时间
+    @TableField("OCCURRENCE_TIME")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date occurrenceTime;
 
     //ID描述
+    @TableField(exist = false)
     private String idDesc;
 
     //告警级别描述
+    @TableField(exist = false)
     private String levelStr;
 
     //告警号
+    @TableField(exist = false)
     private  String alarmNumber;
 
     //告警标志
+    @TableField(exist = false)
     private String alarmFlag;
 
     //告警文本
+    @TableField(exist = false)
     private String alarmInfo;
 
     @TableField("CREATE_TIME")

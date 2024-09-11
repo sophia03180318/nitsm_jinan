@@ -53,7 +53,7 @@ public class InspectControllerV2 {
     public ResultVo<Object> modeTarget() {
         String inspectCode = inspectRecordService.getLastInspectCode();
         if (StringUtils.isEmpty(inspectCode)) {
-            return ResultVoUtil.error(ResultEnum.INSPECT_NO_DATA);
+            inspectRecordService.checkRecord();
         }
         List<InspectVo> resList = inspectRecordService.getNextRecords(inspectCode);
         return ResultVoUtil.success(resList);
@@ -65,7 +65,7 @@ public class InspectControllerV2 {
         String inspectCode = inspectRecordService.getLastInspectCode();
 
         if (StringUtils.isEmpty(inspectCode)) {
-            return ResultVoUtil.error(ResultEnum.INSPECT_NO_DATA);
+            inspectRecordService.checkRecord();
         }
         List<InspectVo> resList = inspectRecordService.getOrgCabinet(inspectCode);
 
@@ -77,7 +77,7 @@ public class InspectControllerV2 {
     public ResultVo<Object> orgAsset() {
         String inspectCode = inspectRecordService.getLastInspectCode();
         if (StringUtils.isEmpty(inspectCode)) {
-            return ResultVoUtil.error(ResultEnum.INSPECT_NO_DATA);
+            inspectRecordService.checkRecord();
         }
         List<InspectOrgAssetVo> resList = inspectRecordService.getOrgAsset();
         return ResultVoUtil.success(resList);

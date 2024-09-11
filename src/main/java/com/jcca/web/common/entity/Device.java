@@ -31,7 +31,7 @@ public class Device {
     private String name;
 
     @TableField("DATA_DESC")
-    private String desc;
+    private String dataDesc;
 
     @TableField("DEVICE_TYPE")
     private Integer deviceType; //设备类型

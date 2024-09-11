@@ -42,7 +42,7 @@ public class eventTest {
                     String interfacestr="";
 
                     try {
-                        File file = new File("C:\\Users\\lyp\\Desktop\\data\\4.txt");
+                        File file = new File("");
                         Scanner scanner = new Scanner(file);
                         while (scanner.hasNextLine()) {
                             String line = scanner.nextLine();

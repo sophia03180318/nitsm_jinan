@@ -137,7 +137,11 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
     @Select("SELECT  t.*,v.* FROM (select  r.id as roomId, r.name roomName ,c.id as cabinetId ,c.name as cabinetName ,c.row_index,c.column_index  from cabinet c right join  room r on c.room_id=r.id  where r.org_id= #{orgId}) t left join TOPO_VERTEX v on v.asset_id=t.cabinetId order by row_index,column_index")
     List<CabinetTopoVo> selectNodeByCenterCabinetV2(String orgId);
 
-    @Select("SELECT c.ID cabinetId, MIN(i.ALARM_LEVEL) alarmLevel FROM CABINET c  JOIN (select id from ROOM where ORG_ID = #{orgId} )r ON c.ROOM_ID = r.ID JOIN ASSET_ATTACH a ON a.CABINET_ID = c.ID JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID  WHERE (i.STATUS = 1 OR  i.ALARM_STATE = 1) and i.BLANK = 1 AND ALARM_LEVEL>0 GROUP BY c.ID")
+    @Select("SELECT a.CABINET_ID, MIN(i.ALARM_LEVEL) alarmLevel " +
+            "FROM ASSET_ATTACH a " +
+            "LEFT JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID " +
+            "WHERE (i.STATUS = 1 OR  i.ALARM_STATE = 1) AND i.BLANK = 1 AND i.ALARM_LEVEL > 0 AND a.ORG_ID = #{orgId} AND a.CABINET_ID IS NOT NULL " +
+            "GROUP BY a.CABINET_ID")
     List<CabinetTopoVo> selectAlarmByCenterCabinetV2(String orgId);
 
 
@@ -148,4 +152,6 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
             "from asset a left join broker_topo_business b on a.id = b.asset_id " +
             "where a.service_type_id is not null and a.org_id = #{orgId} and a.service_type_id = #{serviceTypeId}")
     List<BizTopoCenterVo> findTopoCenterQuery(String orgId, String serviceTypeId);
+
+    List<TopoVertexVo> selectCabinetNodeV2(@Param("roomId") String roomId);
 }

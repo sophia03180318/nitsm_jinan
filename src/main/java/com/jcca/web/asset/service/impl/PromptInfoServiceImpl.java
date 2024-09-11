@@ -1,14 +1,18 @@
 package com.jcca.web.asset.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web.asset.dao.PromptInfoMapper;
+import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.PromptInfo;
+import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.PromptInfoService;
+import com.jcca.web2.service.BusinessServiceTypeService;
 import com.jcca.web2.vo.ProcessPlateVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +36,10 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
 
     @Resource
     private PromptInfoMapper promptInfoMapper;
+    @Resource
+    private AssetService assetService;
+    @Resource
+    private BusinessServiceTypeService bizTypeService;
 
     /*
      * 根据字典名称获取提示信息
@@ -142,5 +150,24 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
             resList.add(vo);
         }
         return resList;
+    }
+
+    /**
+     * 删除业务类型
+     *
+     * @param id ID
+     */
+    @Override
+    public void removePrompt(String id) {
+        bizTypeService.removeById(id);
+
+        QueryWrapper<PromptInfo> wrapper = Wrappers.query();
+        wrapper.eq("SOFTWARETYPE_ID", id);
+        this.remove(wrapper);
+
+        UpdateWrapper<Asset> update = Wrappers.update();
+        update.eq("SERVICE_TYPE_ID", id);
+        update.set("SERVICE_TYPE_ID", "");
+        assetService.update(update);
     }
 }

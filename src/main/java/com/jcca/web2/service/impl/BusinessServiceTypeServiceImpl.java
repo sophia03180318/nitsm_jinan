@@ -30,4 +30,14 @@ public class BusinessServiceTypeServiceImpl extends ServiceImpl<BusinessServiceT
     public Integer getMaxSort() {
         return businessServiceTypeMapper.getMaxSort();
     }
+
+    @Override
+    public String getTypeByName(String name) {
+        List<String> ids = businessServiceTypeMapper.getTypeByName(name);
+        if (!ids.isEmpty()){
+            return ids.get(0);
+        }
+        return "";
+
+    }
 }

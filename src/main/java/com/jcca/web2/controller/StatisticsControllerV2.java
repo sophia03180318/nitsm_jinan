@@ -43,23 +43,25 @@ public class StatisticsControllerV2 {
     @Resource
     private StatisticsService statisticsService;
 
-    // 设备总数，车站总数，中心设备数，车站设备数，大修设备数
+    // 线路总数 设备总数，车站总数，中心设备数，车站设备数
     @GetMapping("/asset")
     @ApiOperation("监控设备统计")
     public ResultVo<Object> asset() {
 
+        int lineCount =  orgService.getListByOrgType(OrgTypeConst.LINE).size();
         int watchCount = assetService.getAssetCountV2();
         int stationCount = orgService.getListByOrgType(OrgTypeConst.STATION).size();
         int centerAssetCount = assetService.getAssetCountByOrgTypeV2(OrgTypeConst.CENTER);
         int stationAssetCount = assetService.getAssetCountByOrgTypeV2(OrgTypeConst.STATION);
-        int overhaulAssetCount = assetService.getOverhaulListV2().size();
+       // int overhaulAssetCount = assetService.getOverhaulListV2().size();
 
         Map<String, Object> resMap = new HashMap<>();
+        resMap.put("lineCount", lineCount);
         resMap.put("watchCount", watchCount);
         resMap.put("stationCount", stationCount);
         resMap.put("centerAssetCount", centerAssetCount);
         resMap.put("stationAssetCount", stationAssetCount);
-        resMap.put("overhaulAssetCount", overhaulAssetCount);
+       // resMap.put("overhaulAssetCount", overhaulAssetCount);
 
         return ResultVoUtil.success(resMap);
     }

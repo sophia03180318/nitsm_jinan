@@ -140,6 +140,19 @@
     </select>
 
 
+    <select id="getSevenDaysCenterAlarmLineV2" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
+            parameterType="java.lang.String">
+       select count(*) total, to_char(occur_time, 'yyyy-MM-dd') as name, alarm_level as id
+        from alarm_info a
+				join SYS_ORG o on a.ORG_ID=o.ID
+        where a.blank = 1 and a.alarm_level in (1,2,3)
+        and o.TYPE =2
+	    and occur_time &gt; to_date(#{startDate}, 'yyyy-MM-dd')
+        group by to_char(occur_time, 'yyyy-MM-dd'), alarm_level
+        order by to_char(occur_time, 'yyyy-MM-dd')
+    </select>
+
+
     <select id="getYearCategoryFix" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
             parameterType="java.util.Map">
         select t.name, count(t.type) total
@@ -442,6 +455,23 @@
                  left join sys_org o on a.org_id = o.id
         where a.is_del = 1
           and o.id is not null
+          and a.asset_mode not like '7%'
+        group by o.title, a.name, a.id, o.id, 1
+    </select>
+
+
+    <select id="getRollCenterAlarmV2" resultType="com.jcca.web2.vo.RollAlarmVo">
+        select 1 code, o.title orgName, a.name assetName, a.id assetId, o.id orgId, count(i.status) alarmCount
+        from asset a
+                 left join (select asset_id, status
+                            from alarm_info
+                            where status = 1
+                              and alarm_state = 1
+                              and blank = 1) i on i.asset_id = a.id
+                 left join sys_org o on a.org_id = o.id
+        where a.is_del = 1
+          and o.id is not null
+          and o.type=2
           and a.asset_mode not like '7%'
         group by o.title, a.name, a.id, o.id, 1
     </select>

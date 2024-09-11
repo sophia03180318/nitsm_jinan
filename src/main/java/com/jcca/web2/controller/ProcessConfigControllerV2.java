@@ -108,11 +108,7 @@ public class ProcessConfigControllerV2 extends ListenerManager {
     @ActionLog(name = "进程配置相关", title = "删除业务类型", key = LogTypeConstant.REMOVEE)
     public ResultVo<String> bizDel(@PathVariable("id") String id) {
 
-        bizTypeService.removeById(id);
-
-        QueryWrapper<PromptInfo> wrapper = Wrappers.query();
-        wrapper.eq("SOFTWARETYPE_ID", id);
-        promptInfoService.remove(wrapper);
+        promptInfoService.removePrompt(id);
 
         return ResultVoUtil.REMOVE_SUCCESS;
     }

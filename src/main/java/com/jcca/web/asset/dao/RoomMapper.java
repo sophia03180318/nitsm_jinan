@@ -63,6 +63,6 @@ public interface RoomMapper extends BaseMapper<Room> {
      */
     List<SysRoomAssetMsgBean> selectRoomAssets(String roomId);
 
-    @Select("select aa.*,c.name as cabinetName from (select a.id, a.name,a.ip,a.ip2, a.DESK as categoryId, a.ASSET_IMAGE AS threeModel,i.ROOM_ID as areaId,i.CABINET_ID AS cabinetId,i.START_POSITION AS startU from asset a join  ASSET_ATTACH  i on a.id=i.asset_id where IS_DEL=1 and  (ROOM_ID=#{roomId1} or ROOM_ID=#{roomId2} )and CABINET_ID is not null) aa join CABINET c on aa.cabinetId=c.id")
+    @Select("select aa.*,c.name as cabinetName from (select a.id, a.name,a.ip,a.ip2, a.ASSET_IMAGE AS threeModel,i.ROOM_ID as areaId,i.CABINET_ID AS cabinetId,i.START_POSITION AS startU from asset a join  ASSET_ATTACH  i on a.id=i.asset_id where IS_DEL=1 and  (ROOM_ID=#{roomId1} or ROOM_ID=#{roomId2} )and CABINET_ID is not null) aa join CABINET c on aa.cabinetId=c.id")
     List<ShelvesReq> pushAssetByRoom(String roomId1, String roomId2);
 }

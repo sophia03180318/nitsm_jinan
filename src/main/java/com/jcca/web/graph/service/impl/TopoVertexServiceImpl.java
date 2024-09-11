@@ -149,8 +149,7 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
 
     @Override
     public List<TopoVertexVo> selectNodeByCabnet(String nodeType, String orgId) {
-        List<TopoVertexVo> list = topoVertexMapper.selectNodeByCabnet(nodeType, orgId);
-        return list;
+        return topoVertexMapper.selectNodeByCabnet(nodeType, orgId);
     }
 
 
@@ -403,6 +402,27 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
     @Override
     public List<BizTopoCenterVo> findTopoCenterQuery(String orgId, String serviceTypeId) {
         return topoVertexMapper.findTopoCenterQuery(orgId, serviceTypeId);
+    }
+
+    /**
+     * 查询机房内机柜拓扑
+     *
+     * @param roomId 机房ID
+     * @return 机柜拓扑
+     */
+    @Override
+    public List<TopoVertexVo> selectCabinetNodeV2(String roomId) {
+        List<TopoVertexVo> topoVertexVos = topoVertexMapper.selectCabinetNodeV2(roomId);
+        Room room = roomService.getById(roomId);
+        List<CabinetTopoVo> alarms = topoVertexMapper.selectAlarmByCenterCabinetV2(room.getOrgId());
+        for (TopoVertexVo topoVertexVo : topoVertexVos) {
+            for (CabinetTopoVo alarm : alarms) {
+                if (topoVertexVo.getAssetId().equals(alarm.getCabinetId())) {
+                    topoVertexVo.setAlarmLevel(alarm.getAlarmLevel());
+                }
+            }
+        }
+        return topoVertexVos;
     }
 
 }

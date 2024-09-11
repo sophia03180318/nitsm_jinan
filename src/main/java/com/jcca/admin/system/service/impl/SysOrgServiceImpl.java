@@ -112,11 +112,11 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     }
 
     @Override
-    public List<SysOrg> getOrgsAsset(String userId,String watch) {
+    public List<SysOrg> getOrgsAsset(String userId, String watch) {
         if (userId.equals("1")) {
-            return sysOrgMapper.getRootOrgsAsset(userId,watch);
+            return sysOrgMapper.getRootOrgsAsset(userId, watch);
         }
-        return sysOrgMapper.getOrgsAsset(userId,watch);
+        return sysOrgMapper.getOrgsAsset(userId, watch);
     }
 
     /**
@@ -264,7 +264,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<SysOrg> findAllByName(String content) {
         QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<SysOrg>();
         queryWrapper.eq("title", content);
-        queryWrapper.eq("status",1);
+        queryWrapper.eq("status", 1);
         return sysOrgMapper.selectList(queryWrapper);
     }
 
@@ -280,7 +280,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
     @Override
     public List<String> getStationOrgIdByLineId(String lineId) {
-        if(StrUtil.isEmpty(lineId)){
+        if (StrUtil.isEmpty(lineId)) {
             return new ArrayList<>();
         }
         return sysOrgMapper.getStationOrgIdByLineId(lineId);
@@ -324,5 +324,4 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
         return sysOrgMapper.selectList(queryWrapper);
     }
-
 }

@@ -14,10 +14,10 @@ Graph = function (container, model, renderHint, stylesheet, themes, standalone) 
     var style = new Object();
     style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
     style[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = mxConstants.ALIGN_BOTTOM; // label在正下方
-    style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = '#FFFFFF';
+    style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = 'transparent';
     style[mxConstants.STYLE_LABEL_WIDTH] = 60;
     style[mxConstants.STYLE_EDITABLE]=0;//是否允许编辑，0为不可编辑
-   style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+    style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
     style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
     style[mxConstants.STYLE_WHITE_SPACE] = 'wrap' //自动换行
      this.setHtmlLabels(true) //节点名称换行

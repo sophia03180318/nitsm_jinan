@@ -48,4 +48,11 @@ public interface PromptInfoService extends IService<PromptInfo> {
      * @return: java.util.List<com.jcca.web2.vo.ProcessPlateVo>
      **/
     List<ProcessPlateVo> findBySoftTypeIdV2(String softwareTypeId);
+
+    /**
+     * 删除业务类型
+     *
+     * @param id ID
+     */
+    void removePrompt(String id);
 }

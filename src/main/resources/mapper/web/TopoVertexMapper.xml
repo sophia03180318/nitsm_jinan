@@ -95,7 +95,7 @@
     <select id="selectPcTopoNodeByAsset"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
         SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as
-        assetOrgId, t.asset_mode as assetMode,t.watch
+        assetOrgId, t.asset_mode as assetMode,t.watch, '0' alarmLevel
         FROM asset t
         left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id and
         v.node_type =#{nodeType}
@@ -132,10 +132,10 @@
         SELECT alarm.alarmLevel,
                v.*,
 
-               r.status as clusterStatus,
+               r.status      as clusterStatus,
                r.SERVER_ROLE as serverRole,
-               r.SERVER_IP as serverIp,
-               r.SERVER_IP2 as serverIp2,
+               r.SERVER_IP   as serverIp,
+               r.SERVER_IP2  as serverIp2,
 
                t.name        as assetName,
                t.A_B_FLAG,
@@ -152,7 +152,7 @@
                  left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
                             FROM ALARM_INFO i
                                      LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
-                            WHERE a.ASSET_MODE IN (42,201)
+                            WHERE a.ASSET_MODE IN (42, 201)
                               AND a.ORG_ID = #{orgId}
                               AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
                               and i.BLANK = 1
@@ -169,10 +169,10 @@
             resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
         SELECT alarm.alarmLevel,
                v.*,
-               r.status as clusterStatus,
+               r.status      as clusterStatus,
                r.SERVER_ROLE as serverRole,
-               r.SERVER_IP as serverIp,
-               r.SERVER_IP2 as serverIp2,
+               r.SERVER_IP   as serverIp,
+               r.SERVER_IP2  as serverIp2,
 
 
                t.name        as assetName,
@@ -348,15 +348,34 @@
 
     <select id="selectNodeByCabnet"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
-        SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as
-        assetOrgId,row_index,column_index
-        FROM (select distinct t.id, t.name, a.org_id,t.row_index,t.column_index
-        from cabinet t,
-        room a
-        where a.id = t.room_id and a.org_id= #{orgId} ) t
-        left join TOPO_VERTEX v on v.asset_id=t.id and v.org_id=t.org_id
+        SELECT v.*,
+               t.name   as assetName,
+               t.id     as assetId,
+               t.org_id as
+                           assetOrgId,
+               row_index,
+               column_index
+        FROM (select distinct t.id, t.name, a.org_id, t.row_index, t.column_index
+              from cabinet t,
+                   room a
+              where a.id = t.room_id
+                and a.org_id = #{orgId}) t
+                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
         where t.ORG_ID = #{orgId}
-        order by row_index,column_index
+        order by row_index, column_index
+    </select>
+
+    <select id="selectCabinetNodeV2"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as assetOrgId, row_index, column_index
+        FROM (select distinct c.id, c.name, r.id as org_id, c.row_index, c.column_index
+              from cabinet c,
+                   room r
+              where r.id = c.room_id
+                and r.id = #{roomId}) t
+                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.org_id
+        where t.ORG_ID = #{roomId}
+        order by row_index, column_index
     </select>
 
     <select id="findPortStatus"

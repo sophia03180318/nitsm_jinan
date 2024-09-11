@@ -479,8 +479,8 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * @return
      */
     public static Integer getDefaultPort(Integer collectionType) {
-        List<Integer> linux = Arrays.asList(0, 3);
-        List<Integer> aix = Arrays.asList(2, 4);
+        List<Integer> linux = Arrays.asList(0, 2);
+        List<Integer> aix = Arrays.asList(3, 4);
         if (Objects.isNull(collectionType)) {
             return null;
         }

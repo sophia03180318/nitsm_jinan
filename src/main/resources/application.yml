@@ -61,9 +61,9 @@ spring:
     druid:
       #url: jdbc:dm://192.168.51.252:5236/DMSERVER
 
-      url: jdbc:oracle:thin:@192.168.51.29:1521/bhm
-      username: itsm
-      password: itsm
+      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
+      username: jndata
+      password: jndata
 
       #      url: jdbc:oracle:thin:@localhost:1521/orcl
       #      username: gz_pusu
@@ -106,7 +106,7 @@ spring:
     suffix: .html
 
   redis:
-    host: 192.168.53.66
+    host: 192.168.73.26
     port: 6379
     password: jcca@123
 
@@ -149,15 +149,14 @@ project:
 # 专家知识库
 kbUrl:
   192.168.73.210
+# 动环地址
+dhUrl:
+  192.168.1.84
 
-# 动环配置
+# 3D配置
 threeD:
-  # 接口服务器IP
-  host: 192.168.1.28
-  # 接口服务器端口
-  port: 9996
   #组织ID
-  orgId: 1324748685615071234
+  orgId: 1456533450382184449
   # 机房ID
   roomId1: 4-110
   # 机房ID2
@@ -165,9 +164,9 @@ threeD:
   # 告警数据推送周期
   cron: "*/11 * * * * ?"
   # 接口服务器IP
-  rabbitMQhost: 192.168.73.22
+  rabbitMQhost: 172.22.90.240
   # 接口服务器端口
-  rabbitMQPort: 15672
+  rabbitMQPort: 5672
   # 接口服务器用户名
   rabbitMQUsername: root
   # 接口服务器密码

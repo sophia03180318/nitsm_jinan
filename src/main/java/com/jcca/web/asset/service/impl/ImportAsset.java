@@ -41,6 +41,7 @@ import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.AssetModel;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.AssetModelService;
+import com.jcca.web2.service.BusinessServiceTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -81,6 +82,8 @@ public class ImportAsset {
     private AssetModelService assetModelService;
     @Resource
     private AssetModeService assetModeService;
+    @Resource
+    private BusinessServiceTypeService businessServiceTypeService;
 
 
     public void forImportAsset(List<Map<String, Object>> rowList, List<AssetImportRecord> assetImportList, AssetImportTask assetImportTask) {
@@ -299,16 +302,16 @@ public class ImportAsset {
                     }
 
                     //监控状态下  验证用户名密码
-                    if (asset.getWatch() == (byte) 1) {
+                    if (asset.getWatch() == (byte) 1&&asset.getAssetImage().startsWith("V")) {
                         if (rowMap.containsKey("osUser")) {
                             asset.setOsUser(rowMap.get("osUser").toString().trim());
                         } else {
-                            throw new NullFieldException("小型机设置监控时,用户名不可为空");
+                            throw new NullFieldException("磁盘阵列设置监控时,用户名不可为空");
                         }
                         if (rowMap.containsKey("osPassword")) {
                             asset.setOsPassword(rowMap.get("osPassword").toString());
                         } else {
-                            throw new NullFieldException("小型机设置监控时,登录密码不可为空");
+                            throw new NullFieldException("磁盘阵列设置监控时,登录密码不可为空");
                         }
                     } else {
                         if (rowMap.containsKey("osUser")) {
@@ -389,12 +392,17 @@ public class ImportAsset {
                         asset.setShowTopo((byte) 0);
                     }
 
-
-                    if (assetModeStr.length() > 3) {//区分小类型
-                        asset.setAssetMode(183);
-                        asset.setDesk(Integer.parseInt(assetModeStr.substring(assetModeStr.length() - 1)));
+                    if (rowMap.containsKey("serviceTypeId")){
+                      String serviceType= rowMap.get("serviceTypeId").toString().trim();
+                        String typeByName = businessServiceTypeService.getTypeByName(serviceType);
+                        asset.setServiceTypeId(typeByName);
                     }
-                    break;
+
+                if (assetModeStr.length() > 3) {//区分小类型
+                    asset.setAssetMode(183);
+                    asset.setDesk(Integer.parseInt(assetModeStr.substring(assetModeStr.length() - 1)));
+                }
+                break;
 
                 case 201:
                 case 42:
@@ -592,7 +600,7 @@ public class ImportAsset {
             }
 
             //查询ip是否可用
-            QueryWrapper<IpInfo> queryWrapper = new QueryWrapper<>();
+/*            QueryWrapper<IpInfo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("IP", asset.getIp());
             List<IpInfo> ipList = ipInfoService.list(queryWrapper);
             if (ipList.size() == 0) {
@@ -600,7 +608,7 @@ public class ImportAsset {
                 testVo.setCode(ERR_CODE);
                 testVo.setMsg("该ip不可用,未录入网段");
                 return ResultVoUtil.error(ResultEnum.SUCCESS.getCode(), "", testVo);
-            }
+            }*/
         }
 
 

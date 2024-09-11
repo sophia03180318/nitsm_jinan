@@ -86,7 +86,7 @@ public class CabinetController {
         List<String> roomIds = rooms.stream().map(Room::getId).collect(Collectors.toList());
         roomIds.add("x");
         wrapper.in("room_id", roomIds);
-        wrapper.orderByDesc("modify_time", "ID");
+        wrapper.orderByAsc("row_index", "column_index");
         List<Cabinet> records = cabinetService.list(wrapper);
         //List<Cabinet> records = iPage.getRecords();
         // 封装数据
@@ -164,8 +164,7 @@ public class CabinetController {
         QueryWrapper<SysOrg> wq = Wrappers.query();
         wq.in("id", orgIds);
         List<SysOrg> list = orgService.list(wq);
-        ArrayList<SysOrg> sysOrgs = new ArrayList<>();
-        sysOrgs.addAll(list);
+        ArrayList<SysOrg> sysOrgs = new ArrayList<>(list);
         for (SysOrg sysOrg : list) {
             List<RoomVo> roomVos = roomService.listByOrgId(sysOrg.getId());
             for (RoomVo roomVo : roomVos) {

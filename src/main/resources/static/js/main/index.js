@@ -395,7 +395,13 @@
 		var currentPage = editorUi.pages[0];
 		currentPage.category=category;
 		editorUi.selectPage(currentPage);
-		viewGraph(graph, editor, currentPage);
+
+		$('#roomContainer').empty()
+		if(currentPage.category == 'cabinet_topo'){
+			getRoomData(graph, editor, currentPage)
+		}else{
+			viewGraph(graph, editor, currentPage);
+		}
 	});
 
 	$("#topo_link_content").on('click', 'tr', function(event) {
@@ -447,7 +453,6 @@ Action.prototype.saveGraph = function(editor,ui) {
 					}
 					edge.portMode = edge.value
 					edges.push(edge);
-					console.log(edges)
 					if (cell.geometry.points != null) {
 						if(currentPage.category == "netWorkAsset_topo"){
 							createPoints(points, cell.geometry.points, cell.id, editor.orgId, currentPage.category,currentPage.getId());
@@ -517,10 +522,15 @@ Action.prototype.saveGraph = function(editor,ui) {
 };
 
 function saveTopoNode(nodes, edges, points, groups, marks, editor,currentPage) {
-	var v = { "nodes": nodes, "edges": edges, "points": points, "groups": groups, "marks": marks, "category": currentPage.category, "orgId": editor.orgId };
+	if(currentPage.category == 'cabinet_topo'){
+		var v = { "nodes": nodes, "edges": edges, "points": points, "groups": groups, "marks": marks, "category": currentPage.category, "orgId": roomId };
+	}else{
+		var v = { "nodes": nodes, "edges": edges, "points": points, "groups": groups, "marks": marks, "category": currentPage.category, "orgId": editor.orgId , };
+	}
+
 	console.log(v)
 	$.ajax({
-		url: "/system/graph/saveTopoNode",
+		url: "/api/v2/graph/saveTopoNode",
 		type: "post",
 		data: JSON.stringify(v),
 		contentType: 'application/json;charset=utf-8',
@@ -569,7 +579,13 @@ function initOrgTree(graph, editor,editorUi) {
 				var currentPage = editorUi.pages[0]
 				currentPage.category=category;
 				editorUi.selectPage(currentPage);
-				viewGraph(graph, editor, currentPage);
+				$('#roomContainer').empty()
+				if(currentPage.category == 'cabinet_topo'){
+					getRoomData(graph, editor, currentPage)
+				}else{
+					viewGraph(graph, editor, currentPage);
+				}
+
 			}
 		}
 	};
@@ -590,17 +606,67 @@ function initOrgTree(graph, editor,editorUi) {
 		$.fn.zTree.init($("#orgTree"), setting, zNodes);
 	});
 }
+//获取组织下机房
+var editorCabinet = null
+var graphCabinet = null
+var cabinetCurrentPage = null
+var roomId = ''
+var roomData = []
+function getRoomData (graph, editor, currentPage) {
+	$.ajax({
+		url: "/api/room/list/" + editor.orgId,
+		type: "get",
+		contentType: 'application/json;charset=utf-8',
+		success: function(result) {
+			roomData = result.data
+			if(roomData.length == 0){
+				editor.graph.model.clear();
+				return false
+			}
+			$('#roomContainer').empty()
+			roomData.forEach((elm,index) => {
+				if(index == 0){
+					$('#roomContainer').append(
+						'<li class="item pointer layui-this" onclick="changeRoom('+index+')">'+elm.name+'</li>'
+					)
+				}else{
+					$('#roomContainer').append(
+						'<li class="item pointer" onclick="changeRoom('+index+')">'+elm.name+'</li>'
+					)
+				}
+
+			})
+			roomId = roomData[0].id
+			editorCabinet = editor
+			graphCabinet = graph
+			cabinetCurrentPage  = currentPage
+			viewGraph(graph, editor, currentPage)
+		}
+	})
+}
+
+
 
 
 // 图形回显
 function viewGraph(graph, editor, currentPage,isShowRoom) {
-	var v = { "orgId": editor.orgId, "category": currentPage.category,"assetId":currentPage.getId() };
+	if(currentPage.category == 'cabinet_topo'){
+		var v = { "orgId": editor.orgId,roomId: roomId, "category": currentPage.category,"assetId":currentPage.getId() };
+	}else{
+		var v = { "orgId": editor.orgId, "category": currentPage.category,"assetId":currentPage.getId() };
+	}
 	$.ajax({
-		url: "/system/graph/topoNode",
+		url: "/api/v2/graph/topoNode",
 		type: "post",
 		data: JSON.stringify(v),
 		contentType: 'application/json;charset=utf-8',
 		success: function(result) {
+			//如果是机房
+			// cabinetAllMap = result.data
+			// graphCabinet = graph
+			// editorCabinet = editor
+			// cabinetCurrentPage = currentPage
+
 			// 清空画布
 			editor.graph.model.clear();
 			 // editor.resetGraph();
@@ -621,8 +687,10 @@ function viewGraph(graph, editor, currentPage,isShowRoom) {
 					if (map["marks"] != null && map["marks"].length > 0) {//开始构造标注信息
 						showMark(map["marks"], editor, graph, parent);
 					}
+
 					if (map["vertex"] != null && map["vertex"].length > 0) {//开始构造设备节点
 						showNodes(map["vertex"], editor, graph, parent,currentPage);
+
 					}
 
 					if (map["edge"] != null && map["edge"].length > 0) {//开始构造连线信息
@@ -636,6 +704,15 @@ function viewGraph(graph, editor, currentPage,isShowRoom) {
 			}
 		 }
 	  });
+}
+function changeRoom (index) {
+	$('#roomContainer .layui-tab-title li').eq(index).addClass('layui-this').siblings().removeClass('layui-this');
+	$('#roomContainer .layui-tab-item ').eq(index).addClass('layui-show').siblings().removeClass('layui-show');
+	roomId = roomData[index].id
+
+
+	viewGraph(graphCabinet, editorCabinet, cabinetCurrentPage)
+
 }
 //显示分组信息
 function showGroup(groups, editor, graph, parent,isShowRoom) {
@@ -688,9 +765,8 @@ function showMark(marks, editor, graph, parent) {
 
 	}
 
-
-
 }
+
 
 
 //显示节点
@@ -757,11 +833,13 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 		}
 		if (currentPage.category == "cabinet_topo") {
 			if(graph.getModel().cells["room"]!=null){
-				var width = vertex.nodeWidth == null||vertex.nodeWidth<104 ? 104 : vertex.nodeWidth;
-				var height = vertex.nodeHeight == null||vertex.nodeWidth ==104 ? 62 : vertex.nodeHeight;
+				var width = vertex.nodeWidth == null||vertex.nodeWidth<80 ? 80 : vertex.nodeWidth;
+				var height = vertex.nodeHeight == null||vertex.nodeWidth ==80 ? 32 : vertex.nodeHeight;
 			}else{
-				var width = vertex.nodeWidth == null ? 80 : vertex.nodeWidth;
-				var height = vertex.nodeHeight == null ? 80 : vertex.nodeHeight;
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
+
+				var width = vertex.nodeWidth == null ? 108 : vertex.nodeWidth;
+				var height = vertex.nodeHeight == null ? 26 : vertex.nodeHeight;
 			}
 
 		} else if ((currentPage.category == "pc_topo")) {
@@ -802,12 +880,12 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 			if (currentPage.category == "cabinet_topo") {
 				if(graph.getModel().cells["room"]!=null){
 					style = "image=/graph/images/roomCabinet.jpg;verticalLabelPosition=center";
-					x = vertex.nodeX == null ? 85 * (vertex.columnIndex - 1) : x;
-					y = vertex.nodeY == null ? (vertex.rowIndex - 1) * 45 : y;
+					x = vertex.nodeX == null ? 80 * (vertex.columnIndex - 1) : x;
+					y = vertex.nodeY == null ? (vertex.rowIndex - 1) * 32 : y;
 				}else{
-					style = "image=/graph/images/picture/cabinet.png;spacingBottom=65px";
-					x = vertex.nodeX == null ? 55 * (vertex.columnIndex - 1) : x;
-					y = vertex.nodeY == null ? (vertex.rowIndex - 1) * 150 : y;
+					style = "shape=RECTANGLE;fillColor=rgba(40, 122, 212, 0.3);strokeColor=#00acff;fontColor=#00ACFF;fontStyle=1;rounded=1;verticalLabelPosition=center";
+					x = vertex.nodeX == null ? 108 * (vertex.rowIndex-1) + 15* (vertex.rowIndex-1) + 15 : x;
+					y = vertex.nodeY == null ? 26 * (vertex.columnIndex - 1) + 15  : y;
 				}
 
 
@@ -815,7 +893,7 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 			if (currentPage.category == "pc_topo") {
 				var xNew = 25 + 85 * ((i) % 16);
 				x = vertex.nodeX == null ? xNew : x;
-				var yNew = Math.floor((i) / 16) * 120;
+				var yNew = Math.floor((i) / 16) * 120 + 40;
 				y = vertex.nodeY == null ? yNew : y;
 				style = "image=/graph/images/picture/server.png;spacingBottom=15px";
 			}

@@ -423,6 +423,41 @@ public class StatisticsServiceImpl implements StatisticsService {
         return resultList;
     }
 
+
+    @Override
+    public List<StatisticsVo> findAssetCenterAlarmByAssetModeV2() {
+        List<StatisticsVo> resultList = new ArrayList<>();
+        // 分类型统计设备数量
+        List<StatisticsAlarmVo> modeAssetList = statisticsMapper.getModeAssetV2();
+        for (StatisticsAlarmVo vo : modeAssetList) {
+            StatisticsVo resultVo = new StatisticsVo();
+            resultVo.setId(vo.getId());
+            resultVo.setTotal(vo.getTotal());
+            resultVo.setName(vo.getName());
+            resultVo.setAlarmTotal(0L);
+            resultList.add(resultVo);
+        }
+        List<StatisticsVo> voList = statisticsMapper.findAssetCenterAlarmByAssetModeV2();
+        // 数据整合
+        Iterator<StatisticsVo> iterator = resultList.iterator();
+        while (iterator.hasNext()) {
+            StatisticsVo resultVo = iterator.next();
+            String id1 = resultVo.getId();
+            if (StringUtils.isEmpty(id1) || id1.startsWith("7")) {
+                iterator.remove();
+                continue;
+            }
+            for (StatisticsVo vo : voList) {
+                String id2 = vo.getId();
+                if (id1.equals(id2)) {
+                    resultVo.setAlarmTotal(resultVo.getAlarmTotal() + vo.getTotal());
+                }
+            }
+        }
+
+        return resultList;
+    }
+
     /**
      * @description: 查看大屏 地图中车站数据
      * @author: HanHW
@@ -528,6 +563,18 @@ public class StatisticsServiceImpl implements StatisticsService {
         latest7DaysList = this.fill7DaysV2(latest7DaysList);
         return latest7DaysList;
     }
+
+
+    @Override
+    public List<StatisticsAlarmVo> getSevenDaysCenterAlarmLineV2() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -6);
+        String last7Day = DateUtil.formatDate(c.getTime());
+        List<StatisticsAlarmVo> latest7DaysList = statisticsMapper.getSevenDaysCenterAlarmLineV2(last7Day);
+        latest7DaysList = this.fill7DaysV2(latest7DaysList);
+        return latest7DaysList;
+    }
+
 
     /**
      * @description: 采集指标实时监测
@@ -688,6 +735,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<RollAlarmVo> rollAlarmV2() {
         return statisticsMapper.getRollAlarmV2();
+    }
+
+    @Override
+    public List<RollAlarmVo> rollCenterAlarmV2() {
+        return statisticsMapper.getRollCenterAlarmV2();
     }
 
     /**

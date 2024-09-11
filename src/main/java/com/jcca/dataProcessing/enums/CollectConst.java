@@ -152,4 +152,6 @@ public interface CollectConst {
     String MQ = "75";
 
     String SNMP = "76";
+
+    String DongHuan = "77";
 }

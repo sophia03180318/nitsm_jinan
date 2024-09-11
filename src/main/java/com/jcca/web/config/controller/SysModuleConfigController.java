@@ -43,7 +43,6 @@ public class SysModuleConfigController {
      */
     @GetMapping("/query")
     @ApiOperation(value = "系统配置获取")
-    @RequiresPermissions({"api:config:query"})
     @ActionLog(name = "系统配置", title = "系统配置获取", key = LogTypeConstant.QUERY)
     ResultVo<SysConfig> query() {
         SysConfig sysConfig = configService.getSysConfig();
@@ -53,6 +52,7 @@ public class SysModuleConfigController {
 
 
     /**
+     * F
      * 系统配置修改
      *
      * @param req

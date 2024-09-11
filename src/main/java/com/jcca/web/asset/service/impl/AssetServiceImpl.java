@@ -79,6 +79,7 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -220,12 +221,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     throw new AddAssetException(AddAssetException.VERIFY_ERROR, "监控设备必须录入IP", null);
                 }
                 // 检测IP网段是否配置
-                if (!ipIsEmpty) {
+/*                if (!ipIsEmpty) {
                     Boolean examineIp = ipInfoService.examineIp(ip);
                     if (!examineIp) {
                         throw new AddAssetException(AddAssetException.VERIFY_ERROR, "请先配置IP网段", null);
                     }
-                }
+                }*/
             }
         }
         // 检查IP是否已分配
@@ -1578,9 +1579,17 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP1已经被其他设备占用");
         }
 
+        if (Objects.nonNull(oldasset) && !StringUtils.isEmpty(req.getId()) && !oldasset.getId().equals(req.getId())) {
+            throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP1已经被其他设备占用");
+        }
+
         if (!StringUtils.isEmpty(ip2)) {
             oldasset = this.getOneByAllIp(ip2);
             if (Objects.nonNull(oldasset) && StringUtils.isEmpty(req.getId())) {
+                throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP2已经被其他设备占用");
+            }
+
+            if (Objects.nonNull(oldasset) && !StringUtils.isEmpty(req.getId()) && !oldasset.getId().equals(req.getId())) {
                 throw new ResultException(Integer.parseInt(AssetCollectTestVo.ERRO_CODE), "资产IP2已经被其他设备占用");
             }
         }
@@ -2283,6 +2292,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         fixList.addAll(recordList);
         //设备的上下架时间
         Asset asset = assetMapper.selectById(assetId);
+        if (Objects.isNull(asset)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "资产不存在");
+        }
         Date onlineTime = asset.getOnlineTime();
         Date downLineTime = asset.getDownlineTime();
         if (Objects.nonNull(onlineTime)) {
@@ -2314,7 +2326,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     public void saveDevice(List<Asset> assets) {
         QueryWrapper<Asset> queryWrapper = new QueryWrapper<>();
-        queryWrapper.likeRight("ASSET_MODE", "50");
+        queryWrapper.eq("ASSET_MODE", "30");
         List<String> assetIds = assetMapper.selectList(queryWrapper).stream().map(Asset::getId).collect(Collectors.toList());
         for (Asset asset : assets) {
             if (!assetIds.isEmpty()) {
@@ -2328,8 +2340,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             assetAttachService.saveOrUpdate(assetAttach);
         }
         //删除这些Asset及对应信息
-        assetMapper.deleteBatchIds(assetIds);
-        assetAttachService.removeByIds(assetIds);
+        if (!assetIds.isEmpty()){
+            assetMapper.deleteBatchIds(assetIds);
+            assetAttachService.removeByIds(assetIds);
+        }
+
     }
 
 }

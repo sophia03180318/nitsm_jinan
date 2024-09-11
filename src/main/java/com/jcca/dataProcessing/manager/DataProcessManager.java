@@ -44,6 +44,9 @@ public class DataProcessManager {
     private IFilterHandler aixSystemMsgHandler;
     private IFilterHandler collectCluster;
     private IFilterHandler cascoLinkHandler;
+
+    private IFilterHandler donghuanHandler;
+
     private IFilterHandler cascoMasterHandler;
     private IFilterHandler cascoThresholdHandler;
     private IFilterHandler cascoVersionHandler;
@@ -736,6 +739,14 @@ public class DataProcessManager {
         IFilterHandler cascoLinkSave = this.getIFilterHandler("saveFilterHandler");
         cascoLink.setNextFilter(cascoLinkSave);
         cascoLinkHandler = cascoLink;
+
+
+        //动环业务事件
+        IFilterHandler dongHuan = this.getIFilterHandler("dongHuanNotifyHandler");
+        dongHuan.addDataSourceListener(eventInfoListener);
+
+        donghuanHandler = dongHuan;
+
         IFilterHandler cascoMaster = this.getIFilterHandler("commonMasterFilterHandler");
         cascoMaster.addDataSourceListener(eventInfoListener);
         IFilterHandler cascoMasterSave = this.getIFilterHandler("saveFilterHandler");
@@ -1070,6 +1081,10 @@ public class DataProcessManager {
     public void cascoMasterHandlerRequest(ItsmQueueEntity itsmQueueReq) throws Exception {
         cascoMasterHandler.handleRequest(itsmQueueReq, true);
 
+    }
+
+    public void donghuanHandlerRequest(DongHuanEntity dongHuanEntity) throws Exception {
+        donghuanHandler.handleRequest(dongHuanEntity,true);
     }
 
     public void cascoThreshOldHandlerRequest(ItsmQueueEntity itsmQueueReq) throws Exception {

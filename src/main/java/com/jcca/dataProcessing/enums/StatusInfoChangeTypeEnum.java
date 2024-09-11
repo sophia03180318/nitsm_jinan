@@ -508,6 +508,7 @@ public enum StatusInfoChangeTypeEnum {
 
     //动环事件 environment
     event_environment("event:event_environment", "动环状态", "检测到动环状态异常", "", ""),
+    event_environment_notify("event:event_environment:notify", "动环通知", "接收到动环通知消息", "", ""),
 
     //对应的值
     NORMAL("NORMAL", "设定普通阈值", "", "", ""),

@@ -868,10 +868,19 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         }
         if (!IndexPageServiceImpl.ROOT.equals(username)) {
             List<String> assetIds = assetService.listIdByUserNameV2(username, 1);
-            assetIds.add("x");
+            if (assetIds.isEmpty()) {
+                return new ArrayList<>();
+            }
             query.setAssetIdList(assetIds);
         }
         return alarmInfoMapper.queryDialogsVoListV2(query);
+    }
+
+
+    @Override
+    public List<DialogsAlarmListVo> queryCenterDialogsVoListV2(String eventCategory) {
+
+        return alarmInfoMapper.queryCenterDialogsVoListV2(eventCategory);
     }
 
     @Transactional(rollbackFor = Exception.class)
