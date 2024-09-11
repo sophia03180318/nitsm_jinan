@@ -189,7 +189,7 @@ public class ApiCollectSyslogController extends ListenerManager {
             asset.setName(device.getName());
             asset.setAssetMode(30);
             asset.setManufacturerId(30);
-            asset.setWatch((byte)2);
+            asset.setWatch((byte)0);
             if (device.getDeviceType() < 10) {
                 asset.setAssetImage("500" + device.getDeviceType());
             } else {
