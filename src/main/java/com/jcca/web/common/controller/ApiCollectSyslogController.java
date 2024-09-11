@@ -14,7 +14,6 @@ import com.jcca.component.thresholds.bean.EventLogBean;
 import com.jcca.dataProcessing.Entity.CustomEvent;
 import com.jcca.dataProcessing.Entity.DongHuanEntity;
 import com.jcca.dataProcessing.dataAdpater.DongHuanAdapter;
-import com.jcca.dataProcessing.dataAdpater.MQAdapter;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.ListenerManager;
@@ -69,9 +68,9 @@ public class ApiCollectSyslogController extends ListenerManager {
     private DeviceService deviceService;
     @Resource
     private DhStationService stationService;
-
     @Resource
     private DataProcessManager dataProcessManager;
+
 
 
     @PostMapping("/stationEventMsg")
@@ -199,17 +198,15 @@ public class ApiCollectSyslogController extends ListenerManager {
             assetServ.saveDevice(assets);
         }
     }
-
     /***
      * 接收动环告警信息
      */
     @ApiOperation(value = "接收动环告警信息")
     @PostMapping("pullDeviceAlarm")
     public void pullDeviceAlarm(@RequestBody @Validated Alarm alarm) {
-
         AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
         if(Objects.isNull(asset)){
-            log.error("动环告警收到非法数据，资产ID不存在："+JSONUtil.toJsonStr(alarm));
+            log.error("动环告警收到未录入数据，资产ID不存在："+JSONUtil.toJsonStr(alarm));
         }
         try {
             DongHuanEntity dongHuanEntity = new DongHuanEntity();
@@ -218,13 +215,13 @@ public class ApiCollectSyslogController extends ListenerManager {
             dongHuanEntity.setAssetId(alarm.getDeviceId());
             dongHuanEntity.setFlag(alarm.getPropertyId());
             dongHuanEntity.setCreateTime(alarm.getCreateTime());
-            dongHuanEntity.setOriginalMsg(alarm.getDesc());
+            dongHuanEntity.setOriginalMsg(alarm.getDescc());
             dongHuanEntity.setAssetName(asset.getAssetName());
 
             DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
             dhAdapter.dispose(dongHuanEntity);
         } catch (Exception e) {
-            log.error("接收采集器推送磁盘阵列设备管理口日志失败:{}", e.toString(), e);
+            log.error("接收动环推送设备告警失败:{}", e.toString(), e);
         }
 
 

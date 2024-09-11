@@ -79,6 +79,7 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -2325,7 +2326,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     public void saveDevice(List<Asset> assets) {
         QueryWrapper<Asset> queryWrapper = new QueryWrapper<>();
-        queryWrapper.likeRight("ASSET_MODE", "50");
+        queryWrapper.eq("ASSET_MODE", "30");
         List<String> assetIds = assetMapper.selectList(queryWrapper).stream().map(Asset::getId).collect(Collectors.toList());
         for (Asset asset : assets) {
             if (!assetIds.isEmpty()) {
@@ -2339,8 +2340,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             assetAttachService.saveOrUpdate(assetAttach);
         }
         //删除这些Asset及对应信息
-        assetMapper.deleteBatchIds(assetIds);
-        assetAttachService.removeByIds(assetIds);
+        if (!assetIds.isEmpty()){
+            assetMapper.deleteBatchIds(assetIds);
+            assetAttachService.removeByIds(assetIds);
+        }
+
     }
 
 }

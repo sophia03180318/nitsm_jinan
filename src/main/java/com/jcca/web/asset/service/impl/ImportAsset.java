@@ -305,16 +305,16 @@ public class ImportAsset {
                     }
 
                     //监控状态下  验证用户名密码
-                    if (asset.getWatch() == (byte) 1) {
+                    if (asset.getWatch() == (byte) 1&&asset.getAssetImage().startsWith("V")) {
                         if (rowMap.containsKey("osUser")) {
                             asset.setOsUser(rowMap.get("osUser").toString().trim());
                         } else {
-                            throw new NullFieldException("小型机设置监控时,用户名不可为空");
+                            throw new NullFieldException("磁盘阵列设置监控时,用户名不可为空");
                         }
                         if (rowMap.containsKey("osPassword")) {
                             asset.setOsPassword(rowMap.get("osPassword").toString());
                         } else {
-                            throw new NullFieldException("小型机设置监控时,登录密码不可为空");
+                            throw new NullFieldException("磁盘阵列设置监控时,登录密码不可为空");
                         }
                     } else {
                         if (rowMap.containsKey("osUser")) {

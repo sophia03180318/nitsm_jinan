@@ -34,7 +34,7 @@ public class DhStation {
     private String name;
 
     @TableField("DATA_DESC")
-    private String desc;
+    private String descc;
 
     @TableField("LONGITUDE")
     private Float longitude; //经度

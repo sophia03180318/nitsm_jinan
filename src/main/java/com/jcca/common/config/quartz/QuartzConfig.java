@@ -6,6 +6,7 @@ import com.jcca.component.quartz.asset.QuartzUpdateAssetJob;
 import com.jcca.component.quartz.asset.QuartzUpdateCenterAssetStatusJob;
 import com.jcca.component.quartz.clear.QuartzRemoveDBJob;
 import com.jcca.component.quartz.clear.QuartzRemoveDataEachMonthJob;
+import com.jcca.component.quartz.dh.QuartzDhStatusJob;
 import com.jcca.component.quartz.inspect.InspectJob;
 import com.jcca.component.quartz.mq.QuartzMQStatusJob;
 import com.jcca.component.quartz.route.QuartzRouteJob;
@@ -119,10 +120,30 @@ public class QuartzConfig {
     public Trigger MQStatusJobTaskConf() {
         SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(300)
                 .repeatForever();
-
         return TriggerBuilder.newTrigger().forJob(MQStatusJobTask()).withIdentity("QuartzMQStatusJob", "MQ_GROUP")
                 .withSchedule(scheduleBuilder).build();
     }
+
+
+    /***
+     * 动环告警触发
+     * @return
+     */
+    @Bean
+    public JobDetail DHStatusJobTask() {
+        return JobBuilder.newJob(QuartzDhStatusJob.class).withIdentity(new JobKey("QuartzDhStatusJob", "DH_GROUP"))
+                .storeDurably().build();
+    }
+    @Bean
+    public Trigger DHStatusJobTaskConf() {
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(60)
+                .repeatForever();
+        return TriggerBuilder.newTrigger().forJob(DHStatusJobTask()).withIdentity("QuartzDhStatusJob", "DH_GROUP")
+                .withSchedule(scheduleBuilder).build();
+    }
+
+
+
 
 
     /***
