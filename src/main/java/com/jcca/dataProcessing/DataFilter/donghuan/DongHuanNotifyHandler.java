@@ -30,10 +30,21 @@ public class DongHuanNotifyHandler extends IFilterHandler<DongHuanEntity> {
     @Override
     public boolean handler(DongHuanEntity info) {
 
-        String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_environment.getCode();
-        String mapKey = info.getFlag();
+        String eventRedisKey = StatusInfoChangeTypeEnum.event_environment.getCode();
+        String eventMapKey = info.getFlag();
 
+        AlarmTempReq alarmTempReq = new AlarmTempReq();
+        alarmTempReq.setFlag(info.getFlag());
+        alarmTempReq.setOrgMsg(info.getOriginalMsg());
+        alarmTempReq.setAssetIp(info.getAssetIp());
+        alarmTempReq.setAssetName(info.getAssetName());
 
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey, null,alarmTempReq);
+        if (event != null) {
+            //被事件信息截取
+            event.setDescStr(info.getOriginalMsg());
+            this.dispatureEvent(event);
+        }
 
 
         return true;

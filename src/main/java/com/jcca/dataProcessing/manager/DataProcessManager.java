@@ -743,9 +743,8 @@ public class DataProcessManager {
 
         //动环业务事件
         IFilterHandler dongHuan = this.getIFilterHandler("dongHuanNotifyHandler");
-        cascoLink.addDataSourceListener(eventInfoListener);
-        IFilterHandler donghuanSave = this.getIFilterHandler("saveFilterHandler");
-        cascoLink.setNextFilter(donghuanSave);
+        dongHuan.addDataSourceListener(eventInfoListener);
+
         donghuanHandler = dongHuan;
 
         IFilterHandler cascoMaster = this.getIFilterHandler("commonMasterFilterHandler");

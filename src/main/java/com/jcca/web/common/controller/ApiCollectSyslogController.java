@@ -216,6 +216,7 @@ public class ApiCollectSyslogController extends ListenerManager {
             dongHuanEntity.setFlag(alarm.getPropertyId());
             dongHuanEntity.setCreateTime(alarm.getCreateTime());
             dongHuanEntity.setOriginalMsg(alarm.getDesc());
+            dongHuanEntity.setAssetName(asset.getAssetName());
 
             DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
             dhAdapter.dispose(dongHuanEntity);
