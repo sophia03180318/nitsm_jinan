@@ -50,53 +50,39 @@ import java.util.Objects;
 @Service
 @DisallowConcurrentExecution
 public class QuartzDhStatusJob extends QuartzJobBean {
-    @Value("${dhUrl}")
-    private String dhUrl;
     @Resource
     private DataProcessManager dataProcessManager;
     @Resource
     private DhAlarmService alarmService;
     @Resource
     private AssetService assetServ;
-    @Resource
-    private PropertyService propertyService;
 
     @Override
-    protected void executeInternal(JobExecutionContext context)  {
-        try {
-            String body = HttpRequest.get(dhUrl + ":9993/tcp/getAlarm").setReadTimeout(10000).setConnectionTimeout(10000).execute().body();
-            String code = JSONUtil.parseObj(body).getStr("code", "999");
-            if (!"200".equals(code)) {
-                log.error("动环告警通讯返回失败, code:" + code);
-            } } catch (Exception e) {
-            log.error("动环告警通讯失败: " + e.toString());
-
-        }
-
-            List<Alarm> alarmLists = alarmService.getAlarm();
-            for (Alarm alarm : alarmLists) {
-                if (ObjectUtil.isNull(alarm.getDeviceId())) {
-                    alarm.setDeviceId(propertyService.getById(alarm.getPropertyId()).getParentID());
-                }
+    protected void executeInternal(JobExecutionContext context) {
+        List<Alarm> alarmLists = alarmService.list();
+        for (Alarm alarm : alarmLists) {
+            if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
                 AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
                 if (Objects.isNull(asset)) {
                     log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
-                }
-                try {
-                    DongHuanEntity dongHuanEntity = new DongHuanEntity();
-                    dongHuanEntity.setAssetId(alarm.getDeviceId());
-                    dongHuanEntity.setFlag(alarm.getPropertyId());
-                    dongHuanEntity.setCreateTime(alarm.getCreateTime());
-                    dongHuanEntity.setOriginalMsg("动环告警: "+alarm.getDescc());
-                    dongHuanEntity.setAssetName(asset.getAssetName());
-                    log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
-                    DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
-                    dhAdapter.dispose(dongHuanEntity);
-                } catch (Exception e2) {
-                    log.error("接收动环推送设备告警失败: " + e2.toString());
+                }else{
+                    try {
+                        DongHuanEntity dongHuanEntity = new DongHuanEntity();
+                        dongHuanEntity.setAssetId(alarm.getDeviceId());
+                        dongHuanEntity.setFlag(alarm.getPropertyId());
+                        dongHuanEntity.setCreateTime(alarm.getCreateTime());
+                        dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
+                        dongHuanEntity.setAssetName(asset.getAssetName());
+                        log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
+                        DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
+                        dhAdapter.dispose(dongHuanEntity);
+                    } catch (Exception e2) {
+                        log.error("接收动环推送设备告警失败: " + e2.toString());
+                    }
                 }
             }
-
+            alarmService.removeById(alarm.getId());
+        }
     }
 }
 

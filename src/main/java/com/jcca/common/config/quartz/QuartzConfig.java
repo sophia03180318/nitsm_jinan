@@ -136,14 +136,11 @@ public class QuartzConfig {
     }
     @Bean
     public Trigger DHStatusJobTaskConf() {
-        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(120)
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(60)
                 .repeatForever();
         return TriggerBuilder.newTrigger().forJob(DHStatusJobTask()).withIdentity("QuartzDhStatusJob", "DH_GROUP")
                 .withSchedule(scheduleBuilder).build();
     }
-
-
-
 
 
     /***

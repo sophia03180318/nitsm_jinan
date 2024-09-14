@@ -58,16 +58,16 @@ public class QuartzThreeDPushAlarmJob extends QuartzJobBean {
             redisService.set(ThreeDConst.KEY_STATUS, "1");
             ThreeDResult threeDResult = threeDService.pushAlarm();
             if (!threeDResult.isStatus()) {
-               log.error(threeDResult.getLog());
+                log.error(threeDResult.getLog());
             }
-            ThreeDResult threeDResult2 = threeDService.pushProperty();
+          /*  ThreeDResult threeDResult2 = threeDService.pushProperty();
             if (!threeDResult2.isStatus()) {
                 log.error(threeDResult2.getLog());
             }
-            ThreeDResult threeDResult3 = threeDService.pushLink();
+           ThreeDResult threeDResult3 = threeDService.pushLink();
             if (!threeDResult3.isStatus()) {
                 log.error(threeDResult3.getLog());
-            }
+            }*/
         } else {
             MQUtil.closeChannelAndConnection();
             redisService.set(ThreeDConst.KEY_STATUS, "0");

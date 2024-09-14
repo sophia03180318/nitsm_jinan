@@ -217,29 +217,28 @@ public class ApiCollectSyslogController extends ListenerManager {
     public void pullDeviceAlarm() {
         List<Alarm> alarmLists = alarmService.getAlarm();
         for (Alarm alarm : alarmLists) {
-            if (ObjectUtil.isNull(alarm.getDeviceId())) {
-                alarm.setDeviceId(propertyService.getById(alarm.getPropertyId()).getParentID());
+            if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
+                AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
+                if (Objects.isNull(asset)) {
+                    log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
+                }else{
+                    try {
+                        DongHuanEntity dongHuanEntity = new DongHuanEntity();
+                        dongHuanEntity.setAssetId(alarm.getDeviceId());
+                        dongHuanEntity.setFlag(alarm.getPropertyId());
+                        dongHuanEntity.setCreateTime(alarm.getCreateTime());
+                        dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
+                        dongHuanEntity.setAssetName(asset.getAssetName());
+                        log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
+                        DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
+                        dhAdapter.dispose(dongHuanEntity);
+                    } catch (Exception e2) {
+                        log.error("接收动环推送设备告警失败: " + e2.toString());
+                    }
+                }
             }
-            AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
-            if (Objects.isNull(asset)) {
-                log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
-            }
-            try {
-                DongHuanEntity dongHuanEntity = new DongHuanEntity();
-                dongHuanEntity.setAssetId(alarm.getDeviceId());
-                dongHuanEntity.setFlag(alarm.getPropertyId());
-                dongHuanEntity.setCreateTime(alarm.getCreateTime());
-                dongHuanEntity.setOriginalMsg("动环告警: "+alarm.getDescc());
-                dongHuanEntity.setAssetName(asset.getAssetName());
-                log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
-                DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
-                dhAdapter.dispose(dongHuanEntity);
-            } catch (Exception e2) {
-                log.error("接收动环推送设备告警失败: " + e2.toString());
-            }
+            alarmService.removeById(alarm.getId());
         }
-
-
     }
 
 }

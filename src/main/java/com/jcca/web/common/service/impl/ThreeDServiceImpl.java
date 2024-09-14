@@ -62,7 +62,6 @@ public class ThreeDServiceImpl implements ThreeDService {
     @Value("${threeD.roomId2}")
     private String roomId2;
 
-
     /**
      * RabbitMQ连接
      */
@@ -238,6 +237,7 @@ public class ThreeDServiceImpl implements ThreeDService {
     @Override
     public ThreeDResult pushAlarm() {
         ThreeDResult threeDResult = new ThreeDResult();
+        log.info("3D机房开始同步设备" );
         try {
             List<ThreeDAlarmReq> threeDAlarms = alarmInfoService.getThreeDAlarm(roomId1, roomId2);
             if (ObjectUtil.isNull(threeDAlarms) || threeDAlarms.isEmpty()) {
@@ -247,7 +247,6 @@ public class ThreeDServiceImpl implements ThreeDService {
             jsonObject.put("key", "pushAlarm");
             jsonObject.put("value", threeDAlarms);
             String s1 = jsonObject.toString();
-            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;

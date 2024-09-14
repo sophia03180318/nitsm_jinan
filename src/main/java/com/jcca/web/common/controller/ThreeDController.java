@@ -1,12 +1,19 @@
 package com.jcca.web.common.controller;
 
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AlarmBlankConst;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.common.enums.AlarmStatusEnum;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.alarm.service.AlarmInfoService;
+import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.asset.entity.AssetAttach;
+import com.jcca.web.asset.entity.Cabinet;
+import com.jcca.web.asset.service.AssetAttachService;
+import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.common.service.ThreeDService;
 import com.jcca.web.common.service.bean.ThreeDResult;
 import com.jcca.web.statistics.service.StatisticsService;
@@ -42,12 +49,40 @@ public class ThreeDController {
     private StatisticsService statisticsService;
     @Resource
     private AlarmInfoService alarmInfoServ;
+    @Resource
+    private CabinetService cabinetService;
+    @Resource
+    private AssetService assetService;
+    @Resource
+    private AssetAttachService attachService;
+
+
+    @GetMapping("/test3D")
+    @ApiOperation("临时获取数据add")
+    public ResultVo test3D() {
+        List<Asset> list = assetService.list();
+        for (Asset asset : list) {
+            threeDService.pushAssetAdd(asset);
+        }
+        return ResultVoUtil.success("成功");
+    }
+
+
+    @GetMapping("/test2D")
+    @ApiOperation("临时获取数据2")
+    public ResultVo test2D() {
+        List<Asset> list = assetService.list();
+        for (Asset asset : list) {
+            threeDService.pushAssetChange(asset);
+        }
+        return ResultVoUtil.success("成功");
+    }
 
     @GetMapping("/syncAssetByRoom")
     @ApiOperation("同步3D机房信息")
     public ResultVo syncAssetByRoom() {
         ThreeDResult threeDResult = threeDService.syncAssetByRoom();
-        if (threeDResult.isStatus()){
+        if (threeDResult.isStatus()) {
             return ResultVoUtil.success("同步成功~");
         }
         return ResultVoUtil.error(threeDResult.getLog());
@@ -75,9 +110,9 @@ public class ThreeDController {
     public ResultVo getMonitoringItem(@RequestParam("refuseList") List<String> refuseList) {
         List<MonitoringItemVo> voList = alarmInfoServ.getMonitoringItemV2(refuseList);
         for (MonitoringItemVo monitoringItemVo : voList) {
-               String eventCategory =monitoringItemVo.getCode();
-                List<DialogsAlarmListVo> alarmList = alarmInfoServ.queryCenterDialogsVoListV2(eventCategory);
-                monitoringItemVo.setTotal(alarmList.size());
+            String eventCategory = monitoringItemVo.getCode();
+            List<DialogsAlarmListVo> alarmList = alarmInfoServ.queryCenterDialogsVoListV2(eventCategory);
+            monitoringItemVo.setTotal(alarmList.size());
         }
         return ResultVoUtil.success(voList);
     }
