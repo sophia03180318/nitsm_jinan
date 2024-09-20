@@ -23,7 +23,7 @@ public class InspectJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) {
 
-//        inspectRecordService.prepareRecord();
+        inspectRecordService.prepareRecord();
 
     }
 
