@@ -1,5 +1,8 @@
 package com.jcca.web2.service.notify;
 
+import com.jcca.admin.system.entity.SysOrg;
+import com.jcca.admin.system.service.SysOrgService;
+import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.common.constants.OutConst;
@@ -12,12 +15,11 @@ import com.jcca.web2.vo.ThresholdManageVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author HanHW
@@ -33,6 +35,8 @@ public class NotifyInspectImpl implements AssetNotifyService {
     private InspectRecordService inspectRecordService;
     @Resource
     private ThresholdManageService thresholdManageService;
+    @Resource
+    private SysOrgService orgService;
 
     /**
      * OutConst
@@ -63,7 +67,7 @@ public class NotifyInspectImpl implements AssetNotifyService {
         ThresholdManageQuery query = new ThresholdManageQuery();
         query.setOrgId(asset.getOrgId());
         query.setAssetDesk(asset.getDesk());
-        List<ThresholdManageVo> list = thresholdManageService.getList(query);
+        List<ThresholdManageVo> list = this.getList(query);
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
@@ -80,6 +84,34 @@ public class NotifyInspectImpl implements AssetNotifyService {
             list1.add(m);
         }
         thresholdManageService.saveBatch(list1);
+    }
+
+    private List<ThresholdManageVo> getList(ThresholdManageQuery manage) {
+        String orgId = manage.getOrgId();
+        if (!StringUtils.isEmpty(orgId)) {
+            SysOrg org = orgService.getById(orgId);
+            if (OrgTypeConst.LINE == org.getType()) {
+                Set<SysOrg> children = orgService.getChildrenById(org.getId());
+                List<String> orgIds = children.stream().map(SysOrg::getId).collect(Collectors.toList());
+                manage.setOrgIds(orgIds);
+                manage.setOrgId(null);
+            }
+        }
+
+        List<ThresholdManageVo> result = new ArrayList<>();
+        Set<String> set = new HashSet<>();
+        List<ThresholdManageVo> list = thresholdManageService.getList(manage);
+        for (ThresholdManageVo vo : list) {
+            String category = vo.getCategory();
+            String assetDesk = vo.getAssetDesk();
+            if (set.contains(category + "_" + assetDesk)) {
+                continue;
+            }
+            set.add(category + "_" + assetDesk);
+            result.add(vo);
+        }
+
+        return result;
     }
 
     private void addInspect() {
