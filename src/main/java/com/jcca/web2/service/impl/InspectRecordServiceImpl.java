@@ -192,6 +192,9 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         }
     };
 
+
+    private Set<String> unIpSet = new HashSet<>();
+
     /**
      * @description: 获取资产指标状态
      * @author: HanHW
@@ -208,10 +211,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         try {
             ping = TestIpUtil.ping(ip, 1);
         } catch (IOException e) {
-
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_NO_DATA.getMessage());
         }
 
         if (!ping) {
+            unIpSet.add(ip);
             UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
             wrapper.eq("ASSET_ID", assetId);
             wrapper.notIn("INSPECT_STATE", Arrays.asList(Web2Const.INSPECTED, Web2Const.INSPECT_ERROR));
@@ -221,6 +225,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_NO_DATA.getMessage());
             return new ArrayList<>();
         }
+        unIpSet.remove(ip);
 
         String inspectType = inspectRecordMapper.findNowInspectType();
         if (StringUtils.isEmpty(inspectType)) {
@@ -738,7 +743,13 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (StringUtils.isEmpty(inspectCode)) {
             throw new ResultException(ResultEnum.PARAM_ERROR);
         }
-        return inspectRecordMapper.findTargetState(assetId, targetItem, modeType);
+        InspectRecord targetState = inspectRecordMapper.findTargetState(assetId, targetItem, modeType);
+        if (Web2Const.INSPECT.equals(targetState.getInspectState())) {
+            this.getTargetState(assetId);
+            targetState = inspectRecordMapper.findTargetState(assetId, targetItem, modeType);
+        }
+
+        return targetState;
     }
 
     /**
@@ -778,7 +789,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      * @return
      */
     @Override
-    public Set<String> findAssetIdList() {
+    public List<String> findAssetIdList() {
         return inspectRecordMapper.findAssetIdList();
     }
 
@@ -806,9 +817,9 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
 
         this.checkRecord();
 
-        Set<String> assetIdSet = this.findAssetIdList();
+        List<String> assetIdList = this.findAssetIdList();
         Executor executorService = (Executor) SpringContextUtil.getBean("xunjianAsync");
-        for (String id : assetIdSet) {
+        for (String id : assetIdList) {
             executorService.execute(() -> {
                 this.getTargetState(id);
             });
@@ -827,7 +838,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         int count = this.count();
         if (count == 0) {
             List<InspectRecord> records = this.checkReadyRecords();
-            this.saveBatch(records, 2000);
+            this.saveBatch(records, 1000);
 
             inspectCode = records.get(0).getInspectCode();
         }

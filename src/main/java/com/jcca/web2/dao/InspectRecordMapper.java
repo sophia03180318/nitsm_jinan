@@ -53,8 +53,8 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
 
     InspectRecord findCabinetState(String cabinetId, String inspectType);
 
-    @Select("SELECT ASSET_ID FROM INSPECT_RECORD WHERE TARGET_STATUS = 1 AND ASSET_STATUS = 1")
-    Set<String> findAssetIdList();
+    @Select("SELECT asset_id FROM (SELECT asset_id FROM INSPECT_RECORD WHERE TARGET_STATUS = 1 AND ASSET_STATUS = 1 ORDER BY ORG_ID, CABINET_NAME, asset_id) GROUP BY asset_id")
+    List<String> findAssetIdList();
 
     @Select("SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD GROUP BY ORG_ID, ORG_NAME ORDER BY ORG_ID")
     List<InspectOrgAssetVo> findOrgList();

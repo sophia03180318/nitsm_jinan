@@ -174,7 +174,7 @@ public interface InspectRecordService extends IService<InspectRecord> {
      * @param
      * @return
      */
-    Set<String> findAssetIdList();
+    List<String> findAssetIdList();
 
 
     InspectRecord findOneByAssetAndTarget(String assetId, String modeType, String targetItem);
