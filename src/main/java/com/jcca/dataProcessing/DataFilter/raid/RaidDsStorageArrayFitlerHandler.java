@@ -47,12 +47,15 @@ public class RaidDsStorageArrayFitlerHandler extends IFilterHandler<DSEntity> {
             if (flag4) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getStatusInfo(), redisKey, mapKey4);
                 info.getMaps().put(mapKey4, changeInfo);
-                Integer status = info.getStatusInfo().toLowerCase().equals("optimal") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
+                Integer status = EventLevelEnum.ABNORMAL.getCode();
+                if(info.getStatusInfo().toLowerCase().equals("optimal") || info.getStatusInfo().toLowerCase().equals("正常")){
+                    status = EventLevelEnum.NORMAL.getCode();
+                }
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_storage_Mdisk.getCode();
                 String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
-                String str = status == EventLevelEnum.NORMAL.getCode() ? "恢复" : "异常";
+                String str = status.equals(EventLevelEnum.NORMAL.getCode()) ? "恢复" : "异常";
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
-                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_storage_group.getDescr(), info.getName(), str));
+                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_storage_Mdisk.getDescr(), info.getName(), str));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getName());
                 IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);

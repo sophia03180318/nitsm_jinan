@@ -74,6 +74,7 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 thresholdDisposePool.execute(() -> {
 
                     try {
+                        setAssetIp(ds);
                         dataProcessManager.raidDsBaseInfoHandlerRequest(ds);
                     } catch (Exception e) {
                         AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + ds.getAssetIp() + "raidDsBaseInfoHandlerRequest 抛出异常", e);

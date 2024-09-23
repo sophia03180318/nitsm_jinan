@@ -486,6 +486,7 @@
                  where a.is_del = 1
                    and o.stationx is not null
                    and o.stationy is not null
+                   and o.TYPE=4
                    and i.status = 1
                    and i.alarm_state = 1
                    and i.blank = 1

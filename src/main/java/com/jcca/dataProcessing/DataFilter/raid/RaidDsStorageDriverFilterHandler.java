@@ -11,7 +11,9 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Zhaozheng
@@ -87,10 +89,14 @@ public class RaidDsStorageDriverFilterHandler extends IFilterHandler<DSEntity> {
             if (flag14) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getStatusInfo(), redisKey, mapKey14);
                 info.getMaps().put(mapKey14, changeInfo);
-                Integer status = info.getStatusInfo().toLowerCase().equals("optimal") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
+                Integer status = EventLevelEnum.ABNORMAL.getCode();
+                List<String> matchList = Arrays.asList("正常", "optimal");
+                if(matchList.contains(info.getStatusInfo().toLowerCase())){
+                    status = EventLevelEnum.NORMAL.getCode();
+                }
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_storage_driver.getCode();
                 String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getYindex() + "_" + info.getXindex();
-                String str = status == EventLevelEnum.NORMAL.getCode() ? "恢复" : "异常";
+                String str = EventLevelEnum.NORMAL.getCode().equals(status) ? "恢复" : "异常";
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_storage_driver.getDescr(), info.getYindex() + "_" + info.getXindex(), str));
                 alarmTempReq.setCollectValue(info.getStatusInfo());
