@@ -18,6 +18,7 @@ import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.common.utils.TestIpUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.Cabinet;
 import com.jcca.web.asset.service.AssetService;
@@ -42,6 +43,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -200,6 +202,26 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     @Override
     public List<InspectResultVo> getTargetState(String assetId) {
 
+        Asset asset = assetService.getById(assetId);
+        String ip = asset.getIp();
+        boolean ping = false;
+        try {
+            ping = TestIpUtil.ping(ip, 1);
+        } catch (IOException e) {
+
+        }
+
+        if (!ping) {
+            UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
+            wrapper.eq("ASSET_ID", assetId);
+            wrapper.notIn("INSPECT_STATE", Arrays.asList(Web2Const.INSPECTED, Web2Const.INSPECT_ERROR));
+            wrapper.set("INSPECT_STATE", Web2Const.INSPECT_ERROR);
+            wrapper.set("INSPECT_VALUE", "网络不通");
+            this.update(wrapper);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+            return new ArrayList<>();
+        }
+
         String inspectType = inspectRecordMapper.findNowInspectType();
         if (StringUtils.isEmpty(inspectType)) {
             inspectType = Web2Const.INSPECT_ASSET;
@@ -234,7 +256,6 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             return new ArrayList<>();
         }
 
-        Asset asset = assetService.getById(assetId);
         Integer collectionType = asset.getCollectionType();
         if (Objects.isNull(collectionType)) {
             collectionType = SystemTypeEnum.SWITCH_ROUTER.getCode();
