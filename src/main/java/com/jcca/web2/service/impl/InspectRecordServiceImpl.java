@@ -221,7 +221,6 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             unIpSet.add(ip);
             UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
             wrapper.eq("ASSET_ID", assetId);
-            wrapper.notIn("INSPECT_STATE", Arrays.asList(Web2Const.INSPECTED, Web2Const.INSPECT_ERROR));
             wrapper.set("INSPECT_STATE", Web2Const.INSPECT_ERROR);
             wrapper.set("INSPECT_VALUE", "网络不通");
             this.update(wrapper);
