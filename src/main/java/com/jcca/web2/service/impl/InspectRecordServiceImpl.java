@@ -594,7 +594,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (values.contains(cabinetId)) {
             for (InspectRecord record : records) {
                 String assetId = record.getAssetId();
-                String state = inspectRecordMapper.findAssetState(assetId, inspectType).getInspectState();
+                List<InspectRecord> list = inspectRecordMapper.findAssetState(assetId, inspectType);
+                if (list.isEmpty()) {
+                    continue;
+                }
+                String state = list.get(0).getInspectState();
                 DetailCabinetVo vo = new DetailCabinetVo();
                 vo.setCabinetId(cabinetId);
                 vo.setCabinetName(record.getCabinetName());
@@ -612,11 +616,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         for (DetailCabinetVo cabinetVo : cabinetVosList) {
             String assetId = cabinetVo.getAssetId();
             if (assetIds.contains(assetId)) {
-                InspectRecord assetState = inspectRecordMapper.findAssetState(assetId, inspectType);
-                if (Objects.isNull(assetState)) {
+                List<InspectRecord> assetStateList = inspectRecordMapper.findAssetState(assetId, inspectType);
+                if (assetStateList.isEmpty()) {
                     continue;
                 }
-                String state = assetState.getInspectState();
+                String state = assetStateList.get(0).getInspectState();
                 cabinetVo.setState(Objects.isNull(state) ? Web2Const.INSPECT : state);
                 cabinetVo.setCabinetId(cabinetId);
                 resList.add(cabinetVo);
@@ -767,7 +771,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (StringUtils.isEmpty(inspectType)) {
             inspectType = Web2Const.INSPECT_ASSET;
         }
-        return inspectRecordMapper.findAssetState(assetId, inspectType);
+        List<InspectRecord> list = inspectRecordMapper.findAssetState(assetId, inspectType);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
     }
 
     /**

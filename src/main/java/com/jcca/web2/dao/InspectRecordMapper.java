@@ -49,7 +49,7 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
     @Select("SELECT * FROM INSPECT_RECORD WHERE ASSET_ID = #{assetId} AND TARGET_ITEM = #{targetItem} AND MODE_TYPE = #{modeType}")
     InspectRecord findTargetState(String assetId, String targetItem, String modeType);
 
-    InspectRecord findAssetState(String assetId, String inspectType);
+    List<InspectRecord> findAssetState(String assetId, String inspectType);
 
     InspectRecord findCabinetState(String cabinetId, String inspectType);
 
