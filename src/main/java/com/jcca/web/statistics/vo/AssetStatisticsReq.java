@@ -51,4 +51,5 @@ public class AssetStatisticsReq {
 
     private Integer page;
     private Integer size;
+    private String showJcca;
 }

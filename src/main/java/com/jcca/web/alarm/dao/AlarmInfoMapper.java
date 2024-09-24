@@ -63,9 +63,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     @Select("select * from ALARM_INFO where (STATUS=1 or ALARM_STATE =1) and ASSET_ID=#{assetId} and CORRELATION_ID=#{corrElationId}")
     List<AlarmInfo> selectValidAlarmByCorrElationId(@Param("corrElationId") String corrElationId, @Param("assetId") String assetId);
 
-    @Select("select distinct TITLE from ALARM_INFO")
-    List<String> listTitle();
-
+    List<String> listTitle(@Param("showJcca") Integer showJcca);
 
     @Select("select min(ALARM_LEVEL) from ALARM_INFO where (STATUS = 1 OR (STATUS = 2 AND ALARM_STATE = 1)) and BLANK=1 and ASSET_ID=#{assetId}")
     Byte queryMaxAlarmLevel(@Param("assetId") String assetId);

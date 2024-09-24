@@ -125,29 +125,34 @@
 
     <select id="getSevenDaysAlarmLineV2" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
             parameterType="java.util.Map">
-        select count(*) total, to_char(occur_time, 'yyyy-MM-dd') as name, alarm_level as id
-        from alarm_info
-        where blank = 1 and alarm_level in (1,2,3)
-        and occur_time &gt; to_date(#{params.startDate}, 'yyyy-MM-dd')
+        select count(*) total, to_char(i.occur_time, 'yyyy-MM-dd') as name, i.alarm_level as id
+        from alarm_info i
+        left join asset a on i.asset_id = a.id
+        where i.blank = 1 and i.alarm_level in (1,2,3)
+        and i.occur_time &gt; to_date(#{params.startDate}, 'yyyy-MM-dd')
         <if test="params.orgIds != null">
-            and org_id in
+            and i.org_id in
             <foreach collection="params.orgIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>
-        group by to_char(occur_time, 'yyyy-MM-dd'), alarm_level
-        order by to_char(occur_time, 'yyyy-MM-dd')
+        <if test="params.showJcca == 'no'">
+            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+        </if>
+        group by to_char(i.occur_time, 'yyyy-MM-dd'), i.alarm_level
+        order by to_char(i.occur_time, 'yyyy-MM-dd')
     </select>
 
 
     <select id="getSevenDaysCenterAlarmLineV2" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
             parameterType="java.lang.String">
-       select count(*) total, to_char(occur_time, 'yyyy-MM-dd') as name, alarm_level as id
+        select count(*) total, to_char(occur_time, 'yyyy-MM-dd') as name, alarm_level as id
         from alarm_info a
-				join SYS_ORG o on a.ORG_ID=o.ID
-        where a.blank = 1 and a.alarm_level in (1,2,3)
-        and o.TYPE =2
-	    and occur_time &gt; to_date(#{startDate}, 'yyyy-MM-dd')
+                 join SYS_ORG o on a.ORG_ID = o.ID
+        where a.blank = 1
+          and a.alarm_level in (1, 2, 3)
+          and o.TYPE = 2
+          and occur_time &gt; to_date(#{startDate}, 'yyyy-MM-dd')
         group by to_char(occur_time, 'yyyy-MM-dd'), alarm_level
         order by to_char(occur_time, 'yyyy-MM-dd')
     </select>
@@ -198,15 +203,18 @@
             resultType="com.jcca.web2.vo.StatisticsVo">
         select m.name, tt.desk as id, tt.total
         from (select t.desk, count(t.desk) total
-              from (select a.desk
-                    from alarm_info i
-                             left join asset a
-                                       on i.asset_id = a.id and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and
-                                          a.ASSET_MODE not like '7%'
-                    where a.is_del = 1
-                    group by a.id, a.desk) t
-              group by t.desk) tt
-                 left join asset_mode m on tt.desk = m.code
+        from (select a.desk
+        from alarm_info i
+        left join asset a
+        on i.asset_id = a.id and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and
+        a.ASSET_MODE not like '7%'
+        where a.is_del = 1
+        <if test="showJcca == 'no'">
+            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+        </if>
+        group by a.id, a.desk) t
+        group by t.desk) tt
+        left join asset_mode m on tt.desk = m.code
     </select>
 
 
@@ -249,6 +257,9 @@
             <foreach collection="orgIdList" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
+        </if>
+        <if test="showJcca == 'no'">
+            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
         </if>
         group by m.name, m.id
     </select>
@@ -447,15 +458,18 @@
     <select id="getRollAlarmV2" resultType="com.jcca.web2.vo.RollAlarmVo">
         select 1 code, o.title orgName, a.name assetName, a.id assetId, o.id orgId, count(i.status) alarmCount
         from asset a
-                 left join (select asset_id, status
-                            from alarm_info
-                            where status = 1
-                              and alarm_state = 1
-                              and blank = 1) i on i.asset_id = a.id
-                 left join sys_org o on a.org_id = o.id
+        left join (select asset_id, status
+        from alarm_info
+        where status = 1
+        and alarm_state = 1
+        and blank = 1) i on i.asset_id = a.id
+        left join sys_org o on a.org_id = o.id
         where a.is_del = 1
-          and o.id is not null
-          and a.asset_mode not like '7%'
+        and o.id is not null
+        and a.asset_mode not like '7%'
+        <if test="showJcca == 'no'">
+            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+        </if>
         group by o.title, a.name, a.id, o.id, 1
     </select>
 
@@ -471,7 +485,7 @@
                  left join sys_org o on a.org_id = o.id
         where a.is_del = 1
           and o.id is not null
-          and o.type=2
+          and o.type = 2
           and a.asset_mode not like '7%'
         group by o.title, a.name, a.id, o.id, 1
     </select>
@@ -479,17 +493,20 @@
     <select id="getStationAlarmV2" resultType="com.jcca.web2.vo.RollAlarmVo">
         select min(alarm_level) alarmLevel, orgId, orgName, stationx, stationy
         from (
-                 select i.alarm_level, o.stationx, o.stationy, o.title orgName, o.id orgId
-                 from asset a
-                          left join alarm_info i on a.id = i.asset_id
-                          left join sys_org o on a.org_id = o.id and o.status = 1
-                 where a.is_del = 1
-                   and o.stationx is not null
-                   and o.stationy is not null
-                   and i.status = 1
-                   and i.alarm_state = 1
-                   and i.blank = 1
-                 group by i.alarm_level, o.stationx, o.stationy, o.title, o.id)
+        select i.alarm_level, o.stationx, o.stationy, o.title orgName, o.id orgId
+        from asset a
+        left join alarm_info i on a.id = i.asset_id
+        left join sys_org o on a.org_id = o.id and o.status = 1
+        where a.is_del = 1
+        and o.stationx is not null
+        and o.stationy is not null
+        and i.status = 1
+        and i.alarm_state = 1
+        and i.blank = 1
+        <if test="showJcca == 'no'">
+            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+        </if>
+        group by i.alarm_level, o.stationx, o.stationy, o.title, o.id)
         group by orgName, stationx, stationy, orgName, orgId
     </select>
 

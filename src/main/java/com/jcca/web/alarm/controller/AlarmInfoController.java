@@ -470,7 +470,6 @@ public class AlarmInfoController extends ListenerManager {
     @ApiOperation(value = "查询所有告警标题")
     ResultVo<?> queryAllName() {
         List<String> listTitle = alarmInfoService.listTitle();
-
         return ResultVoUtil.success(listTitle);
     }
 

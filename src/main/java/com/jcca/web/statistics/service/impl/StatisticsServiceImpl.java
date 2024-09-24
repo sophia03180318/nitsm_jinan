@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.entity.SysOrg;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.constant.AlarmBlankConst;
 import com.jcca.common.bean.constant.OrgTypeConst;
@@ -29,6 +30,7 @@ import com.jcca.web.collect.entity.CollectSensor;
 import com.jcca.web.collect.service.CollectCpuService;
 import com.jcca.web.collect.service.CollectMemoryService;
 import com.jcca.web.collect.service.CollectSensorService;
+import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.statistics.dao.StatisticsMapper;
 import com.jcca.web.statistics.entity.HourCpu;
 import com.jcca.web.statistics.entity.HourMemory;
@@ -74,6 +76,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     private AssetService assetService;
     @Resource
     private AlarmInfoService alarmInfoService;
+    @Resource
+    private SysModuleConfigService sysModuleConfigService;
 
     /**
      * 告警最多的组织
@@ -225,6 +229,8 @@ public class StatisticsServiceImpl implements StatisticsService {
      */
     @Override
     public List<StatisticsAlarmVo> getManufacturerAsset(AssetStatisticsReq req) {
+        SysConfig sysConfig = sysModuleConfigService.getSysConfig();
+        req.setShowJcca(sysConfig.getShowJcca());
         return statisticsMapper.getManufacturerAsset(req);
     }
 
@@ -400,9 +406,11 @@ public class StatisticsServiceImpl implements StatisticsService {
             resultList.add(resultVo);
         }
 
+        SysConfig sysConfig = sysModuleConfigService.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
         // 分类型统计当天有告警设备数量
         day = "%" + day + "%";
-        List<StatisticsVo> voList = statisticsMapper.findAssetAlarmByAssetModeV2(day);
+        List<StatisticsVo> voList = statisticsMapper.findAssetAlarmByAssetModeV2(day, showJcca);
         // 数据整合
         Iterator<StatisticsVo> iterator = resultList.iterator();
         while (iterator.hasNext()) {
@@ -522,10 +530,18 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<BizAlarmVo> getBusinessAlarmV2() {
 
+        String showJcca = sysModuleConfigService.getSysConfig().getShowJcca();
         List<BizAlarmVo> list = new ArrayList<>();
-
         BizTypeEnum[] values = BizTypeEnum.values();
         for (BizTypeEnum value : values) {
+            if ("no".equals(showJcca) && value.name().equals(BizTypeEnum.JCCA.name())) {
+                BizAlarmVo vo = new BizAlarmVo();
+                vo.setBizType(value.code);
+                vo.setBizName(value.description);
+                vo.setAbnormalCount(0);
+                list.add(vo);
+                continue;
+            }
             AbnormalAssetQuery query = new AbnormalAssetQuery();
             query.setEventCategory(value.code);
             query.setStatus((int) AlarmStateEnum.ALARM.getCode());
@@ -559,6 +575,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("startDate", last7Day);
+        paramMap.put("showJcca", sysModuleConfigService.getSysConfig().getShowJcca());
         List<StatisticsAlarmVo> latest7DaysList = statisticsMapper.getSevenDaysAlarmLineV2(paramMap);
         latest7DaysList = this.fill7DaysV2(latest7DaysList);
         return latest7DaysList;
@@ -734,7 +751,9 @@ public class StatisticsServiceImpl implements StatisticsService {
      **/
     @Override
     public List<RollAlarmVo> rollAlarmV2() {
-        return statisticsMapper.getRollAlarmV2();
+        SysConfig sysConfig = sysModuleConfigService.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
+        return statisticsMapper.getRollAlarmV2(showJcca);
     }
 
     @Override
@@ -752,7 +771,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<RollAlarmVo> stationAlarmV2() {
 
-        return statisticsMapper.getStationAlarmV2();
+        return statisticsMapper.getStationAlarmV2(sysModuleConfigService.getSysConfig().getShowJcca());
     }
 
     /**

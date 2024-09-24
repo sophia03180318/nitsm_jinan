@@ -91,22 +91,23 @@ public interface StatisticsMapper {
      * @param: [day]
      * @return: java.util.List<com.jcca.web2.vo.StatisticsVo>
      **/
-    List<StatisticsVo> findAssetAlarmByAssetModeV2(@Param("day") String day);
+    List<StatisticsVo> findAssetAlarmByAssetModeV2(@Param("day") String day, @Param("showJcca") String showJcca);
 
 
-@Select("select m.name, tt.desk as id, tt.total " +
-        "from (select t.desk, count(t.desk) total " +
-        "from (select a.desk " +
-        "from alarm_info i " +
-        "join asset a  on i.asset_id = a.id " +
-        "join SYS_ORG o on i.org_id = o.id " +
-        "and o.type=2 and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and\n" +
-        "a.ASSET_MODE not like '7%' " +
-        "where a.is_del = 1 " +
-        "group by a.id, a.desk) t " +
-        "group by t.desk) tt " +
-        "left join asset_mode m on tt.desk = m.code")
+    @Select("select m.name, tt.desk as id, tt.total " +
+            "from (select t.desk, count(t.desk) total " +
+            "from (select a.desk " +
+            "from alarm_info i " +
+            "join asset a  on i.asset_id = a.id " +
+            "join SYS_ORG o on i.org_id = o.id " +
+            "and o.type=2 and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and\n" +
+            "a.ASSET_MODE not like '7%' " +
+            "where a.is_del = 1 " +
+            "group by a.id, a.desk) t " +
+            "group by t.desk) tt " +
+            "left join asset_mode m on tt.desk = m.code")
     List<StatisticsVo> findAssetCenterAlarmByAssetModeV2();
+
     /**
      * @description: 近七天告警折线图
      * @author: HanHW
@@ -152,8 +153,7 @@ public interface StatisticsMapper {
      * @param: []
      * @return: void
      **/
-    List<RollAlarmVo> getRollAlarmV2();
-
+    List<RollAlarmVo> getRollAlarmV2(String showJcca);
 
 
     /**
@@ -172,7 +172,7 @@ public interface StatisticsMapper {
      * @param: []
      * @return: java.util.List<com.jcca.web2.vo.RollAlarmVoV2>
      **/
-    List<RollAlarmVo> getStationAlarmV2();
+    List<RollAlarmVo> getStationAlarmV2(String showJcca);
 
     /**
      * @description: 分设备类型查询某天告警数

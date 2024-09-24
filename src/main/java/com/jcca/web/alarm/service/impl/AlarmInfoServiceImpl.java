@@ -500,7 +500,13 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
 
     @Override
     public List<String> listTitle() {
-        return alarmInfoMapper.listTitle();
+        SysConfig sysConfig = configService.getSysConfig();
+        int showJcca = 2;
+        if (sysConfig.showJcca()) {
+            showJcca = 1;
+        }
+
+        return alarmInfoMapper.listTitle(showJcca);
     }
 
     @Override
@@ -1047,6 +1053,12 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
 
     @Override
     public List<AlarmPageStatisticsVo> statisticsV2(AlarmPageDto query) {
+        Boolean aBoolean = configService.getSysConfig().showJcca();
+        Integer showJcca = 2;
+        if (aBoolean) {
+            showJcca = 1;
+        }
+        query.setShowJcca(showJcca);
         List<AlarmPageStatisticsVo> alarmPageStatisticsVos = alarmInfoMapper.statisticsV2(query);
         for (AlarmPageStatisticsVo alarmPageStatisticsVo : alarmPageStatisticsVos) {
             String key = alarmPageStatisticsVo.getKey();

@@ -193,8 +193,6 @@
             <if test="query.blank != null ">
                 and a.blank = #{query.blank}
             </if>
-
-
             <if test="query.alarmCode!=null and query.alarmCode!=''">
                 and a.ALARM_CODE = #{query.alarmCode}
             </if>
@@ -217,8 +215,8 @@
                 </trim>
                 )
             </if>
-            <if test="query.showJcca==2">
-                and b.ASSET_SUPPLIER not like '%JCCA%'
+            <if test="query.showJcca == 2">
+                and (b.ASSET_SUPPLIER not like '%JCCA%' or b.ASSET_SUPPLIER is null)
             </if>
         </where>
         <if test="query.groupField=='ALARM_LEVEL'">
@@ -226,6 +224,14 @@
         </if>
         <if test="query.groupField=='ALARM_CODE'">
             group by a.ALARM_CODE
+        </if>
+    </select>
+
+    <select id="listTitle" resultType="java.lang.String" parameterType="java.lang.Integer">
+        select distinct i.TITLE from ALARM_INFO i left join asset a on i.asset_id = a.id
+        where 1 = 1
+        <if test="showJcca == 2">
+            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
         </if>
     </select>
 
@@ -395,17 +401,32 @@
 
     <select id="queryCenterDialogsVoListV2" parameterType="java.lang.String"
             resultType="com.jcca.web2.vo.DialogsAlarmListVo">
-    select c.TYPE as orgType, c.TITLE as orgName,
-     a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel,
-     a.content ,a.description,a.ALARM_CODE as alarmCode,a.OCCUR_TIME as occurTime,
-     a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
-     a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState
-     from ALARM_INFO a
-     join SYS_ORG c on a.ORG_ID = c.ID
-     where a.blank = 1 and c.type=2
-     and a.event_category = #{eventCategory}
-     and a.STATUS = 1 and a.ALARM_STATE = 1
-     order by a.OCCUR_TIME  desc
+        select c.TYPE            as orgType,
+               c.TITLE           as orgName,
+               a.id              as alarmId,
+               a.TYPE            as alarmType,
+               a.TITLE,
+               a.ALARM_LEVEL     as alarmLevel,
+               a.content,
+               a.description,
+               a.ALARM_CODE      as alarmCode,
+               a.OCCUR_TIME      as occurTime,
+               a.CONFIRM_TIME    as confirmTime,
+               a.confirmor       as confirmor,
+               a.ALARM_TO_RECORD as alarmToRecord,
+               a.opinion,
+               a.remark,
+               a.blank,
+               a.status,
+               a.ALARM_STATE     as alarmState
+        from ALARM_INFO a
+                 join SYS_ORG c on a.ORG_ID = c.ID
+        where a.blank = 1
+          and c.type = 2
+          and a.event_category = #{eventCategory}
+          and a.STATUS = 1
+          and a.ALARM_STATE = 1
+        order by a.OCCUR_TIME desc
     </select>
 
     <select id="queryDialogsVoListV2" parameterType="com.jcca.web2.dto.DialogsAlarmListDto"

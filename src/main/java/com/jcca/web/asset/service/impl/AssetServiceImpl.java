@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.biz.controller.GraphInterfaceController;
 import com.jcca.admin.system.entity.SysOrg;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.admin.system.service.TopoAssetPortService;
 import com.jcca.admin.system.vo.AssetPortVo;
@@ -58,9 +59,9 @@ import com.jcca.web.collect.service.*;
 import com.jcca.web.collect.service.bean.AssetDiskVo;
 import com.jcca.web.common.constants.OutConst;
 import com.jcca.web.common.service.OutService;
-import com.jcca.web.common.service.ThreeDService;
 import com.jcca.web.common.vo.AssetCollectTestVo;
 import com.jcca.web.common.vo.AssetTestResult;
+import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.graph.entity.TopoVertex;
 import com.jcca.web.graph.service.TopoVertexService;
 import com.jcca.web.ip.entity.IpInfo;
@@ -79,7 +80,6 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -126,8 +126,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Resource
     private AssetHardwareFixService fixServ;
     @Resource
-    private ThreeDService threeDService;
-    @Resource
     private ThresholdProcessService thresholdProcessService;
     @Resource
     private CollectRouteService routeServ;
@@ -155,11 +153,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private CollectSensorService sensorServ;
     @Resource
     private TopoAssetPortService topoAssetPortService;
-
     @Resource
     private CollectRaidService raidService;
     @Resource
     private CollectDsService dsService;
+    @Resource
+    private SysModuleConfigService sysModuleConfigService;
 
     @Value("${project.upload.static-url}")
     private String staticUrl;
@@ -1247,6 +1246,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         QueryWrapper<Asset> wrapper = Wrappers.query();
         wrapper.eq("IS_DEL", StatusEnum.OK.getCode());
         wrapper.notLike("DESK", ApiAssetController.ORTHER_MODEL_FLAG);
+        SysConfig sysConfig = sysModuleConfigService.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
+        if ("no".equals(showJcca)) {
+            wrapper.and(w -> w.notLike("ASSET_SUPPLIER", BusinessTypeEnums.JCCA.name()).or().isNull("ASSET_SUPPLIER"));
+        }
 //        wrapper.eq("WATCH", StatusEnum.OK.getCode());
         return this.count(wrapper);
     }
@@ -1270,6 +1274,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         wrapper.notLike("DESK", ApiAssetController.ORTHER_MODEL_FLAG);
 //        wrapper.eq("WATCH", StatusEnum.OK.getCode());
         wrapper.in("ORG_ID", ids);
+        SysConfig sysConfig = sysModuleConfigService.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
+        if ("no".equals(showJcca)) {
+            wrapper.and(w -> w.notLike("ASSET_SUPPLIER", BusinessTypeEnums.JCCA.name()).or().isNull("ASSET_SUPPLIER"));
+        }
         return this.count(wrapper);
     }
 
@@ -2340,7 +2349,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             assetAttachService.saveOrUpdate(assetAttach);
         }
         //删除这些Asset及对应信息
-        if (!assetIds.isEmpty()){
+        if (!assetIds.isEmpty()) {
             assetMapper.deleteBatchIds(assetIds);
             assetAttachService.removeByIds(assetIds);
         }
