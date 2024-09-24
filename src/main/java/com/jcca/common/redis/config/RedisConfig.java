@@ -65,6 +65,7 @@ public class RedisConfig {
         redisTransactionTemplate.setHashKeySerializer(genericJackson2JsonRedisSerializer);
         redisTransactionTemplate.setHashValueSerializer(genericJackson2JsonRedisSerializer);
         redisTransactionTemplate.afterPropertiesSet();
+
         //开启事务
         redisTransactionTemplate.setEnableTransactionSupport(true);
 
@@ -90,6 +91,16 @@ public class RedisConfig {
         jedisPoolConfig.setMaxTotal(redisProperties.getMaxActive());
         jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait());
         jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
+        //  borrowObject 和 returnObject 时，进行有效性检查
+        jedisPoolConfig.setTestOnBorrow(true);
+        // 连接空闲多久后可以被驱逐，单位毫秒 60s
+        jedisPoolConfig.setMinEvictableIdleTimeMillis(60000);
+        // 空闲连接驱逐前的检测时间
+        jedisPoolConfig.setSoftMinEvictableIdleTimeMillis(10000);
+        // 每次驱逐检查的连接数量
+        jedisPoolConfig.setNumTestsPerEvictionRun(300);
+        // 连接驱逐线程的运行间隔
+        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(20000);
         jpb.poolConfig(jedisPoolConfig);
 
         return new JedisConnectionFactory(localhost,jpb.build());
@@ -113,6 +124,16 @@ public class RedisConfig {
         jedisPoolConfig.setMaxTotal(redisProperties.getMaxActive());
         jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait());
         jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
+        //  borrowObject 和 returnObject 时，进行有效性检查
+        jedisPoolConfig.setTestOnBorrow(true);
+        // 连接空闲多久后可以被驱逐，单位毫秒
+        jedisPoolConfig.setMinEvictableIdleTimeMillis(60000);
+        // 空闲连接驱逐前的检测时间
+        jedisPoolConfig.setSoftMinEvictableIdleTimeMillis(10000);
+        // 每次驱逐检查的连接数量
+        jedisPoolConfig.setNumTestsPerEvictionRun(300);
+        // 连接驱逐线程的运行间隔
+        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(20000);
         jpb.poolConfig(jedisPoolConfig);
 
         return new JedisConnectionFactory(localhost,jpb.build());
