@@ -206,6 +206,9 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     public List<InspectResultVo> getTargetState(String assetId) {
 
         Asset asset = assetService.getById(assetId);
+        if (Objects.isNull(asset)) {
+            return new ArrayList<>();
+        }
         String ip = asset.getIp();
         boolean ping = false;
         try {
