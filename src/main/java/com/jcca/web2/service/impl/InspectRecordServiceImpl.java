@@ -805,7 +805,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
 
     @Override
     public InspectRecord findOneByAssetAndTarget(String assetId, String modeType, String targetItem) {
-        return inspectRecordMapper.findOneByAssetAndTarget(assetId, modeType, targetItem);
+        List<InspectRecord> list = inspectRecordMapper.findOneByAssetAndTarget(assetId, modeType, targetItem);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
     }
 
     /**
