@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.commonFitler;
 
+import com.jcca.component.casco.enums.HostRunStatusEnum;
+import com.jcca.component.casco.enums.LinkStatusEnum;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -8,6 +10,7 @@ import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.event.enums.EventLevelEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -20,6 +23,7 @@ import java.util.Date;
  * @date 2023/10/27 11:24
  * @since 2.1.0.0
  */
+@Slf4j
 @Component("softLinkFitlerHandler")
 public class SoftLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
     @Resource

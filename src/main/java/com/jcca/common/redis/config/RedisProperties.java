@@ -15,31 +15,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedisProperties {
 
-    @Value("${spring.redis.host}")
+    @Value("${jcca.redis.host}")
     private String host;
 
-    @Value("${spring.redis.port}")
+    @Value("${jcca.redis.port}")
     private Integer port;
 
-    @Value("${spring.redis.password}")
+    @Value("${jcca.redis.password}")
     private String password;
 
-    @Value("${spring.redis.database}")
+    @Value("${jcca.redis.database}")
     private Integer database;
 
-    @Value("${spring.redis.timeout}")
+    @Value("${jcca.redis.timeout}")
     private Integer timeout;
 
-    @Value("${spring.redis.lettuce.pool.max-idle}")
+    @Value("${jcca.redis.lettuce.pool.max-idle}")
     public Integer maxIdle;
 
-    @Value("${spring.redis.lettuce.pool.min-idle}")
+    @Value("${jcca.redis.lettuce.pool.min-idle}")
     public Integer minIdle;
 
-    @Value("${spring.redis.lettuce.pool.max-active}")
+    @Value("${jcca.redis.lettuce.pool.max-active}")
     public Integer maxActive;
 
-    @Value("${spring.redis.lettuce.pool.max-wait}")
+    @Value("${jcca.redis.lettuce.pool.max-wait}")
     public Integer maxWait;
 
 

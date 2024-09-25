@@ -177,7 +177,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     AlarmInfo getAssetAlarmV2(@Param("alarmCode") String alarmCode, @Param("assetId") String assetId, @Param("alarmFlag") String alarmFlag);
 
 
-    @Select("select i.id as id,I.ASSET_ID AS assetId ,i.ALARM_LEVEL as \"level\" ,i.ALARM_STATE as isRecover,i.STATUS as isVerify from (select asset_id from ASSET_ATTACH where ROOM_ID=#{roomId1} or ROOM_ID =#{roomId2})a join ALARM_INFO i on a.asset_id=i.ASSET_ID where (i.ALARM_STATE=1 or i.STATUS=1)")
+    @Select("select i.id as id,I.ASSET_ID AS assetId ,i.ALARM_LEVEL as \"level\" ,i.ALARM_STATE as isRecover,i.STATUS as isVerify from (select asset_id from ASSET_ATTACH where ROOM_ID=#{roomId1} or ROOM_ID =#{roomId2})a join ALARM_INFO i on a.asset_id=i.ASSET_ID where (i.STATUS=1)")
     List<ThreeDAlarmReq> getThreeDAlarm(String roomId1, String roomId2);
 
     /**

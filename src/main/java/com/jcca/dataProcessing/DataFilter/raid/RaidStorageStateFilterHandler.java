@@ -31,7 +31,10 @@ public class RaidStorageStateFilterHandler extends IFilterHandler<DiskEntity> {
         if (changeInfo == null || changeInfo.getValue() == null) {
             return true;
         }
-        Integer status = changeInfo.getValue().toString().toLowerCase().equals("online") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
+        Integer status =  EventLevelEnum.ABNORMAL.getCode();
+        if(changeInfo.getValue().toString().toLowerCase().equals("online")||changeInfo.getValue().toString().toLowerCase().equals("正常")){
+            status = EventLevelEnum.NORMAL.getCode();
+        }
         String eventRedisKey = null;
         String message = "";
         String str = status == EventLevelEnum.NORMAL.getCode() ? "恢复" : "异常";

@@ -259,6 +259,7 @@ public class ThreeDServiceImpl implements ThreeDService {
 
     @Override
     public ThreeDResult cancelAlarm(AlarmInfo alarmInfo) {
+        log.info("3D机房推送告警" );
         ThreeDResult threeDResult = new ThreeDResult();
         Object o = redisService.get(ThreeDConst.KEY_STATUS);
         if (ObjectUtil.isNull(o) || !String.valueOf(o).equals("1")) {
@@ -277,7 +278,6 @@ public class ThreeDServiceImpl implements ThreeDService {
             jsonObject.put("key", "cancelAlarm");
             jsonObject.put("value", jsonObject1);
             String s1 = jsonObject.toString();
-            log.info("3D机房发送信息: " + s1);
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
             return threeDResult;
