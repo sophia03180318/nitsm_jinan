@@ -21,7 +21,7 @@ public class RedisProperties {
     @Value("${jcca.redis.port}")
     private Integer port;
 
-    @Value("${jcca.redis.password}")
+    @Value("${jcca.redis.password:''}")
     private String password;
 
     @Value("${jcca.redis.database}")
