@@ -61,16 +61,13 @@ public class SyslogSnmpInit {
         if (LogInputUtils.inputInfo(ServerTypeEnum.SYSTEM_INIT)) {
             log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.SYSTEM_INIT, "", "启动syslog监听"));
         }
-        String[] hosts = host.split(",");
-        for (String h : hosts) {
-            SyslogServerIF syslogServer = SyslogServer.getInstance(SyslogConstants.UDP);
-            SyslogServer.getThreadedInstance(SyslogConstants.UDP);
 
-            SyslogServerConfigIF syslogServerConfig = syslogServer.getConfig();
-            syslogServerConfig.setHost(h);
-            syslogServerConfig.setPort(SyslogConstants.SYSLOG_PORT_DEFAULT);
-            syslogServerConfig.addEventHandler(syslogReceiver);
-        }
+        SyslogServerIF syslogServer = SyslogServer.getInstance(SyslogConstants.UDP);
+        SyslogServer.getThreadedInstance(SyslogConstants.UDP);
+        SyslogServerConfigIF syslogServerConfig = syslogServer.getConfig();
+        syslogServerConfig.setHost("0.0.0.0");
+        syslogServerConfig.setPort(SyslogConstants.SYSLOG_PORT_DEFAULT);
+        syslogServerConfig.addEventHandler(syslogReceiver);
 
     }
 }

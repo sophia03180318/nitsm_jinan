@@ -172,6 +172,9 @@
             <if test="query.orgId !=null and query.orgId!=''">
                 and c.id = #{query.orgId}
             </if>
+            <if test="query.content != null and query.content!='' ">
+                and a.CONTENT like concat(concat('%',#{query.content}),'%')
+            </if>
             <if test="query.title !=null and query.title!='' ">
                 and a.TITLE = #{query.title}
             </if>
@@ -259,6 +262,9 @@
             </if>
             <if test="query.orgId !=null and query.orgId!=''">
                 and c.id = #{query.orgId}
+            </if>
+            <if test="query.content != null and query.content!='' ">
+                and a.CONTENT like concat(concat('%',#{query.content}),'%')
             </if>
             <if test="query.startTime !=null and query.startTime!=''">
                 and a.OCCUR_TIME &gt;= to_date(#{query.startTime},'yyyy-MM-dd HH24:mi:ss')

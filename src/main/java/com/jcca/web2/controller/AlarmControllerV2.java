@@ -194,6 +194,9 @@ public class AlarmControllerV2 {
             query.setOrgIdList(orgIds);
             query.setOrgId("");
         }
+        if(StrUtil.isNotEmpty(query.getContent())){
+            query.setContent(query.getContent());
+        }
         IPage<AlarmPageVo> page = alarmInfoServ.pageV2(query);
         return ResultVoUtil.success(page);
     }

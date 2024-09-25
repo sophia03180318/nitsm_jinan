@@ -99,4 +99,9 @@ public class AlarmPageDto extends PageDto {
      */
     private Integer assetMode;
 
+    /**
+     * 告警内容
+     * */
+    private String content;
+
 }
