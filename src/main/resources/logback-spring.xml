@@ -5,7 +5,6 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>[%d{yyyy-MM-ddTHH:mm:ss.SSS}]|%level|%thread|%msg%n</pattern>
         </encoder>
-
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -16,6 +15,7 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>[%d{yyyy-MM-ddTHH:mm:ss.SSS}]|%level|%thread|%msg%n</pattern>
         </encoder>
+        <totalSizeCap>20GB</totalSizeCap>
     </appender>
 
     <logger name="com.jcca" level="INFO"/>

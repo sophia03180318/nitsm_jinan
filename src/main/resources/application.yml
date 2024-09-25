@@ -110,15 +110,31 @@ jcca:
     host: localhost
     port: 6379
     password:
-
-    lettuce:
-      pool:
-        max-wait: -1
-        min-idle: 2
-        max-idle: 8
-        max-active: 8
     timeout: 5000
     database: 8
+
+    jedis:
+      pool1:
+        max-wait: -1
+        max-total: 500
+        max-active: 500
+        min-idle: 100
+        max-idle: 300
+        minEvictableIdleTimeMillis: 120000      #连接空闲多久后可以被驱逐，单位毫秒
+        softMinEvictableIdleTimeMillis: 60000   # 空闲连接驱逐前的检测时间
+        numTestsPerEvictionRun: 100             # 测试间隔
+        timeBetweenEvictionRunsMillis: 20000    # 20s检查一次
+      pool2:                                     # 带事务的redis 缓存池
+        max-wait: -1
+        max-total: 500
+        max-active: 500
+        min-idle: 100
+        max-idle: 200
+        minEvictableIdleTimeMillis: 120000      #连接空闲多久后可以被驱逐，单位毫秒
+        softMinEvictableIdleTimeMillis: 60000   # 空闲连接驱逐前的检测时间 链接不够用的时候超过1分钟的连接优先释放
+        numTestsPerEvictionRun: 100             # 检查链接数量
+        timeBetweenEvictionRunsMillis: 20000    # 20s检查一次
+
 
 mybatis-plus:
   type-aliases-package: com.jcca.**.entity

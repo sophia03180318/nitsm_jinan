@@ -50,7 +50,7 @@ public class QuartzUpdateCenterAssetStatusJob extends QuartzJobBean {
         try {
             centerAssetList = collectAgency.getCenterAssetList();
         } catch (CollectAgencyException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.CRON_DATA, "获取中心资产列表异常", e);
+            AppLogUtils.buildLogError(LogFunctionEnum.CRON_DATA, "获取中心资产列表异常:"+e.toString(),e);
             return;
         }
 
