@@ -227,10 +227,10 @@ public enum LogFunctionEnum {
     SELF_EXCEPTION_TIMEOUT(LogFunctionConstant.SELF_EXCEPTION_TIMEOUT, "异常拦截", "超时异常"),
     SELF_EXCEPTION_PARAM(LogFunctionConstant.SELF_EXCEPTION_PARAM, "异常拦截", "参数异常"),
 
-    //3D机房
+    //3D机房 65
     THREE_D_CRON(LogFunctionConstant.THREE_D_CRON, "3D机房推送现存告警", "3D机房推送现存告警"),
 
-    // 对外接口 65
+    // 对外接口 66
     OUT_API(LogFunctionConstant.OUT_API, "对外接口", "");;
 
     // 由四位数字组成，前两位表示功能，后两位表示操作，用于日志输出控制

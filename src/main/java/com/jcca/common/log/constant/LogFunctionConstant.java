@@ -220,9 +220,9 @@ public interface LogFunctionConstant {
     String SELF_EXCEPTION_PARAM = "6408";
 
     // 3D机房
-    String THREE_D_CRON ="6501";
+    String THREE_D_CRON = "6501";
     //===========================================对外接口============================================
-    String OUT_API = "6501";
+    String OUT_API = "6601";
 
 
 }
