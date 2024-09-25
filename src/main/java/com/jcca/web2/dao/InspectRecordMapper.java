@@ -32,7 +32,7 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
     List<InspectRecord> findByModeTypeGroupByAssetId(String modeType);
 
     @Select("SELECT * FROM INSPECT_RECORD WHERE ASSET_ID = #{assetId} AND MODE_TYPE = #{modeType} AND TARGET_ITEM = #{targetItem}")
-    InspectRecord findOneByAssetAndTarget(String assetId, String modeType, String targetItem);
+    List<InspectRecord> findOneByAssetAndTarget(String assetId, String modeType, String targetItem);
 
     List<InspectRecord> findLastGroupByOrgId(String inspectType);
 
