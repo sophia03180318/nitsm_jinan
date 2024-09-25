@@ -11,11 +11,11 @@
             <fileNamePattern>${LOG_HOME}/nitsm.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>30</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>[%d{yyyy-MM-ddTHH:mm:ss.SSS}]|%level|%thread|%msg%n</pattern>
         </encoder>
-        <totalSizeCap>20GB</totalSizeCap>
     </appender>
 
     <logger name="com.jcca" level="INFO"/>
