@@ -347,14 +347,14 @@ public class ApiOutController {
             return null;
         }
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECTOR_TO_ITSM, "ITSM收到车站获取资产请求", req);
+        AppLogUtils.buildLogDebug(LogFunctionEnum.COLLECTOR_TO_ITSM, "ITSM收到车站获取资产请求", req);
         if (StrUtil.isEmpty(req.getStationGroup())) {
             AppLogUtils.buildLogWarn(LogFunctionEnum.COLLECTOR_TO_ITSM, req, "ITSM收到获取资产失败：请求缺少StationGroup参数");
             return ResultVoUtil.error(ResultEnum.OUT_PARAM_LOST.getCode(), ResultEnum.OUT_PARAM_LOST.getMessage());
         }
 
         List<AssetOutVo> assetOutVoList = outService.findStationAssetByGroup(req);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECTOR_TO_ITSM, "ITSM收到车站获取资产响应，" + JSONUtil.toJsonStr(req), "资产数量：" + assetOutVoList.size());
+        AppLogUtils.buildLogDebug(LogFunctionEnum.COLLECTOR_TO_ITSM, "ITSM收到车站获取资产响应，" + JSONUtil.toJsonStr(req), "资产数量：" + assetOutVoList.size());
 
         for (AssetOutVo assetOutVo : assetOutVoList) {
             if (StrUtil.isEmpty(assetOutVo.getOsPassword())) {
