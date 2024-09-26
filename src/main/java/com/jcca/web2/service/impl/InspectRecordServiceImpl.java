@@ -806,7 +806,15 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     @Override
     public InspectRecord findOneByAssetAndTarget(String assetId, String modeType, String targetItem) {
         List<InspectRecord> list = inspectRecordMapper.findOneByAssetAndTarget(assetId, modeType, targetItem);
-        if (list.isEmpty()) {
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        if (list.size() > 1) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("ASSET_ID", assetId);
+            map.put("MODE_TYPE", modeType);
+            map.put("TARGET_ITEM", targetItem);
+            inspectRecordMapper.deleteByMap(map);
             return null;
         }
         return list.get(0);
