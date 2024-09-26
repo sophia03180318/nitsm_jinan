@@ -15,6 +15,7 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.enums.EventLevelEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import java.util.Objects;
  * @date 2023/10/20 9:51
  * @since 2.1.0.0
  */
+@Slf4j
 @Component("alarmEventHandler")
 public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
@@ -109,12 +111,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     alarmInfo.setContent(alarmInfo.getContent().replace("【-已恢复-】", ""));
                     alarmInfo.setIsShowRecover(-1);
                 } else if (!alarmInfo.getContent().contains("【-已恢复-】")) {
-              /*      if (info.getRecoveryProcessIdDescr() != null) {
-                        //添加恢复进程ID的描述信息
-                        alarmInfo.setContent(alarmInfo.getContent() + "【-已恢复-】" + info.getRecoveryProcessIdDescr());
-                    } else {
-                        alarmInfo.setContent(alarmInfo.getContent() + "【-已恢复-】");
-                    }*/
                     alarmInfo.setContent(alarmInfo.getContent() + "【-已恢复-】");
                     alarmInfo.setIsShowRecover(1);
                 }
@@ -139,8 +135,12 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             redisTransactionTemplate.exec();
 
         } catch (Exception e) {
-            redisTransactionTemplate.discard();
-            throw e;
+           log.error(e.getMessage(),e);
+           try {
+               redisTransactionTemplate.discard();
+           }catch (Exception e1){
+                log.error("结束事务失败……");
+           }
         }
         return true;
     }

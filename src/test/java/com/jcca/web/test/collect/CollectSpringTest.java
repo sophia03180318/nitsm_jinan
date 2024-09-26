@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
@@ -77,6 +78,17 @@ public class CollectSpringTest {
     private AlarmInfoService alarmInfoService;
     @Resource
     private CollectDsService dsService;
+
+    @Resource(name = "redisTransactionTemplate")
+    private RedisTemplate redisTransactionTemplate;
+
+    @Test
+    public void testRedis(){
+        redisTransactionTemplate.multi();
+        redisTransactionTemplate.exec();
+        System.out.println("执行成功");
+    }
+
 
 	@Test
     public void testRaid(){
