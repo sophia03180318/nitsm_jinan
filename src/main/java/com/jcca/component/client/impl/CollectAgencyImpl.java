@@ -203,7 +203,7 @@ public class CollectAgencyImpl implements CollectAgent {
         for (String ip : ipList) {
             try {
                 String respBody = HttpUtil.createPost("http://" + ip + ":" + masterPortStr + uri).body(body).contentType(ContentType.APPLICATION_JSON.getMimeType()).setConnectionTimeout(5 * 1000).setReadTimeout(readTimeOut).execute().body();
-                AppLogUtils.buildLogInfo(LogFunctionEnum.ITSM_TO_COLLECTOR, "ITSM请求中心采集器响应", respBody);
+                AppLogUtils.buildLogDebug(LogFunctionEnum.ITSM_TO_COLLECTOR, "ITSM请求中心采集器响应", respBody);
                 return respBody;
             } catch (Exception e) {
                 AppLogUtils.buildLogError(LogFunctionEnum.ITSM_TO_COLLECTOR, "ITSM请求中心采集器主节点异常：" + ip, e.getMessage());
