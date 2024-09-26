@@ -853,6 +853,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     @Override
     public synchronized void checkRecord() {
         if (flag) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检", "正在初始化数据");
             return;
         }
         flag = true;
@@ -892,6 +893,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             }
         }
         flag = false;
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检", "初始化数据结束");
     }
 
     private List<InspectRecord> checkReadyRecords() {
