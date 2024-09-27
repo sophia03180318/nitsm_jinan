@@ -60,14 +60,12 @@
         FROM COLLECT_INTERFACES c
         where c.asset_id = #{assetId})
         order by b.PORT_INDEX_RANK) a
-        LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
-        where (a.port_type = 6 or a.port_type = 18 or a.port_type = 22 or a.port_type = 23 or a.port_type = 39 or
-        a.port_type = 56)
-        and a.port_link_type = #{portLinkType} 
-        and a.port_index not like concat(concat('%', '.'), '%')
-        <if test="pcbId != null  and pcbId != ''">
-            and t.PCB_ID = #{pcbId}
-        </if>
+        RIGHT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
+        <where>
+            <if test="pcbId != null  and pcbId != ''">
+                and t.PCB_ID = #{pcbId}
+            </if>
+        </where>
         order by t.point_x asc ,t.point_y asc
     </select>
 

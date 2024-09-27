@@ -154,6 +154,12 @@ public class InterfacesControllerV2 {
         int portSize = collect.size();
         int count = portTempMsg.getPort1() + portTempMsg.getPort2();
         int needGetNumStart = (pcbSort-1)*count;
+
+        if(count <collect.size()){
+            return ResultVoUtil.error(String.format("模板端口数量(%s)少于实际端口数量(%s)",count,collect.size()));
+        }
+
+
         for (int i=1;i<count+1;i++){
             String tmp = "Gi"+i;
             InterfacesConfigVo vo = new InterfacesConfigVo();

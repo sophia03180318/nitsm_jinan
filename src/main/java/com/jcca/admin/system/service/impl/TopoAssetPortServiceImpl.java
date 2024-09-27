@@ -83,6 +83,7 @@ public class TopoAssetPortServiceImpl extends ServiceImpl<TopoAssetPortMapper, T
             //可能是光交
             assetPortVos = topoAssetPortMapper.selectAssetPort(assetId, pcbId, "0");
         }
+
         return assetPortVos;
     }
 

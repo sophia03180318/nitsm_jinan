@@ -100,7 +100,7 @@ public class AssetHardwareFixServiceImpl extends ServiceImpl<AssetHardwareFixMap
             vo.setTitle("更换" + AssetHardwareTypeEnum.getDecrip(assetHardwareFix.getHardwareType()));
             vo.setLinkId(assetHardwareFix.getId());
             vo.setType(AssetLifeLineVo.LifeLineType.FIX_LOG.getCode());
-            vo.setCreateTime(assetHardwareFix.getCreateTime());
+            vo.setCreateTime(assetHardwareFix.getFixTime());
             voList.add(vo);
         }
         return voList;
