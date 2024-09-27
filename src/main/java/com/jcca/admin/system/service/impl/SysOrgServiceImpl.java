@@ -18,6 +18,7 @@ import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.shiro.util.ShiroUtil;
+import com.jcca.web.ip.dao.NetWorkAddressMapper;
 import com.jcca.web.ip.entity.NetWorkAddress;
 import com.jcca.web.ip.service.NetWorkAddressService;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     @Resource
     private StationService stationService;
     @Resource
-    private NetWorkAddressService netWorkAddressService;
+    private NetWorkAddressMapper netWorkAddressMapper;
 
     /**
      * 根据父级组织ID获取本级全部组织
@@ -87,9 +88,9 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             }
 
             // 删除IP
-            List<NetWorkAddress> list = netWorkAddressService.selectIpById(org);
+            List<NetWorkAddress> list = netWorkAddressMapper.selectIps(org.getId());
             for (NetWorkAddress workAddress : list) {
-                netWorkAddressService.removeNet(workAddress);
+                netWorkAddressMapper.deleteById(workAddress.getId());
             }
         }
         org.setStatus(statusEnum.getCode());

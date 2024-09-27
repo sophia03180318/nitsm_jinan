@@ -59,11 +59,10 @@ spring:
       enabled: true
   datasource:
     druid:
-      #url: jdbc:dm://192.168.51.252:5236/DMSERVER
 
-      url: jdbc:oracle:thin:@localhost:1521/orcl
-      username: ITSMJN
-      password: ITSMJN
+      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
+      username: jndata
+      password: jndata
 
       #      url: jdbc:oracle:thin:@localhost:1521/orcl
       #      username: gz_pusu
@@ -107,9 +106,9 @@ spring:
 
 jcca:
   redis:
-    host: localhost
+    host: 192.168.73.26
     port: 6379
-    password:
+    password: jcca@123
     timeout: 5000
     database: 8
 
