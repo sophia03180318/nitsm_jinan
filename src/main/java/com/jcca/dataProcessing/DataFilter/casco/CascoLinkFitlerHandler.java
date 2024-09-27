@@ -28,6 +28,8 @@ import java.util.Objects;
 public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
+
+
     @Override
     public boolean handler(ItsmQueueEntity info) {
 
@@ -38,7 +40,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         if(StrUtil.isEmpty(info.getLinkStatus())){
             return false;
         }
-        boolean flag= eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey,info.getLinkStatus());
+        Boolean flag= eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey,info.getLinkStatus());
 
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getLinkStatus());
