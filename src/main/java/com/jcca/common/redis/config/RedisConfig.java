@@ -2,6 +2,7 @@ package com.jcca.common.redis.config;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.redis.queue.RedisQueueTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -24,6 +25,7 @@ import java.util.Objects;
  * @author hanwone
  * @date 2020年06月08日
  */
+@Slf4j
 @Configuration
 public class RedisConfig {
 
@@ -100,7 +102,7 @@ public class RedisConfig {
             return new JedisPool(jedisPoolConfig, redisProperties.getHost(), redisProperties.getPort(),
                     redisProperties.getTimeout(), redisProperties.getPassword(), redisProperties.getDatabase());
         } catch (Exception e) {
-
+            log.error(e.getMessage(),e);
         }
         return null;
     }
