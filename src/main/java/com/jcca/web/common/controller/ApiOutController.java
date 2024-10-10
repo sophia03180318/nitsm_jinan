@@ -62,9 +62,13 @@ import com.jcca.web.ip.entity.IpInfo;
 import com.jcca.web.ip.service.IpInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.JedisPool;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -137,6 +141,12 @@ public class ApiOutController {
 
     @Resource
     private UploadProjectProperties fileProp;
+
+    @Resource(name = "redisTemplate")
+    private RedisTemplate redisTemplate;
+
+    @Resource(name = "redisTransactionTemplate")
+    private RedisTemplate redisTransactionTemplate;
 
 
     /**
@@ -226,6 +236,12 @@ public class ApiOutController {
         versionMap.put("项目版本", projectVersionConf.getTags());
         versionMap.put("项目分支", projectVersionConf.getBranch());
         versionMap.put("commitId前10位", projectVersionConf.getCommitId().substring(0, 10));
+
+
+        RedisConnectionFactory factory = redisTemplate.getConnectionFactory();
+        RedisConnection connection = factory.getConnection();
+
+        versionMap.put("redis线程池", "当前使用连接数：");
 
         return versionMap;
     }
