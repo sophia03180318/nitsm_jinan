@@ -85,7 +85,6 @@ public class RedisConfig {
             jedisPoolConfig.setMinIdle(redisProperties.getMinIdle());
             //最大连接数
             jedisPoolConfig.setMaxTotal(redisProperties.getMaxTotal());
-            jedisPoolConfig.setMaxTotal(redisProperties.getMaxActive());
             jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait());
             jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
             //  borrowObject 和 returnObject 时，进行有效性检查
