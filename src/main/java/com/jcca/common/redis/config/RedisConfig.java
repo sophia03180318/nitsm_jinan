@@ -133,7 +133,7 @@ public class RedisConfig {
                 (JedisClientConfiguration.JedisPoolingClientConfigurationBuilder) JedisClientConfiguration.builder().usePooling();
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         //最大连接数
-        jedisPoolConfig.setMaxTotal(redisProperties.getMaxTotal());
+        jedisPoolConfig.setMaxTotal(redisProperties.getMaxTotal2());
         //最大空闲
         jedisPoolConfig.setMaxIdle(redisProperties.getMaxIdle2());
         //最小空闲

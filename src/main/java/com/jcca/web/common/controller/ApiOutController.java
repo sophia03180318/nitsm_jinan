@@ -238,10 +238,7 @@ public class ApiOutController {
         versionMap.put("commitId前10位", projectVersionConf.getCommitId().substring(0, 10));
 
 
-        RedisConnectionFactory factory = redisTemplate.getConnectionFactory();
-        RedisConnection connection = factory.getConnection();
-
-        versionMap.put("redis线程池", "当前使用连接数：");
+        versionMap.put("redis线程池", "当前使用连接数："+redisTemplate.getClientList().size()+"事务当前使用连接数："+redisTransactionTemplate.getClientList().size());
 
         return versionMap;
     }
