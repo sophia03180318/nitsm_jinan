@@ -107,18 +107,11 @@ public class ItsmMonitorController {
 //        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.cascoAlarmDispose));
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.xunjianExecutor));
 
-        Long size5 = stringRedisTemplate.opsForList().size(RedisQueueConst.EVENT_GROUP_ALARM);
-
         ThreadPoolMonitorNode node = new ThreadPoolMonitorNode();
         //线程池名称
-        node.setPoolName("告警分发线程");
+        node.setPoolName("redis连接数");
         //当前线程数
-        node.setPoolSize(1);
-        //最大允许的线程数
-        node.setMaximumPoolSize(1);
-        //队列里缓存任务数
-        assert size5 != null;
-        node.setQueueSize(size5.intValue());
+        node.setPoolSize(Objects.requireNonNull(stringRedisTemplate.getClientList()).size());
 
         list.add(node);
 
