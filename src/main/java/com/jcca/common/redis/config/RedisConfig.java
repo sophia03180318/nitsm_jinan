@@ -74,21 +74,21 @@ public class RedisConfig {
 
     /**
      * 不带redis事务的缓存池 poll1
+     *
      * @return
      */
     @Bean
     @Primary
     public RedisConnectionFactory redis1ConnectionFactory() {
         RedisStandaloneConfiguration localhost = new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort());
-        if(StrUtil.isNotEmpty(redisProperties.getPassword())){
+        if (StrUtil.isNotEmpty(redisProperties.getPassword())) {
             localhost.setPassword(redisProperties.getPassword());
         }
-        if(Objects.nonNull(redisProperties.getDatabase())){
+        if (Objects.nonNull(redisProperties.getDatabase())) {
             localhost.setDatabase(redisProperties.getDatabase());
         }
 
-        JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jpb =
-                (JedisClientConfiguration.JedisPoolingClientConfigurationBuilder) JedisClientConfiguration.builder().usePooling();
+        JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jpb = JedisClientConfiguration.builder().usePooling();
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         //最大空闲连接数
         jedisPoolConfig.setMaxIdle(redisProperties.getMaxIdle());
@@ -96,7 +96,6 @@ public class RedisConfig {
         jedisPoolConfig.setMinIdle(redisProperties.getMinIdle());
         //最大连接数
         jedisPoolConfig.setMaxTotal(redisProperties.getMaxTotal());
-        jedisPoolConfig.setMaxTotal(redisProperties.getMaxActive());
         jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait());
         jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
         //  borrowObject 和 returnObject 时，进行有效性检查
@@ -112,25 +111,25 @@ public class RedisConfig {
         jedisPoolConfig.setTimeBetweenEvictionRunsMillis(redisProperties.getTimeBetweenEvictionRunsMillis());
         jpb.poolConfig(jedisPoolConfig);
 
-        return new JedisConnectionFactory(localhost,jpb.build());
+        return new JedisConnectionFactory(localhost, jpb.build());
     }
 
     /**
      * 带事务的redis缓存池  poll2
+     *
      * @return
      */
     @Bean
     public RedisConnectionFactory redis2ConnectionFactory() {
         RedisStandaloneConfiguration localhost = new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort());
-        if(StrUtil.isNotEmpty(redisProperties.getPassword())){
+        if (StrUtil.isNotEmpty(redisProperties.getPassword())) {
             localhost.setPassword(redisProperties.getPassword());
         }
-        if(Objects.nonNull(redisProperties.getDatabase())){
+        if (Objects.nonNull(redisProperties.getDatabase())) {
             localhost.setDatabase(redisProperties.getDatabase());
         }
 
-        JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jpb =
-                (JedisClientConfiguration.JedisPoolingClientConfigurationBuilder) JedisClientConfiguration.builder().usePooling();
+        JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jpb = JedisClientConfiguration.builder().usePooling();
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         //最大连接数
         jedisPoolConfig.setMaxTotal(redisProperties.getMaxTotal2());
@@ -138,8 +137,6 @@ public class RedisConfig {
         jedisPoolConfig.setMaxIdle(redisProperties.getMaxIdle2());
         //最小空闲
         jedisPoolConfig.setMinIdle(redisProperties.getMinIdle2());
-        //最大存活
-        jedisPoolConfig.setMaxTotal(redisProperties.getMaxActive2());
         //最大等待时长
         jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait2());
         jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
@@ -157,7 +154,7 @@ public class RedisConfig {
 
         jpb.poolConfig(jedisPoolConfig);
 
-        return new JedisConnectionFactory(localhost,jpb.build());
+        return new JedisConnectionFactory(localhost, jpb.build());
     }
 
 }

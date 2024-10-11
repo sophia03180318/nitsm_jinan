@@ -17,4 +17,8 @@ public class ThreadPoolEnum {
      * 添加事件处理线程
      */
     public static final String alarmEventAdd = "alarmEventAdd";
+    public static final String linksNumExecutor = "linksNumExecutor";
+    public static final String transferDataExecutor = "transferDataExecutor";
+    public static final String ipmiPingJob = "ipmiPingJob";
+    public static final String xunjianAsync = "xunjianAsync";
 }
