@@ -4,7 +4,9 @@ package com.jcca.common.utils;
 import cn.hutool.extra.spring.SpringUtil;
 import com.jcca.admin.system.entity.ThreadPoolMonitorNode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -54,25 +56,29 @@ public class MyMonitor {
      */
     public static ThreadPoolMonitorNode getThreadPoolMonitorNode(String poolName) {
         ThreadPoolMonitorNode node = new ThreadPoolMonitorNode();
+        ThreadPoolExecutor tpl = null;
         try {
-            ThreadPoolExecutor tpl = (ThreadPoolExecutor) SpringContextUtil.getBean(poolName);
-            if (tpl != null) {
-                node.setPoolSize(tpl.getPoolSize());
-                node.setCorePoolSize(tpl.getCorePoolSize());
-                node.setActiveCount(tpl.getActiveCount());
-                node.setCompletedTaskCount(tpl.getCompletedTaskCount());
-                node.setTaskCount(tpl.getTaskCount());
-                node.setQueueSize(tpl.getQueue().size());
-                node.setLargestPoolSize(tpl.getLargestPoolSize());
-                node.setMaximumPoolSize(tpl.getMaximumPoolSize());
-                node.setKeepAliveTime(tpl.getKeepAliveTime(TimeUnit.MILLISECONDS));
-                node.setShutdown(tpl.isShutdown());
-                node.setTerminated(tpl.isTerminated());
-                node.setPoolName(poolName);
-            }
+            tpl = (ThreadPoolExecutor) SpringContextUtil.getBean(poolName);
         } catch (Exception e) {
-            log.error("获取线程池监控异常:", e);
+
         }
+        if (Objects.isNull(tpl)) {
+            ThreadPoolTaskExecutor tpte = (ThreadPoolTaskExecutor) SpringContextUtil.getBean(poolName);
+            tpl = tpte.getThreadPoolExecutor();
+        }
+
+        node.setPoolSize(tpl.getPoolSize());
+        node.setCorePoolSize(tpl.getCorePoolSize());
+        node.setActiveCount(tpl.getActiveCount());
+        node.setCompletedTaskCount(tpl.getCompletedTaskCount());
+        node.setTaskCount(tpl.getTaskCount());
+        node.setQueueSize(tpl.getQueue().size());
+        node.setLargestPoolSize(tpl.getLargestPoolSize());
+        node.setMaximumPoolSize(tpl.getMaximumPoolSize());
+        node.setKeepAliveTime(tpl.getKeepAliveTime(TimeUnit.MILLISECONDS));
+        node.setShutdown(tpl.isShutdown());
+        node.setTerminated(tpl.isTerminated());
+        node.setPoolName(poolName);
         return node;
     }
 

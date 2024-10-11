@@ -20,22 +20,22 @@ public class AsyncThreadConfig {
     /**
      * WARNNING 新的线程池需要另起名字创建，不建议使用相同名字的线程池处理不同的业务
      */
-    @Bean(name = "taskExecutor")
+    @Bean(name = ThreadPoolEnum.taskExecutor)
     public Executor taskExecutor() {
         return this.getExecutor("task");
     }
 
-    @Bean(name = "linksNumExecutor")
+    @Bean(name = ThreadPoolEnum.linksNumExecutor)
     public Executor linksNumExecutor() {
         return this.getExecutor("links-num");
     }
 
-    @Bean(name = "transferDataExecutor")
+    @Bean(name = ThreadPoolEnum.transferDataExecutor)
     public Executor transferDataExecutor() {
         return this.getExecutor("transfer-data");
     }
 
-    @Bean(name = "ipmiPingJob")
+    @Bean(name = ThreadPoolEnum.ipmiPingJob)
     public Executor ipmiPingExecutor() {
         return this.getExecutor("IMPI-PING-JOB");
     }
@@ -47,7 +47,7 @@ public class AsyncThreadConfig {
      *
      * @return
      */
-    @Bean(name = "xunjianAsync")
+    @Bean(name = ThreadPoolEnum.xunjianAsync)
     public Executor xunjianAsync() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 当线程数量小于corePoolSize时，创建线程，不管线程是不是闲置的

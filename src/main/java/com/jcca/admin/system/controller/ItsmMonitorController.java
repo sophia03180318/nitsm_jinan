@@ -100,11 +100,12 @@ public class ItsmMonitorController {
     public JSONObject getThreadPoolMonitorNode() {
         List<ThreadPoolMonitorNode> list = new ArrayList<>();
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.thresholdDataDisposePool));
-        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.noThresholdAlarmDispose));
-        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.cascoAlarmDispose));
+        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.linksNumExecutor));
+        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.transferDataExecutor));
         list.add(MyMonitor.getSpringThreadPoolMonitorNode(ThreadPoolEnum.taskExecutor));
-        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.alarmEventExe));
-        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.alarmEventAdd));
+        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.ipmiPingJob));
+        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.xunjianAsync));
+//        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.cascoAlarmDispose));
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.xunjianExecutor));
 
         Long size5 = stringRedisTemplate.opsForList().size(RedisQueueConst.EVENT_GROUP_ALARM);
@@ -119,6 +120,7 @@ public class ItsmMonitorController {
         //已完成数量
         node.setCompletedTaskCount(EventAlarmGroupListener.runSize);
         //队列里缓存任务数
+        assert size5 != null;
         node.setQueueSize(size5.intValue());
 
         list.add(node);
