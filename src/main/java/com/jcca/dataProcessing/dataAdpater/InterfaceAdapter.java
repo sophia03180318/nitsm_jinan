@@ -56,34 +56,31 @@ public class InterfaceAdapter extends AssetIpAdd implements IAdapter<JSONArray> 
         List<CollectInterfaceEntity> interfaces = JSONUtil.toList(data, CollectInterfaceEntity.class);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_port.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        excutorService.execute(() -> {
 
-                CountDownLatch cdh = new CountDownLatch(interfaces.size());
-                String collectCode = MyIdUtil.getId();
-                for (CollectInterfaceEntity item : interfaces) {
-                    thresholdDisposePool.execute(() -> {
-                        try {
-                            item.setCollectCode(collectCode);
-                            setAssetIp(item);
-                            dataProcessManager.interfaceHandlerRequest(item);
-                        } catch (Exception e) {
-                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
-                        } finally {
-                            cdh.countDown();
+            CountDownLatch cdh = new CountDownLatch(interfaces.size());
+            String collectCode = MyIdUtil.getId();
+            for (CollectInterfaceEntity item : interfaces) {
+                thresholdDisposePool.execute(() -> {
+                    try {
+                        item.setCollectCode(collectCode);
+                        setAssetIp(item);
+                        dataProcessManager.interfaceHandlerRequest(item);
+                    } catch (Exception e) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
+                    } finally {
+                        cdh.countDown();
 
-                        }
-                    });
-                }
-                try {
-                    cdh.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-
+                    }
+                });
             }
+            try {
+                cdh.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
         });
 
 

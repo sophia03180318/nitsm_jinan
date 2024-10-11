@@ -60,137 +60,133 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         if (ObjectUtil.isNull(ds.getControllers())) {
             return;
         }
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                List<DSEntity> controllers = ds.getControllers();
-                List<DSEntity> arrays = ds.getArrays();
-                List<DSEntity> logicalDrivers = ds.getLogicalDrives();
-                List<DSEntity> drivers = ds.getDrives();
-                List<String> logs = ds.getLogInfo();
-                Integer size = controllers.size() + arrays.size() + logicalDrivers.size() + drivers.size() + logs.size() + 1;
-                CountDownLatch cdh = new CountDownLatch(size);
+        excutorService.execute(() -> {
+            List<DSEntity> controllers = ds.getControllers();
+            List<DSEntity> arrays = ds.getArrays();
+            List<DSEntity> logicalDrivers = ds.getLogicalDrives();
+            List<DSEntity> drivers = ds.getDrives();
+            List<String> logs = ds.getLogInfo();
+            Integer size = controllers.size() + arrays.size() + logicalDrivers.size() + drivers.size() + logs.size() + 1;
+            CountDownLatch cdh = new CountDownLatch(size);
 
-                thresholdDisposePool.execute(() -> {
+            thresholdDisposePool.execute(() -> {
 
-                    try {
-                        setAssetIp(ds);
-                        dataProcessManager.raidDsBaseInfoHandlerRequest(ds);
-                    } catch (Exception e) {
-                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + ds.getAssetIp() + "raidDsBaseInfoHandlerRequest 抛出异常", e);
-                    } finally {
-                        cdh.countDown();
-
-                    }
-                });
-
-
-                if (controllers != null && controllers.size() > 0) {
-                    for (int i = 0; i < controllers.size(); i++) {
-                        DSEntity dsEntity = controllers.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
-                                setAssetIp(dsEntity);
-                                dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
-                            } catch (Exception e) {
-                                log.error("ds存储处理错误", e);
-                            } finally {
-                                cdh.countDown();
-
-                            }
-                        });
-                    }
-                }
-
-
-                if (arrays != null && arrays.size() > 0) {
-                    for (int i = 0; i < arrays.size(); i++) {
-                        DSEntity dsEntity = arrays.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
-                                setAssetIp(dsEntity);
-                                dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
-                            } catch (Exception e) {
-                                log.error("ds存储处理错误", e);
-                            } finally {
-                                cdh.countDown();
-
-                            }
-                        });
-                    }
-                }
-
-
-                if (logicalDrivers != null && logicalDrivers.size() > 0) {
-                    for (int i = 0; i < logicalDrivers.size(); i++) {
-                        DSEntity dsEntity = logicalDrivers.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
-                                setAssetIp(dsEntity);
-                                dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
-                            } catch (Exception e) {
-                                log.error("ds存储处理错误", e);
-                            } finally {
-                                cdh.countDown();
-
-                            }
-                        });
-                    }
-                }
-
-                if (drivers != null && drivers.size() > 0) {
-                    for (int i = 0; i < drivers.size(); i++) {
-
-                        DSEntity dsEntity = drivers.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
-                                setAssetIp(dsEntity);
-                                dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
-                            } catch (Exception e) {
-                                log.error("ds存储处理错误", e);
-                            } finally {
-                                cdh.countDown();
-
-                            }
-                        });
-                    }
-                }
-
-                if (logs != null && logs.size() > 0) {
-                    for (int i = 0; i < logs.size(); i++) {
-                        RaidCommonLogEntity dsEntity = new RaidCommonLogEntity();
-                        dsEntity.setAssetId(ds.getAssetId());
-                        dsEntity.setAssetIp(ds.getAssetIp());
-                        setAssetIp(dsEntity);
-                        dsEntity.setLog(logs.get(i));
-                        thresholdDisposePool.execute(() -> {
-                            try {
-                                dataProcessManager.raidDsLogHandlerRequest(dsEntity);
-                            } catch (Exception e) {
-                                log.error("ds存储处理错误", e);
-                            } finally {
-                                cdh.countDown();
-
-                            }
-                        });
-
-                    }
-                }
                 try {
-                    cdh.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    setAssetIp(ds);
+                    dataProcessManager.raidDsBaseInfoHandlerRequest(ds);
+                } catch (Exception e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + ds.getAssetIp() + "raidDsBaseInfoHandlerRequest 抛出异常", e);
+                } finally {
+                    cdh.countDown();
+
+                }
+            });
+
+
+            if (controllers != null && controllers.size() > 0) {
+                for (int i = 0; i < controllers.size(); i++) {
+                    DSEntity dsEntity = controllers.get(i);
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            dsEntity.setAssetId(ds.getAssetId());
+                            dsEntity.setAssetIp(ds.getAssetIp());
+                            setAssetIp(dsEntity);
+                            dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
+                        } catch (Exception e) {
+                            log.error("ds存储处理错误", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
                 }
             }
 
+
+            if (arrays != null && arrays.size() > 0) {
+                for (int i = 0; i < arrays.size(); i++) {
+                    DSEntity dsEntity = arrays.get(i);
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            dsEntity.setAssetId(ds.getAssetId());
+                            dsEntity.setAssetIp(ds.getAssetIp());
+                            setAssetIp(dsEntity);
+                            dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
+                        } catch (Exception e) {
+                            log.error("ds存储处理错误", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+                }
+            }
+
+
+            if (logicalDrivers != null && logicalDrivers.size() > 0) {
+                for (int i = 0; i < logicalDrivers.size(); i++) {
+                    DSEntity dsEntity = logicalDrivers.get(i);
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            dsEntity.setAssetId(ds.getAssetId());
+                            dsEntity.setAssetIp(ds.getAssetIp());
+                            setAssetIp(dsEntity);
+                            dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
+                        } catch (Exception e) {
+                            log.error("ds存储处理错误", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+                }
+            }
+
+            if (drivers != null && drivers.size() > 0) {
+                for (int i = 0; i < drivers.size(); i++) {
+
+                    DSEntity dsEntity = drivers.get(i);
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            dsEntity.setAssetId(ds.getAssetId());
+                            dsEntity.setAssetIp(ds.getAssetIp());
+                            setAssetIp(dsEntity);
+                            dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
+                        } catch (Exception e) {
+                            log.error("ds存储处理错误", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+                }
+            }
+
+            if (logs != null && logs.size() > 0) {
+                for (int i = 0; i < logs.size(); i++) {
+                    RaidCommonLogEntity dsEntity = new RaidCommonLogEntity();
+                    dsEntity.setAssetId(ds.getAssetId());
+                    dsEntity.setAssetIp(ds.getAssetIp());
+                    setAssetIp(dsEntity);
+                    dsEntity.setLog(logs.get(i));
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            dataProcessManager.raidDsLogHandlerRequest(dsEntity);
+                        } catch (Exception e) {
+                            log.error("ds存储处理错误", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+
+                }
+            }
+            try {
+                cdh.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
 
     }
