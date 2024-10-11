@@ -35,10 +35,6 @@ public class AsyncThreadConfig {
         return this.getExecutor("transfer-data");
     }
 
-    @Bean(name = ThreadPoolEnum.ipmiPingJob)
-    public Executor ipmiPingExecutor() {
-        return this.getExecutor("IMPI-PING-JOB");
-    }
 
 
     /**
