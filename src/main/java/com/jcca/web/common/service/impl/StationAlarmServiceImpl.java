@@ -2,6 +2,7 @@ package com.jcca.web.common.service.impl;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.service.TopoAssetPortService;
@@ -10,6 +11,10 @@ import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.common.enums.AlarmTypeEnum;
 import com.jcca.common.utils.MyIdUtil;
+import com.jcca.component.client.StationCollectClient;
+import com.jcca.component.quartz.station.QuartzStationNotifyJob;
+import com.jcca.component.quartz.station.bean.StationNotifyBean;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmInfoService;
@@ -18,6 +23,7 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetHidConf;
 import com.jcca.web.asset.service.AssetHidConfService;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.collect.enums.InterfaceStatus;
 import com.jcca.web.common.constants.StationAlarmUniqueCodeEnum;
 import com.jcca.web.common.controller.req.StationAlarmReqV1;
@@ -41,6 +47,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -77,6 +84,78 @@ public class StationAlarmServiceImpl implements StationAlarmService {
     private ConstructionRecordService constructionRecordService;
     @Resource
     private TopoAssetPortService topoAssetPortServ;
+    @Resource
+    private StationCollectClient stationCollectClient;
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void disposePingAlarm(StationAlarmReqV1 req) {
+
+        if(StrUtil.isEmpty(req.getAssetId()) || StrUtil.isEmpty(req.getCreateTime())){
+            return ;
+        }
+        //校验资产是否存在
+        Asset asset = assetService.getById(req.getAssetId());
+        if(Objects.isNull(asset)){
+            return ;
+        }
+        Integer eventLevel = req.getEventLevel();
+        Date occurTime =new Date(Long.valueOf(req.getCreateTime()));
+        AlarmRepository repository = initAlarmRepo();
+
+        String alarmCode = req.getFlag()+":"+asset.getId()+":"+asset.getIp();
+        StationAlarmReqV2 eventReq = new StationAlarmReqV2();
+        eventReq.setAlarmDescription(req.getOriginalMsg());
+        eventReq.setAlarmRecoverStatus(eventLevel);
+        eventReq.setFlag(req.getFlag());
+        eventReq.setAlarmTitle("车站告警");
+        eventReq.setAlarmLevel(2);
+        eventReq.setAlarmStatus(1);
+        eventReq.setAssetId(req.getAssetId());
+        eventReq.setAlarmType(AlarmTypeEnum.HARDWARE.getCode());
+        eventReq.setAlarmCode(alarmCode);
+
+
+        //创建事件
+        AlarmEvent event = createEvent(req.getAssetId(), repository, eventReq, occurTime);
+        //处理告警
+
+        AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(alarmCode);
+
+        if(eventLevel<0){
+            if(Objects.nonNull(alarmInfo)){
+                //历史存在已经恢复情况的告警  新建一个事件，关联此告警，并更新告警状态
+                if(AlarmStateEnum.RECOVER.getCode().intValue() == alarmInfo.getAlarmState()){
+                    alarmInfo.setAlarmState(AlarmStateEnum.ALARM.getCode());
+                    updateAlarmInfo(alarmInfo,event);
+                }
+            }else{
+                //新的告警
+                AlarmInfo newAlarmInfo = createAlarmInfo(eventReq, asset, event.getEventTypeId(), occurTime);
+                saveAlarmInfo(newAlarmInfo,event);
+            }
+
+            if(asset.getStatus() == StatusConst.OK){
+                asset.setStatus(StatusConst.NO);
+                assetService.updateById(asset);
+            }
+        }else if(Objects.nonNull(alarmInfo) && AlarmStateEnum.ALARM.getCode().intValue() == alarmInfo.getAlarmState()){
+            //新上恢复
+            alarmInfo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
+            updateAlarmInfo(alarmInfo,event);
+
+            if(asset.getStatus() == StatusConst.NO){
+                asset.setStatus(StatusConst.OK);
+                assetService.updateById(asset);
+            }
+        }
+
+        //通知车站
+        List<Integer> codeList = Arrays.asList(EventLevelEnum.ABNORMAL.getCode(), EventLevelEnum.WARNING.getCode());
+        stationCollectClient.notifyStationPingStatus(req.getAssetId(),!codeList.contains(req.getEventLevel()),req.getUniqueCode());
+        stationCollectClient.notifyStationAlarmStatus(req.getAssetId(),!codeList.contains(req.getEventLevel()),req.getUniqueCode());
+    }
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -157,11 +236,9 @@ public class StationAlarmServiceImpl implements StationAlarmService {
             }
         }
 
-
-
-
         return resp;
     }
+
 
 
     /**
