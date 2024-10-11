@@ -11,7 +11,6 @@ import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.MyMonitor;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.enums.ThreadPoolEnum;
-
 import com.jcca.web.common.constants.OutConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +102,7 @@ public class ItsmMonitorController {
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.linksNumExecutor));
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.transferDataExecutor));
         list.add(MyMonitor.getSpringThreadPoolMonitorNode(ThreadPoolEnum.taskExecutor));
-        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.ipmiPingJob));
+//        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.ipmiPingJob));
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.xunjianAsync));
 //        list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.cascoAlarmDispose));
         list.add(MyMonitor.getThreadPoolMonitorNode(ThreadPoolEnum.xunjianExecutor));
