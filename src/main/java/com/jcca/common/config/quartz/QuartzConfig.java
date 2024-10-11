@@ -79,7 +79,7 @@ public class QuartzConfig {
 
     @Bean
     public Trigger ipmiJobTaskConf() {
-        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(120)
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(240)
                 .repeatForever();
 
         return TriggerBuilder.newTrigger().forJob(ipmiPortJobTask()).withIdentity("QuartzImpiPortStatusJob", "JOB_IPMI_STATUS")

@@ -32,7 +32,6 @@ public class AlarmJobServiceImpl extends ListenerManager implements AlarmJobServ
     private IEventInfoManagerService eventInfoChangeManagerService;
 
 
-    @Async("ipmiPingJob")
     @Override
     public void pingIpmiPort(Asset asset) {
         String ipmiIp = asset.getIpmiIp();

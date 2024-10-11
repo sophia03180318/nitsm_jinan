@@ -23,6 +23,8 @@ import java.util.List;
 @DisallowConcurrentExecution
 public class IpmiPortDetectionJob extends QuartzJobBean {
 
+    private static boolean running = false;
+
     @Resource
     private AssetService assetServ;
     @Resource
@@ -35,29 +37,33 @@ public class IpmiPortDetectionJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        if (LogInputUtils.inputInfo(ServerTypeEnum.JOB_QUARTZ)) {
-            log.info("定时任务-开始执行管理口定时检测");
-        }
         if(isOnce){
             isOnce = false;
             return ;
         }
-        QueryWrapper<Asset> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("IS_DEL", 1);
-        queryWrapper.eq("WATCH", 1);
-        queryWrapper.isNotNull("IPMI_IP");
-        List<Asset> assetList = assetServ.list(queryWrapper);
 
-        for (Asset asset : assetList) {
-            jobServ.pingIpmiPort(asset);
+        if(running){
+            //防止任务堆叠
+            return ;
         }
 
-        if (LogInputUtils.inputInfo(ServerTypeEnum.JOB_QUARTZ)) {
-            log.info("定时任务-管理口定时检测结束");
+        running =  true;
+        try {
+            QueryWrapper<Asset> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("IS_DEL", 1);
+            queryWrapper.eq("WATCH", 1);
+            queryWrapper.isNotNull("IPMI_IP");
+            List<Asset> assetList = assetServ.list(queryWrapper);
+
+            for (Asset asset : assetList) {
+                try {
+                    jobServ.pingIpmiPort(asset);
+                }catch (Exception e){
+                    log.error(String.format("设备%s,IP:%s IPMI网络检测发生异常:%s",asset.getName(),asset.getIp(),e.getMessage()),e);
+                }
+            }
+        }finally {
+            running = false;
         }
-
-
     }
-
-
 }

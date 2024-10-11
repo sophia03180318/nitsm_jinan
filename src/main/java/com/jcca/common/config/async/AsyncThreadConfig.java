@@ -35,11 +35,6 @@ public class AsyncThreadConfig {
         return this.getExecutor("transfer-data");
     }
 
-    @Bean(name = "ipmiPingJob")
-    public Executor ipmiPingExecutor() {
-        return this.getExecutor("IMPI-PING-JOB");
-    }
-
 
     /**
      * 巡检耗时较大，系统只允许一个线程运行
