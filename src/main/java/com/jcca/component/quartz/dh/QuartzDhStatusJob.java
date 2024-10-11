@@ -1,43 +1,21 @@
 package com.jcca.component.quartz.dh;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
-import com.jcca.common.config.thymeleaf.utility.DictUtil;
-import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.utils.AppLogUtils;
-import com.jcca.common.utils.ResultVoUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.dataProcessing.Entity.DongHuanEntity;
-import com.jcca.dataProcessing.Entity.MQMonitorEntity;
 import com.jcca.dataProcessing.dataAdpater.DongHuanAdapter;
-import com.jcca.dataProcessing.dataAdpater.MQAdapter;
 import com.jcca.dataProcessing.manager.DataProcessManager;
-import com.jcca.web.asset.controller.bean.Repository;
-import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.common.entity.Alarm;
 import com.jcca.web.common.service.DhAlarmService;
-import com.jcca.web.common.service.PropertyService;
-import com.jcca.web.event.enums.EventLevelEnum;
-import com.jcca.web.ibmMQ.domain.Monitor;
-import com.jcca.web.ibmMQ.domain.StatisticalData;
-import com.jcca.web.ibmMQ.entity.IBMConnection;
-import com.jcca.web.ibmMQ.entity.IBMMonitor;
-import com.jcca.web.ibmMQ.service.ConnectionService;
-import com.jcca.web.ibmMQ.service.MonitorService;
-import com.jcca.web.ibmMQ.service.StatisticalDataService;
 import lombok.extern.log4j.Log4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,7 +37,10 @@ public class QuartzDhStatusJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        List<Alarm> alarmLists = alarmService.list();
+        QueryWrapper<Alarm> qw = new QueryWrapper<>();
+        qw.ne("LEVELL",318);
+        List<Alarm> alarmLists = alarmService.list(qw);
+        log.info("推送"+alarmLists.size()+"条动环告警");
         for (Alarm alarm : alarmLists) {
             if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
                 AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
@@ -69,8 +50,8 @@ public class QuartzDhStatusJob extends QuartzJobBean {
                     try {
                         DongHuanEntity dongHuanEntity = new DongHuanEntity();
                         dongHuanEntity.setAssetId(alarm.getDeviceId());
-                        dongHuanEntity.setFlag(alarm.getPropertyId());
-                        dongHuanEntity.setCreateTime(alarm.getCreateTime());
+                        dongHuanEntity.setFlag(alarm.getAlarmId());
+                        dongHuanEntity.setCreateTime(alarm.getOccurrenceTime());
                         dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
                         dongHuanEntity.setAssetName(asset.getAssetName());
                         log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
@@ -81,7 +62,8 @@ public class QuartzDhStatusJob extends QuartzJobBean {
                     }
                 }
             }
-            alarmService.removeById(alarm.getId());
+            alarm.setLevell(318);
+            alarmService.updateById(alarm);
         }
     }
 }
