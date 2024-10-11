@@ -21,17 +21,11 @@ import com.jcca.dataProcessing.support.ListenerManager;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetMsgVo;
-import com.jcca.web.common.controller.req.CollectSyslogReq;
-import com.jcca.web.common.controller.req.DsErrorLog;
-import com.jcca.web.common.controller.req.EvenLog;
-import com.jcca.web.common.controller.req.StationAlarmReqV1;
+import com.jcca.web.common.controller.req.*;
 import com.jcca.web.common.entity.Alarm;
 import com.jcca.web.common.entity.Device;
 import com.jcca.web.common.entity.DhStation;
-import com.jcca.web.common.service.DeviceService;
-import com.jcca.web.common.service.DhAlarmService;
-import com.jcca.web.common.service.DhStationService;
-import com.jcca.web.common.service.PropertyService;
+import com.jcca.web.common.service.*;
 import com.jcca.web.event.enums.EventLevelEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -76,40 +70,12 @@ public class ApiCollectSyslogController extends ListenerManager {
     @Resource
     private DhAlarmService alarmService;
     @Resource
-    private PropertyService propertyService;
-
+    private StationAlarmService stationAlarmService;
 
 
     @PostMapping("/stationEventMsg")
     public void stationRoutMsg(@RequestBody StationAlarmReqV1 alarmReq) {
-        if (LogInputUtils.inputInfo(ServerTypeEnum.STATION_ALARM)) {
-            log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.STATION_ALARM, alarmReq.getStationIp(), JSONUtil.toJsonStr(alarmReq)));
-        }
-
-        String stationIp = alarmReq.getStationIp();
-        Asset asset = null;
-        if (Objects.nonNull(alarmReq.getAssetId())) {
-            asset = assetServ.getById(alarmReq.getAssetId());
-        } else {
-            asset = assetServ.getOneByAllIp(stationIp);
-        }
-        if (Objects.isNull(asset)) {
-            log.error("接收自定义日志信息-推送告警的车站未录入对应资产，车站IP：{} 或设备ID不存在：{}", alarmReq.getStationIp(), alarmReq.getAssetId());
-            return;
-        }
-
-
-        CreateEventReq eventReq = EntityBeanUtil.copy(alarmReq, CreateEventReq.class);
-        eventReq.setAsset(asset);
-        eventReq.setAssetId(asset.getId());
-        eventReq.setCreateTime(DateUtil.parse(alarmReq.getCreateTime(), "yyyy-MM-dd HH:mm:ss.SSS"));
-        try {
-            eventLogicServ.addEvent(eventReq);
-        } catch (Exception e) {
-            log.error("接收自定义日志信息-处理车站上报的事件失败：{}", e.getMessage(), e);
-        }
-
-
+       stationAlarmService.disposePingAlarm(alarmReq);
     }
 
     @PostMapping("/aix")

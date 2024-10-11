@@ -1,6 +1,7 @@
 package com.jcca.web.common.service;
 
 
+import com.jcca.web.common.controller.req.StationAlarmReqV1;
 import com.jcca.web.common.controller.req.StationAlarmReqV2;
 import com.jcca.web.common.controller.req.StationAlarmResp;
 
@@ -16,4 +17,10 @@ public interface StationAlarmService {
      */
     StationAlarmResp disposeStationAlarm(StationAlarmReqV2 req);
 
+
+    /**
+     * 处理车站V1 Ping告警
+     * @param req
+     */
+    void disposePingAlarm(StationAlarmReqV1 req);
 }

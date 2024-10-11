@@ -11,7 +11,7 @@ import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.MyMonitor;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.enums.ThreadPoolEnum;
-import com.jcca.component.queue.EventAlarmGroupListener;
+
 import com.jcca.web.common.constants.OutConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,8 +117,6 @@ public class ItsmMonitorController {
         node.setPoolSize(1);
         //最大允许的线程数
         node.setMaximumPoolSize(1);
-        //已完成数量
-        node.setCompletedTaskCount(EventAlarmGroupListener.runSize);
         //队列里缓存任务数
         assert size5 != null;
         node.setQueueSize(size5.intValue());

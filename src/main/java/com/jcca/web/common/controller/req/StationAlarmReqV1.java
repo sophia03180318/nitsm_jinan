@@ -46,7 +46,7 @@ public class StationAlarmReqV1 {
      */
     private String flag;
     /**
-     * 产生时间
+     * 产生时间 时间戳
      */
     private String createTime;
     /**
