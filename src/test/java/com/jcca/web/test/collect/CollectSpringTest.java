@@ -3,15 +3,20 @@ package com.jcca.web.test.collect;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.jcca.common.bean.constant.StatusConst;
+import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.component.event.EventLogicService;
 import com.jcca.component.event.bean.CreateEventReq;
 import com.jcca.component.event.constant.EventGroupConstant;
 import com.jcca.component.event.constant.EventUniqueCode;
 import com.jcca.component.quartz.alarm.bean.UnhealthyAsset;
+import com.jcca.component.thresholds.bean.CollectInterfaceBean;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.collect.entity.CollectCpu;
@@ -84,9 +89,7 @@ public class CollectSpringTest {
 
     @Test
     public void testRedis(){
-        redisTransactionTemplate.multi();
-        redisTransactionTemplate.exec();
-        System.out.println("执行成功");
+
     }
 
 
