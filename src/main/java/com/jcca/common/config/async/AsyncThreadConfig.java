@@ -103,8 +103,7 @@ public class AsyncThreadConfig {
     // 阈值采集数据处理
     @Bean(name = ThreadPoolEnum.thresholdDataDisposePool)
     public ThreadPoolExecutor getThresholdDisposePool() {
-        int size = Runtime.getRuntime().availableProcessors() * 2 + 2;
-        return new ThreadPoolExecutor(size, size, 600, TimeUnit.SECONDS, new LinkedBlockingQueue<>(20000),
+        return new ThreadPoolExecutor(30, 30, 600, TimeUnit.SECONDS, new LinkedBlockingQueue<>(20000),
                 new MyThreadFactory(ThreadPoolEnum.thresholdDataDisposePool));
     }
 }

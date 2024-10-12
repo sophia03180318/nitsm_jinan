@@ -38,21 +38,15 @@ public class CascoMasterAdapter extends AssetIpAdd implements IAdapter<ItsmQueue
     @Override
     public void dispose(ItsmQueueEntity data) {
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_CTC.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                setAssetIp(data);
-                try {
-                    dataProcessManager.cascoMasterHandlerRequest(data);
-                } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "cascoMasterHandlerRequest 抛出异常", e);
-                }
+
+        excutorService.execute(()->{
+            setAssetIp(data);
+            try {
+                dataProcessManager.cascoMasterHandlerRequest(data);
+            } catch (Exception e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "cascoMasterHandlerRequest 抛出异常", e);
             }
         });
-
-
-
-
     }
 
     @Override

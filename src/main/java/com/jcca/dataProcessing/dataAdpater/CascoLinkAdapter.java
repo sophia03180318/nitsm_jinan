@@ -39,19 +39,14 @@ public class CascoLinkAdapter extends AssetIpAdd implements IAdapter<ItsmQueueEn
     public void dispose(ItsmQueueEntity data) {
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_CTC.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                setAssetIp(data);
-                try {
-                    dataProcessManager.cascoLinkHandlerRequest(data);
-                } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "cascoLinkHandlerRequest 抛出异常", e);
-                }
+        excutorService.execute(()->{
+            setAssetIp(data);
+            try {
+                dataProcessManager.cascoLinkHandlerRequest(data);
+            } catch (Exception e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "cascoLinkHandlerRequest 抛出异常", e);
             }
         });
-
-
 
     }
 
