@@ -37,10 +37,10 @@ public class QuartzDhStatusJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
+        log.info("推送动环告警");
         QueryWrapper<Alarm> qw = new QueryWrapper<>();
         qw.ne("LEVELL",318);
         List<Alarm> alarmLists = alarmService.list(qw);
-        log.info("推送"+alarmLists.size()+"条动环告警");
         for (Alarm alarm : alarmLists) {
             if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
                 AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
