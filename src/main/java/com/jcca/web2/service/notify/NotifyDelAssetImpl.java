@@ -25,7 +25,6 @@ import com.jcca.web.ip.service.IpInfoService;
 import com.jcca.web.xunjian.entity.XunjianDetailV2;
 import com.jcca.web.xunjian.service.XunjianDetailV2Service;
 import com.jcca.web2.entity.ThresholdManage;
-import com.jcca.web2.service.AssetNotifyService;
 import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.service.ThresholdManageService;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,7 @@ import java.util.List;
  * @since 2.1.0.0
  */
 @Service
-public class NotifyDelAssetImpl implements AssetNotifyService {
+public class NotifyDelAssetImpl {
 
     @Resource
     private ManageDbService manageDbService;
@@ -118,7 +117,6 @@ public class NotifyDelAssetImpl implements AssetNotifyService {
      * @param asset 变动的资产
      * @param state 0新增，1删除，2修改
      */
-    @Override
     public void assetChange(Asset asset, Integer state) throws AddAssetException {
         if (OutConst.DEL_ASSET.intValue() != state) {
             return;

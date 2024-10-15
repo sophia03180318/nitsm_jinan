@@ -74,6 +74,7 @@ import com.jcca.web2.enums.AssetMonitorEnum;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.AssetNotifyService;
 import com.jcca.web2.service.CacheDataService;
+import com.jcca.web2.service.notify.NotifyDelAssetImpl;
 import com.jcca.web2.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.telnet.TelnetClient;
@@ -1628,6 +1629,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
      */
     @Override
     public void notifySubjectV2(Asset asset, Integer state) throws AddAssetException {
+        NotifyDelAssetImpl delAsset = SpringContextUtil.getBean(NotifyDelAssetImpl.class);
+        delAsset.assetChange(asset, state);
+
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         for (AssetNotifyService notifyService : notifyServiceList) {
             executorService.execute(() -> {
