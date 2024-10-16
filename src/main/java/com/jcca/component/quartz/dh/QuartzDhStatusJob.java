@@ -39,14 +39,20 @@ public class QuartzDhStatusJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) {
         log.info("推送动环告警");
         QueryWrapper<Alarm> qw = new QueryWrapper<>();
-        qw.ne("LEVELL",318);
+        qw.orderByDesc("ALARM_ID");
+        //qw.ne("LEVELL",318);   //因告警经常不上  更改成每次都推前10条
         List<Alarm> alarmLists = alarmService.list(qw);
-        for (Alarm alarm : alarmLists) {
+        int size = 10;
+        if (alarmLists.size() < 10) {
+            size = alarmLists.size();
+        }
+        for (int i = 0; i < size; i++) {
+            Alarm alarm = alarmLists.get(i);
             if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
                 AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
                 if (Objects.isNull(asset)) {
                     log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
-                }else{
+                } else {
                     try {
                         DongHuanEntity dongHuanEntity = new DongHuanEntity();
                         dongHuanEntity.setAssetId(alarm.getDeviceId());
