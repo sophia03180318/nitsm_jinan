@@ -31,6 +31,12 @@ public class PortTempDto {
 
     //模板内容
     private String msg;
+    /**
+     * 端口排序类型
+     * 默认空  空代表上下
+     * 1代表横
+     */
+    private Integer portSortType;
 
     public static PortTempDto getPortTemp(PortTemp portTemp) {
         PortTempDto portTempDto = new PortTempDto();

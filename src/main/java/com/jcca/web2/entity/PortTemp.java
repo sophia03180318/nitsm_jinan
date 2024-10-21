@@ -40,11 +40,21 @@ public class PortTemp extends Model<PortTemp> {
     @TableField("NAME")
     private String name;
 
+    /**
+     * 端口排序类型
+     * 默认空  空代表上下
+     * 1代表横
+     */
+    @TableField("PORT_SORT_TYPE")
+    private Integer portSortType;
+
 
     /**
      * 模板内容
      */
     @TableField(exist = false)
     private String msg;
+
+
 
 }

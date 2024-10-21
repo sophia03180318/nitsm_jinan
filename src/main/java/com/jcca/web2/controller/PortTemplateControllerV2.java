@@ -119,6 +119,7 @@ public class PortTemplateControllerV2 {
         portTemp.setPortCount(jsonObject.toString());
         portTemp.setName(portTempDto.getName());
         portTemp.setModelId(portTempDto.getModelId());
+        portTemp.setPortSortType(portTempDto.getPortSortType());
 
         String filePath = path + "/portTemp/";
         File file = new File(filePath);
@@ -159,6 +160,7 @@ public class PortTemplateControllerV2 {
         portTempDto.setId(portTemp.getId());
         portTempDto.setName(portTemp.getName());
         portTempDto.setModelId(portTemp.getModelId());
+        portTempDto.setPortSortType(portTemp.getPortSortType());
         try {
             if (!StringUtils.isEmpty(portTemp.getPortCount())) {
                 ObjectMapper objectMapper = new ObjectMapper();
