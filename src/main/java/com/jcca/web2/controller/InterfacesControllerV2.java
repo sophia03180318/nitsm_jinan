@@ -87,6 +87,23 @@ public class InterfacesControllerV2 {
         return ResultVoUtil.success(graphInterfaceController.portList(assetId,pcbId));
     }
 
+    /**
+     * 获取设备可配置端口列表信息
+     *
+     * @return
+     */
+    @GetMapping("/listConfPortV2")
+    @ResponseBody
+    public ResultVo listConfPortV2(String assetId) {
+        List<CollectInterfaces> realTimeData = collectInterfaceServ.getRealTimeData(assetId);
+        if(realTimeData.isEmpty()){
+            return ResultVoUtil.success(new ArrayList<>());
+        }
+        List<Integer> portType = Arrays.asList(6, 18, 22);
+        List<CollectInterfaces> collect = realTimeData.stream().filter(item -> portType.contains(item.getPortType())).collect(Collectors.toList());
+        return ResultVoUtil.success(collect);
+    }
+
     @GetMapping("/listPcb")
     public ResultVo listPcb(String assetId){
         if(StrUtil.isEmpty(assetId)){
