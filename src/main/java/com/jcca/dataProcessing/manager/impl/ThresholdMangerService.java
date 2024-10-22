@@ -41,7 +41,7 @@ import java.util.*;
 @Service
 public class ThresholdMangerService implements ThresholdManager {
 
-    private Map<String, ThresholdBaseEntity> thresholds = new HashMap<>();
+    private Map<String, ThresholdBaseEntity> thresholds = new HashMap<>(4096);
 
 
     @Resource

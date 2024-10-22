@@ -18,6 +18,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
 
 import javax.annotation.Resource;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 初始化开始调度任务
@@ -41,6 +44,10 @@ public class QuartzStartJobListener implements ApplicationListener<ContextRefres
     @Resource
     private ThresholdMangerService thresholdMangerService;
 
+    ThreadPoolExecutor excutorService=new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
+
     /**
      * 项目启动后操作
      */
@@ -50,19 +57,22 @@ public class QuartzStartJobListener implements ApplicationListener<ContextRefres
             log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.SYSTEM_INIT, "", "项目启动开始初始化队列任务"));
         }
 
-        thresholdMangerService.init();
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "ThresholdMangerService初始化完成");
-        alarmRepoManagerService.init();
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "EventInfoManagerService初始化完成");
-        dataProcessManager.init();
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "DataProcessManager初始化完成");
+        excutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                thresholdMangerService.init();
+                AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "ThresholdMangerService初始化完成");
+                alarmRepoManagerService.init();
+                AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "EventInfoManagerService初始化完成");
+                dataProcessManager.init();
+                AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "DataProcessManager初始化完成");
+                ThresholdInfoReceiver.init();
+                BusinessInfoReceiver.init();
+                NoThresholdInfoReceiver.init();
+            }
+        });
 
 
-        ThresholdInfoReceiver.init();
-
-        BusinessInfoReceiver.init();
-
-        NoThresholdInfoReceiver.init();
 
     }
 
