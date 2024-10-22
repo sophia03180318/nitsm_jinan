@@ -214,7 +214,7 @@ public class ApiAssetController {
      * @param assetId
      * @return
      */
-    @GetMapping("/`queryPortUsedMsg`")
+    @GetMapping("/queryPortUsedMsg")
     public ResultVo<?> queryPortUsedMsg(String assetId) {
         QueryWrapper<CollectPort> queryWrapper = new QueryWrapper<CollectPort>();
         queryWrapper.eq("ASSET_ID", assetId);
