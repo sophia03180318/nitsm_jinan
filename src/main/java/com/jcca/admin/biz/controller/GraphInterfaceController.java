@@ -203,6 +203,7 @@ public class GraphInterfaceController {
                 topoAssetPort.setRotation(t.getRotation());
                 topoAssetPort.setPortMode(t.getPortMode());
                 topoAssetPort.setPortSortType(portSortType);
+                topoAssetPort.setTempPortName(t.getTempPortName());
                 listAssetPorts.add(topoAssetPort);
             } else if (t.getType().equals("group")) {
                 TopoAssetPortVlan topoAssetPortVlan = new TopoAssetPortVlan();

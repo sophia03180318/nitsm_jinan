@@ -12,6 +12,7 @@
         <result column="NODE_ID" property="nodeId" jdbcType="VARCHAR"/>
         <result column="PARENT_ID" property="nodeId" jdbcType="VARCHAR"/>
         <result column="PORT_SORT_TYPE" property="portSortType" jdbcType="VARCHAR"/>
+        <result column="TEMP_PORT_NAME" property="tempPortName" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -55,7 +56,8 @@
         a.status,
         t.update_date,
         t.rotation,
-        t.port_sort_type
+        t.port_sort_type,
+        t.TEMP_PORT_NAME
         from (SELECT *
         FROM COLLECT_INTERFACES b
         WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
@@ -85,7 +87,8 @@
         a.status,
         t.update_date,
         t.rotation,
-        t.port_sort_type
+        t.port_sort_type,
+        t.TEMP_PORT_NAME
         from (SELECT *
         FROM COLLECT_INTERFACES b
         WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code

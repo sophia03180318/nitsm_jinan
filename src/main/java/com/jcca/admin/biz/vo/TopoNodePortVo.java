@@ -23,4 +23,8 @@ public class TopoNodePortVo {
     private String portMode;
     // 旋转角度 syt 20201/9/28
     private Integer rotation;
+    /**
+     * 模板上配置的名字
+     */
+    private String tempPortName;
 }

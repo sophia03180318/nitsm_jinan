@@ -90,4 +90,10 @@ public class TopoAssetPort extends Model<TopoAssetPort> implements java.io.Seria
 
     @TableField("PORT_SORT_TYPE")
     private Integer portSortType;
+
+    /**
+     * 模板上配置的名字
+     */
+    @TableField("TEMP_PORT_NAME")
+    private String tempPortName;
 }
