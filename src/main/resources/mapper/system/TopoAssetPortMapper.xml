@@ -55,7 +55,7 @@
         a.status,
         t.update_date,
         t.rotation,
-        t.portSortType
+        t.port_sort_type
         from (SELECT *
         FROM COLLECT_INTERFACES b
         WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
@@ -85,7 +85,7 @@
         a.status,
         t.update_date,
         t.rotation,
-        t.portSortType
+        t.port_sort_type
         from (SELECT *
         FROM COLLECT_INTERFACES b
         WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
