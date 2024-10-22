@@ -30,6 +30,7 @@ public class AssetPortVo {
     private Integer rotation;
     private Date updateDate;
     private Integer portSortType;
+    private String tempPortName;
 
     private Boolean show;
 
