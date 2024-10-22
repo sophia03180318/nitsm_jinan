@@ -29,6 +29,7 @@ public class AssetPortVo {
     // 旋转角度 syt 2021/9/28
     private Integer rotation;
     private Date updateDate;
+    private Integer portSortType;
 
     private Boolean show;
 

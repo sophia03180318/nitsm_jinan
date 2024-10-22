@@ -186,6 +186,8 @@ public class GraphInterfaceController {
         List<TopoAssetPortVlan> topoAssetPortVlans = new ArrayList<>();
         // 面板型号 syt 2021/7/15
         List<TopoAssetPortPic> topoAssetPortPics = new ArrayList<>();
+        Integer portSortType = topoVlanVo.getPortSortType();
+
         for (TopoNodePortVo t : topoVlanVo.getTopoNodePortVos()) {
             if (t.getType().equals("net_topo")) {
                 TopoAssetPort topoAssetPort = new TopoAssetPort();
@@ -200,6 +202,7 @@ public class GraphInterfaceController {
                 // 旋转角度 syt 2021/9/28
                 topoAssetPort.setRotation(t.getRotation());
                 topoAssetPort.setPortMode(t.getPortMode());
+                topoAssetPort.setPortSortType(portSortType);
                 listAssetPorts.add(topoAssetPort);
             } else if (t.getType().equals("group")) {
                 TopoAssetPortVlan topoAssetPortVlan = new TopoAssetPortVlan();

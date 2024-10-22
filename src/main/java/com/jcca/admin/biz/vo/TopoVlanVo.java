@@ -13,5 +13,6 @@ import java.util.List;
 public class TopoVlanVo {
     private String assetId;
     private String pcbId;
+    private Integer portSortType;
     private List<TopoNodePortVo> topoNodePortVos = new ArrayList<>();
 }

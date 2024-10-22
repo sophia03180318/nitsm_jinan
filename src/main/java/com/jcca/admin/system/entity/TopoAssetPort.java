@@ -87,4 +87,7 @@ public class TopoAssetPort extends Model<TopoAssetPort> implements java.io.Seria
      */
     @TableField("PCB_ID")
     private String pcbId;
+
+    @TableField("PORT_SORT_TYPE")
+    private Integer portSortType;
 }

@@ -87,6 +87,7 @@ public class PortTemplateControllerV2 {
         PortTempDto portTempDto2 = PortTempDto.getPortTemp(port);
         portTempDto.setPort1(portTempDto2.getPort1());
         portTempDto.setPort2(portTempDto2.getPort2());
+        portTempDto2.setPortSortType(portTempDto.getPortSortType());
         savePortTemp(portTempDto);
         return ResultVoUtil.success("编辑成功");
     }
