@@ -134,16 +134,10 @@ public class GraphInterfaceController {
                 i -> i.setContentStr(new String(i.getContent()))
         );
 
-        map.put("port", port);
         if(Objects.nonNull(port) && !port.isEmpty()){
-            List<AssetPortVo> portSort = port.stream()
-                    .sorted(Comparator.comparing(AssetPortVo::getNodeId))
-                    .collect(Collectors.toList());
-
-            map.put("port", portSort);
+            port.sort(Comparator.comparingInt(person -> Integer.parseInt(person.getNodeId())));
         }
-
-
+        map.put("port", port);
         map.put("vlan", vlan);
         map.put("total", port.size());
         map.put("pic", pics);
