@@ -104,7 +104,7 @@ public class GraphInterfaceController {
         }
 
         if (port.isEmpty()) {
-            port = getCachePortData(assetId);
+            port = getCachePortData(assetId,pcbId);
         }
 
 
@@ -150,13 +150,16 @@ public class GraphInterfaceController {
      *
      * @param assetId
      */
-    private List<AssetPortVo> getCachePortData(String assetId) {
+    private List<AssetPortVo> getCachePortData(String assetId,String pcbId) {
         List<AssetPortVo> portList = new ArrayList<AssetPortVo>();
         List<CollectInterfaces> realTimeData = intefacesServ.filterPort(assetId);
         for (CollectInterfaces item : realTimeData) {
             QueryWrapper<TopoAssetPort> queryWrapper = new QueryWrapper<TopoAssetPort>();
             queryWrapper.eq("ASSET_ID", assetId);
             queryWrapper.eq("PORT_INDEX", item.getPortIndex());
+            if(StrUtil.isNotEmpty(pcbId)){
+                queryWrapper.eq("PCB_ID", pcbId);
+            }
             TopoAssetPort topoPort = topoAssetPortService.getOne(queryWrapper);
 
             AssetPortVo vo = new AssetPortVo();
