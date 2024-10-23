@@ -2,6 +2,7 @@ package com.jcca.admin.biz.controller;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.admin.biz.vo.TopoNodePortVo;
 import com.jcca.admin.biz.vo.TopoVlanVo;
@@ -135,7 +136,7 @@ public class GraphInterfaceController {
         );
 
         if(Objects.nonNull(port) && !port.isEmpty()){
-            port.sort(Comparator.comparingInt(person -> Integer.parseInt(person.getNodeId())));
+            port.sort(Comparator.comparingInt(person -> Integer.parseInt(StrUtil.isEmpty(person.getNodeId())?"0":person.getNodeId())));
         }
         map.put("port", port);
         map.put("vlan", vlan);
