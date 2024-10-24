@@ -2,6 +2,7 @@ package com.jcca.admin.biz.controller;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.admin.biz.vo.TopoNodePortVo;
 import com.jcca.admin.biz.vo.TopoVlanVo;
@@ -103,7 +104,7 @@ public class GraphInterfaceController {
         }
 
         if (port.isEmpty()) {
-            port = getCachePortData(assetId);
+            port = getCachePortData(assetId,pcbId);
         }
 
 
@@ -134,16 +135,10 @@ public class GraphInterfaceController {
                 i -> i.setContentStr(new String(i.getContent()))
         );
 
-        map.put("port", port);
         if(Objects.nonNull(port) && !port.isEmpty()){
-            List<AssetPortVo> portSort = port.stream()
-                    .sorted(Comparator.comparing(AssetPortVo::getNodeId))
-                    .collect(Collectors.toList());
-
-            map.put("port", portSort);
+            port.sort(Comparator.comparingInt(person -> Integer.parseInt(StrUtil.isEmpty(person.getNodeId())?"0":person.getNodeId())));
         }
-
-
+        map.put("port", port);
         map.put("vlan", vlan);
         map.put("total", port.size());
         map.put("pic", pics);
@@ -155,13 +150,16 @@ public class GraphInterfaceController {
      *
      * @param assetId
      */
-    private List<AssetPortVo> getCachePortData(String assetId) {
+    private List<AssetPortVo> getCachePortData(String assetId,String pcbId) {
         List<AssetPortVo> portList = new ArrayList<AssetPortVo>();
         List<CollectInterfaces> realTimeData = intefacesServ.filterPort(assetId);
         for (CollectInterfaces item : realTimeData) {
             QueryWrapper<TopoAssetPort> queryWrapper = new QueryWrapper<TopoAssetPort>();
             queryWrapper.eq("ASSET_ID", assetId);
             queryWrapper.eq("PORT_INDEX", item.getPortIndex());
+            if(StrUtil.isNotEmpty(pcbId)){
+                queryWrapper.eq("PCB_ID", pcbId);
+            }
             TopoAssetPort topoPort = topoAssetPortService.getOne(queryWrapper);
 
             AssetPortVo vo = new AssetPortVo();
