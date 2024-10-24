@@ -3,13 +3,11 @@ package com.jcca.web2.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
-import com.jcca.common.bean.RestBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AlarmBlankConst;
 import com.jcca.common.enums.*;
@@ -21,8 +19,8 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.WordUtil;
-import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
 import com.jcca.component.quartz.alarm.QuartzUncertainAlarmJob;
+import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.vo.AlarmExportVo;
 import com.jcca.web.asset.controller.bean.Repository;
@@ -81,13 +79,13 @@ public class AlarmControllerV2 {
     @GetMapping("/exportByReq")
     @ApiOperation("条件导出告警列表")
     public void exportByReq(AlarmPageDto query, HttpServletResponse response) {
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
-        if(Objects.isNull(query.getAssetDeskList())||query.getAssetDeskList().isEmpty()){
+        if (Objects.isNull(query.getAssetDeskList()) || query.getAssetDeskList().isEmpty()) {
             query.setAssetDeskList(null);
         }
         query.setPage(1);
@@ -102,13 +100,13 @@ public class AlarmControllerV2 {
     @ApiOperation(value = "告警分析报告导出")
     @ActionLog(name = "导出告警分析报告", title = "告警管理", key = LogTypeConstant.DOWNLOAD)
     public void alarmAnalysisWordExportGet(AlarmInfoPageQuery query, HttpServletResponse response) {
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
-        if(Objects.isNull(query.getAssetDeskList())||query.getAssetDeskList().isEmpty()){
+        if (Objects.isNull(query.getAssetDeskList()) || query.getAssetDeskList().isEmpty()) {
             query.setAssetDeskList(null);
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
@@ -127,13 +125,13 @@ public class AlarmControllerV2 {
     @GetMapping("/getAlarmIdList")
     @ApiOperation("条件解决所有告警ID列表")
     public ResultVo getAlarmIdList(AlarmPageDto query) {
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
-        if(Objects.isNull(query.getAssetDeskList())||query.getAssetDeskList().isEmpty()){
+        if (Objects.isNull(query.getAssetDeskList()) || query.getAssetDeskList().isEmpty()) {
             query.setAssetDeskList(null);
         }
         query.setStatus(AlarmStatusEnum.UNCONFIRM.getCode().intValue());
@@ -179,22 +177,22 @@ public class AlarmControllerV2 {
     @GetMapping("/pageAlarmList")
     @ApiOperation("分页查询告警列表")
     public ResultVo pageAlarmList(AlarmPageDto query) {
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
-        if(Objects.isNull(query.getAssetDeskList())||query.getAssetDeskList().isEmpty()){
+        if (Objects.isNull(query.getAssetDeskList()) || query.getAssetDeskList().isEmpty()) {
             query.setAssetDeskList(null);
         }
-        if(StrUtil.isNotEmpty(query.getOrgId())){
+        if (StrUtil.isNotEmpty(query.getOrgId())) {
             List<String> orgIds = orgServ.getStationOrgIdByLineId(query.getOrgId());
             orgIds.add(query.getOrgId());
             query.setOrgIdList(orgIds);
             query.setOrgId("");
         }
-        if(StrUtil.isNotEmpty(query.getContent())){
+        if (StrUtil.isNotEmpty(query.getContent())) {
             query.setContent(query.getContent());
         }
         IPage<AlarmPageVo> page = alarmInfoServ.pageV2(query);
@@ -265,9 +263,14 @@ public class AlarmControllerV2 {
     @ApiOperation("查询监控项目状态")
     public ResultVo getMonitoringItem(@RequestParam("refuseList") List<String> refuseList) {
         List<MonitoringItemVo> voList = alarmInfoServ.getMonitoringItemV2(refuseList);
+
+        SysConfig sysConfig = configServ.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
+        Integer jcca = "no".equals(showJcca) ? 2 : 1;
+
         //非0需要重新查询看是否存在未恢复未确认非天窗的告警如果没有值改为0
         for (MonitoringItemVo monitoringItemVo : voList) {
-            if (monitoringItemVo.getTotal().intValue() > 0) {
+            if (monitoringItemVo.getTotal() > 0) {
                 DialogsAlarmListDto query = new DialogsAlarmListDto();
                 query.setEventCategory(monitoringItemVo.getCode());
                 query.setAlarmState(AlarmStateEnum.ALARM.getCode().intValue());
@@ -275,6 +278,7 @@ public class AlarmControllerV2 {
                 query.setBlank(AlarmBlankConst.NORMARL);
                 query.setStatusLogical(1);
                 query.setUserName("root");
+                query.setShowJcca(jcca);
                 List<DialogsAlarmListVo> alarmList = alarmInfoServ.queryDialogsVoListV2(query);
                 monitoringItemVo.setTotal(alarmList.size());
             }
@@ -303,7 +307,7 @@ public class AlarmControllerV2 {
             copy.setStatus(AlarmStatusEnum.getMsg(alarmPageVo.getStatus().byteValue()));
             copy.setAlarmStatus(AlarmStateEnum.getMsg(alarmPageVo.getAlarmState().byteValue()));
             copy.setAlarmLevel(AlarmLevelEnum.getMsg(alarmPageVo.getAlarmLevel().byteValue()));
-            if(Objects.nonNull(alarmPageVo.getAlarmType())){
+            if (Objects.nonNull(alarmPageVo.getAlarmType())) {
                 copy.setAlarmType(AlarmTypeEnum.getMsg(alarmPageVo.getAlarmType().intValue()));
             }
             exportList.add(copy);
@@ -345,9 +349,10 @@ public class AlarmControllerV2 {
             AppLogUtils.buildLogError(LogFunctionEnum.ALARM_LIST, "导出告警列表", e);
         }
     }
+
     @GetMapping("/sendUncertainAlarmJob")
     @ApiOperation("立刻执行未确认告警")
-    String  UncertainAlarmJob(){
+    String UncertainAlarmJob() {
         quartzUncertainAlarmJob.init();
         quartzUncertainAlarmJob.exeJob();
 
