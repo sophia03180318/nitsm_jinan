@@ -210,7 +210,7 @@
         a.ASSET_MODE not like '7%'
         where a.is_del = 1
         <if test="showJcca == 'no'">
-            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+            and a.ASSET_SUPPLIER != 'JCCA'
         </if>
         group by a.id, a.desk) t
         group by t.desk) tt
