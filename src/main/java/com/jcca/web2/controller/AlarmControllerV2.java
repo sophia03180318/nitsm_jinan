@@ -212,6 +212,10 @@ public class AlarmControllerV2 {
     @GetMapping("/alarmList")
     @ApiOperation("查询告警列表")
     public ResultVo alarmList(@Validated DialogsAlarmListDto query) {
+        SysConfig sysConfig = configServ.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
+        Integer jcca = "no".equals(showJcca) ? 2 : 1;
+        query.setShowJcca(jcca);
         List<DialogsAlarmListVo> voList = alarmInfoServ.queryDialogsVoListV2(query);
         return ResultVoUtil.success(voList);
     }
