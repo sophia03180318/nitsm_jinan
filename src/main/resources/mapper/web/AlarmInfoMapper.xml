@@ -234,7 +234,7 @@
         select distinct i.TITLE from ALARM_INFO i left join asset a on i.asset_id = a.id
         where 1 = 1
         <if test="showJcca == 2">
-            AND (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
     </select>
 
