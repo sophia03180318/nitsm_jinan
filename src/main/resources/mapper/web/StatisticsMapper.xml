@@ -137,7 +137,7 @@
             </foreach>
         </if>
         <if test="params.showJcca == 'no'">
-            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
         group by to_char(i.occur_time, 'yyyy-MM-dd'), i.alarm_level
         order by to_char(i.occur_time, 'yyyy-MM-dd')
@@ -210,7 +210,7 @@
         a.ASSET_MODE not like '7%'
         where a.is_del = 1
         <if test="showJcca == 'no'">
-            and a.ASSET_SUPPLIER != 'JCCA'
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
         group by a.id, a.desk) t
         group by t.desk) tt
@@ -259,7 +259,7 @@
             </foreach>
         </if>
         <if test="showJcca == 'no'">
-            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
         group by m.name, m.id
     </select>
@@ -468,7 +468,7 @@
         and o.id is not null
         and a.asset_mode not like '7%'
         <if test="showJcca == 'no'">
-            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
         group by o.title, a.name, a.id, o.id, 1
     </select>
@@ -505,7 +505,7 @@
         and i.alarm_state = 1
         and i.blank = 1
         <if test="showJcca == 'no'">
-            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
         group by i.alarm_level, o.stationx, o.stationy, o.title, o.id)
         group by orgName, stationx, stationy, orgName, orgId

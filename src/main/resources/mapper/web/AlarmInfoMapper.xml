@@ -219,7 +219,7 @@
                 )
             </if>
             <if test="query.showJcca == 2">
-                and (b.ASSET_SUPPLIER not like '%JCCA%' or b.ASSET_SUPPLIER is null)
+                AND (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
             </if>
         </where>
         <if test="query.groupField=='ALARM_LEVEL'">
@@ -234,7 +234,7 @@
         select distinct i.TITLE from ALARM_INFO i left join asset a on i.asset_id = a.id
         where 1 = 1
         <if test="showJcca == 2">
-            and (a.ASSET_SUPPLIER not like '%JCCA%' or a.ASSET_SUPPLIER is null)
+            AND (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
     </select>
 
@@ -382,7 +382,7 @@
                 )
             </if>
             <if test="query.showJcca==2">
-                and (b.ASSET_SUPPLIER not like '%JCCA%' or b.ASSET_SUPPLIER is null)
+                AND (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
             </if>
         </where>
         <choose>
@@ -501,7 +501,7 @@
                 </foreach>
             </if>
             <if test="showJcca==2">
-                and b.ASSET_SUPPLIER != 'JCCA'
+                and (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
             </if>
             <if test="statusLogical==1">
                 <if test="status != null ">
