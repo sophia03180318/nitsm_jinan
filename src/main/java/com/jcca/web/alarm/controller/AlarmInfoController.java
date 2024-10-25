@@ -1031,11 +1031,8 @@ public class AlarmInfoController extends ListenerManager {
 
         for (List<String> idss : listList) {
             UpdateWrapper<AlarmInfo> updateWrapper = Wrappers.update();
+
             updateWrapper.in("id", idss);
-            updateWrapper.eq("status", AlarmStatusEnum.UNCONFIRM.getCode())
-                    .or()
-                    .eq("status", AlarmStatusEnum.CONFIRMED.getCode())
-                    .eq("alarm_state", AlarmStateEnum.ALARM.getCode());
 
             updateWrapper.set("status", AlarmStatusEnum.CONFIRMED.getCode());
             updateWrapper.set("alarm_state", AlarmStateEnum.RECOVER.getCode());

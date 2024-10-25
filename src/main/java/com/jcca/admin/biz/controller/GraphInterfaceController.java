@@ -103,9 +103,9 @@ public class GraphInterfaceController {
             }
         }
 
-        if (port.isEmpty()) {
+       /* if (port.isEmpty()) {
             port = getCachePortData(assetId,pcbId);
-        }
+        }*/
 
 
         // 查询状态一小时之前是断则置为灰色

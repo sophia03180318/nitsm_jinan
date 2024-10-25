@@ -31,7 +31,7 @@ spring:
       org:
         quartz:
           scheduler:
-            instanceName: NitsmScheduler
+            instanceName: NitsmScheduler2
             instanceId: AUTO
           threadPool:
             #实例化ThreadPool时，使用的线程类为SimpleThreadPool
@@ -61,9 +61,9 @@ spring:
     druid:
       #url: jdbc:dm://192.168.51.252:5236/DMSERVER
 
-      url: jdbc:oracle:thin:@localhost:1521/orcl
-      username: ITSMJN
-      password: ITSMJN
+      url: jdbc:oracle:thin:@192.168.51.10:1521/itsm
+      username: jnv3
+      password: jnv3
 
       #      url: jdbc:oracle:thin:@localhost:1521/orcl
       #      username: gz_pusu
