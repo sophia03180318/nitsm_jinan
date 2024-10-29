@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +47,21 @@ public class PortTemplateControllerV2 {
 
     @Value("${project.upload.file-path}")
     private String path;
+
+
+    @PostMapping("/fileToBase64")
+    public ResultVo<Object> fileToBase64(@RequestParam("file") MultipartFile multipartFile) {
+        try {
+            byte[] fileBytes= multipartFile.getBytes();
+            // 使用Base64编码器将字节数据编码为Base64字符串
+            String base64String = Base64.getEncoder().encodeToString(fileBytes);
+            // 添加数据URI前缀，这里假设图片是PNG格式，可以根据实际情况调整
+            String imageBase64 = "data:image/png;base64," + base64String;
+            return ResultVoUtil.success("成功",imageBase64);
+        } catch (IOException e) {
+            return ResultVoUtil.error(e.getMessage());
+        }
+    }
 
 
     @GetMapping("getTemplateByAssetId/{assetId}")
