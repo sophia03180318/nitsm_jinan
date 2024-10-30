@@ -131,9 +131,20 @@ public class GraphInterfaceController {
         }
 
         List<TopoAssetPortPic> pics = topoAssetPortPicService.queryAssetPortPic(assetId,pcbId);
-        pics.forEach(
-                i -> i.setContentStr(new String(i.getContent()))
-        );
+        for (TopoAssetPortPic pic : pics) {
+            String content = new String(pic.getContent());
+            if(StrUtil.isNotEmpty(content)){
+                String[] split = content.split("<mxImage src=");
+                if(split.length>1){
+                    String imageStr = split[1];
+                    String[] split1 = imageStr.split("/>");
+                    if(split1.length>1){
+                        pic.setPictureImg(split1[0]);
+                    }
+                }
+            }
+            pic.setContentStr(content);
+        }
 
         if(Objects.nonNull(port) && !port.isEmpty()){
             port.sort(Comparator.comparingInt(person -> Integer.parseInt(StrUtil.isEmpty(person.getNodeId())?"0":person.getNodeId())));
@@ -144,6 +155,7 @@ public class GraphInterfaceController {
         map.put("pic", pics);
         return map;
     }
+
 
     /**
      * 获取缓存中的端口数据 防止未上采集数据导致端口面板不显示
