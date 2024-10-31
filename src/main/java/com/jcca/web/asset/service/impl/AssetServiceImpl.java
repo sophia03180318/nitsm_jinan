@@ -2058,7 +2058,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 AssetStatusItmVo vo = new AssetStatusItmVo();
                 vo.setStatus(collect.isEmpty() ? 1 : -1);
                 vo.setCode(AssetStatusItmVo.SERVER_PROCESS);
-                vo.setTitle("进程CPU/内存占用列表");
+                vo.setTitle("进程列表");
                 assetStatusItmVos.add(vo);
             }
         } else if (asset.isNetAsset()) {

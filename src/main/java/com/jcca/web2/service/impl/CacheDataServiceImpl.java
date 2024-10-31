@@ -36,7 +36,7 @@ public class CacheDataServiceImpl implements CacheDataService {
     @Override
     public List<AssetStatusItmVo> queryAssetTargetStatus(String assetId) {
         List<AssetStatusItmVo> voList = new ArrayList<>();
-        List<String> filter = Arrays.asList("event:event_net", "event:event_fan","event:event_power","event:event_temp","event:event_port");
+        List<String> filter = Arrays.asList("event:event_net", "event:event_fan","event:event_power","event:event_temp","event:event_port","event:event_process");
         Asset asset = assetServ.getById(assetId);
         if (Objects.isNull(asset)) {
             return voList;
