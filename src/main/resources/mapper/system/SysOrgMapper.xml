@@ -68,6 +68,7 @@
         <if test="watch != null and watch != '' ">
             and asset.WATCH = #{watch}
         </if>
+        order by ASSET_IMAGE asc
     </select>
 
 
@@ -80,6 +81,7 @@
         <if test="watch != null and watch != '' ">
             and asset.WATCH = #{watch}
         </if>
+        order by ASSET_IMAGE asc
     </select>
 
     <select id="getByAssetId" parameterType="java.lang.String" resultMap="BaseResultMap">
