@@ -28,6 +28,7 @@ import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.entity.CollectNetworkCard;
 import com.jcca.web.collect.entity.CollectRoute;
+import com.jcca.web.collect.enums.InterfaceStatus;
 import com.jcca.web.collect.service.AssetLinkAssetService;
 import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web.collect.service.CollectNetworkCardService;
@@ -307,6 +308,17 @@ public class RouteController {
         if (CollectionUtil.isEmpty(list)) {
             linkAssetService.saveThisAsset(assetId);
             list = linkAssetService.list(query);
+        }
+
+        List<CollectInterfaces> realTimeData = interfaceServ.getRealTimeData(assetId);
+
+        for (AssetLinkAsset assetLinkAsset : list) {
+            String portIndex = assetLinkAsset.getPortIndex();
+            List<CollectInterfaces> collect = realTimeData.stream().filter(item -> portIndex.equals(item.getPortIndex())).collect(Collectors.toList());
+            if(!collect.isEmpty()){
+                Boolean nowIsUp = InterfaceStatus.isUp(collect.get(0).getStatus());
+                assetLinkAsset.setPortStatus(nowIsUp?"1":"2");
+            }
         }
         return ResultVoUtil.success(list);
     }
