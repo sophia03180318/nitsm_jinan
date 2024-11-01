@@ -43,6 +43,8 @@ import java.util.List;
 public class NotifyDelAssetImpl {
 
     @Resource
+    private AssetService assetService;
+    @Resource
     private ManageDbService manageDbService;
     @Resource
     private AlarmInfoService alarmService;
@@ -207,7 +209,9 @@ public class NotifyDelAssetImpl {
         inspectRecordService.deleteInspectByAssetId(assetId);
         AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, assetId, "删除巡检记录成功");
 
-
+        // ============================================所有要删除数据应该在删除资产前操作==================================
+        // 删除资产
+        assetService.removeById(assetId);
     }
 
     private void delCollectData(String assetId) {
