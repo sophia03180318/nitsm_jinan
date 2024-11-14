@@ -1273,8 +1273,15 @@ public class ApiAssetController {
             }
         } else {
             // syslog下载
-            int start = 1, end = 5000;
-            List<AlarmEvent> syslogList = alarmEventService.listSyslog(assetId, start, end);
+            QueryWrapper<AlarmEvent> query = Wrappers.query();
+            query.eq("ASSET_ID", assetId);
+            query.like("UNIQUE_CODE", "event:log");
+            query.orderByDesc("CREATE_TIME");
+
+            IPage objectIPage = PagePlugin.startPage(1, 5000);
+            IPage resPage = alarmEventService.page(objectIPage, query);
+            List<AlarmEvent> syslogList = resPage.getRecords();
+
             if (!CollectionUtils.isEmpty(syslogList)) {
                 List<AssetLogExportVo> logList = new ArrayList<>();
                 for (AlarmEvent event : syslogList) {
