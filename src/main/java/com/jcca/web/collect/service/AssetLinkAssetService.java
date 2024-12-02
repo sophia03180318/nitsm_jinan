@@ -1,6 +1,7 @@
 package com.jcca.web.collect.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jcca.web.asset.vo.LinkAssetExportVo;
 import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.common.service.bean.ThreeDLinkReq;
 
@@ -44,7 +45,7 @@ public interface AssetLinkAssetService extends IService<AssetLinkAsset> {
      * @param atIp
      * @return
      */
-    String formatMsg(String assetId,String atIp);
+    String formatMsg(String assetId, String atIp);
 
     /**
      * 保存当前设备对端信息
@@ -56,6 +57,8 @@ public interface AssetLinkAssetService extends IService<AssetLinkAsset> {
 
     /**
      * 查询3D机房的所有链路信息
-     * */
+     */
     List<ThreeDLinkReq> getThreeDLink(String roomId1, String roomId2);
+
+    List<LinkAssetExportVo> exportManualList();
 }

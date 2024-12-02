@@ -12,6 +12,7 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.vo.LinkAssetExportVo;
 import com.jcca.web.collect.controller.route.bean.AssetLinkAssetVo;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
 import com.jcca.web.collect.dao.AssetLinkAssetMapper;
@@ -19,8 +20,8 @@ import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.collect.entity.CollectNetworkCard;
 import com.jcca.web.collect.service.AssetLinkAssetService;
 import com.jcca.web.collect.service.CollectNetworkCardService;
-import com.jcca.web.common.service.bean.ThreeDLinkReq;
 import com.jcca.web.collect.service.CollectRouteService;
+import com.jcca.web.common.service.bean.ThreeDLinkReq;
 import com.jcca.web.graph.entity.TopoEdge;
 import com.jcca.web.graph.entity.TopoVertex;
 import com.jcca.web.graph.service.TopoEdgeService;
@@ -329,5 +330,10 @@ public class AssetLinkAssetServiceImpl extends ServiceImpl<AssetLinkAssetMapper,
     @Override
     public List<ThreeDLinkReq> getThreeDLink(String roomId1, String roomId2) {
         return linkAssetMapper.getThreeDLink(roomId1, roomId2);
+    }
+
+    @Override
+    public List<LinkAssetExportVo> exportManualList() {
+        return linkAssetMapper.exportManualList();
     }
 }
