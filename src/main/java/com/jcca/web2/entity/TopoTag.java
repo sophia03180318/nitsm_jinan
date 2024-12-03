@@ -29,7 +29,7 @@ public class TopoTag {
      * pc_topo= 调度台拓扑
      * wan_top=广域网拓扑图"
      * <p>
-     * TopoTypeEnum
+     * TopoCategoryEnum
      */
     @TableField("CATEGORY")
     private String category;

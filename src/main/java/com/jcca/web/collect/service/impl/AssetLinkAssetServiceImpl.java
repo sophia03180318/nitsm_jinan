@@ -26,6 +26,7 @@ import com.jcca.web.graph.entity.TopoEdge;
 import com.jcca.web.graph.entity.TopoVertex;
 import com.jcca.web.graph.service.TopoEdgeService;
 import com.jcca.web.graph.service.TopoVertexService;
+import com.jcca.web2.enums.TopoCategoryEnum;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -205,7 +206,7 @@ public class AssetLinkAssetServiceImpl extends ServiceImpl<AssetLinkAssetMapper,
                 // 3、根据连线的node_id查找对端
                 vertexQuery = Wrappers.query();
                 vertexQuery.eq("NODE_ID", peerNodeId);
-                vertexQuery.eq("NODE_TYPE", "net_topo");
+                vertexQuery.eq("NODE_TYPE", TopoCategoryEnum.NET_TOPO.category);
                 vertexQuery.eq("ORG_ID", vertex.getOrgId());
                 vertexQuery.eq("IS_PORT", "1");
 //                vertexQuery.isNotNull("PORT_INDEX");

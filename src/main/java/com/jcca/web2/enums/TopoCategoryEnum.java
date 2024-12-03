@@ -23,6 +23,7 @@ public enum TopoCategoryEnum {
     CABINET_TOPO("cabinet_topo", "机柜拓扑"),
     BIZ_TOPO("biz_topo", "业务拓扑"),
     PC_TOPO("pc_topo", "调度台拓扑"),
+    NET_WORKASSET_TOPO("netWorkAsset_topo", "网络设备资产连线拓扑"),
     WAN_TOPO("wan_topo", "广域网拓扑图"),
 
     ;

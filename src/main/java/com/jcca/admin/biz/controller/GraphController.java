@@ -32,6 +32,7 @@ import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
 import com.jcca.web.graph.service.*;
 import com.jcca.web.graph.vo.TopoVertexVo;
+import com.jcca.web2.enums.TopoCategoryEnum;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -89,11 +90,6 @@ public class GraphController {
     private CollectClusterService collectClusterService;
 
     /**
-     * 网络拓扑图,机柜拓扑图,业务拓扑图,调度台拓扑
-     */
-    private static String[] topoType = {"net_topo", "cabinet_topo", "biz_topo", "pc_topo", "netWorkAsset_topo"};
-
-    /**
      * 拓扑图查询
      *
      * @param graph
@@ -115,7 +111,7 @@ public class GraphController {
         }
         Map<String, Object> map = new HashMap<>();
         // 网络设备 网络设备界面
-        if (topoType[0].equals(category)) {
+        if (TopoCategoryEnum.NET_TOPO.category.equals(category)) {
             SysOrg org = orgServ.getById(orgId);
 
             List<TopoVertexVo> list;
@@ -172,20 +168,20 @@ public class GraphController {
 
         }
         // 机柜
-        if (topoType[1].equals(category)) {
+        if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             List<TopoVertexVo> list = topoVertexService.selectNodeByCabnet(category, orgId);
             map.put("vertex", list);
         }
         // 业务设备
-        if (topoType[2].equals(category)) {
+        if (TopoCategoryEnum.BIZ_TOPO.category.equals(category)) {
         }
         // 调度台设备
-        if (topoType[3].equals(category)) {
+        if (TopoCategoryEnum.PC_TOPO.category.equals(category)) {
             List<TopoVertexVo> list = topoVertexService.selectPcTopoNodeByAsset(category, orgId);
             map.put("vertex", list);
         }
         //网络设备资产连线拓扑
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             List<TopoVertexVo> list = topoVertexService.selectNetworkAssetTopoNodeByAsset(category, graph.getAssetId());
 
             map.put("vertex", list);
@@ -203,7 +199,7 @@ public class GraphController {
 
         // 拓扑图分组
         List<TopoAssetGroup> list = null;
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             list = topoAssetGroupService.queryNetWorkAssetGroup(graph.getAssetId(), category);
         } else {
             list = topoAssetGroupService.queryAssetGroup(orgId, category);
@@ -216,7 +212,7 @@ public class GraphController {
         map.put("groups", list);
         // 拓扑图编辑备注
         List<TopoAssetMark> marks = null;
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             marks = topoAssetMarkService.queryNetWorkAssetMark(graph.getAssetId(), category);
         } else {
             marks = topoAssetMarkService.queryAssetMark(orgId, category);

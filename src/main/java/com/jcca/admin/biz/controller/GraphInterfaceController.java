@@ -21,6 +21,7 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web2.enums.TopoCategoryEnum;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author zhaozheng@jccatech.com
@@ -210,7 +210,7 @@ public class GraphInterfaceController {
         Integer portSortType = topoVlanVo.getPortSortType();
 
         for (TopoNodePortVo t : topoVlanVo.getTopoNodePortVos()) {
-            if (t.getType().equals("net_topo")) {
+            if (t.getType().equals(TopoCategoryEnum.NET_TOPO.category)) {
                 TopoAssetPort topoAssetPort = new TopoAssetPort();
                 topoAssetPort.setAssetId(t.getAssetId());
                 topoAssetPort.setPcbId(topoVlanVo.getPcbId());
