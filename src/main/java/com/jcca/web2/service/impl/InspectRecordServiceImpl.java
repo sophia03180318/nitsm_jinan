@@ -537,10 +537,10 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      * @return: void
      */
     @Override
-    public void modifyTarget(Set<String> modeSet, Set<String> targetSet, String status) {
+    public void modifyTarget(String modeType, String targetItem, String status) {
         UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
-        wrapper.in("MODE_TYPE", modeSet);
-        wrapper.in("TARGET_ITEM", targetSet);
+        wrapper.eq("MODE_TYPE", modeType);
+        wrapper.eq("TARGET_ITEM", targetItem);
         wrapper.set("TARGET_STATUS", status);
         wrapper.set("MODIFY_TIME", new Date());
         this.update(wrapper);
@@ -555,7 +555,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      */
     @Override
     public void modifyAsset(List<Map<String, String>> list) {
-        List<String> ids = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
         for (Map<String, String> map : list) {
             String assetId = map.get("assetId");
             ids.add(assetId);
