@@ -115,6 +115,7 @@
             <li class="layui-this" id="cabinet_topo" onclick="changeBody(2);">机柜拓扑</li>
             <li  id="net_topo" onclick="changeBody(1);">网络拓扑</li>
             <li id="pc_topo" onclick="changeBody(3);">调度台</li>
+            <li id="wan_topo" onclick="changeBody(4);">广域网拓扑</li>
 <!--            <li id="biz_topo">业务拓扑</li>-->
         </ul>
         <div class="layui-tab layui-tab-brief" style="position:absolute;left:500px;top:35px;z-index:999;background:#fefefe;border:1px solid #eaeaea;">
@@ -157,6 +158,15 @@
                 break;
             }
             case 2:{//机柜拓扑
+                $('#tabTopo .layui-tab-title li').eq(0).addClass('layui-this').siblings().removeClass('layui-this');
+                $('#tabTopo .layui-tab-item ').eq(0).addClass('layui-show').siblings().removeClass('layui-show');
+                document.getElementById('wancheng').style.display = "none";
+                document.getElementById('wancheng2').style.display = "none";
+                document.getElementById('room').style.display = "";
+                document.getElementById('room2').style.display = "";
+                break;
+            }
+            case 4:{//广域网拓扑
                 $('#tabTopo .layui-tab-title li').eq(0).addClass('layui-this').siblings().removeClass('layui-this');
                 $('#tabTopo .layui-tab-item ').eq(0).addClass('layui-show').siblings().removeClass('layui-show');
                 document.getElementById('wancheng').style.display = "none";
