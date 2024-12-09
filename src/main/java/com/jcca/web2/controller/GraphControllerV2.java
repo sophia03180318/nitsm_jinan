@@ -19,6 +19,7 @@ import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.OrgTypeEnum;
 import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -656,13 +657,14 @@ public class GraphControllerV2 {
             List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
             map.put("vertex", list);
         }
-        // 业务设备
-        if (TopoCategoryEnum.BIZ_TOPO.category.equals(category)) {
-        }
         // 调度台设备
         if (TopoCategoryEnum.PC_TOPO.category.equals(category)) {
             List<TopoVertexVo> list = topoVertexService.selectPcTopoNodeByAsset(category, orgId);
             map.put("vertex", list);
+        }
+        // 广域网拓扑
+        if (TopoCategoryEnum.WAN_TOPO.category.equals(category)) {
+            this.setWanMap(category, orgId, map);
         }
         //网络设备资产连线拓扑
         if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
@@ -707,6 +709,30 @@ public class GraphControllerV2 {
         }
         map.put("marks", marks);
         return ResultVoUtil.success(map);
+    }
+
+    private void setWanMap(String category, String orgId, Map<String, Object> map) {
+        SysOrg org = orgService.getById(orgId);
+        if (org.getType() != OrgTypeConst.CENTER) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "请选择中心组织");
+        }
+        List<SysOrg> stations = orgService.getListByOrgType(OrgTypeConst.STATION);
+        List<String> orgIds = stations.stream().map(SysOrg::getId).collect(Collectors.toList());
+        QueryWrapper<Asset> query = Wrappers.query();
+        query.eq("DESK", AssetModeConst.ROUTER);
+        query.eq("SHOW_TOPO", 1);
+        query.in("ORG_ID", orgIds);
+        List<Asset> assetList = assetService.list(query);
+        query = Wrappers.query();
+        query.eq("DESK", AssetModeConst.ROUTER);
+        query.eq("SHOW_TOPO", 1);
+        query.eq("SHOW_CORE", "SHOW_TOPO_@_SHOW");
+        query.eq("ORG_ID", orgId);
+        assetList.addAll(assetService.list(query));
+
+        List<String> ids = assetList.stream().map(Asset::getId).collect(Collectors.toList());
+        List<TopoVertexVo> list = topoVertexService.selectWanTopoNodeByAsset(category, ids);
+        map.put("vertex", list);
     }
 
 }
