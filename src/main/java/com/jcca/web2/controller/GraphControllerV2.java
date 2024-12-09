@@ -197,18 +197,20 @@ public class GraphControllerV2 {
 
         Integer type = org.getType();
         if (OrgTypeConst.CENTER == type) {
-            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
-            this.addTopo("机柜拓扑", TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
-            this.addTopo("调度台拓扑", TopoCategoryEnum.PC_TOPO.category, orgId, topoTags);
-            this.addTopo("业务拓扑", TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.CABINET_TOPO.tagName, TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.PC_TOPO.tagName, TopoCategoryEnum.PC_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.BIZ_TOPO.tagName, TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.WAN_TOPO.tagName, TopoCategoryEnum.WAN_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.LINE == type) {
-            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
-            this.addTopo("业务拓扑", TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.BIZ_TOPO.tagName, TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.WAN_TOPO.tagName, TopoCategoryEnum.WAN_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.STATION == type) {
-            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
-            this.addTopo("机柜拓扑", TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.CABINET_TOPO.tagName, TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
         }
 
         return ResultVoUtil.success(topoTags);
