@@ -392,6 +392,7 @@
 	// TAB切换
 	$("#topo_ul .layui-tab-title li").on('click', function() {
 		var category = $(this).attr("id");
+		console.log(category)
 		var currentPage = editorUi.pages[0];
 		currentPage.category=category;
 		editorUi.selectPage(currentPage);
@@ -574,6 +575,7 @@ function initOrgTree(graph, editor,editorUi) {
 		},
 		callback: {
 			onClick: function(event, treeId, treeNode) {
+				console.log(treeId)
 				var category = $("#topo_ul .layui-this").attr("id");
 				editor.orgId = treeNode.id
 				var currentPage = editorUi.pages[0]
@@ -859,17 +861,19 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 		var connectable = false;
 		var offset = null;
 		var isPort = vertex.isPort;
+		console.log(isPort)
 		var portIndex = vertex.portIndex;
-		if ((currentPage.category == "net_topo" || currentPage.category == "netWorkAsset_topo")&& isPort == null) {
+		if ((currentPage.category == "net_topo" || currentPage.category == "netWorkAsset_topo"|| currentPage.category == "wan_topo")&& isPort == null) {
 			connectable = true;
 		}
 		var style = vertex.nodeStyle;
+		console.log(style)
 		if (vertex.nodeStyle == null) {
 			if (vertex.assetMode == 201) {
 				style = "image=/graph/images/picture/switch.png;spacingBottom=15px;";
 			}
 			if ( vertex.assetMode == 42) {
-				style = "image=/graph/images/picture/router.png;spacingBottom=15px;";
+				style = "image=/graph/images/picture/serve.png;spacingBottom=15px;";
 			}
 			if ( vertex.assetMode == 183) {
 				style = "image=/graph/images/picture/serve.png;spacingBottom=15px;";
@@ -903,7 +907,7 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 					style = "image=/graph/images/picture/switch.png;spacingBottom=15px";
 				}
 				if (currentPage.category == "net_topo" && vertex.assetMode == 42 ) {
-					style = "image=/graph/images/picture/router.png;spacingBottom=15px";
+					style = "image=/graph/images/picture/router1.png;spacingBottom=15px";
 				}
 			}
 			if (currentPage.category == "cabinet_topo") {
@@ -1033,7 +1037,7 @@ function createNode(cell, category, orgId) {
 		node.nodeParent = cell.parent.id;
 	}
 	node.connectable = cell.connectable == true ? 1 : 0;
-	if (category == "net_topo" && node.isPort == null) {
+	if ((category == "net_topo"||category == "wan_topo") && node.isPort == null) {
 		node.nodeConnectable = 1;
 	} else {
 		node.nodeConnectable = 0;
