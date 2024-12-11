@@ -890,7 +890,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             }
 
             if (!CollectionUtils.isEmpty(nlist)) {
-                this.saveOrUpdateBatch(nlist, 2000);
+                this.saveOrUpdateBatch(nlist, 1000);
             }
         }
         flag = false;
