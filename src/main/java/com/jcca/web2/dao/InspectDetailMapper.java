@@ -26,7 +26,7 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
     @Select("SELECT INSPECT_CODE, ASSET_ID, ASSET_NAME, MAX(INSPECT_STATE) AS inspectState, REMARK FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} GROUP BY INSPECT_CODE, ASSET_ID, ASSET_NAME, REMARK ORDER BY ASSET_ID")
     List<InspectRecordListVo> findRecordDetail(String inspectCode);
 
-    @Select("SELECT * FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY TARGET_ITEM")
+    @Select("SELECT * FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} AND TARGET_STATUS = 1 ORDER BY TARGET_ITEM")
     List<InspectDetail> findAssetDetail(String assetId, String inspectCode);
 
     @Delete("DELETE FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode}")

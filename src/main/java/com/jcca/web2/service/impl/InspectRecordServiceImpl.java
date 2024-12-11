@@ -408,6 +408,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         // 生成巡检文件
         QueryWrapper<InspectRecord> query = Wrappers.query();
         query.eq("ASSET_STATUS", 1);
+        query.eq("TARGET_STATUS", 1);
         List<InspectRecord> rlist = this.list(query);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         executorService.execute(() -> {
