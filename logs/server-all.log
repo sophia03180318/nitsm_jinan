@@ -459,3 +459,142 @@
 2024-12-12 15:29:29.408 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
 2024-12-12 15:29:29.408 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
 2024-12-12 15:29:40.059 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:30:20.444 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:30:20.444 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:30:39.923 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:30:45.761 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:30:45.761 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:31:11.981 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:31:11.981 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:31:39.226 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:31:39.226 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:31:39.937 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:32:04.107 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:32:04.107 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:32:29.462 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:32:29.462 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:32:39.921 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:33:35.121 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:33:35.121 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:33:39.893 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:33:59.873 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:33:59.873 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:34:25.108 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:34:25.108 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:34:40.068 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:34:50.285 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:34:50.285 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:35:17.827 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:35:17.827 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:35:39.992 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:35:43.295 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:35:43.297 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:36:34.665 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:36:34.665 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:36:39.891 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:36:58.651 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:36:58.651 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:37:22.806 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:37:22.807 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:37:39.900 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:37:47.484 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:37:47.484 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:38:11.899 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:38:11.899 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:38:37.896 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:38:37.896 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:38:39.885 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:39:03.007 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:39:03.007 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:39:40.212 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:40:33.870 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:40:33.870 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:40:39.904 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:41:00.313 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:41:00.313 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:41:25.792 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:41:25.792 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:41:39.920 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:41:51.092 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:41:51.092 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:42:15.781 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:42:15.781 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:42:39.933 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:42:41.904 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:42:41.904 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:43:34.837 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:43:34.837 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:43:39.920 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:43:59.245 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:43:59.245 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:44:23.152 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:44:23.152 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:44:40.060 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:44:47.901 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:44:47.901 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:45:13.445 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:45:13.445 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:45:38.666 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:45:38.667 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:45:39.903 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:46:04.603 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:46:04.603 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:46:39.912 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:47:36.048 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:47:36.048 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:47:40.117 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:48:03.574 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:48:03.574 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:48:32.057 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:48:32.057 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:48:39.940 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:49:00.413 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:49:00.413 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:49:26.708 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:49:26.708 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:49:40.175 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:50:36.440 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:50:36.440 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:50:39.915 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:51:03.726 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:51:03.727 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:51:33.125 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:51:33.125 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:51:40.020 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:51:59.506 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:51:59.506 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:52:26.379 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:52:26.379 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:52:39.932 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:53:34.620 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:53:34.620 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:53:39.961 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:54:00.240 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:54:00.240 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:54:25.457 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:54:25.457 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:54:40.071 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:54:50.934 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:54:50.934 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:55:16.917 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:55:16.917 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:55:39.929 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:55:42.270 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:55:42.270 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:56:34.167 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:56:34.167 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:56:39.889 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:56:58.040 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:56:58.040 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:57:22.031 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:57:22.031 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:57:39.903 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:57:46.428 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:57:46.428 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:58:10.903 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:58:10.903 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:58:36.890 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:58:36.890 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
+2024-12-12 15:58:39.894 INFO  [com.jcca.component.quartz.dh.QuartzDhStatusJob] 推送动环告警
+2024-12-12 15:59:00.776 ERROR [com.jcca.web.common.util.MQUtil] 获取RabbitMQ通道失败：Connection timed out: connect
+2024-12-12 15:59:00.776 ERROR [com.jcca.component.quartz.threeD.QuartzThreeDPushAlarmJob] 推送告警异常，null
