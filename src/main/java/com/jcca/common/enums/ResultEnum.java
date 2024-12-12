@@ -124,6 +124,7 @@ public enum ResultEnum implements ResultInterface {
     INSPECT_END(1404, "巡检已结束"),
     INSPECT_NO(1405, "巡检未开始"),
     INSPECT_NO_DATA(1406, "正在准备巡检数据"),
+    INSPECT_PING_ERROR(1407, "巡检设备网络不通"),
 
     // 菜单、角色、组织共用的删除更新
     DATA_DELETE(1501, "请先删除下级数据"),

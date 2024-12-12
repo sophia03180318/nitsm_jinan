@@ -208,14 +208,14 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         try {
             ping = TestIpUtil.ping(ip, 1);
         } catch (IOException e) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
         }
 
         if (!ping && StringUtils.isEmpty(asset.getIp2())) {
             try {
                 ping = TestIpUtil.ping(asset.getIp2(), 1);
             } catch (IOException e) {
-                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
             }
         }
 
@@ -225,7 +225,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             wrapper.set("INSPECT_STATE", Web2Const.INSPECT_ERROR);
             wrapper.set("INSPECT_VALUE", "网络不通");
             this.update(wrapper);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
             return new ArrayList<>();
         }
 
