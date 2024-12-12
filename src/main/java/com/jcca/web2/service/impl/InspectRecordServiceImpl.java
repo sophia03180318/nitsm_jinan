@@ -145,28 +145,20 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "当前巡检状态", inspectOperState);
 
-        String inspectType = inspectRecordMapper.findNowInspectType();
-        if (StringUtils.isEmpty(inspectType)) {
-            inspectType = Web2Const.INSPECT_ASSET;
-        }
+//        String inspectType = inspectRecordMapper.findNowInspectType();
+//        if (StringUtils.isEmpty(inspectType)) {
+//            inspectType = Web2Const.INSPECT_ASSET;
+//        }
 
         List<InspectResultVo> resList = new ArrayList<>();
         QueryWrapper<InspectRecord> query = Wrappers.query();
         query.eq("ASSET_ID", assetId);
-        if (Web2Const.INSPECT_ASSET.equals(inspectType)) {
-            query.eq("ASSET_STATUS", StatusConst.OK);
-        }
-        if (Web2Const.INSPECT_TARGET.equals(inspectType)) {
-            query.eq("TARGET_STATUS", StatusConst.OK);
-        }
+        query.eq("ASSET_STATUS", StatusConst.OK);
+        query.eq("TARGET_STATUS", StatusConst.OK);
         List<InspectRecord> list = this.list(query);
         for (InspectRecord record : list) {
             InspectResultVo rz = new InspectResultVo();
-            rz.setAssetId(assetId);
-            rz.setTargetItem(record.getTargetItem());
-            rz.setModeType(record.getModeType());
-            rz.setTargetName(record.getTargetName());
-            rz.setInspectState(record.getInspectState());
+            BeanUtils.copyProperties(record, rz);
             resList.add(rz);
         }
 
