@@ -158,7 +158,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         List<InspectRecord> list = this.list(query);
         for (InspectRecord record : list) {
             InspectResultVo rz = new InspectResultVo();
-            BeanUtils.copyProperties(record, rz);
+            rz.setAssetId(assetId);
+            rz.setTargetItem(record.getTargetItem());
+            rz.setModeType(record.getModeType());
+            rz.setTargetName(record.getTargetName());
+            rz.setInspectState(record.getInspectState());
             resList.add(rz);
         }
 
@@ -185,8 +189,6 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     };
 
 
-    private Set<String> unIpSet = new HashSet<>();
-
     /**
      * @description: 获取资产指标状态
      * @author: HanHW
@@ -209,8 +211,15 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_NO_DATA.getMessage());
         }
 
+        if (!ping && StringUtils.isEmpty(asset.getIp2())) {
+            try {
+                ping = TestIpUtil.ping(asset.getIp2(), 1);
+            } catch (IOException e) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+            }
+        }
+
         if (!ping) {
-            unIpSet.add(ip);
             UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
             wrapper.eq("ASSET_ID", assetId);
             wrapper.set("INSPECT_STATE", Web2Const.INSPECT_ERROR);
@@ -219,7 +228,6 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_NO_DATA.getMessage());
             return new ArrayList<>();
         }
-        unIpSet.remove(ip);
 
         String inspectType = inspectRecordMapper.findNowInspectType();
         if (StringUtils.isEmpty(inspectType)) {
