@@ -799,6 +799,16 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 	var cells = editor.graph.getModel().cells;
 	var num = 0;
 	var flag = 1;
+	let coreNum = 0 //专门给广域网拓扑的核心路由用的
+
+	vertexs.sort((a, b) => {//保证先加载节点，后加载端口
+		// 将 name 有值的项排序在前，没有值的项排序在后
+		if (a.name && b.name) return 0; // 如果两项都有值，保持原顺序
+		if (a.name) return -1; // a 有值，排在前
+		if (b.name) return 1;  // b 有值，排在前
+		return 0;              // 都没有值，保持原顺序
+	});
+	console.log(vertexs)
 	for (var i = 0; i < vertexs.length; i++) {
 		var vertex = vertexs[i];
 		var id = vertex.nodeId;
@@ -813,6 +823,16 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 			var y = vertex.nodeY == null ? 55 * vertex.rowIndex : vertex.nodeY;
 		}else{
 			var y = vertex.nodeY == null ? 55 : vertex.nodeY;
+		}
+		if(currentPage.category =='wan_topo'){
+			if(vertex.showCore=="SHOW_TOPO_@_SHOW"){
+				y = vertex.nodeY?vertex.nodeY:10+(coreNum*700)
+				x= vertex.nodeX?vertex.nodeX:10
+				coreNum+=1
+			}else{
+				y = vertex.nodeY?vertex.nodeY:300
+				x = vertex.nodeX?vertex.nodeX:55 * num
+			}
 		}
 		if(vertex.nodeX == null && currentPage.category == 'netWorkAsset_topo'){
 			var centerX = graph.pageFormat.width / 2
@@ -861,25 +881,32 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 		var connectable = false;
 		var offset = null;
 		var isPort = vertex.isPort;
-		console.log(isPort)
 		var portIndex = vertex.portIndex;
 		if ((currentPage.category == "net_topo" || currentPage.category == "netWorkAsset_topo"|| currentPage.category == "wan_topo")&& isPort == null) {
 			connectable = true;
 		}
 		var style = vertex.nodeStyle;
-		console.log(style)
 		if (vertex.nodeStyle == null) {
+
 			if (vertex.assetMode == 201) {
 				style = "image=/graph/images/picture/switch.png;spacingBottom=15px;";
 			}
 			if ( vertex.assetMode == 42) {
-				style = "image=/graph/images/picture/serve.png;spacingBottom=15px;";
+				style = "image=/graph/images/picture/router.png;spacingBottom=15px;";
 			}
 			if ( vertex.assetMode == 183) {
 				style = "image=/graph/images/picture/serve.png;spacingBottom=15px;";
 			}
 			if(vertex.assetMode == 318){
 				style = "image=/graph/images/picture/raid.png;spacingBottom=15px;";
+			}
+			if (currentPage.category == "wan_topo"){
+				width = 30
+				height=30
+				if(vertex.showCore=="SHOW_TOPO_@_SHOW"){
+					style = "image=/graph/images/picture/croeRouter.png;spacingBottom=50px;";
+width = 800
+				}
 			}
 			if (currentPage.category == "cabinet_topo") {
 				if(graph.getModel().cells["room"]!=null){
@@ -907,7 +934,7 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 					style = "image=/graph/images/picture/switch.png;spacingBottom=15px";
 				}
 				if (currentPage.category == "net_topo" && vertex.assetMode == 42 ) {
-					style = "image=/graph/images/picture/router1.png;spacingBottom=15px";
+					style = "image=/graph/images/picture/router.png;spacingBottom=15px";
 				}
 			}
 			if (currentPage.category == "cabinet_topo") {
@@ -918,8 +945,10 @@ function showNodes(vertexs, editor, graph, parent,currentPage) {
 		}
 
 		if (isPort != null && isPort == 1) {
+			console.log(vertex)
 			//如果parent不为空说明是端口
 			var portParent = graph.getModel().cells[vertex.nodeParent];
+			console.log(portParent)
 			relative = true;
 			value = "";
 			if (vertex.offsetX != null && vertex.offsetY != null) {
