@@ -145,20 +145,16 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "当前巡检状态", inspectOperState);
 
-        String inspectType = inspectRecordMapper.findNowInspectType();
-        if (StringUtils.isEmpty(inspectType)) {
-            inspectType = Web2Const.INSPECT_ASSET;
-        }
+//        String inspectType = inspectRecordMapper.findNowInspectType();
+//        if (StringUtils.isEmpty(inspectType)) {
+//            inspectType = Web2Const.INSPECT_ASSET;
+//        }
 
         List<InspectResultVo> resList = new ArrayList<>();
         QueryWrapper<InspectRecord> query = Wrappers.query();
         query.eq("ASSET_ID", assetId);
-        if (Web2Const.INSPECT_ASSET.equals(inspectType)) {
-            query.eq("ASSET_STATUS", StatusConst.OK);
-        }
-        if (Web2Const.INSPECT_TARGET.equals(inspectType)) {
-            query.eq("TARGET_STATUS", StatusConst.OK);
-        }
+        query.eq("ASSET_STATUS", StatusConst.OK);
+        query.eq("TARGET_STATUS", StatusConst.OK);
         List<InspectRecord> list = this.list(query);
         for (InspectRecord record : list) {
             InspectResultVo rz = new InspectResultVo();
@@ -193,8 +189,6 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     };
 
 
-    private Set<String> unIpSet = new HashSet<>();
-
     /**
      * @description: 获取资产指标状态
      * @author: HanHW
@@ -214,20 +208,26 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         try {
             ping = TestIpUtil.ping(ip, 1);
         } catch (IOException e) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
+        }
+
+        if (!ping && StringUtils.isEmpty(asset.getIp2())) {
+            try {
+                ping = TestIpUtil.ping(asset.getIp2(), 1);
+            } catch (IOException e) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "5:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
+            }
         }
 
         if (!ping) {
-            unIpSet.add(ip);
             UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
             wrapper.eq("ASSET_ID", assetId);
             wrapper.set("INSPECT_STATE", Web2Const.INSPECT_ERROR);
             wrapper.set("INSPECT_VALUE", "网络不通");
             this.update(wrapper);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_NO_DATA.getMessage());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
             return new ArrayList<>();
         }
-        unIpSet.remove(ip);
 
         String inspectType = inspectRecordMapper.findNowInspectType();
         if (StringUtils.isEmpty(inspectType)) {
@@ -408,6 +408,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         // 生成巡检文件
         QueryWrapper<InspectRecord> query = Wrappers.query();
         query.eq("ASSET_STATUS", 1);
+        query.eq("TARGET_STATUS", 1);
         List<InspectRecord> rlist = this.list(query);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         executorService.execute(() -> {
@@ -889,7 +890,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             }
 
             if (!CollectionUtils.isEmpty(nlist)) {
-                this.saveOrUpdateBatch(nlist, 2000);
+                this.saveOrUpdateBatch(nlist, 1000);
             }
         }
         flag = false;

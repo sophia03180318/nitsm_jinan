@@ -124,4 +124,11 @@ public class TopoVertexVo implements java.io.Serializable {
      * 告警级别
      */
     private Integer alarmLevel;
+
+    /**
+     * 是否核心设备  SHOW_TOPO_@_SHOW 核心， SHOW_TOPO_@_NO_SHOW 非核心
+     */
+    private String showCore;
+
+    private Integer watch;
 }

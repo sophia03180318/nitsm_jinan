@@ -555,6 +555,7 @@ if (typeof mxVertexHandler != 'undefined') {
             // do not change color of preview
         };
         mxConnectionHandler.prototype.connect = function (source, target, evt, dropTarget) {
+            console.log(source)
             if ((target != null || this.isCreateTarget(evt) || this.graph.allowDanglingEdges)
                 &&this.constraintHandler.currentConstraint!=null&&this.sourceConstraint!=null) {
                 // Uses the common parent of source and target or
@@ -623,10 +624,10 @@ if (typeof mxVertexHandler != 'undefined') {
                         srPostionY=srPostionY+0.4;
 
                     }else if(this.sourceConstraint.position=="left"){
-                        srPositonX=srPositonX-0.4;
+                        srPositonX=srPositonX-0.1;
 
                     }else if(this.sourceConstraint.position=="right"){
-                        srPositonX=srPositonX+0.4;
+                        srPositonX=srPositonX+0.1;
                     }
                      var widthStyle=8;
                     var heightStyle=8;
@@ -650,10 +651,10 @@ if (typeof mxVertexHandler != 'undefined') {
                         tgPostionY=tgPostionY+0.4;
 
                     }else if(this.constraintHandler.currentConstraint.position=="left"){
-                        tgPositonX=tgPositonX-0.4;
+                        tgPositonX=tgPositonX-0.1;
 
                     }else if(this.constraintHandler.currentConstraint.position=="right"){
-                        tgPositonX=tgPositonX+0.4;
+                        tgPositonX=tgPositonX+0.1;
                     }
 
                     var tg = this.graph.insertVertex(target, null, null, tgPositonX, tgPostionY,  widthStyle, heightStyle, 'fontSize=9;shape=rect;resizable=0;strokeColor=#000000;fillColor=#c3d9ff', true);

@@ -425,4 +425,9 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
         return topoVertexVos;
     }
 
+    @Override
+    public List<TopoVertexVo> selectWanTopoNodeByAsset(String category, List<String> ids) {
+        return topoVertexMapper.selectWanTopoNodeByAsset(category, ids);
+    }
+
 }
