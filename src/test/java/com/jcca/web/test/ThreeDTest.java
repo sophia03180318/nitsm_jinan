@@ -35,10 +35,10 @@ public class ThreeDTest {
     public void mqTest(){
         String s="测试消息";
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        connectionFactory.setHost("192.168.51.29");
+        connectionFactory.setHost("192.168.51.104");
         connectionFactory.setPort(5672);
         connectionFactory.setUsername("root");
-        connectionFactory.setPassword("123456");
+        connectionFactory.setPassword("1qaz");
         connectionFactory.setVirtualHost("/");
         Connection connection = null;
         try {

@@ -85,6 +85,9 @@ public class ThreeDServiceImpl implements ThreeDService {
 
         for (ShelvesReq shelvesReq : shelvesReqs) {
             getModel(shelvesReq);
+/*            if (ObjectUtil.isNull(shelvesReq.getIp())){
+                shelvesReq.setIp("1.1.1.1");
+            }*/
         }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("key", "syncShelves");
@@ -428,13 +431,14 @@ public class ThreeDServiceImpl implements ThreeDService {
     private void getModel(ShelvesReq req) {
         if (ObjectUtil.isNull(modelMap)) {
             HashMap<String, String> map = new HashMap<>();
-            String filePath = "/threeDModel.txt";
+            String filePath = "threeDModel.txt";
             BufferedReader reader;
 
             try {
                 try {
                     reader = new BufferedReader(new FileReader(filePath));
                 } catch (Exception e) {
+                    log.info("未找到3D文件");
                     ClassPathResource resource = new ClassPathResource("templates/system/export/threeDModel.txt");
                     InputStream inputStream = resource.getInputStream();
                     reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -450,7 +454,7 @@ public class ThreeDServiceImpl implements ThreeDService {
                 reader.close();
 
             } catch (Exception e) {
-                req.setThreeModel("225");
+                req.setThreeModel("239");
             }
         }
 
@@ -459,7 +463,7 @@ public class ThreeDServiceImpl implements ThreeDService {
             String[] split = modelMap.get(image).split("&&");
             req.setThreeModel(split[0]);
         } else {
-            req.setThreeModel("225");
+            req.setThreeModel("239");
         }
     }
 
