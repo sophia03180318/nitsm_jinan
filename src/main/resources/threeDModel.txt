@@ -1,49 +1,37 @@
-andi-1U&&202
-andiwangzha-2U&&203
-Aoccit-peixianjia-2U&&204
-beijingcongxing-DLMU300-2U&&205
-beijingcongxing-DLMU600-1U&&206
-beijingcongxing-DLMU600-F-1U&&207
-bjcxshuzidianlu-DLMU600-4U&&208
-casco01-2U&&209
-casco02-2U&&210
-evoc-2U&&211
-huawei_AR6140E-1U&&212
-huawei_CE-S5735S-S48T4XE-V2-1U&&213
-huawei_CloudEngine16800-10U&&214
-huawei_NetEngine8000M14-5U&&215
-huawei_NetEngine8000M8-3U&&216
-huawei_S5731-1U&&217
-huawei_S5731-S48S4X-1U&&218
-Inspur_E980-5U&&219
-Inspur_K1-E980-2U&&220
-inspur_NF5280M5-2U&&221
-Inspur_NF8260M6-2U&&222
-Inspur_S914-4U&&223
-Inspur-2U&&224
-Inspur-AS5300G5-2U&&225
-inspur-FS6700-1U&&226
-Inspur-HMC-2U&&227
-inspur-xianshiqi-1U&&228
-IREAL-1U&&229
-KVM-DHT1908-1U&&230
-KVM-DHT1908-x30-1U&&231
-lenovo_SR550_2U&&232
-lenovo_SR650_2U&&233
-lenovo_SR658_2U&&234
-lenovo_SR850_2U&&235
-lenovo_SR860-4U&&236
-macrosan-MS2000-2U&&237
-Microchip-1U&&238
-PDU-1U&&239
-peixianjia_1U&&240
-xindahuanyu-1U&&241
-yujieduan-1U&&242
-yujieduan-3U&&243
-daoerkeji-fanghuoqiang-2U_ab&&244
-huawei-AR6280-2U_ab&&245
-huawei_NetEngine8000M8-02-3U_ab&&246
-huawei_NetEngine8000M8-03-3U_ab&&247
-huawei_NetEngine8000M14-02-5U_ab&&248
-huawei_S5731-S24T4X-1U_ab&&249
-xindahuanyu-2U_ab&&250
+AD3040&&202
+AD-1430&&203
+DDF架&&204
+DLMU300&&205
+DLMU600&&206
+DLMU600-F&&207
+DLMU600-4&&208
+AR 6140E&&212
+S5735&&213
+16800&&214
+8000 M14&&215
+8000 M8&&216
+S5731&&217
+S5731&&218
+浪潮980&&219
+浪潮980&&220
+NF5280&&221
+NF8260&&222
+914&&223
+v_AS5300 G5&&225
+FS6700&&226
+HMC&&227
+HMC&&228
+SR550&&232
+SR650&&233
+SR650&&234
+SR850&&235
+SR860&&236
+宏衫MS2000&&237
+授时仪&&238
+PDU&&239
+配线架&&240
+8000 M8&&246
+8000 M8&&247
+8000 M14&&248
+S5731&&249
+16800&&214

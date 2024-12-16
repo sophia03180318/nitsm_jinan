@@ -92,7 +92,7 @@ public class QuartzUncertainAlarmJob extends QuartzJobBean {
             SysModuleConfig config1 = new SysModuleConfig();
             config1.setId(MyIdUtil.getId());
             config1.setName("config:uncertainAlarmDay");
-            config1.setValue("3:7");
+            config1.setValue("99:99");
             config1.setDescription("x:y->x天内未确认未恢复的二级告警;y天内未恢复的三级告警");
             config1.setOrgId("0");
             config1.setServiceType(3);
