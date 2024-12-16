@@ -36,11 +36,10 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softLinkState.getCode();
         String mapKey = info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
 
-        log.info("业务链接消息："+redisKey+mapKey+"[收到消息]：设备:"+info.getAssetIp()+" entityId:"+info.getEntityId()+"属性索引："+info.getAttrIndex()+" 状态："+info.getLinkStatus());
-        if(StrUtil.isEmpty(info.getLinkStatus())){
+        if (StrUtil.isEmpty(info.getLinkStatus())) {
             return false;
         }
-        Boolean flag= eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey,info.getLinkStatus());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getLinkStatus());
 
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getLinkStatus());
@@ -49,24 +48,24 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         changeInfo.setMapKey(mapKey);
         info.getMaps().put(mapKey, changeInfo);
 
-        if(Objects.isNull(flag)){
+        if (Objects.isNull(flag)) {
             return true;
         }
 
-        if(flag){
+        if (flag) {
             String eventRedisKey = StatusInfoChangeTypeEnum.event_CTC_link.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
 
             Integer status = info.getLinkStatus().toLowerCase().equals("up") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
 
             //添加状态监控（设备监控的事件信息是否正常）
-            this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_link.getCode(),StatusInfoChangeTypeEnum.LINK_STATUS.getCode(), info.getEntityId() + "_" + info.getAbFlag(), status, info, changeInfo);
+            this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_link.getCode(), StatusInfoChangeTypeEnum.LINK_STATUS.getCode(), info.getEntityId() + "_" + info.getAbFlag(), status, info, changeInfo);
             String str = status.equals(EventLevelEnum.ABNORMAL.getCode()) ? "异常。" : "恢复。";
             AlarmTempReq alarmTempReq = new AlarmTempReq();
-            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getAssetIp(), str+"实体号:"+info.getEntityId()+"索引："+info.getAttrIndex()));
+            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getCascoSoftName(), str + "实体号:" + info.getEntityId() + "索引：" + info.getAttrIndex()));
             alarmTempReq.setCollectValue(info.getLinkStatus());
             alarmTempReq.setFlag(mapKey);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);
