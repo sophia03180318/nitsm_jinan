@@ -10,11 +10,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
+import com.jcca.web.asset.dao.AssetMapper;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.LinkAssetExportVo;
 import com.jcca.web.collect.controller.route.bean.AssetLinkAssetVo;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
+import com.jcca.web.collect.controller.route.bean.ExportManualReq;
 import com.jcca.web.collect.dao.AssetLinkAssetMapper;
 import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.collect.entity.CollectNetworkCard;
@@ -58,6 +60,8 @@ public class AssetLinkAssetServiceImpl extends ServiceImpl<AssetLinkAssetMapper,
     private CollectNetworkCardService networkCardService;
     @Resource
     private CollectRouteService collectRouteService;
+    @Resource
+    private AssetMapper assetMapper;
 
     /**
      * 保存对端设备信息
@@ -334,7 +338,7 @@ public class AssetLinkAssetServiceImpl extends ServiceImpl<AssetLinkAssetMapper,
     }
 
     @Override
-    public List<LinkAssetExportVo> exportManualList() {
-        return linkAssetMapper.exportManualList();
+    public List<LinkAssetExportVo> exportManualList(ExportManualReq req) {
+        return assetMapper.exportManualList(req);
     }
 }

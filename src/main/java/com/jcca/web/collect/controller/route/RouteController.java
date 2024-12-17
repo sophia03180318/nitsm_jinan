@@ -28,6 +28,7 @@ import com.jcca.web.asset.utils.NullFieldException;
 import com.jcca.web.asset.vo.AssetManualVo;
 import com.jcca.web.asset.vo.LinkAssetExportVo;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
+import com.jcca.web.collect.controller.route.bean.ExportManualReq;
 import com.jcca.web.collect.controller.route.bean.RouteMsg;
 import com.jcca.web.collect.controller.route.bean.UpdateRouteReq;
 import com.jcca.web.collect.entity.AssetLinkAsset;
@@ -360,14 +361,15 @@ public class RouteController {
      *
      * @return
      */
-    @GetMapping("/exportManual")
+    @PostMapping("/exportManual")
     @ApiOperation(value = "导出对端设备信息")
-    public void exportManual(HttpServletResponse response) {
+    public void exportManual(HttpServletResponse response, @RequestBody ExportManualReq req) {
 
-        List<LinkAssetExportVo> exportList = linkAssetService.exportManualList();
+        List<LinkAssetExportVo> exportList = linkAssetService.exportManualList(req);
         ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.addHeaderAlias("assetName", "资产名称");
         writer.addHeaderAlias("assetIp", "资产IP");
+        writer.addHeaderAlias("assetModeStr", "资产类型");
         writer.addHeaderAlias("portIndex", "端口名称");
         writer.addHeaderAlias("linkAssetName", "对端资产名称");
         writer.addHeaderAlias("linkAssetIp", "对端资产IP");

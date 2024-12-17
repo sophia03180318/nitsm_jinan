@@ -1,7 +1,6 @@
 package com.jcca.web.collect.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jcca.web.asset.vo.LinkAssetExportVo;
 import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.common.service.bean.ThreeDLinkReq;
 import org.apache.ibatis.annotations.Select;
@@ -18,7 +17,4 @@ import java.util.List;
 public interface AssetLinkAssetMapper extends BaseMapper<AssetLinkAsset> {
     @Select("select l.ASSET_ID as assetAId ,PORT_INDEX as portAId,LINK_ASSET_ID as assetBId,LINK_PORT as portBId FROM (select asset_id from ASSET_ATTACH where ROOM_ID=#{roomId1} or ROOM_ID =#{roomId2})a  join ASSET_LINK_ASSET l on  l.ASSET_ID = a.ASSET_ID where LINK_ASSET_ID is not null")
     List<ThreeDLinkReq> getThreeDLink(String roomId1, String roomId2);
-
-    @Select("SELECT * FROM (SELECT a.NAME assetName, a.ip assetIp, l.port_index, l.link_asset_name, l.link_asset_ip, l.link_port FROM ASSET_LINK_ASSET l LEFT JOIN ASSET a ON l.ASSET_ID = a.ID order by a.name, l.port_index) t WHERE t.assetName is not null")
-    List<LinkAssetExportVo> exportManualList();
 }

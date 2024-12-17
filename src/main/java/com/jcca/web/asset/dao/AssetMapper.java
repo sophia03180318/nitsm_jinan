@@ -7,6 +7,8 @@ import com.jcca.web.asset.controller.bean.AssetQueryReq;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.vo.AssetBelong;
 import com.jcca.web.asset.vo.AssetExportVo;
+import com.jcca.web.asset.vo.LinkAssetExportVo;
+import com.jcca.web.collect.controller.route.bean.ExportManualReq;
 import com.jcca.web.graph.vo.GraphStatusVo;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.entity.ThresholdManage;
@@ -181,4 +183,6 @@ public interface AssetMapper extends BaseMapper<Asset> {
     List<AssetStatisticsVo> countModelV2(@Param("map") Map<String, Object> map);
 
     List<AssetBaseInfoVo> getAssetIdListV2(ThresholdManage manage);
+
+    List<LinkAssetExportVo> exportManualList(ExportManualReq req);
 }

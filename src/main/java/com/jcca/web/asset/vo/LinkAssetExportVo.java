@@ -18,4 +18,5 @@ public class LinkAssetExportVo {
     private String linkAssetName;
     private String linkAssetIp;
     private String linkPort;
+    private String assetModeStr;
 }

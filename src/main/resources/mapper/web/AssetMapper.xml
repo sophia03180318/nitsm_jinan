@@ -407,4 +407,25 @@
         </if>
     </select>
 
+    <select id="exportManualList" parameterType="com.jcca.web.collect.controller.route.bean.ExportManualReq"
+            resultType="com.jcca.web.asset.vo.LinkAssetExportVo">
+        SELECT *
+        FROM (SELECT a.NAME assetName, a.ip assetIp, l.port_index, l.link_asset_name, l.link_asset_ip, l.link_port,
+        DECODE(a.ASSET_MODE, 42, '路由器', 201, '交换机', '未知') assetModeStr
+        FROM ASSET_LINK_ASSET l
+        LEFT JOIN ASSET a ON l.ASSET_ID = a.ID
+        WHERE a.ASSET_MODE IN (42, 201)
+        <if test="orgId != null and orgId != ''">
+            AND a.ORG_ID = #{orgId}
+        </if>
+        <if test="idList != null">
+            AND a.ID in
+            <foreach collection="idList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        order by a.name, l.port_index) t
+        WHERE t.assetName is not null
+    </select>
+
 </mapper>

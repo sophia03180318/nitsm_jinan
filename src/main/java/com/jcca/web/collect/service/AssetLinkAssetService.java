@@ -2,6 +2,7 @@ package com.jcca.web.collect.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.web.asset.vo.LinkAssetExportVo;
+import com.jcca.web.collect.controller.route.bean.ExportManualReq;
 import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.common.service.bean.ThreeDLinkReq;
 
@@ -60,5 +61,5 @@ public interface AssetLinkAssetService extends IService<AssetLinkAsset> {
      */
     List<ThreeDLinkReq> getThreeDLink(String roomId1, String roomId2);
 
-    List<LinkAssetExportVo> exportManualList();
+    List<LinkAssetExportVo> exportManualList(ExportManualReq req);
 }
