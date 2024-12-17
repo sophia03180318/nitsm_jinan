@@ -1033,6 +1033,7 @@ public class AlarmInfoController extends ListenerManager {
             UpdateWrapper<AlarmInfo> updateWrapper = Wrappers.update();
 
             updateWrapper.in("id", idss);
+            updateWrapper.notLike("CONTENT", "一键清除");
 
             updateWrapper.set("status", AlarmStatusEnum.CONFIRMED.getCode());
             updateWrapper.set("alarm_state", AlarmStateEnum.RECOVER.getCode());

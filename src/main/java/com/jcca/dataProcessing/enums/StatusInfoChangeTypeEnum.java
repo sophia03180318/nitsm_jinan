@@ -82,13 +82,13 @@ public enum StatusInfoChangeTypeEnum {
 
     //CTC业务状态事件
     event_CTC("event:event_CTC", "CTC业务状态", "", "", ""),
-    event_CTC_link("event:event_CTC:link", "CTC业务连接事件", "业务告警：CTC业务连接：%s 状态%s", "", ""),
-    event_CTC_version("event:event_CTC:version", "CTC业务版本事件", "业务告警：软件：%s 变更为:%s。", "", ""),
-    event_CTC_threshold("event:event_CTC:threshold", "CTC业务软件容量事件", "业务告警：CTC业务软件容量%s,%s阈值容量%s。", "", ""),
+    event_CTC_link("event:event_CTC:link", "CTC业务连接事件", "业务告警：业务连接：软件[%s] 状态%s", "", ""),
+    event_CTC_version("event:event_CTC:version", "CTC业务版本事件", "业务版本：软件[%s]版本由 %s 变更为：%s。", "", ""),
+    event_CTC_threshold("event:event_CTC:threshold", "CTC业务软件容量事件", "业务阈值：业务软件容量%s，%s阈值容量%s。", "", ""),
     event_CTC_runstate("event:event_CTC:runstate", "CTC业务运行状态事件", "业务告警：业务：%s 运行状态%s。", "", ""),
     //event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务:%s 主备发生切换,设备从%s变为%s。", "", ""),
     //业务系统那只有新值没有旧值
-    event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务:%s 主备发生切换,当前设备状态为：%s。", "", ""),
+    event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务主备: 软件[%s]主备发生切换，由%s切换为%s。", "", ""),
 
     //CTC业务状态事件对应的状态信息
     status_softLinkState("status:softLinkState", "软件连接状态", "", "", ""),
@@ -105,7 +105,7 @@ public enum StatusInfoChangeTypeEnum {
     event_time_state("event:event_time:state", "时间偏差事件", getPubThresholdMsg("", "时间偏差", "秒"), "", ""),
     event_run_time_state("event:event_time:run_state", "运行时长事件", getPubThresholdMsg("", "运行时长", "天"), "", ""),
     event_clock_state("event:event_time:clock_state", "时间服务器状态事件", "时钟同步服务状态%s", "", ""),
-    event_run_restart("event:event_time:run_restart", "设备事件", "检测到设备可能存在重启情况,请检查设备运行状态是否正常。","",""),
+    event_run_restart("event:event_time:run_restart", "设备事件", "检测到设备可能存在重启情况,请检查设备运行状态是否正常。", "", ""),
     //时钟徒步事件对应的状态信息
     status_time_deviation("time_deviation", "时间偏差", "", "", ""),
     status_run_time("run_time", "运行时间", "", "", ""),
@@ -235,18 +235,18 @@ public enum StatusInfoChangeTypeEnum {
     status_power_state("power_state", "电源状态", "", "", ""),
 
     //IPMI事件
-    event_ipmi("event:ipmi", "管理口状态", "","",""),
-    event_ipmi_ping("event:ipmi:ping", "管理口Ping事件", "","",""),
+    event_ipmi("event:ipmi", "管理口状态", "", "", ""),
+    event_ipmi_ping("event:ipmi:ping", "管理口Ping事件", "", "", ""),
 
     //系统未确认告警
-    event_unconfirmed("event:unconfirmed", "存在未处理告警", "","",""),
-    event_unconfirmed_2("event:unconfirmed:2", "存在未处理二级告警事件", "","",""),
-    event_unconfirmed_3("event:unconfirmed:3", "存在未处理三级告警事件", "","",""),
+    event_unconfirmed("event:unconfirmed", "存在未处理告警", "", "", ""),
+    event_unconfirmed_2("event:unconfirmed:2", "存在未处理二级告警事件", "", "", ""),
+    event_unconfirmed_3("event:unconfirmed:3", "存在未处理三级告警事件", "", "", ""),
 
     //采集器节点状态
-    event_jcca("event:jcca", "运维平台状态", "","",""),
-    event_jcca_center("event:jcca:center", "中心采集器事件", "","",""),
-    event_jcca_station("event:jcca:station", "车站采集器事件", "","",""),
+    event_jcca("event:jcca", "运维平台状态", "", "", ""),
+    event_jcca_center("event:jcca:center", "中心采集器事件", "", "", ""),
+    event_jcca_station("event:jcca:station", "车站采集器事件", "", "", ""),
 
 
     //温度事件
@@ -333,19 +333,19 @@ public enum StatusInfoChangeTypeEnum {
     event_port_outError_sectionTwo("event:event_port:outError_sectionTwo", "端口流出误码二阶阈值事件", getLevelThresholdMsg("端口%s", "端口流出误码率", "二阶", "%%"), "端口流出误码二阶状态", ""),
     event_port_outError_sectionThree("event:event_port:outError_sectionThree", "端口流出误码三阶阈值事件", getLevelThresholdMsg("端口%s", "端口流出误码率", "三阶", "%%"), "端口流出误码三阶状态", ""),
     //端口光口状态事件
-    event_port_optical_state("event:event_port:optical_state", "光口状态事件", "光口%s状态%s","",""),
-    event_port_optical_in_normal("event:event_port:optical_in_normal", "光功率接收普通阈值事件", getPubThresholdMsg("光口%s", "光功率接收功率", "dbm"),"",""),
-    event_port_optical_in_section("event:event_port:optical_in_section", "光功率接收区间阈值事件", getSectionThresholdMsg("端口%s", "光功率接收功率", "dbm"),"",""),
-    event_port_optical_in_sectionOne("event:event_port:optical_in_sectionOne", "光功率接收一阶阈值事件", getLevelThresholdMsg("端口%s", "光功率接收功率", "一阶", "dbm"),"",""),
-    event_port_optical_in_sectionTwo("event:event_port:optical_in_sectionTwo", "光功率接收二阶阈值事件", getLevelThresholdMsg("端口%s", "光功率接收功率", "二阶", "dbm"),"",""),
-    event_port_optical_in_sectionThree("event:event_port:optical_in_sectionThree", "光功率接收三阶阈值事件", getLevelThresholdMsg("端口%s", "光功率接收功率", "三阶", "dbm"),"",""),
+    event_port_optical_state("event:event_port:optical_state", "光口状态事件", "光口%s状态%s", "", ""),
+    event_port_optical_in_normal("event:event_port:optical_in_normal", "光功率接收普通阈值事件", getPubThresholdMsg("光口%s", "光功率接收功率", "dbm"), "", ""),
+    event_port_optical_in_section("event:event_port:optical_in_section", "光功率接收区间阈值事件", getSectionThresholdMsg("端口%s", "光功率接收功率", "dbm"), "", ""),
+    event_port_optical_in_sectionOne("event:event_port:optical_in_sectionOne", "光功率接收一阶阈值事件", getLevelThresholdMsg("端口%s", "光功率接收功率", "一阶", "dbm"), "", ""),
+    event_port_optical_in_sectionTwo("event:event_port:optical_in_sectionTwo", "光功率接收二阶阈值事件", getLevelThresholdMsg("端口%s", "光功率接收功率", "二阶", "dbm"), "", ""),
+    event_port_optical_in_sectionThree("event:event_port:optical_in_sectionThree", "光功率接收三阶阈值事件", getLevelThresholdMsg("端口%s", "光功率接收功率", "三阶", "dbm"), "", ""),
 
 
-    event_port_optical_out_normal("event:event_port:optical_out_normal", "光功率发送普通阈值事件", getPubThresholdMsg("光口%s", "光功率发送功率", "dbm"),"",""),
-    event_port_optical_out_section("event:event_port:optical_out_section", "光功率发送区间阈值事件", getSectionThresholdMsg("端口%s", "光功率发送功率", "dbm"),"",""),
-    event_port_optical_out_sectionOne("event:event_port:optical_out_sectionOne", "光功率发送一阶阈值事件", getLevelThresholdMsg("端口%s", "光功率发送功率", "一阶", "dbm"),"",""),
-    event_port_optical_out_sectionTwo("event:event_port:optical_out_sectionTwo", "光功率发送二阶阈值事件", getLevelThresholdMsg("端口%s", "光功率发送功率", "二阶", "dbm"),"",""),
-    event_port_optical_out_sectionThree("event:event_port:optical_out_sectionThree", "光功率发送三阶阈值事件", getLevelThresholdMsg("端口%s", "光功率发送功率", "三阶", "dbm"),"",""),
+    event_port_optical_out_normal("event:event_port:optical_out_normal", "光功率发送普通阈值事件", getPubThresholdMsg("光口%s", "光功率发送功率", "dbm"), "", ""),
+    event_port_optical_out_section("event:event_port:optical_out_section", "光功率发送区间阈值事件", getSectionThresholdMsg("端口%s", "光功率发送功率", "dbm"), "", ""),
+    event_port_optical_out_sectionOne("event:event_port:optical_out_sectionOne", "光功率发送一阶阈值事件", getLevelThresholdMsg("端口%s", "光功率发送功率", "一阶", "dbm"), "", ""),
+    event_port_optical_out_sectionTwo("event:event_port:optical_out_sectionTwo", "光功率发送二阶阈值事件", getLevelThresholdMsg("端口%s", "光功率发送功率", "二阶", "dbm"), "", ""),
+    event_port_optical_out_sectionThree("event:event_port:optical_out_sectionThree", "光功率发送三阶阈值事件", getLevelThresholdMsg("端口%s", "光功率发送功率", "三阶", "dbm"), "", ""),
 
     //端口事件对应的状态数据
     status_interface("status:interface", "端口up/dwon状态", "", "", ""),
@@ -479,10 +479,10 @@ public enum StatusInfoChangeTypeEnum {
 
 
     //snnmp事件信息
-    event_log("event:log", "事件信息", "系统收到SNMP消息：%s","",""),
-    event_snmp("event:log:snmp", "snmp事件信息", "系统收到SNMP消息：%s","",""),
-    event_syslog("event:log:syslog", "syslog事件信息", "系统收到syslog消息：%s","",""),
-    event_aix_log("event:log:aixlog", "小机log事件信息", "","",""),
+    event_log("event:log", "事件信息", "系统收到SNMP消息：%s", "", ""),
+    event_snmp("event:log:snmp", "snmp事件信息", "系统收到SNMP消息：%s", "", ""),
+    event_syslog("event:log:syslog", "syslog事件信息", "系统收到syslog消息：%s", "", ""),
+    event_aix_log("event:log:aixlog", "小机log事件信息", "", "", ""),
     event_raid_log("event:log:raidlog", "存储log事件信息", "", "", ""),
 
     event_log_jcca_0("event:log:levelZero", "Emergency事件信息", "系统收到 Emergency 级别消息：%s", "", ""),
@@ -578,7 +578,7 @@ public enum StatusInfoChangeTypeEnum {
      * @return
      */
     private static String getSectionThresholdMsg(String title, String msg, String unit) {
-        return title + "当前" + msg + ": %s" + unit + ",%s阈值范围：%s"+unit+"~%s" + unit + "。";
+        return title + "当前" + msg + ": %s" + unit + ",%s阈值范围：%s" + unit + "~%s" + unit + "。";
     }
 
     StatusInfoChangeTypeEnum(String code, String name, String descr, String xunjianName, String assetMode) {
