@@ -372,7 +372,6 @@ public class RouteController {
         writer.addHeaderAlias("linkAssetName", "对端资产名称");
         writer.addHeaderAlias("linkAssetIp", "对端资产IP");
         writer.addHeaderAlias("linkPort", "对端端口");
-        writer.addHeaderAlias("remark", "备注信息");
 
         writer.write(exportList, true);
 
