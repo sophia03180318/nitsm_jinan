@@ -1,16 +1,21 @@
 package com.jcca.web.collect.controller.route;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.biz.controller.GraphController;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppPattenUtils;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
@@ -21,6 +26,7 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.utils.DispatchRecordExcelUtil;
 import com.jcca.web.asset.utils.NullFieldException;
 import com.jcca.web.asset.vo.AssetManualVo;
+import com.jcca.web.asset.vo.LinkAssetExportVo;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
 import com.jcca.web.collect.controller.route.bean.RouteMsg;
 import com.jcca.web.collect.controller.route.bean.UpdateRouteReq;
@@ -45,13 +51,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -70,8 +75,6 @@ public class RouteController {
     private CollectNetworkCardService netWorkServ;
     @Resource
     private AssetLinkAssetService linkAssetService;
-    @Resource
-    private CollectInterfacesService collectInterfacesService;
 
     @SuppressWarnings("rawtypes")
     @GetMapping("/refresh")
@@ -333,12 +336,12 @@ public class RouteController {
     }
 
     /**
-     * 自动导出对端设备模板
+     * 导出对端设备模板
      *
      * @return
      */
     @GetMapping("/exportManualExecl")
-    @ApiOperation(value = "表格导入对端设备信息")
+    @ApiOperation(value = "导出对端设备模板")
     public void exportManualExecl(HttpServletResponse response) {
 
         try {
@@ -348,6 +351,41 @@ public class RouteController {
             DispatchRecordExcelUtil.responseBody(sheets, response, "对端信息导入");
         } catch (IOException e) {
             log.error(e.toString(), e);
+        }
+    }
+
+
+    /**
+     * 导出对端设备信息
+     *
+     * @return
+     */
+    @GetMapping("/exportManual")
+    @ApiOperation(value = "导出对端设备信息")
+    public void exportManual(HttpServletResponse response) {
+
+        List<LinkAssetExportVo> exportList = linkAssetService.exportManualList();
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+        writer.addHeaderAlias("assetName", "资产名称");
+        writer.addHeaderAlias("assetIp", "资产IP");
+        writer.addHeaderAlias("portIndex", "端口名称");
+        writer.addHeaderAlias("linkAssetName", "对端资产名称");
+        writer.addHeaderAlias("linkAssetIp", "对端资产IP");
+        writer.addHeaderAlias("linkPort", "对端端口");
+        writer.addHeaderAlias("remark", "备注信息");
+
+        writer.write(exportList, true);
+
+        String fileName = "资产连接信息-" + DateUtil.formatDate(new Date());
+        try {
+            String utf8FileName = URLEncoder.encode(fileName, "utf8");
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename= " + utf8FileName + ".xlsx");
+            ServletOutputStream out = response.getOutputStream();
+            writer.flush(out, true);
+            writer.close();
+        } catch (IOException e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.ASSET_MANAGE, "导出对端设备信息", e);
         }
     }
 
@@ -401,7 +439,7 @@ public class RouteController {
     }
 
     private List<AssetManualVo> importManualList(List<AssetManualVo> dataList) {
-        ArrayList arrayList = new ArrayList<AssetManualVo>();
+        List<AssetManualVo> arrayList = new ArrayList<>();
         for (AssetManualVo assetManualVo : dataList) {
             String assetId = "";
             if (StrUtil.isNotEmpty(assetManualVo.getAssetIp())) {

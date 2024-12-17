@@ -226,4 +226,13 @@ public interface TopoVertexService extends IService<TopoVertex> {
      * @return 机柜拓扑
      */
     List<TopoVertexVo> selectCabinetNodeV2(String roomId);
+
+    /**
+     * 查询广域网设备
+     *
+     * @param category
+     * @param ids
+     * @return
+     */
+    List<TopoVertexVo> selectWanTopoNodeByAsset(String category, List<String> ids);
 }

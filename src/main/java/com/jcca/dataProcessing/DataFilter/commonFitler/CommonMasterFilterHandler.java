@@ -1,7 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.commonFitler;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.jcca.component.casco.enums.HostRunStatusEnum;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
@@ -35,11 +34,10 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softMasterState.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_softMasterState.getCode() + "_" + info.getEntityId() + "_" + info.getAbFlag();
 
-        if(HostRunStatusEnum.STOP.name().equals( info.getHostType())){
-            log.info("业务主备消息："+redisKey+mapKey+"[收到消息]：设备:"+info.getAssetIp()+" entityId:"+info.getEntityId()+" 主备状态："+info.getHostType()+"主备旧状态"+info.getOldHostType()+"---已经被过滤");
+        if (HostRunStatusEnum.STOP.name().equals(info.getHostType())) {
+            log.info("业务主备消息：" + redisKey + mapKey + "[收到消息]：设备:" + info.getAssetIp() + " entityId:" + info.getEntityId() + " 主备状态：" + info.getHostType() + "主备旧状态" + info.getOldHostType() + "---已经被过滤");
             return false;
         }
-        log.info("业务主备消息："+redisKey+mapKey+"[收到消息]：设备:"+info.getAssetIp()+" entityId:"+info.getEntityId()+" 主备状态："+info.getHostType()+"主备旧状态"+info.getOldHostType());
 
         Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getHostType());
         if (flag == null || flag) {
@@ -50,7 +48,7 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
             changeInfo.setCollectTime(new Date());
             info.getMaps().put(mapKey, changeInfo);
 
-            if(StrUtil.isEmpty(info.getHostType())){
+            if (StrUtil.isEmpty(info.getHostType())) {
                 return true;
             }
 
@@ -58,9 +56,9 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
                 //如果缓存不为空，说明flag产生了变化
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_CTC_AB.getCode();
                 String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag() + "_" + changeInfo.getCollectTime();
-//                String str = HostRunStatusEnum.getName(info.getHostType());
+                String str = HostRunStatusEnum.getName(info.getHostType());
                 String strOld = HostRunStatusEnum.getName(info.getOldHostType());
-                String format = String.format(StatusInfoChangeTypeEnum.event_CTC_AB.getDescr(), info.getAssetIp()+String.format("[%s_%s]",info.getEntityId(),info.getAbFlag()), strOld);
+                String format = String.format(StatusInfoChangeTypeEnum.event_CTC_AB.getDescr(), info.getCascoSoftName(), strOld, str);
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(format);

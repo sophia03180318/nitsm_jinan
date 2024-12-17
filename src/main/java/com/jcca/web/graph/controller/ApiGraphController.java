@@ -41,6 +41,7 @@ import com.jcca.web.graph.vo.CenterLineAlarmVo;
 import com.jcca.web.graph.vo.TopoPortStatus;
 import com.jcca.web.graph.vo.TopoVertexAlarmLevelVo;
 import com.jcca.web.graph.vo.TopoVertexAlarmStatusVo;
+import com.jcca.web2.enums.TopoCategoryEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -69,10 +70,6 @@ import java.util.stream.Collectors;
 public class ApiGraphController {
 
     private static final Byte CLUSTER = 2;
-    /**
-     * 网络拓扑图,机柜拓扑图,业务拓扑图,调度台拓扑
-     */
-    private static String[] topoType = {"net_topo", "cabinet_topo", "biz_topo", "pc_topo", "netWorkAsset_topo"};
     @Resource
     private AssetService assetService;
     @Resource
@@ -161,7 +158,7 @@ public class ApiGraphController {
         String assetId = graph.getAssetId();// 获取资产ID
         log.info("前端获取组织[{}]拓扑图[{}]", orgId, category);
         // 网络设备
-        if (topoType[0].equals(category)) {
+        if (TopoCategoryEnum.NET_TOPO.category.equals(category)) {
 
             List<TopoVertexAlarmLevelVo> list = null;
             // 如果是线
@@ -196,8 +193,8 @@ public class ApiGraphController {
             }
 
             for (TopoVertexAlarmLevelVo topoVertexAlarmLevelVo : list) {
-                if(CLUSTER.equals(topoVertexAlarmLevelVo.getABFlag())){
-                    if(!topoVertexAlarmLevelVo.getAssetName().equals(topoVertexAlarmLevelVo.getName())){
+                if (CLUSTER.equals(topoVertexAlarmLevelVo.getABFlag())) {
+                    if (!topoVertexAlarmLevelVo.getAssetName().equals(topoVertexAlarmLevelVo.getName())) {
                         topoVertexAlarmLevelVo.setAssetName(topoVertexAlarmLevelVo.getName());
                     }
                 }
@@ -205,19 +202,19 @@ public class ApiGraphController {
 
             map.put("vertex", list);
 
-        } else if (topoType[1].equals(category)) {
+        } else if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             // 机柜
             List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet(category, orgId);
             map.put("vertex", list);
             map.put("room", roomService.listByOrgId(orgId)); // 适应一个组织下多个机房 20240829
-        } else if (topoType[2].equals(category)) {
+        } else if (TopoCategoryEnum.BIZ_TOPO.category.equals(category)) {
             // 业务设备
 
-        } else if (topoType[3].equals(category)) {
+        } else if (TopoCategoryEnum.PC_TOPO.category.equals(category)) {
             // 调度台设备
             List<TopoVertexAlarmLevelVo> list = topoVertexService.selectPcTopoNodeAlarmLevelByAsset(category, orgId);
             map.put("vertex", list);
-        } else if (topoType[4].equals(category)) {
+        } else if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNetWorkTopoNodeAlarmLevelByAsset(category,
                     assetId, orgId);
             if (list == null || (list.size() == 1 && assetId.equals(list.get(0).getAssetId()))) {
@@ -231,18 +228,18 @@ public class ApiGraphController {
             }
 
         }
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             map.put("points", topoPointsService.queryNetWorkPoints(category, assetId));
         } else {
             map.put("points", topoPointsService.getTopoPoints(category, orgId));
         }
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             map.put("edge", topoEdgeService.queryNetWorkEdge(category, assetId));
         } else {
             map.put("edge", topoEdgeService.getTopoEdge(category, orgId));
         }
         List<TopoAssetGroup> list = null;
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             list = topoAssetGroupService.queryNetWorkAssetGroup(assetId, category);
         } else {
             list = topoAssetGroupService.queryAssetGroup(orgId, category);
@@ -255,7 +252,7 @@ public class ApiGraphController {
         // 拓扑图分组
         map.put("groups", list);
         List<TopoAssetMark> marks = null;
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             marks = topoAssetMarkService.queryNetWorkAssetMark(assetId, category);
         } else {
             marks = topoAssetMarkService.queryAssetMark(orgId, category);
@@ -290,11 +287,11 @@ public class ApiGraphController {
         queryWrapper.eq("ORG_ID", orgId);
         queryWrapper.isNull("IS_PORT");
         // 查询节点设备下有无告警
-        if (topoType[4].equals(graph.getCategory())) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(graph.getCategory())) {
             queryWrapper.eq("NODE_TYPE", graph.getCategory());
             queryWrapper.eq("CORE_ASSET_ID", graph.getAssetId());
         } else {
-            queryWrapper.eq("NODE_TYPE", "net_topo");
+            queryWrapper.eq("NODE_TYPE", TopoCategoryEnum.NET_TOPO.category);
         }
 
         List<TopoVertexAlarmStatusVo> respList = new ArrayList<TopoVertexAlarmStatusVo>();
@@ -336,7 +333,7 @@ public class ApiGraphController {
         }
 
         List<TopoPortStatus> list = null;
-        if (topoType[4].equals(graph.getCategory())) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(graph.getCategory())) {
             list = topoVertexService.findNetWorkDownPortStatus(graph.getAssetId());
         } else {
             list = topoVertexService.findDownPort(orgId);

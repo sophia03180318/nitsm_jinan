@@ -19,6 +19,7 @@ import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.OrgTypeEnum;
 import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -197,18 +198,20 @@ public class GraphControllerV2 {
 
         Integer type = org.getType();
         if (OrgTypeConst.CENTER == type) {
-            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
-            this.addTopo("机柜拓扑", TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
-            this.addTopo("调度台拓扑", TopoCategoryEnum.PC_TOPO.category, orgId, topoTags);
-            this.addTopo("业务拓扑", TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.CABINET_TOPO.tagName, TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.PC_TOPO.tagName, TopoCategoryEnum.PC_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.BIZ_TOPO.tagName, TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.WAN_TOPO.tagName, TopoCategoryEnum.WAN_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.LINE == type) {
-            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
-            this.addTopo("业务拓扑", TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.BIZ_TOPO.tagName, TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.WAN_TOPO.tagName, TopoCategoryEnum.WAN_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.STATION == type) {
-            this.addTopo("网络拓扑", TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
-            this.addTopo("机柜拓扑", TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
+            this.addTopo(TopoCategoryEnum.CABINET_TOPO.tagName, TopoCategoryEnum.CABINET_TOPO.category, orgId, topoTags);
         }
 
         return ResultVoUtil.success(topoTags);
@@ -274,7 +277,7 @@ public class GraphControllerV2 {
         if (OrgTypeEnum.GROUP.getCode() == type || OrgTypeEnum.PARENT.getCode() == type) {
             return ResultVoUtil.success(map);
         }
-        String category = "net_topo";
+        String category = TopoCategoryEnum.NET_TOPO.category;
         List<TopoVertexAlarmLevelVo> list;
 
         // 如果是线
@@ -510,8 +513,6 @@ public class GraphControllerV2 {
         return portList;
     }
 
-    private static String[] topoType = {"net_topo", "cabinet_topo", "biz_topo", "pc_topo", "netWorkAsset_topo"};
-
     @PostMapping("/saveTopoNode")
     @ApiOperation(value = "保存拓扑图V2")
     @ResponseBody
@@ -535,7 +536,7 @@ public class GraphControllerV2 {
         topoAssetMarkService.deleteAssetMark(topoNodeGraph.getOrgId(), topoNodeGraph.getCategory());
 
         List<TopoVertex> nodes = topoNodeGraph.getNodes();
-        if (topoType[1].equals(topoNodeGraph.getCategory())) {
+        if (TopoCategoryEnum.NET_TOPO.category.equals(topoNodeGraph.getCategory())) {
             for (TopoVertex node : nodes) {
                 node.setOrgId(topoNodeGraph.getOrgId()); // 机柜拓扑使用机房ID做为组织ID
             }
@@ -581,7 +582,6 @@ public class GraphControllerV2 {
         return ResultVoUtil.success("保存成功！");
     }
 
-
     @PostMapping("/topoNode")
     @ApiOperation(value = "获取拓扑图V2")
     @ResponseBody
@@ -595,7 +595,7 @@ public class GraphControllerV2 {
         String category = graph.getCategory();
         Map<String, Object> map = new HashMap<>();
         // 网络设备 网络设备界面
-        if (topoType[0].equals(category)) {
+        if (TopoCategoryEnum.NET_TOPO.category.equals(category)) {
             SysOrg org = orgService.getById(orgId);
 
             List<TopoVertexVo> list;
@@ -652,21 +652,22 @@ public class GraphControllerV2 {
 
         }
         // 机柜
-        if (topoType[1].equals(category)) {
+        if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             String roomId = graph.getRoomId();
             List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
             map.put("vertex", list);
         }
-        // 业务设备
-        if (topoType[2].equals(category)) {
-        }
         // 调度台设备
-        if (topoType[3].equals(category)) {
+        if (TopoCategoryEnum.PC_TOPO.category.equals(category)) {
             List<TopoVertexVo> list = topoVertexService.selectPcTopoNodeByAsset(category, orgId);
             map.put("vertex", list);
         }
+        // 广域网拓扑
+        if (TopoCategoryEnum.WAN_TOPO.category.equals(category)) {
+            this.setWanMap(category, orgId, map);
+        }
         //网络设备资产连线拓扑
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             List<TopoVertexVo> list = topoVertexService.selectNetworkAssetTopoNodeByAsset(category, graph.getAssetId());
 
             map.put("vertex", list);
@@ -684,7 +685,7 @@ public class GraphControllerV2 {
 
         // 拓扑图分组
         List<TopoAssetGroup> list = null;
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             list = topoAssetGroupService.queryNetWorkAssetGroup(graph.getAssetId(), category);
         } else {
             list = topoAssetGroupService.queryAssetGroup(orgId, category);
@@ -697,7 +698,7 @@ public class GraphControllerV2 {
         map.put("groups", list);
         // 拓扑图编辑备注
         List<TopoAssetMark> marks = null;
-        if (topoType[4].equals(category)) {
+        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
             marks = topoAssetMarkService.queryNetWorkAssetMark(graph.getAssetId(), category);
         } else {
             marks = topoAssetMarkService.queryAssetMark(orgId, category);
@@ -708,6 +709,30 @@ public class GraphControllerV2 {
         }
         map.put("marks", marks);
         return ResultVoUtil.success(map);
+    }
+
+    private void setWanMap(String category, String orgId, Map<String, Object> map) {
+        SysOrg org = orgService.getById(orgId);
+        if (org.getType() != OrgTypeConst.CENTER) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "请选择中心组织");
+        }
+        List<SysOrg> stations = orgService.getListByOrgType(OrgTypeConst.STATION);
+        List<String> orgIds = stations.stream().map(SysOrg::getId).collect(Collectors.toList());
+        QueryWrapper<Asset> query = Wrappers.query();
+        query.eq("DESK", AssetModeConst.ROUTER);
+        query.eq("SHOW_TOPO", 1);
+        query.in("ORG_ID", orgIds);
+        List<Asset> assetList = assetService.list(query);
+        query = Wrappers.query();
+        query.eq("DESK", AssetModeConst.ROUTER);
+        query.eq("SHOW_TOPO", 1);
+        query.eq("SHOW_CORE", "SHOW_TOPO_@_SHOW");
+        query.eq("ORG_ID", orgId);
+        assetList.addAll(assetService.list(query));
+
+        List<String> ids = assetList.stream().map(Asset::getId).collect(Collectors.toList());
+        List<TopoVertexVo> list = topoVertexService.selectWanTopoNodeByAsset(category, ids);
+        map.put("vertex", list);
     }
 
 }

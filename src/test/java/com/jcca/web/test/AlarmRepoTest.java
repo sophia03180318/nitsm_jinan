@@ -5,9 +5,11 @@ import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
+import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.entity.AlarmEventType;
 import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web.event.enums.EventTypeStatusEnum;
+import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +36,25 @@ public class AlarmRepoTest {
     private AlarmRepositoryService alarmRepoServ;
     @Resource
     private AlarmEventTypeService eventTypeServ;
+    @Resource
+    private AlarmEventService alarmEventService;
+
+    @Test
+    public void testData() {
+        for (int i=0;i<5000;i++){
+            AlarmEvent alarmEvent = new AlarmEvent();
+            alarmEvent.setId(MyIdUtil.getId());
+            alarmEvent.setAssetId("1822913338682908672");
+            alarmEvent.setEventLevel(2);
+            alarmEvent.setEventTypeId("1743461402959683584");
+            alarmEvent.setCreateTime(new Date());
+            alarmEvent.setUpdateTime(new Date());
+            alarmEvent.setEventMsg("系统收到 Critical 级别消息：<186>Sep 19 2024 18:31:57 C201-12U %%01IFNET/2/linkDown_active(l):CID=0x807a0417-alarmID=0x08520003;The interface status changes. (ifName=GE1/0/14, AdminStatus=UP, OperStatus=DOWN, Reason=Interface physical link is down, mainIfname=GE1/0/14)");
+            alarmEvent.setUniqueCode("event:log:sophia");
+            alarmEvent.setAssetId("1822913338682908672");
+            alarmEventService.save(alarmEvent);
+        }
+    }
 
 
     @Test

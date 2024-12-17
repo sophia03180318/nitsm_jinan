@@ -10,7 +10,6 @@ import com.jcca.web2.vo.InspectVo;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author HanHW
@@ -74,7 +73,7 @@ public interface InspectRecordService extends IService<InspectRecord> {
      * @param: [modeType, targetId, status]
      * @return: void
      **/
-    void modifyTarget(Set<String> modeSet, Set<String> targetSet, String status);
+    void modifyTarget(String modeType, String targetItem, String status);
 
     /**
      * @description: 增减巡检资产

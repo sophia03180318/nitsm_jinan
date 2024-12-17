@@ -12,6 +12,7 @@ import com.jcca.web.common.controller.ApiCollectSyslogController;
 import com.jcca.web.db.controller.ApiManageDbController;
 import com.jcca.web.event.controller.AlarmEventGroupController;
 import com.jcca.web.event.controller.AlarmEventTypeController;
+import com.jcca.web2.controller.AlarmEventControllerV2;
 import com.jcca.web2.controller.AlarmWhitelistControllerV2;
 import com.jcca.web2.controller.ProcessConfigControllerV2;
 import com.jcca.web2.controller.ThresholdControllerV2;
@@ -148,9 +149,11 @@ public class DataProcessManager {
     public void initBaseListener() {
         AlarmRepositoryController alarmRepositoryController = SpringContextUtil.getBean(AlarmRepositoryController.class);
         AlarmEventTypeController alarmEventTypeController = SpringContextUtil.getBean(AlarmEventTypeController.class);
+        AlarmEventControllerV2 alarmEventController = SpringContextUtil.getBean(AlarmEventControllerV2.class);
         IListener alramRepositoryListener = this.getListener("alarmRepoListener");
         alarmRepositoryController.addDataSourceListener(alramRepositoryListener);
         alarmEventTypeController.addDataSourceListener(alramRepositoryListener);
+        alarmEventController.addDataSourceListener(alramRepositoryListener);
 
         ThresholdProcessController thresholdProcessController = SpringContextUtil.getBean(ThresholdProcessController.class);
         IListener thresholdListener = this.getListener("thresholdListener");

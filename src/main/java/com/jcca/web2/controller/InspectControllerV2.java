@@ -29,7 +29,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HanHW
@@ -118,29 +121,22 @@ public class InspectControllerV2 {
             throw new ResultException(ResultEnum.PARAM_ERROR);
         }
 
-        Set<String> modeSet = new HashSet<>();
-        Set<String> targetSet = new HashSet<>();
-        String status = null;
         for (Map<String, String> map : list) {
             String modeType = map.get("modeType");
             String targetItem = map.get("targetItem");
-            status = map.get("status");
+            String status = map.get("status");
             if (StringUtils.isEmpty(targetItem)) {
                 throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "targetItem 不能为空");
             }
             if (StringUtils.isEmpty(modeType)) {
                 throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "modeType 不能为空");
             }
+            if (StringUtils.isEmpty(status)) {
+                throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "status 不能为空");
+            }
 
-            modeSet.add(modeType);
-            targetSet.add(targetItem);
+            inspectRecordService.modifyTarget(modeType, targetItem, status);
         }
-        if (StringUtils.isEmpty(status)) {
-            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "status 不能为空");
-        }
-
-        inspectRecordService.modifyTarget(modeSet, targetSet, status);
-
         return ResultVoUtil.success();
     }
 

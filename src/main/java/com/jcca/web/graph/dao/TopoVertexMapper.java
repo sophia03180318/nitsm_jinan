@@ -154,4 +154,6 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
     List<BizTopoCenterVo> findTopoCenterQuery(String orgId, String serviceTypeId);
 
     List<TopoVertexVo> selectCabinetNodeV2(@Param("roomId") String roomId);
+
+    List<TopoVertexVo> selectWanTopoNodeByAsset(@Param("nodeType") String nodeType, @Param("ids") List<String> ids);
 }

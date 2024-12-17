@@ -486,4 +486,17 @@
         group by asset_id, port_index, maOrAt, maAssetId, maPort
     </select>
 
+    <select id="selectWanTopoNodeByAsset" resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT v.*, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as assetOrgId,
+        t.asset_mode as assetMode,t.watch, t.show_core
+        FROM asset t
+        left join TOPO_VERTEX v on t.id = v.asset_id and v.node_type = 'wan_topo'
+        where t.SHOW_TOPO = 1 and t.IS_DEL = 1 and t.asset_mode = 42
+        and t.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by t.name
+    </select>
+
 </mapper>

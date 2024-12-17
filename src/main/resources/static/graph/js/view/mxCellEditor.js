@@ -5,7 +5,7 @@
 /**
  * Class: mxCellEditor
  *
- * In-place editor for the graph. To control this editor, use
+ * In-place editor for the graph. To co0.ntrol this editor, use
  * <mxGraph.invokesStopCellEditing>, <mxGraph.enterStopsCellEditing> and
  * <mxGraph.escapeEnabled>. If <mxGraph.enterStopsCellEditing> is true then
  * ctrl-enter or shift-enter can be used to create a linefeed. The F2 and
