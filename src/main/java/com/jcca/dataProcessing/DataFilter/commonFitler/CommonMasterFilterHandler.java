@@ -58,7 +58,7 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
                 String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag() + "_" + changeInfo.getCollectTime();
                 String str = HostRunStatusEnum.getName(info.getHostType());
                 String strOld = HostRunStatusEnum.getName(info.getOldHostType());
-                String format = String.format(StatusInfoChangeTypeEnum.event_CTC_AB.getDescr(), info.getCascoSoftName(), strOld, str);
+                String format = String.format(StatusInfoChangeTypeEnum.event_CTC_AB.getDescr(), info.getEntityId(), info.getCascoSoftName(), strOld, str);
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(format);

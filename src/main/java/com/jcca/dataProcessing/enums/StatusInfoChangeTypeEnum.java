@@ -88,7 +88,7 @@ public enum StatusInfoChangeTypeEnum {
     event_CTC_runstate("event:event_CTC:runstate", "CTC业务运行状态事件", "业务告警：业务：%s 运行状态%s。", "", ""),
     //event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务:%s 主备发生切换,设备从%s变为%s。", "", ""),
     //业务系统那只有新值没有旧值
-    event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务主备: 软件[%s]主备发生切换，由%s切换为%s。", "", ""),
+    event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务主备: 实体号为 %s 的软件[%s]主备发生切换，由%s切换为%s。", "", ""),
 
     //CTC业务状态事件对应的状态信息
     status_softLinkState("status:softLinkState", "软件连接状态", "", "", ""),
