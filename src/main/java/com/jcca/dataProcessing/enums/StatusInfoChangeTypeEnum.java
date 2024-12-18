@@ -82,13 +82,13 @@ public enum StatusInfoChangeTypeEnum {
 
     //CTC业务状态事件
     event_CTC("event:event_CTC", "CTC业务状态", "", "", ""),
-    event_CTC_link("event:event_CTC:link", "CTC业务连接事件", "业务告警：业务连接：软件[%s] 状态%s", "", ""),
-    event_CTC_version("event:event_CTC:version", "CTC业务版本事件", "业务版本：软件[%s]版本由 %s 变更为：%s。", "", ""),
-    event_CTC_threshold("event:event_CTC:threshold", "CTC业务软件容量事件", "业务阈值：业务软件容量%s，%s阈值容量%s。", "", ""),
-    event_CTC_runstate("event:event_CTC:runstate", "CTC业务运行状态事件", "业务告警：业务：%s 运行状态%s。", "", ""),
+    event_CTC_link("event:event_CTC:link", "CTC业务连接事件", "业务告警：软件[%s]连接状态%s", "", ""),
+    event_CTC_version("event:event_CTC:version", "CTC业务版本事件", "业务告警：软件[%s]版本由 %s 变更为：%s。", "", ""),
+    event_CTC_threshold("event:event_CTC:threshold", "CTC业务软件容量事件", "业务告警：软件容量%s，%s阈值容量%s。", "", ""),
+    event_CTC_runstate("event:event_CTC:runstate", "CTC业务运行状态事件", "业务告警：软件 %s 运行状态%s。", "", ""),
     //event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务:%s 主备发生切换,设备从%s变为%s。", "", ""),
     //业务系统那只有新值没有旧值
-    event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：业务主备: 实体号为 %s 的软件[%s]主备发生切换，由%s切换为%s。", "", ""),
+    event_CTC_AB("event:event_CTC:AB", "CTC业务主备事件", "业务告警：实体号为 %s 的软件[%s]主备发生切换，由%s切换为%s。", "", ""),
 
     //CTC业务状态事件对应的状态信息
     status_softLinkState("status:softLinkState", "软件连接状态", "", "", ""),

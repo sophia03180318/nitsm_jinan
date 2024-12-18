@@ -60,9 +60,9 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
 
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_link.getCode(), StatusInfoChangeTypeEnum.LINK_STATUS.getCode(), info.getEntityId() + "_" + info.getAbFlag(), status, info, changeInfo);
-            String str = status.equals(EventLevelEnum.ABNORMAL.getCode()) ? "异常。" : "恢复。";
+            String str = status.equals(EventLevelEnum.ABNORMAL.getCode()) ? "异常，" : "恢复，";
             AlarmTempReq alarmTempReq = new AlarmTempReq();
-            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getCascoSoftName(), str + "实体号:" + info.getEntityId() + "索引：" + info.getAttrIndex()));
+            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getCascoSoftName(), str + "实体号:" + info.getEntityId() + " 索引：" + info.getAttrIndex()));
             alarmTempReq.setCollectValue(info.getLinkStatus());
             alarmTempReq.setFlag(mapKey);
             IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
