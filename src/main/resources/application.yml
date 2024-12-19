@@ -61,9 +61,9 @@ spring:
     druid:
       #url: jdbc:dm://192.168.51.252:5236/DMSERVER
 
-      url: jdbc:oracle:thin:@192.168.51.10:1521/itsm
-      username: jnv3
-      password: jnv3
+      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
+      username: jinanv2
+      password: jinanv2
 
       #      url: jdbc:oracle:thin:@localhost:1521/orcl
       #      username: gz_pusu
@@ -181,7 +181,7 @@ threeD:
   # 告警数据推送周期
   cron: "*/11 * * * * ?"
   # 接口服务器IP
-  rabbitMQhost: 172.22.90.240
+  rabbitMQhost: 192.168.51.104
   # 接口服务器端口
   rabbitMQPort: 5672
   # 接口服务器用户名

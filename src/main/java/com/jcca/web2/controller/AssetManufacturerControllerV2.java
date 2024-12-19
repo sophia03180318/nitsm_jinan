@@ -45,7 +45,9 @@ public class AssetManufacturerControllerV2 {
         QueryWrapper<AssetManufacturer> query = Wrappers.query();
         query.orderByDesc("MODIFY_TIME");
         List<AssetManufacturer> list = manufacturerService.list(query);
-        List<AssetModel> all = modelService.list();
+        QueryWrapper<AssetModel> qw = new QueryWrapper<AssetModel>();
+        qw.orderByAsc("MODEL");
+        List<AssetModel> all = modelService.list(qw);
         for (AssetManufacturer a : list) {
             List<AssetModel> models = new ArrayList<>();
             Long aid = a.getId();
