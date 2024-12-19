@@ -112,7 +112,7 @@ public class ThreeDServiceImpl implements ThreeDService {
         if (StringUtils.isEmpty(asset.getCabinetId())) {
             return threeDResult;
         }
-        Object o = redisService.get(ThreeDConst.KEY_STATUS);
+        Object o = redisService.get(ThreeDConst  .KEY_STATUS);
         if (ObjectUtil.isNull(o) || !String.valueOf(o).equals("1")) {
             threeDResult.setStatus(false);
             threeDResult.setLog("3D机房程序未开启");

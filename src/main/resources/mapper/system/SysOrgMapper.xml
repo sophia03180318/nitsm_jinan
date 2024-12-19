@@ -68,7 +68,7 @@
         <if test="watch != null and watch != '' ">
             and asset.WATCH = #{watch}
         </if>
-        order by ASSET_IMAGE asc
+        order by ASSET_IMAGE,asset.name asc
     </select>
 
 
