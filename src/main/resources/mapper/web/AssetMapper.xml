@@ -424,7 +424,7 @@
                 #{id}
             </foreach>
         </if>
-        order by a.name, l.port_index) t
+        order by a.name, l.port_index_rank) t
         WHERE t.assetName is not null
     </select>
 
