@@ -334,8 +334,8 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
     }
 
     @Override
-    public List<TopoPortStatus> findDownPort(String orgId) {
-        return topoVertexMapper.findDownPort(orgId);
+    public List<TopoPortStatus> findDownPort(String orgId, String nodeType) {
+        return topoVertexMapper.findDownPort(orgId, nodeType);
     }
 
     @Override

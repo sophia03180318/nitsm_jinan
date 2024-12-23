@@ -193,7 +193,7 @@ public interface TopoVertexService extends IService<TopoVertex> {
      * @param orgId
      * @return
      */
-    List<TopoPortStatus> findDownPort(String orgId);
+    List<TopoPortStatus> findDownPort(String orgId, String nodeType);
 
 
     List<AssetTargetVo> queryTarget(String assetId);

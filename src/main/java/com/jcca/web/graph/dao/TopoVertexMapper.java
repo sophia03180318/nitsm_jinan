@@ -129,8 +129,8 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
      * @param orgId
      * @return
      */
-    @Select("select v.ASSET_ID as assetId,v.NODE_ID as nodeId,a.STATUS as status from TOPO_VERTEX v LEFT JOIN topo_asset_port a ON v.ASSET_ID = a.ASSET_ID AND v.PORT_INDEX = a.PORT_INDEX where v.ORG_ID = #{orgId} and v.NODE_TYPE = 'net_topo' and a.STATUS = 2 and v.IS_PORT = 1")
-    List<TopoPortStatus> findDownPort(@Param("orgId") String orgId);
+    @Select("select v.ASSET_ID as assetId,v.NODE_ID as nodeId,a.STATUS as status from TOPO_VERTEX v LEFT JOIN topo_asset_port a ON v.ASSET_ID = a.ASSET_ID AND v.PORT_INDEX = a.PORT_INDEX where v.ORG_ID = #{orgId} and v.NODE_TYPE = #{nodeType} and a.STATUS = 2 and v.IS_PORT = 1")
+    List<TopoPortStatus> findDownPort(@Param("orgId") String orgId, @Param("nodeType") String nodeType);
 
     List<AssetLinkAssetVo> findMaAssetAndPort();
 

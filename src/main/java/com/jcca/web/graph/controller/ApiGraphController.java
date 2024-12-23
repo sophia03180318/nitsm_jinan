@@ -106,27 +106,27 @@ public class ApiGraphController {
         String portIndex = reqJson.getStr("portIndex");
 
         JSONObject resp = new JSONObject();
-        resp.put("portIndex",portIndex);
-        resp.put("portInSpeed","暂未获取到数据");
-        resp.put("portOutSpeed","暂未获取到数据");
+        resp.put("portIndex", portIndex);
+        resp.put("portInSpeed", "暂未获取到数据");
+        resp.put("portOutSpeed", "暂未获取到数据");
         List<CollectInterfaces> collectInterface = interfacesServ.getRealTimeData(assetId);
-        if(Objects.isNull(collectInterface)||collectInterface.isEmpty()){
+        if (Objects.isNull(collectInterface) || collectInterface.isEmpty()) {
             return ResultVoUtil.success(resp);
         }
         List<CollectInterfaces> collect = collectInterface.stream().filter(item -> item.getPortIndex().equals(portIndex)).collect(Collectors.toList());
-        if(collect.isEmpty()){
+        if (collect.isEmpty()) {
             return ResultVoUtil.success(resp);
         }
         CollectInterfaces collectInterfaces = collect.get(0);
         Long portInSpeed = collectInterfaces.getPortInSpeed();
         Long portOutSpeed = collectInterfaces.getPortOutSpeed();
-        if(Objects.nonNull(portInSpeed)){
+        if (Objects.nonNull(portInSpeed)) {
             double v = new BigDecimal(portInSpeed).divide(new BigDecimal(8000), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
-            resp.put("portInSpeed",v+"Kbps");
+            resp.put("portInSpeed", v + "Kbps");
         }
-        if(Objects.nonNull(portOutSpeed)){
+        if (Objects.nonNull(portOutSpeed)) {
             double v = new BigDecimal(portOutSpeed).divide(new BigDecimal(8000), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
-            resp.put("portOutSpeed",v+"Kbps");
+            resp.put("portOutSpeed", v + "Kbps");
         }
         return ResultVoUtil.success(resp);
     }
@@ -291,10 +291,10 @@ public class ApiGraphController {
             queryWrapper.eq("NODE_TYPE", graph.getCategory());
             queryWrapper.eq("CORE_ASSET_ID", graph.getAssetId());
         } else {
-            queryWrapper.eq("NODE_TYPE", TopoCategoryEnum.NET_TOPO.category);
+            queryWrapper.eq("NODE_TYPE", graph.getCategory());
         }
 
-        List<TopoVertexAlarmStatusVo> respList = new ArrayList<TopoVertexAlarmStatusVo>();
+        List<TopoVertexAlarmStatusVo> respList = new ArrayList<>();
 
         // 查询组织下的节点
         List<TopoVertex> topoVertexs = topoVertexService.list(queryWrapper);
@@ -336,7 +336,7 @@ public class ApiGraphController {
         if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(graph.getCategory())) {
             list = topoVertexService.findNetWorkDownPortStatus(graph.getAssetId());
         } else {
-            list = topoVertexService.findDownPort(orgId);
+            list = topoVertexService.findDownPort(orgId, graph.getCategory());
         }
 
         /**
