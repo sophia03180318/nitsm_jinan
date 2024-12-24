@@ -249,7 +249,7 @@
         from ALARM_INFO a
         left join ASSET b on a.ASSET_ID = b.ID
         left join sys_org c on b.ORG_ID = c.ID
-        left join ALARM_REPOSITORY d on a.ALARM_CODE = d.ALARM_CODE AND (d.FLAG_TYPE = -1 or d.FLAG_TYPE = 2)
+        left join ALARM_REPOSITORY d on a.ALARM_CODE = d.ALARM_CODE AND d.FLAG_TYPE = -1
         <where>
             <if test="query.assetName !=null and query.assetName!='' ">
                 and b.NAME like concat(concat('%',#{query.assetName}),'%')

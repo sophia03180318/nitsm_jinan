@@ -1067,8 +1067,12 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                     alarmPageStatisticsVo.setKey("未定义的分类");
                     alarmPageStatisticsVo.setCode("");
                 } else {
+                    String name = StatusInfoChangeTypeEnum.getName(key);
                     alarmPageStatisticsVo.setCode(key);
-                    alarmPageStatisticsVo.setKey(StatusInfoChangeTypeEnum.getName(key));
+                    if(name.equals(key)){
+                        //车站的
+                        alarmPageStatisticsVo.setKey("车站设备告警");
+                    }
                 }
             } else if ("ALARM_LEVEL".equals(query.getGroupField())) {
                 if (StrUtil.isEmpty(key)) {

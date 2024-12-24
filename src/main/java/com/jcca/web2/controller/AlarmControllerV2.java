@@ -196,6 +196,12 @@ public class AlarmControllerV2 {
             query.setContent(query.getContent());
         }
         IPage<AlarmPageVo> page = alarmInfoServ.pageV2(query);
+        List<AlarmPageVo> records = page.getRecords();
+        for (AlarmPageVo record : records) {
+            if(StrUtil.isEmpty(record.getRepoName())){
+                record.setTitle("车站告警");
+            }
+        }
         return ResultVoUtil.success(page);
     }
 
