@@ -298,9 +298,9 @@ public enum StatusInfoChangeTypeEnum {
     //端口流入事件
     event_port_in_normal("event:event_port:in_normal", "端口流入普通阈值事件", getPubThresholdMsg("端口%s", "端口流入率", "%%"), "端口流入状态", ""),
     event_port_in_section("event:event_port:in_section", "端口流入区间阈值事件", getSectionThresholdMsg("端口%s", "端口流入", "Bps"), "区间流入阈值状态", ""),
-    event_port_in_sectionOne("event:event_port:in_sectionOne", "端口流入一阶阈值事件", getLevelThresholdMsg("端口%s", "端口流入率", "一阶", "%%"), "端口流出一阶状态", ""),
-    event_port_in_sectionTwo("event:event_port:in_sectionTwo", "端口流入二阶阈值事件", getLevelThresholdMsg("端口%s", "端口流入率", "二阶", "%%"), "端口流出二阶状态", ""),
-    event_port_in_sectionThree("event:event_port:in_sectionThree", "端口流入三阶阈值事件", getLevelThresholdMsg("端口%s", "端口流入率", "三阶", "%%"), "端口流出三阶状态", ""),
+    event_port_in_sectionOne("event:event_port:in_sectionOne", "端口流入一阶阈值事件", getLevelThresholdMsg("端口%s", "端口流入率", "一阶", "%%"), "端口流入一阶状态", ""),
+    event_port_in_sectionTwo("event:event_port:in_sectionTwo", "端口流入二阶阈值事件", getLevelThresholdMsg("端口%s", "端口流入率", "二阶", "%%"), "端口流入二阶状态", ""),
+    event_port_in_sectionThree("event:event_port:in_sectionThree", "端口流入三阶阈值事件", getLevelThresholdMsg("端口%s", "端口流入率", "三阶", "%%"), "端口流入三阶状态", ""),
     //端口流出事件
     event_port_out_normal("event:event_port:out_normal", "端口流出普通阈值事件", getPubThresholdMsg("端口%s", "端口流出率", "%%"), "端口流出阈值状态", ""),
     event_port_out_section("event:event_port:out_section", "端口流出区间阈值事件", getSectionThresholdMsg("端口%s", "端口流出", "Bps"), "端口流出区间状态", ""),
