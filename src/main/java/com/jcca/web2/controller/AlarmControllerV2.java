@@ -202,6 +202,8 @@ public class AlarmControllerV2 {
                 record.setTitle("车站告警");
             }
         }
+        page.setRecords(records);
+
         return ResultVoUtil.success(page);
     }
 

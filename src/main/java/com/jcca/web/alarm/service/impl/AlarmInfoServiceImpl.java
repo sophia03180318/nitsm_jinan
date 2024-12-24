@@ -1072,6 +1072,8 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                     if(name.equals(key)){
                         //车站的
                         alarmPageStatisticsVo.setKey("车站设备告警");
+                    }else{
+                        alarmPageStatisticsVo.setKey(name);
                     }
                 }
             } else if ("ALARM_LEVEL".equals(query.getGroupField())) {
