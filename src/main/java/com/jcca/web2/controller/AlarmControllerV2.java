@@ -199,7 +199,7 @@ public class AlarmControllerV2 {
         List<AlarmPageVo> records = page.getRecords();
         for (AlarmPageVo record : records) {
             if(StrUtil.isEmpty(record.getRepoName())){
-                record.setTitle("车站告警");
+                record.setRepoName("车站告警");
             }
         }
         page.setRecords(records);
