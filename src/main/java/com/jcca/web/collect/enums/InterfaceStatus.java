@@ -38,11 +38,23 @@ public enum InterfaceStatus {
     }
 
     public static Boolean isUp(Byte code) {
-        List<Byte> asList = Arrays.asList(InterfaceStatus.OK.getCode(),InterfaceStatus.UNKINOW.getCode(), InterfaceStatus.DORMANT.getCode());
+        List<Byte> asList = Arrays.asList(OK.getCode(), DORMANT.getCode());
         if (asList.contains(code)) {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * 需要忽略的交换机状态
+     * true 此状态不可做告警判定 需要忽略掉
+     * false 此状态可以做告警判定
+     * @return
+     */
+    public static Boolean needIgnore(Byte code){
+        List<Integer> knownStatusList = Arrays.asList(1, 5, 2, 6, 7);
+        return !knownStatusList.contains(code.intValue());
     }
 
 }
