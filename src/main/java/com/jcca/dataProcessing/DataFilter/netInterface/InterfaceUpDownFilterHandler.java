@@ -46,6 +46,11 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_interface_up_down.getCode();
         String mapKey = info.getPortName();
 
+        //过滤一下需要忽略的状态
+        if(InterfaceStatus.needIgnore(info.getStatus())){
+            return true;
+        }
+
         Boolean compare = InterfaceStatus.isUp(info.getStatus());
         Integer status = compare ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
 
