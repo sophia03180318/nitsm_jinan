@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.entity.SysUser;
+import com.jcca.admin.system.service.SysActionLogService;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.admin.system.service.SysUserService;
 import com.jcca.common.bean.ResultVo;
@@ -376,6 +377,14 @@ public class ApiController {
         }
 
         return ResultVoUtil.success(voList);
+    }
+
+    @Resource
+    private SysActionLogService actionLogService;
+
+    @GetMapping("/resetdb")
+    public void resetdb() {
+        actionLogService.resetdb();
     }
 
     /**
