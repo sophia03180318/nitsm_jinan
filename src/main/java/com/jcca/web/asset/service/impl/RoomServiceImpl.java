@@ -236,10 +236,10 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         if (OrgTypeConst.STATION == req.getType()) {
             this.createStationCabinet(room.getId());
         }
-        if (OrgTypeConst.CENTER == req.getType()) {
-            req.setId(room.getId());
-            this.createCenterCabinet(req);
-        }
+//        if (OrgTypeConst.CENTER == req.getType()) {
+//            req.setId(room.getId());
+//            this.createCenterCabinet(req);
+//        }
 
     }
 

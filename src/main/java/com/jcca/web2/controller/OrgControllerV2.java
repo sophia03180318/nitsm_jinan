@@ -9,7 +9,6 @@ import com.jcca.admin.system.entity.SysOrgReq;
 import com.jcca.admin.system.entity.SysRoleOrg;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.admin.system.service.SysRoleOrgService;
-import com.jcca.admin.system.validator.OrgValid;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AdminConst;
 import com.jcca.common.bean.constant.OrgTypeConst;
@@ -79,7 +78,7 @@ public class OrgControllerV2 {
      */
     @GetMapping("/sortList/{pid}/{notId}")
     @ResponseBody
-    public Map<Integer, String> sortList(
+    public ResultVo<Object> sortList(
             @PathVariable(value = "pid", required = false) String pid,
             @PathVariable(value = "notId", required = false) String notId) {
         // 本级排序组织列表
@@ -95,19 +94,19 @@ public class OrgControllerV2 {
         for (int i = 1; i <= levelOrg.size(); i++) {
             sortMap.put(i, levelOrg.get(i - 1).getTitle());
         }
-        return sortMap;
+        return ResultVoUtil.success(sortMap);
     }
 
     /**
      * 保存添加/修改的数据
      *
-     * @param valid 表单验证对象
+     * @param req 表单验证对象
      */
     @PostMapping("/save")
     @RequiresPermissions({"api:v2:org:save"})
     @ResponseBody
     @ActionLog(name = "新增或修改组织信息", title = "组织管理", key = LogTypeConstant.MODIFY)
-    public ResultVo<Object> save(@Validated OrgValid valid, SysOrgReq req) {
+    public ResultVo<Object> save(@Validated @RequestBody SysOrgReq req) {
         // 分割名称
         List<String> split = Arrays.asList(ToolUtil.cToe(req.getTitle()).split(","));
 
@@ -152,6 +151,7 @@ public class OrgControllerV2 {
                         this.addRole(sysOrg);
                     }
 
+                    req.setId(sysOrg.getId());
                     if (OrgTypeConst.STATION == req.getType() || OrgTypeConst.CENTER == req.getType()) {
                         roomService.createRoomAndCabinet(req);
                     }
