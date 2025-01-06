@@ -32,11 +32,11 @@ public class RoomControllerV2 {
     private RoomService roomService;
 
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     @ApiOperation("获取机房列表")
-    public ResultVo<Object> getList(@RequestBody Room room) {
+    public ResultVo<Object> getList(String orgTreeId) {
 
-        List<Room> list = roomService.getRoomListV2(room);
+        List<Room> list = roomService.getRoomListV2(orgTreeId);
 
         return ResultVoUtil.success(list);
     }

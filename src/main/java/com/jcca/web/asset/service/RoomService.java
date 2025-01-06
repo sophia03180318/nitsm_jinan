@@ -77,7 +77,7 @@ public interface RoomService extends IService<Room> {
      * @date: 2023/11/30 14:35
      * @param: [room]
      **/
-    List<Room> getRoomListV2(Room room);
+    List<Room> getRoomListV2(String orgTreeId);
 
     /**
      * @description: 给车站新建机房机柜
