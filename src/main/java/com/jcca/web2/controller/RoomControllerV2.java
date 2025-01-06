@@ -45,7 +45,7 @@ public class RoomControllerV2 {
     @RequiresPermissions("api:v2:room:save")
     @ApiOperation("保存机房信息")
     @ActionLog(name = "保存机房信息", title = "机房管理", key = LogTypeConstant.ADD)
-    public ResultVo<Object> save(@Validated RoomReq req) {
+    public ResultVo<Object> save(@Validated @RequestBody RoomReq req) {
         return roomService.saveRoomsInOrg(req);
     }
 
