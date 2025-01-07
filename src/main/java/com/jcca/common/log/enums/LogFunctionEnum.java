@@ -32,6 +32,7 @@ public enum LogFunctionEnum {
 
     // 组织管理 13
     ORG_MANAGE(LogFunctionConstant.ORG_MANAGE, "组织管理", ""),
+    CABINET_IMPORT(LogFunctionConstant.CABINET_IMPORT, "机柜导入", ""),
 
     // 用户管理 14
     USER_MANAGE(LogFunctionConstant.USER_MANAGE, "用户管理", ""),

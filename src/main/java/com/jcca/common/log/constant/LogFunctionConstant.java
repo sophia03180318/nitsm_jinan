@@ -24,6 +24,7 @@ public interface LogFunctionConstant {
 
     // 组织管理 13
     String ORG_MANAGE = "1301";
+    String CABINET_IMPORT = "1302";
 
     // 用户管理 14
     String USER_MANAGE = "1401";

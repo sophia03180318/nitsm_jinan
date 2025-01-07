@@ -2,6 +2,7 @@ package com.jcca.admin.system.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -56,6 +57,7 @@ public class CabinetTask extends Model<CabinetTask> implements java.io.Serializa
      * 创建时间
      */
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     /**
