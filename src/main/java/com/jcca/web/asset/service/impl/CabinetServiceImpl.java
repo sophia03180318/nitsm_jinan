@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
@@ -230,31 +229,8 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
         if (!StringUtils.isEmpty(cabinet.getRoomId())) {
             query.eq("ROOM_ID", cabinet.getRoomId());
         }
-        List<Cabinet> cabinetList = this.list(query);
-        for (Cabinet cab : cabinetList) {
-            StringBuilder orgName = new StringBuilder();
-            Room room = roomService.getById(cab.getRoomId());
-            SysOrg org = orgService.getById(room.getOrgId());
-            String pidStr = org.getPids();
-            pidStr = pidStr.replace("[", "");
-            pidStr = pidStr.replace("]", "");
-            String[] pids = pidStr.split(",");
-            for (String pid : pids) {
-                if (!pid.equals("0")) {
-                    try {
-                        orgName.append(">").append(orgService.getById(pid).getTitle());
-                    } catch (NullPointerException e) {
-                        orgName.append(">未知组织");
-                    }
-                }
-            }
-            orgName.append(">").append(org.getTitle());
 
-            cab.setOrgName(orgName.substring(1));
-            cab.setRoomName(room.getName());
-        }
-
-        return cabinetList;
+        return this.list(query);
     }
 
     @Override

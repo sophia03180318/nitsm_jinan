@@ -42,11 +42,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.NumberFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @description: 机柜相关接口V2版本
@@ -133,18 +130,17 @@ public class CabinetControllerV2 {
 
         if (StrUtil.isEmpty(taskId)) {
             CabinetTask cabinetTask = new CabinetTask();
-            cabinetTask.setBar("0%");
+            cabinetTask.setBar("0");
             return ResultVoUtil.success(cabinetTask);
         }
         CabinetTask cabinetTask = cabinetTaskService.getById(taskId);
         if ((cabinetTask.getSuccess() + cabinetTask.getFail()) == 0 || cabinetTask.getCount() == 0) {
-            cabinetTask.setBar("0%");
+            cabinetTask.setBar("0");
             return ResultVoUtil.success(cabinetTask);
         }
+        BigDecimal bar = new BigDecimal(cabinetTask.getSuccess()).add(new BigDecimal(cabinetTask.getFail())).divide(new BigDecimal(cabinetTask.getCount()), 2, BigDecimal.ROUND_HALF_UP);
 
-        NumberFormat num = NumberFormat.getPercentInstance();
-        String bar = num.format((double) (cabinetTask.getSuccess() + cabinetTask.getFail()) / cabinetTask.getCount());
-        cabinetTask.setBar(bar);
+        cabinetTask.setBar(bar.toString());
         return ResultVoUtil.success(cabinetTask);
     }
 
@@ -171,9 +167,11 @@ public class CabinetControllerV2 {
         wrapper.orderByDesc("CREATE_TIME");
         iPage = importCabinetService.page(iPage, wrapper);
 
-        List<ImportCabinet> records = iPage.getRecords();
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", iPage.getTotal());
+        map.put("records", iPage.getRecords());
 
-        return ResultVoUtil.success(records);
+        return ResultVoUtil.success(map);
     }
 
 
@@ -234,6 +232,7 @@ public class CabinetControllerV2 {
      */
     @PostMapping("/cabinetImport")
     @ActionLog(name = "导入机柜文件", title = "机柜管理", key = LogTypeConstant.UPLOAD)
+    @RequiresPermissions("api:v2:cabinet:cabinetImport")
     public ResultVo<Object> templateImportCabinet(@RequestParam("file") MultipartFile file) {
         //清空历史错误数据  并建立一个新的机柜导入任务
         importCabinetService.deleteAll();

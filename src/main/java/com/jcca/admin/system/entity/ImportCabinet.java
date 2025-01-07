@@ -83,7 +83,7 @@ public class ImportCabinet extends Model<ImportCabinet> implements java.io.Seria
      * 错误日志
      */
     @TableField(value = "ERROR_LOG")
-    private String ErrorLog;
+    private String errorLog;
 
     /**
      * 执行状态
