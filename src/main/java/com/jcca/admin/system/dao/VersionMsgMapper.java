@@ -26,4 +26,7 @@ public interface VersionMsgMapper extends BaseMapper<VersionMsg> {
 
     @Select("select * from M_STATION_VERSION_LOG where status in('AWAIT_UPLOADING','UPLOADING','UPDATEING')")
     List<VersionMsg> getStatus();
+
+    @Select("select * from M_VERSION_MSG order by CREATE_DATE DESC")
+    List<VersionMsg> queryList();
 }

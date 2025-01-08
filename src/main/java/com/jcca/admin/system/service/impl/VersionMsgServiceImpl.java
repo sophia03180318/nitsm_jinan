@@ -26,10 +26,16 @@ public class VersionMsgServiceImpl extends ServiceImpl<VersionMsgMapper, Version
     }
 
     @Override
+    public List<VersionMsg> queryList() {
+        return versionMapper.queryList();
+    }
+
+    @Override
     public Integer queryFileSize(String versionId) {
         return versionMapper.selectFileSize(versionId);
     }
 
+    @Override
     public Integer getStatus() {
         List<VersionMsg> list = versionMapper.getStatus();
         if (list.isEmpty()) {

@@ -2,6 +2,9 @@ package com.jcca.admin.biz.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 版本升级过程中的状态
  *
@@ -56,4 +59,13 @@ public enum StationVersionStatusEnum {
         return name;
     }
 
+    /**
+     * 是否已经更新完成
+     * @param status
+     */
+    public static Boolean isFinish(String status) {
+        List<String> unFinish = Arrays.asList(StationVersionStatusEnum.AWAIT_UPLOADING.name(), StationVersionStatusEnum.UPLOADING.name(), StationVersionStatusEnum.UPLOAD_OK.name(), StationVersionStatusEnum.UPDATEING.name());
+        return !unFinish.contains(status);
+
+    }
 }

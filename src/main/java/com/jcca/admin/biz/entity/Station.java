@@ -95,16 +95,23 @@ public class Station extends Model<Station> implements java.io.Serializable {
     @TableField(value = "STATION_GROUP", fill = FieldFill.INSERT_UPDATE)
     @NotNull(message = "车站分组为空")
     private Integer stationGroup;
-
-    /**
-     * 页面所筛选的组织树回传id 与机柜无直接关系
-     */
-    @TableField(exist = false)
-    private String orgTreeId;
     /**
      * 访问车站采集器代理URL
      */
     @TableField("PROXY_URL")
     private String proxyUrl;
+    /**
+     * 页面所筛选的组织树回传id 与机柜无直接关系
+     */
+    @TableField(exist = false)
+    private String orgTreeId;
+
+    /**
+     * 1 上传中
+     * -1 已完成上传动作  或上传已终止
+     */
+    @TableField(exist = false)
+    private Integer uploadFlag;
+
 
 }
