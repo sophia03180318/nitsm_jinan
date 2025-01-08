@@ -67,7 +67,6 @@ public class StationController {
      */
     @RequestMapping("/index")
     @RequiresPermissions("biz:station:index")
-    @ActionLog(name = "查看车站信息列表", title = "车站配置", key = LogTypeConstant.QUERY)
     public String index(Model model, Station station, Integer page, Integer size) {
         IPage<Station> iPage = PagePlugin.startPageT(page, size, Station.class);
 

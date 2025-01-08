@@ -32,11 +32,14 @@ public interface StationService extends IService<Station> {
 
     /**
      * 发送消息到车站
+     *
      * @param uri
      * @param stationId
      * @param reqBody
      * @return
      */
-    String sendPostToStation(String uri,String stationId,String reqBody);
+    String sendPostToStation(String uri, String stationId, String reqBody);
+
+    Map<String, Object> listV2(Station station, Integer page, Integer size);
 
 }

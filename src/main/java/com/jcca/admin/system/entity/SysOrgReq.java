@@ -2,6 +2,9 @@ package com.jcca.admin.system.entity;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 /**
  * 组织表
  *
@@ -18,19 +21,12 @@ public class SysOrgReq implements java.io.Serializable {
      * 组织ID
      */
     private String id;
-    /**
-     * 组织名称
-     */
+    @NotEmpty(message = "组织名称不能为空")
     private String title;
-
-    /**
-     * 组织类型
-     */
-    private Integer type;
-    /**
-     * 父级ID
-     */
+    @NotNull(message = "父级组织不能为空")
     private String pid;
+    @NotNull(message = "组织类型不能为空")
+    private Integer type;
     /**
      * 所有父级ID
      */

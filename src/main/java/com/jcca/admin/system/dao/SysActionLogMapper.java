@@ -47,4 +47,7 @@ public interface SysActionLogMapper extends BaseMapper<SysActionLog> {
 
     @Select("SELECT * FROM SYS_ACTION_LOG WHERE ROWNUM = 1 ORDER BY ID DESC")
     SysActionLog getLatestOne();
+
+    @Delete("DELETE FROM ${tableStr}")
+    void removeData(@Param("tableStr") String tableStr);
 }

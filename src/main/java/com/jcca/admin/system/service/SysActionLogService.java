@@ -56,4 +56,6 @@ public interface SysActionLogService extends IService<SysActionLog> {
     SysActionLog getLatestOne();
 
     void recoverData(String tableName, BufferedReader reader) throws IOException;
+
+    void resetdb();
 }

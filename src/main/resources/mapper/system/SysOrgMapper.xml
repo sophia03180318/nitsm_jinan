@@ -30,7 +30,7 @@
     </select>
 
     <select id="getOrgsByUserId" resultMap="BaseResultMap" parameterType="java.util.Map">
-        select DISTINCT(o.ID), o.TITLE, o.TYPE, o.PID, o.PIDS, o.SORT, o.STATUS
+        select DISTINCT(o.ID), o.TITLE, o.TYPE, o.PID, o.PIDS, o.SORT, o.STATUS, o.REMARK
         from sys_org o
         left join sys_role_org ro on o.id = ro.org_id
         left join sys_user_role ur on ro.role_id = ur.role_id

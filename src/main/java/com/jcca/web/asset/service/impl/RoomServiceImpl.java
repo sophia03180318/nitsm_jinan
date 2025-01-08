@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.biz.entity.RoomReq;
-import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.entity.SysOrgReq;
 import com.jcca.admin.system.entity.SysRoomAssetMsgBean;
 import com.jcca.admin.system.service.SysOrgService;
@@ -30,7 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -182,30 +184,13 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
      * @param: [room]
      */
     @Override
-    public List<Room> getRoomListV2(Room room) {
-        String orgTreeId = room.getOrgTreeId();
-
-        List<String> orgIds;
-        QueryWrapper<Room> wrapper = new QueryWrapper<>();
-        if (!StringUtils.isEmpty(room.getName())) {
-            wrapper.like("name", room.getName());
-        }
-
-        orgIds = ShiroUtil.getSubjectOrgIds();
-        if (!StringUtils.isEmpty(orgTreeId)) {
-            SysOrg org = orgService.getById(orgTreeId);
-            Integer type = org.getType();
-            if (type == OrgTypeConst.LINE) {
-                orgIds = orgService.getIdByline(orgTreeId);
-            }
-            if (type == OrgTypeConst.CENTER || type == OrgTypeConst.STATION) {
-                orgIds = Collections.singletonList(orgTreeId);
-            }
-        }
-        if (StringUtils.isEmpty(orgIds)) {
+    public List<Room> getRoomListV2(String orgTreeId) {
+        if (StringUtils.isEmpty(orgTreeId)) {
             return new ArrayList<>();
         }
-        wrapper.in("org_id", orgIds);
+
+        QueryWrapper<Room> wrapper = new QueryWrapper<>();
+        wrapper.eq("org_id", orgTreeId);
         wrapper.orderByDesc("modify_time");
         List<Room> records = this.list(wrapper);
         for (Room record : records) {
@@ -236,10 +221,10 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         if (OrgTypeConst.STATION == req.getType()) {
             this.createStationCabinet(room.getId());
         }
-        if (OrgTypeConst.CENTER == req.getType()) {
-            req.setId(room.getId());
-            this.createCenterCabinet(req);
-        }
+//        if (OrgTypeConst.CENTER == req.getType()) {
+//            req.setId(room.getId());
+//            this.createCenterCabinet(req);
+//        }
 
     }
 

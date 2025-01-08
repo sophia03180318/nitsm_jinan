@@ -32,11 +32,11 @@ public class RoomControllerV2 {
     private RoomService roomService;
 
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     @ApiOperation("获取机房列表")
-    public ResultVo<Object> getList(@RequestBody Room room) {
+    public ResultVo<Object> getList(String orgTreeId) {
 
-        List<Room> list = roomService.getRoomListV2(room);
+        List<Room> list = roomService.getRoomListV2(orgTreeId);
 
         return ResultVoUtil.success(list);
     }
@@ -45,7 +45,7 @@ public class RoomControllerV2 {
     @RequiresPermissions("api:v2:room:save")
     @ApiOperation("保存机房信息")
     @ActionLog(name = "保存机房信息", title = "机房管理", key = LogTypeConstant.ADD)
-    public ResultVo<Object> save(@Validated RoomReq req) {
+    public ResultVo<Object> save(@Validated @RequestBody RoomReq req) {
         return roomService.saveRoomsInOrg(req);
     }
 
