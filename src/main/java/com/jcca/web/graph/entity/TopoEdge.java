@@ -48,10 +48,21 @@ public class TopoEdge extends Model<TopoEdge> implements java.io.Serializable {
     @TableField("EDGE_SOURCE")
     private String edgeSource;
     /**
+     * 开始节点端口
+     */
+    @TableField("EDGE_SOURCE_PORT")
+    private String edgeSourcePort;
+    /**
      * 目标节点
      */
     @TableField("EDGE_TARGET")
     private String edgeTarget;
+
+    /**
+     * 目标节点端口
+     */
+    @TableField("EDGE_TARGET_PORT")
+    private String edgeTargetPort;
     /**
      * 组织结构ID
      */
@@ -67,7 +78,6 @@ public class TopoEdge extends Model<TopoEdge> implements java.io.Serializable {
      */
     @TableField("ASSET_ID")
     private String assetId;
-
 
     /**
      * 端口类型

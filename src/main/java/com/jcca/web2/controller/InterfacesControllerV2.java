@@ -89,7 +89,7 @@ public class InterfacesControllerV2 {
 
     /**
      * 获取设备可配置端口列表信息
-     *
+     * v
      * @return
      */
     @GetMapping("/listConfPortV2")
@@ -99,9 +99,9 @@ public class InterfacesControllerV2 {
         if(realTimeData.isEmpty()){
             return ResultVoUtil.success(new ArrayList<>());
         }
-        List<Integer> portType = Arrays.asList(6, 18, 22);
-        List<CollectInterfaces> collect = realTimeData.stream().filter(item -> portType.contains(item.getPortType())).collect(Collectors.toList());
-        return ResultVoUtil.success(collect);
+       /* List<Integer> portType = Arrays.asList(6, 18, 22);
+        List<CollectInterfaces> collect = realTimeData.stream().filter(item -> portType.contains(item.getPortType())).collect(Collectors.toList());*/
+        return ResultVoUtil.success(realTimeData);
     }
 
     @GetMapping("/listPcb")
