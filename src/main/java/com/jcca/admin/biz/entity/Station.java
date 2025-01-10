@@ -116,5 +116,17 @@ public class Station extends Model<Station> implements java.io.Serializable {
     @TableField(exist = false)
     private Integer uploadFlag;
 
+    /**
+     * 上传状态
+     */
+    @TableField(exist = false)
+    private String uploadStatus;
+
+    /**
+     * 更新百分比
+     */
+    @TableField(exist = false)
+    private String updateRate;
+
 
 }
