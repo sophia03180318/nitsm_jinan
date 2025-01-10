@@ -98,6 +98,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
                     continue;
                 }
                 StationVersionLog logEntity = logMapper.selectLoadingJob(stationId);
+
                 if (Objects.nonNull(logEntity)) {
                     // 抛出异常
                     Station station = stationMapper.selectById(logEntity.getStationId());

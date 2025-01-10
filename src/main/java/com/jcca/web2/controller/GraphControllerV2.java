@@ -207,7 +207,7 @@ public class GraphControllerV2 {
         if (OrgTypeConst.LINE == type) {
             this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);
             this.addTopo(TopoCategoryEnum.BIZ_TOPO.tagName, TopoCategoryEnum.BIZ_TOPO.category, orgId, topoTags);
-            this.addTopo(TopoCategoryEnum.WAN_TOPO.tagName, TopoCategoryEnum.WAN_TOPO.category, orgId, topoTags);
+//            this.addTopo(TopoCategoryEnum.WAN_TOPO.tagName, TopoCategoryEnum.WAN_TOPO.category, orgId, topoTags);
         }
         if (OrgTypeConst.STATION == type) {
             this.addTopo(TopoCategoryEnum.NET_TOPO.tagName, TopoCategoryEnum.NET_TOPO.category, orgId, topoTags);

@@ -23,7 +23,6 @@ public class BeginUpdateReq {
     @NotNull(message = "请输入上传间隔时长，必须为整数")
     private Integer intervalTime;
 
-    @NotEmpty(message = "请选择要升级的车站")
     private String stationIdListStr;
 
     private List<String> stationIdList;
