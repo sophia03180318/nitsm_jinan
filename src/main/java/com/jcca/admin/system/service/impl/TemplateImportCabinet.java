@@ -92,7 +92,7 @@ public class TemplateImportCabinet {
 
                 if (importCabinets.containsKey("qrCodeNum")) {
                     String q = importCabinets.get("qrCodeNum").toString().trim();
-                    if (!q.trim().isEmpty()) {
+                    if (Objects.nonNull(q) && !q.trim().isEmpty()) {
                         QueryWrapper<Cabinet> qw = Wrappers.query();
                         qw.eq("QR_CODE_NUM", q);
                         Cabinet c = cabinetService.getOne(qw);

@@ -317,6 +317,36 @@
         order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
 
+
+    <select id="selectNodeAlarmLevelByCabnet2"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        SELECT alarm.alarmLevel,
+               v.*,
+               t.name         as assetName,
+               t.id           as assetId,
+               t.org_id       as assetOrgId,
+               t.row_index    as rowIndex,
+               t.COLUMN_INDEX as columnIndex
+        FROM (select distinct c.id, c.name, c.row_index, c.COLUMN_INDEX, a.org_id,a.id as room_id
+              from cabinet c,
+                   room a
+              where a.id = c.room_id
+                and a.id = #{orgId}) t
+                 left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.room_id
+                 left join (
+            SELECT c.ID id, MIN(i.ALARM_LEVEL) alarmLevel
+            FROM CABINET c
+                     LEFT JOIN ROOM r ON c.ROOM_ID = r.ID
+                     LEFT JOIN ASSET_ATTACH a ON a.CABINET_ID = c.ID
+                     LEFT JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID
+            WHERE (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+              and i.BLANK = 1
+              AND r.ID = #{orgId}
+            GROUP BY c.ID
+        ) alarm on t.id = alarm.id
+        where t.room_id = #{orgId}
+    </select>
+
     <select id="selectNodeAlarmLevelByCabnet"
             resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
         SELECT alarm.alarmLevel,

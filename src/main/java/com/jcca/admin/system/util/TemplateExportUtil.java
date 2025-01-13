@@ -2,7 +2,6 @@ package com.jcca.admin.system.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.jcca.admin.system.entity.ImportCabinet;
 import com.jcca.admin.system.entity.SysUser;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.poi.hssf.usermodel.HSSFCellStyle;
@@ -297,36 +296,5 @@ public class TemplateExportUtil {
         } catch (NoSuchMethodException e) {
         }
 
-    }
-
-    public static SXSSFWorkbook createErrorCabinetExcel(Map<String, String> cabinetTemplate, List<ImportCabinet> list) {
-        SXSSFWorkbook workbook = createCabinetExcel(cabinetTemplate);
-        SXSSFSheet sheet = workbook.getSheetAt(0);
-
-        for (int i = 0; i < list.size(); i++) {
-            SXSSFRow row = sheet.createRow(i + 2);
-
-            SXSSFCell cell1 = row.createCell(0);
-            cell1.setCellValue(list.get(i).getOrgName());
-            SXSSFCell cell2 = row.createCell(1);
-            cell2.setCellValue(list.get(i).getRoomName());
-            SXSSFCell cell3 = row.createCell(2);
-            cell3.setCellValue(list.get(i).getName());
-            SXSSFCell cell4 = row.createCell(3);
-            cell4.setCellValue(list.get(i).getCode());
-            SXSSFCell cell5 = row.createCell(4);
-            cell5.setCellValue(list.get(i).getRowIndex());
-            SXSSFCell cell6 = row.createCell(5);
-            cell6.setCellValue(list.get(i).getColumnIndex());
-            SXSSFCell cell7 = row.createCell(6);
-            cell7.setCellValue(list.get(i).getRemark());
-            SXSSFCell cell8 = row.createCell(7);
-            cell8.setCellValue(list.get(i).getQrCodeNum());
-            SXSSFCell cell9 = row.createCell(8);
-            cell9.setCellValue(list.get(i).getErrorLog());
-
-        }
-
-        return workbook;
     }
 }

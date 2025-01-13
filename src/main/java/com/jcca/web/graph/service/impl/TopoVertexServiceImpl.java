@@ -221,6 +221,12 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
     }
 
     @Override
+    public List<TopoVertexAlarmLevelVo> selectNodeAlarmLevelByCabnet2(String nodeType, String orgId, String roomId) {
+        return topoVertexMapper.selectNodeAlarmLevelByCabnet2(nodeType, orgId, roomId);
+
+    }
+
+    @Override
     public Boolean deleteNetWorkAssetNodes(String nodeType, String assetId) {
         return topoVertexMapper.deleteNetWorkAssetTopoVertex(nodeType, assetId);
     }

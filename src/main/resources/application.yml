@@ -107,11 +107,11 @@ spring:
 
 jcca:
   redis:
-    host: 192.168.73.66
+    host: 192.168.73.27
     port: 6379
     password: jcca@123
     timeout: 5000
-    database: 8
+    database: 5
 
     jedis:
       pool1:

@@ -48,18 +48,17 @@ import com.jcca.web2.entity.TopoTag;
 import com.jcca.web2.enums.TopoCategoryEnum;
 import com.jcca.web2.service.BusinessServiceTypeService;
 import com.jcca.web2.service.TopoTagService;
-import com.jcca.web2.vo.AssetStrVo;
-import com.jcca.web2.vo.BizTopoCenterVo;
-import com.jcca.web2.vo.CabinetTopoDetailVo;
-import com.jcca.web2.vo.RoomTopoVo;
+import com.jcca.web2.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -77,6 +76,8 @@ import java.util.stream.Collectors;
 public class GraphControllerV2 {
 
     private static final Byte CLUSTER = 2;
+    @Value("${project.upload.file-path}")
+    private String path;
 
     @Resource
     private TopoVertexService topoVertexService;
@@ -110,6 +111,7 @@ public class GraphControllerV2 {
     private CollectClusterService collectClusterService;
     @Resource
     private CollectRouteService collectRouteService;
+
 
 
     /**
@@ -529,6 +531,16 @@ public class GraphControllerV2 {
             }
         }
 
+
+        List<TopoVertex> nodes1 = topoNodeGraph.getNodes();
+        if ("cabinet_topo".equals(topoNodeGraph.getCategory())) {
+            for (TopoVertex topoVertex : nodes1) {
+                topoVertex.setOrgId(topoNodeGraph.getOrgId());
+            }
+            topoNodeGraph.setNodes(nodes1);
+        }
+
+
         topoVertexService.deleteNodes(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
         topoPointsService.deleteTopoPoints(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
         topoEdgeService.deleteTopoEdge(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
@@ -654,7 +666,8 @@ public class GraphControllerV2 {
         // 机柜
         if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             String roomId = graph.getRoomId();
-            List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
+            //  List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
+            List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet2(category, roomId, roomId);
             map.put("vertex", list);
         }
         // 调度台设备
@@ -733,6 +746,98 @@ public class GraphControllerV2 {
         List<String> ids = assetList.stream().map(Asset::getId).collect(Collectors.toList());
         List<TopoVertexVo> list = topoVertexService.selectWanTopoNodeByAsset(category, ids);
         map.put("vertex", list);
+    }
+
+
+    @GetMapping("/getNetWorkAsset/{orgId}")
+    @ApiOperation(value = "获取网络设备")
+    @ResponseBody
+    public ResultVo getNetWorkAsset(@PathVariable String orgId) {
+        QueryWrapper<Asset> qw = new QueryWrapper<>();
+        qw.eq("IS_DEL", 1);
+        qw.eq("ORG_ID", orgId);
+        List<Asset> list = assetService.list(qw);
+        ArrayList<TopoAsset> topoAssets = new ArrayList<>();
+        for (Asset asset : list) {
+            TopoAsset topoAsset = new TopoAsset();
+            topoAsset.setAssetId(asset.getId());
+            topoAsset.setAssetName(asset.getName());
+            topoAsset.setAssetMode(asset.getAssetMode());
+            if (asset.getAssetMode()==42||asset.getAssetMode()==201){
+                List<CollectInterfaces> realTimeData = intefacesServ.getRealTimeData(asset.getId());
+                if(!realTimeData.isEmpty()){
+                    topoAsset.setPortNameList(realTimeData);
+                }
+            }
+            topoAssets.add(topoAsset);
+        }
+        return ResultVoUtil.success(topoAssets);
+    }
+
+
+    @GetMapping("/getStationNetTopo/{orgId}")
+    @ApiOperation(value = "获取车站网络topo")
+    @ResponseBody
+    public ResultVo getNetWorkTopoFile(@PathVariable String orgId) {
+        String filePath = path + "/NetTopo/";
+        Reader reader = null;
+        try {
+            File file = new File(filePath + orgId);
+            if (!file.exists()) {
+                return ResultVoUtil.success("");
+            }
+            reader = new InputStreamReader(new FileInputStream(file));
+            char[] tempchars = new char[50];
+            int charread = 0;
+            StringBuilder builder = new StringBuilder();
+            while ((charread = reader.read(tempchars)) != -1) {
+                if ((charread == tempchars.length)) {
+                    builder.append(tempchars);
+                } else {
+                    for (int i = 0; i < charread; i++) {
+                        builder.append(tempchars[i]);
+                    }
+                }
+            }
+            reader.close();
+            String content = builder.toString();
+            return ResultVoUtil.success(content);
+        } catch (IOException e) {
+            if (ObjectUtil.isNotNull(reader)) {
+                try {
+                    reader.close();
+                } catch (IOException ex) {
+                }
+            }
+            return ResultVoUtil.error("");
+        }
+    }
+
+
+    @PostMapping("/saveStationNetTopo")
+    @ApiOperation(value = "保存网络资产拓扑文件")
+    @ResponseBody
+    public ResultVo saveNetWorkTopoFile(@RequestBody NetTopoVo netTopoVo) {
+        String filePath = path + "/NetTopo/";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(filePath + netTopoVo.getOrgId());
+            fileWriter.write(netTopoVo.getMsg());
+            fileWriter.close();
+            return ResultVoUtil.success("保存成功");
+        } catch (IOException e) {
+            if (ObjectUtil.isNotNull(fileWriter)) {
+                try {
+                    fileWriter.close();
+                } catch (IOException ex) {
+                }
+            }
+            return ResultVoUtil.error(e.toString());
+        }
     }
 
 }

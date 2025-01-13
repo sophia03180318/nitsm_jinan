@@ -130,6 +130,9 @@ public interface TopoVertexService extends IService<TopoVertex> {
     List<TopoVertexAlarmLevelVo> selectNodeAlarmLevelByCabnet(String nodeType, String orgId);
 
 
+    List<TopoVertexAlarmLevelVo> selectNodeAlarmLevelByCabnet2(String nodeType, String orgId,String roomId);
+
+
     /**
      * 获取调度台信息
      *
