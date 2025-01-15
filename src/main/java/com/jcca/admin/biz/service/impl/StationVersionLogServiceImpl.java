@@ -1,6 +1,7 @@
 package com.jcca.admin.biz.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.biz.dao.StationMapper;
@@ -320,34 +321,52 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
         Station station = stationMapper.selectById(item.getStationId());
 
         RestBean result = stationClient.queryUpdateResult(item.getStationId());
+
         if (RestBean.ERROR.equals(result.getCode())) {
             log.error("查询车站升级结果失败：" + station.getTitle());
+            result = stationClient.queryUpdateResultV2(item.getStationId());
+        }
+        if (RestBean.ERROR.equals(result.getCode())) {
+            log.error("查询车站升级V2结果失败：" + station.getTitle()+result.getMsg());
             return;
         }
         Object body = result.getBody();
-        UpdateResult updateResult = JSONUtil.toBean(JSONUtil.parseObj(body), UpdateResult.class);
-
-        RestBean updateResultFlag = updateResult.getResult();
-        if (Objects.isNull(updateResultFlag)) {
-            log.error("车站处于升级中，暂无结果：" + station.getTitle());
-            return;
-        }
-        if (RestBean.SUCCESS.equals(updateResultFlag.getCode())) {
-            // 更新成功
+        if(!JSONUtil.isJson(body.toString())){
+            //v2.1 新版本车站
             item.setStatus(StationVersionStatusEnum.UPDATE_SUCCESS.name());
             item.setEndDate(new Date());
             item.setUpdateRate("100");
             item.setRemark("更新成功");
-            item.setCommitId(updateResult.getCommitId());
-            item.setVersion(updateResult.getVersion());
-        } else {
-            item.setStatus(StationVersionStatusEnum.UPDATE_FAIL.name());
-            item.setRemark(updateResultFlag.getMsg());
-            item.setCommitId(updateResult.getCommitId());
-            item.setVersion(updateResult.getVersion());
-        }
+            item.setCommitId("");
+            item.setVersion(body.toString());
 
+        }else{
+            //v2.0
+            UpdateResult updateResult = JSONUtil.toBean(JSONUtil.parseObj(body), UpdateResult.class);
+
+            RestBean updateResultFlag = updateResult.getResult();
+            if (Objects.isNull(updateResultFlag)) {
+                log.error("车站处于升级中，暂无结果：" + station.getTitle());
+                return;
+            }
+            if (RestBean.SUCCESS.equals(updateResultFlag.getCode())) {
+                // 更新成功
+                item.setStatus(StationVersionStatusEnum.UPDATE_SUCCESS.name());
+                item.setEndDate(new Date());
+                item.setUpdateRate("100");
+                item.setRemark("更新成功");
+                item.setCommitId(updateResult.getCommitId());
+                item.setVersion(updateResult.getVersion());
+            } else {
+                item.setStatus(StationVersionStatusEnum.UPDATE_FAIL.name());
+                item.setRemark(updateResultFlag.getMsg());
+                item.setCommitId(updateResult.getCommitId());
+                item.setVersion(updateResult.getVersion());
+            }
+        }
         updateById(item);
+
+
     }
 
     @Override
@@ -399,7 +418,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
             }
 
         }
-
-        return 0;// 不改变状态
+        // 不改变状态
+        return 0;
     }
 }

@@ -42,4 +42,12 @@ public interface StationService extends IService<Station> {
 
     Map<String, Object> listV2(Station station, Integer page, Integer size);
 
+    /**
+     * 发送get消息
+     * @param queryUpdateResultUriV2
+     * @param stationId
+     * @param assetId
+     * @return
+     */
+    String sendGetToStation(String queryUpdateResultUriV2, String stationId, String assetId);
 }

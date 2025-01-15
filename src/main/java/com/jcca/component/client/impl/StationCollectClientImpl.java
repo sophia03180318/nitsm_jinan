@@ -35,6 +35,8 @@ public class StationCollectClientImpl implements StationCollectClient {
     private static final String REFRESH_URI = "/station/home/refresh";
     private static final String REMOVE_JAR_URI = "/station/home/removeJar";
     private static final String QUERY_UPDATE_RESULT_URI = "/station/home/result";
+    private static final String QUERY_UPDATE_RESULT_URI_V2 = "/openApi/station/version/info";
+
     private static final String NOTIFY_PING_STATUS = "/station/notify/pingStatus";
     private static final String NOTIFY_ALARM_STATUS = "/station/notify/alarmStatus";
     private static final String NOTIFY_REMOVE_STATUS = "/station/notify/remove";
@@ -132,6 +134,33 @@ public class StationCollectClientImpl implements StationCollectClient {
             return RestBean.ofError("查询失败");
         }
     }
+
+
+    @Override
+    public RestBean queryUpdateResultV2(String stationId) {
+        log.info("StationCollectClient发起查询更新结果，REQ：{}", stationId);
+
+        try {
+            String body =  stationServ.sendGetToStation(QUERY_UPDATE_RESULT_URI_V2,stationId,"");
+            if(!JSONUtil.isJson(body)){
+                return RestBean.ofError("查询失败");
+            }
+
+            if(LogInputUtils.inputInfo(ServerTypeEnum.SYSTEM_STATION)){
+                log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.SYSTEM_STATION, stationId,"StationCollectClient发起查询更新结果，"+ body));
+            }
+            JSONObject respJson = JSONUtil.parseObj(body);
+            RestBean resp = JSONUtil.toBean(respJson, RestBean.class);
+
+            return resp;
+        } catch (Exception e) {
+            if(LogInputUtils.inputError(ServerTypeEnum.SYSTEM_STATION)){
+                log.error(LogInputUtils.formattingErrorLog(ServerTypeEnum.SYSTEM_STATION, ErrorCodeEnum.SYSTEM_STATION_ADD,"","查询失败"+e.getMessage()));
+            }
+            return RestBean.ofError("查询失败");
+        }
+    }
+
 
     @Override
     public void notifyStationPingStatus(String assetId, Boolean status,String uniqueCode) {

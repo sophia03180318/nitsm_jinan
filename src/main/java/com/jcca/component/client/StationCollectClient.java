@@ -58,4 +58,11 @@ public interface StationCollectClient {
      * @param event
      */
     void notifyResetStatus(AlarmEvent event);
+
+    /**
+     * 查询车站状态 V2
+     * @param stationId
+     * @return
+     */
+    RestBean queryUpdateResultV2(String stationId);
 }

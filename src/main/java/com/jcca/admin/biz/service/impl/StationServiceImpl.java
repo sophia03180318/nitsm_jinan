@@ -3,6 +3,7 @@ package com.jcca.admin.biz.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -122,4 +123,39 @@ public class StationServiceImpl extends ServiceImpl<StationMapper, Station> impl
         map.put("total", total);
         return map;
     }
+
+
+    @Override
+    public String sendGetToStation(String uri, String stationId, String reqBody) {
+        Station station = getById(stationId);
+        if(Objects.isNull(station)){
+            log.error("车站ID"+stationId+"不存在！");
+            return "车站ID"+stationId+"不存在！";
+        }
+        List<String> stationIpList = new ArrayList<String>();
+        stationIpList.add(station.getIp());
+        if(StrUtil.isNotEmpty(station.getIp2())){
+            stationIpList.add(station.getIp2());
+        }
+
+        for (String ip : stationIpList) {
+            String url = UrlUtil.getStationUrlPrefix(station.getProxyUrl(), ip, station.getPort().toString())+uri;
+            if(LogInputUtils.inputInfo(ServerTypeEnum.STATION_AGENT)){
+                log.info("车站采集器客户端请求："+url+"参数："+reqBody);
+            }
+            try {
+                String body = HttpRequest.get(url).setConnectionTimeout(5 * 1000).setReadTimeout(180 * 1000).execute().body();
+                if(LogInputUtils.inputInfo(ServerTypeEnum.STATION_AGENT)){
+                    log.info("车站采集器客户端请求："+url+"响应："+body);
+                }
+                return body;
+            }catch (Exception e){
+                log.error(String.format("向车站%s发送消息：%s,发生异常，异常信息：%s,将尝试其他IP通讯。",station.getTitle(),reqBody,e.toString()));
+            }
+        }
+        log.error(String.format("向车站%s发送消息：%s,通讯失败。",station.getTitle(),reqBody));
+        return String.format("向车站%s发送消息：%s,通讯失败。",station.getTitle(),reqBody);
+    }
+
+
 }
