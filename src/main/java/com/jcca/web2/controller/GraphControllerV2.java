@@ -531,16 +531,6 @@ public class GraphControllerV2 {
             }
         }
 
-
-        List<TopoVertex> nodes1 = topoNodeGraph.getNodes();
-        if ("cabinet_topo".equals(topoNodeGraph.getCategory())) {
-            for (TopoVertex topoVertex : nodes1) {
-                topoVertex.setOrgId(topoNodeGraph.getOrgId());
-            }
-            topoNodeGraph.setNodes(nodes1);
-        }
-
-
         topoVertexService.deleteNodes(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
         topoPointsService.deleteTopoPoints(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
         topoEdgeService.deleteTopoEdge(topoNodeGraph.getCategory(), topoNodeGraph.getOrgId());
@@ -548,7 +538,7 @@ public class GraphControllerV2 {
         topoAssetMarkService.deleteAssetMark(topoNodeGraph.getOrgId(), topoNodeGraph.getCategory());
 
         List<TopoVertex> nodes = topoNodeGraph.getNodes();
-        if (TopoCategoryEnum.NET_TOPO.category.equals(topoNodeGraph.getCategory())) {
+        if (TopoCategoryEnum.CABINET_TOPO.category.equals(topoNodeGraph.getCategory())) {
             for (TopoVertex node : nodes) {
                 node.setOrgId(topoNodeGraph.getOrgId()); // 机柜拓扑使用机房ID做为组织ID
             }

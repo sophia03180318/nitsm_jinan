@@ -151,9 +151,11 @@ public class OrgControllerV2 {
                         this.addRole(sysOrg);
                     }
 
-                    req.setId(sysOrg.getId());
                     if (OrgTypeConst.STATION == req.getType() || OrgTypeConst.CENTER == req.getType()) {
+                        req.setId(sysOrg.getId());
+                        req.setTitle(name);
                         roomService.createRoomAndCabinet(req);
+                        req.setId(null);
                     }
 
                 } else {//编辑
