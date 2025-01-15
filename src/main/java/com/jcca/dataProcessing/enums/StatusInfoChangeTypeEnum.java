@@ -103,7 +103,7 @@ public enum StatusInfoChangeTypeEnum {
     //时钟同步状态事件
     event_time("event:event_time", "时钟事件", "时钟服务器状态异常", "", "183_1831_1832_1833_1834"),
     event_time_state("event:event_time:state", "时间偏差事件", getPubThresholdMsg("", "时间偏差", "秒"), "", ""),
-    event_run_time_state("event:event_time:run_state", "运行时长事件", getPubThresholdMsg("", "运行时长", "天"), "", ""),
+    event_run_time_state("event:event_time:run_state", "运行时长事件", getPubThresholdMsg("", "运行时长", "天"), "运行时长", ""),
     event_clock_state("event:event_time:clock_state", "时间服务器状态事件", "时钟同步服务状态%s", "", ""),
     event_run_restart("event:event_time:run_restart", "设备事件", "检测到设备可能存在重启情况,请检查设备运行状态是否正常。", "", ""),
     //时钟徒步事件对应的状态信息
