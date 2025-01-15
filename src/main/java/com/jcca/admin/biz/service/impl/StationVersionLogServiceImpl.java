@@ -357,15 +357,19 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
                 item.setRemark("更新成功");
                 item.setCommitId(updateResult.getCommitId());
                 item.setVersion(updateResult.getVersion());
+
+                station.setTargetName(updateResult.getVersion());
             } else {
                 item.setStatus(StationVersionStatusEnum.UPDATE_FAIL.name());
                 item.setRemark(updateResultFlag.getMsg());
                 item.setCommitId(updateResult.getCommitId());
                 item.setVersion(updateResult.getVersion());
+
+                station.setTargetName(updateResult.getVersion());
             }
         }
         updateById(item);
-
+        stationMapper.updateById(station);
 
     }
 

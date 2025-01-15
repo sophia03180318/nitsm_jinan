@@ -967,7 +967,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         record.setOrgId(asset.getOrgId());
         record.setTargetItem(vo.getId());
         record.setTargetName(vo.getName());
-        record.setOrgName(org.getTitle());
+        if(Objects.nonNull(org)){
+            record.setOrgName(org.getTitle());
+        }else{
+            return ;
+        }
         record.setInspectType(1);
         record.setInspectState(Web2Const.INSPECT);
         record.setTargetStatus((int) StatusConst.OK);
