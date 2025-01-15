@@ -30,6 +30,7 @@ import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.ResultVoUtil;
 
+import com.jcca.common.utils.SqlInjectionUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.web2.dto.StationPageDto;
@@ -102,7 +103,7 @@ public class StationControllerV2 {
         }
 
         if(StrUtil.isNotEmpty(dto.getStationName())){
-            wrapper.like("TITLE",dto.getStationName());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper,"TITLE",dto.getStationName());
         }
 
         if(StrUtil.isNotEmpty(dto.getStationIp())){
