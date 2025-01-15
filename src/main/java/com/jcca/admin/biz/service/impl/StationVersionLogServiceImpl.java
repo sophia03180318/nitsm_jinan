@@ -194,9 +194,10 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
             return;
         }
 
+        Integer limi = Integer.valueOf(logReq.getRateLimi()) *1024;
+
         while (true) {
             Integer finishSize = logReq.getFinishSize();
-            Integer limi = Integer.valueOf(logReq.getRateLimi());
 
             if (Objects.isNull(finishSize)) {
                 finishSize = 0;
@@ -340,6 +341,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
             item.setCommitId("");
             item.setVersion(body.toString());
 
+            station.setTargetName(body.toString());
         }else{
             //v2.0
             UpdateResult updateResult = JSONUtil.toBean(JSONUtil.parseObj(body), UpdateResult.class);
@@ -359,6 +361,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
                 item.setVersion(updateResult.getVersion());
 
                 station.setTargetName(updateResult.getVersion());
+
             } else {
                 item.setStatus(StationVersionStatusEnum.UPDATE_FAIL.name());
                 item.setRemark(updateResultFlag.getMsg());
@@ -366,6 +369,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
                 item.setVersion(updateResult.getVersion());
 
                 station.setTargetName(updateResult.getVersion());
+
             }
         }
         updateById(item);
