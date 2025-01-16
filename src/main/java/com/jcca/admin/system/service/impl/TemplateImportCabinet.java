@@ -92,7 +92,7 @@ public class TemplateImportCabinet {
 
                 if (importCabinets.containsKey("qrCodeNum")) {
                     String q = importCabinets.get("qrCodeNum").toString().trim();
-                    if (Objects.nonNull(q) && !q.trim().isEmpty()) {
+                    if (!q.trim().isEmpty()) {
                         QueryWrapper<Cabinet> qw = Wrappers.query();
                         qw.eq("QR_CODE_NUM", q);
                         Cabinet c = cabinetService.getOne(qw);
@@ -119,6 +119,11 @@ public class TemplateImportCabinet {
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("1");
                 importCabinet.setErrorLog(e.getMessage());
+                importCabinet.setName("名称不能超过20个字符");
+                if (importCabinet.getName().length() > 20) {
+                    importCabinet.setErrorLog("名称不能超过20个字符");
+                    continue;
+                }
                 importCabinetService.save(importCabinet);
                 //更新taski信息
                 fail++;
@@ -129,6 +134,11 @@ public class TemplateImportCabinet {
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("1");
                 importCabinet.setErrorLog(e.getMessage());
+                importCabinet.setName("名称不能超过20个字符");
+                if (importCabinet.getName().length() > 20) {
+                    importCabinet.setErrorLog("名称不能超过20个字符");
+                    continue;
+                }
                 importCabinetService.save(importCabinet);
                 //更新taski信息
                 fail++;
