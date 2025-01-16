@@ -206,12 +206,12 @@ public class CabinetControllerV2 {
 
         try {
             Map<String, String> cabinetTemplate = new LinkedHashMap<String, String>();
-            cabinetTemplate.put("组织名称", "orgName");
-            cabinetTemplate.put("机房名称", "roomName");
-            cabinetTemplate.put("机柜名称", "name");
-            cabinetTemplate.put("机柜编号", "code");
-            cabinetTemplate.put("横向索引", "rowIndex");
-            cabinetTemplate.put("纵向索引", "columnIndex");
+            cabinetTemplate.put("*组织名称(16个汉字)", "orgName");
+            cabinetTemplate.put("*机房名称(16个汉字)", "roomName");
+            cabinetTemplate.put("*机柜名称(16个汉字)", "name");
+            cabinetTemplate.put("*机柜编号(不可重复)", "code");
+            cabinetTemplate.put("*横向索引", "rowIndex");
+            cabinetTemplate.put("*纵向索引", "columnIndex");
             cabinetTemplate.put("备注", "remark");
             cabinetTemplate.put("识别号", "qrCodeNum");
 

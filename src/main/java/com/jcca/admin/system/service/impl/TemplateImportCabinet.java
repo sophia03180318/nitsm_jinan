@@ -103,7 +103,6 @@ public class TemplateImportCabinet {
                     }
                 }
 
-
                 //记录正确机柜
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("0");
@@ -119,9 +118,11 @@ public class TemplateImportCabinet {
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("1");
                 importCabinet.setErrorLog(e.getMessage());
-                importCabinet.setName("名称不能超过20个字符");
-                if (importCabinet.getName().length() > 20) {
+                int length = importCabinet.getName().length();
+                if (length > 20) {
+                    importCabinet.setName("名称不能超过20个字符");
                     importCabinet.setErrorLog("名称不能超过20个字符");
+                    importCabinetService.save(importCabinet);
                     continue;
                 }
                 importCabinetService.save(importCabinet);
@@ -134,9 +135,10 @@ public class TemplateImportCabinet {
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("1");
                 importCabinet.setErrorLog(e.getMessage());
-                importCabinet.setName("名称不能超过20个字符");
                 if (importCabinet.getName().length() > 20) {
+                    importCabinet.setName("名称不能超过20个字符");
                     importCabinet.setErrorLog("名称不能超过20个字符");
+                    importCabinetService.save(importCabinet);
                     continue;
                 }
                 importCabinetService.save(importCabinet);
