@@ -212,6 +212,7 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
 
         query = Wrappers.query();
         query.eq("CODE", cabinet.getCode());
+        query.eq("ROOM_ID", cabinet.getRoomId());
         if (!StringUtils.isEmpty(cabinet.getId())) {
             query.ne("ID", cabinet.getId());
         }
