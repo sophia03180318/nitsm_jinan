@@ -223,6 +223,31 @@ public class CabinetControllerV2 {
         }
     }
 
+    @GetMapping("/exportErrorCabinet")
+    @ActionLog(name = "导出失败机柜列表", title = "组织管理", key = LogTypeConstant.DOWNLOAD)
+    public void exportErrorCabinet(HttpServletResponse response) {
+        try {
+            Map<String, String> cabinetTemplate = new LinkedHashMap<>();
+            cabinetTemplate.put("组织名称", "orgName");
+            cabinetTemplate.put("机房名称", "roomName");
+            cabinetTemplate.put("机柜名称", "name");
+            cabinetTemplate.put("机柜编号", "code");
+            cabinetTemplate.put("横向索引", "rowIndex");
+            cabinetTemplate.put("纵向索引", "columnIndex");
+            cabinetTemplate.put("备注", "remark");
+            cabinetTemplate.put("识别号", "qrCodeNum");
+            cabinetTemplate.put("错误信息", "erroLog");
+
+            List<ImportCabinet> list = importCabinetService.list();
+            SXSSFWorkbook excel = TemplateExportUtil.createErrorCabinetExcel(cabinetTemplate, list);
+            DispatchRecordExcelUtil.responseBody(excel, response, "ErrorCabinetLog");
+
+        } catch (Exception e) {
+
+        }
+
+    }
+
 
     /**
      * 模板开始导入

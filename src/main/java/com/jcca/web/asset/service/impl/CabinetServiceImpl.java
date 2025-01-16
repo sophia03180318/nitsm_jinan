@@ -12,6 +12,7 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.common.utils.SqlInjectionUtils;
 import com.jcca.web.alarm.vo.AlarmUnconfirmVo;
 import com.jcca.web.asset.dao.CabinetMapper;
 import com.jcca.web.asset.entity.AssetAttach;
@@ -200,6 +201,27 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
             }
         }
 
+        QueryWrapper<Cabinet> query = Wrappers.query();
+        query.eq("NAME", cabinet.getName());
+        if (!StringUtils.isEmpty(cabinet.getId())) {
+            query.ne("ID", cabinet.getId());
+        }
+        List<Cabinet> list = this.list(query);
+        if (!list.isEmpty()) {
+            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "机柜名称不能重复");
+        }
+
+        query = Wrappers.query();
+        query.eq("CODE", cabinet.getCode());
+        query.eq("ROOM_ID", cabinet.getRoomId());
+        if (!StringUtils.isEmpty(cabinet.getId())) {
+            query.ne("ID", cabinet.getId());
+        }
+        list = this.list(query);
+        if (!list.isEmpty()) {
+            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "机柜编号不能重复");
+        }
+
         QueryWrapper<Cabinet> cabinetQuery = Wrappers.query();
         cabinetQuery.eq("ROOM_ID", cabinet.getRoomId());
         cabinetQuery.eq("ROW_INDEX", cabinet.getRowIndex());
@@ -224,7 +246,7 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
     public List<Cabinet> getCabinetListV2(Cabinet cabinet) {
         QueryWrapper<Cabinet> query = Wrappers.query();
         if (!StringUtils.isEmpty(cabinet.getName())) {
-            query.like("NAME", cabinet.getName());
+            SqlInjectionUtils.formattingQueryWrapper(query, "NAME", cabinet.getName());
         }
         if (!StringUtils.isEmpty(cabinet.getRoomId())) {
             query.eq("ROOM_ID", cabinet.getRoomId());

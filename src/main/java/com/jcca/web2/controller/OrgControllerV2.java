@@ -112,6 +112,13 @@ public class OrgControllerV2 {
 
         // 排空+倒序
         List<String> afterTreatment = split.stream().filter(StrUtil::isNotBlank).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        // 查看集合中是否有相同数据
+        if (afterTreatment.size() > 1) {
+            boolean flag = this.isDup(afterTreatment);
+            if (flag) {
+                return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "所添加的组织名称有重复");
+            }
+        }
 
         // 获取所有名称
         List<String> existNameList = orgService.getOrgByName();
@@ -182,6 +189,17 @@ public class OrgControllerV2 {
             return ResultVoUtil.error(e.getCode(), e.getMessage());
         }
         return ResultVoUtil.success("成功");
+    }
+
+    private boolean isDup(List<String> list) {
+        Set<String> set = new HashSet<>();
+        for (String str : list) {
+            if (set.contains(str)) {
+                return true;
+            }
+            set.add(str);
+        }
+        return false;
     }
 
 
