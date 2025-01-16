@@ -157,6 +157,14 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             return ResultVoUtil.success("添加成功");
         }
 
+        QueryWrapper<Room> query = Wrappers.query();
+        query.eq("NAME", req.getName());
+        query.ne("ID", req.getId());
+        List<Room> list = this.list(query);
+        if (!list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "已有该名称机房存在");
+        }
+
         Room room = new Room();
         room.setId(req.getId());
         room.setOrgId(req.getOrgId());
