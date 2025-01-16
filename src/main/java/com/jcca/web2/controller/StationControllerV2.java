@@ -112,7 +112,7 @@ public class StationControllerV2 {
         }
 
         if(StrUtil.isNotEmpty(dto.getTagNum())){
-            wrapper.like("TARGET_NAME",dto.getTagNum());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper,"TARGET_NAME",dto.getTagNum());
         }
         IPage<Station> iPage = PagePlugin.startPageT(dto.getPage(), dto.getSize(), Station.class);
         IPage<Station> page = stationService.page(iPage, wrapper);
