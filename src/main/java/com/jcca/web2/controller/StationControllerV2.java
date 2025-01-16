@@ -184,8 +184,20 @@ public class StationControllerV2 {
             query.and(w->w.eq("IP",station.getIp()).or().eq("IP2",station.getIp2()
             ));
         }
+        Integer flag = station.getFlag();
+        if(Objects.isNull(flag)){
+            return ResultVoUtil.error("接口缺少操作标识");
+        }
 
         Station one = stationService.getOne(query);
+
+        if(Objects.isNull(one)  &&  flag==2){
+            return ResultVoUtil.error("数据不存在，无法更新");
+        }
+        if(Objects.nonNull(one)  &&  flag==1){
+            return ResultVoUtil.error("此车站已存在绑定数据！");
+        }
+
         if (Objects.nonNull(one)) {
             return ResultVoUtil.error("IP[" + station.getIp() + "]和车站" + one.getTitle() + "的IP重复");
         }

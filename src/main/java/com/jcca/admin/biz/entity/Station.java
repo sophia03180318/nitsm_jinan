@@ -127,6 +127,12 @@ public class Station extends Model<Station> implements java.io.Serializable {
      */
     @TableField(exist = false)
     private String updateRate;
+    /**
+     * 变动标识
+     *  1新增  2修改
+     */
+    @TableField(exist = false)
+    private Integer flag;
 
 
 }
