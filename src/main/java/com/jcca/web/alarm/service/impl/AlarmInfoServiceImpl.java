@@ -1110,4 +1110,11 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         return alarmInfoMapper.selectUnOverAlarm(alarmCode);
     }
 
+    @Override
+    public List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId) {
+
+       return alarmInfoMapper.getAssetAlarmByOrg(orgId);
+
+    }
+
 }

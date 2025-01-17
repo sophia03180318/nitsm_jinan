@@ -27,22 +27,23 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
 import com.jcca.web.collect.entity.CollectInterfaces;
-import com.jcca.web.collect.service.AssetLinkAssetService;
-import com.jcca.web.collect.service.CollectClusterService;
-import com.jcca.web.collect.service.CollectInterfacesService;
-import com.jcca.web.collect.service.CollectRouteService;
+import com.jcca.web.collect.entity.CollectNetworkCard;
+import com.jcca.web.collect.service.*;
 import com.jcca.web.graph.entity.TopoAssetGroup;
 import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
 import com.jcca.web.graph.entity.TopoVertex;
 import com.jcca.web.graph.service.*;
+import com.jcca.web.graph.vo.TopoPortInfoVo;
 import com.jcca.web.graph.vo.TopoVertexAlarmLevelVo;
 import com.jcca.web.graph.vo.TopoVertexVo;
+import com.jcca.web.ip.service.NetWorkAddressService;
 import com.jcca.web2.entity.BusinessServiceType;
 import com.jcca.web2.entity.TopoTag;
 import com.jcca.web2.enums.TopoCategoryEnum;
@@ -51,6 +52,7 @@ import com.jcca.web2.service.TopoTagService;
 import com.jcca.web2.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.compress.archivers.zip.X7875_NewUnix;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
@@ -111,7 +113,10 @@ public class GraphControllerV2 {
     private CollectClusterService collectClusterService;
     @Resource
     private CollectRouteService collectRouteService;
-
+    @Resource
+    private AlarmInfoService alarmInfoService;
+    @Resource
+    private CollectNetworkCardService networkCardService;
 
 
     /**
@@ -724,11 +729,13 @@ public class GraphControllerV2 {
         QueryWrapper<Asset> query = Wrappers.query();
         query.eq("DESK", AssetModeConst.ROUTER);
         query.eq("SHOW_TOPO", 1);
+        query.eq("IS_DEL",1);
         query.in("ORG_ID", orgIds);
         List<Asset> assetList = assetService.list(query);
         query = Wrappers.query();
         query.eq("DESK", AssetModeConst.ROUTER);
         query.eq("SHOW_TOPO", 1);
+        query.eq("IS_DEL",1);
         query.eq("SHOW_CORE", "SHOW_TOPO_@_SHOW");
         query.eq("ORG_ID", orgId);
         assetList.addAll(assetService.list(query));
@@ -753,9 +760,9 @@ public class GraphControllerV2 {
             topoAsset.setAssetId(asset.getId());
             topoAsset.setAssetName(asset.getName());
             topoAsset.setAssetMode(asset.getAssetMode());
-            if (asset.getAssetMode()==42||asset.getAssetMode()==201){
+            if (asset.getAssetMode() == 42 || asset.getAssetMode() == 201) {
                 List<CollectInterfaces> realTimeData = intefacesServ.getRealTimeData(asset.getId());
-                if(!realTimeData.isEmpty()){
+                if (!realTimeData.isEmpty()) {
                     topoAsset.setPortNameList(realTimeData);
                 }
             }
@@ -828,6 +835,46 @@ public class GraphControllerV2 {
             }
             return ResultVoUtil.error(e.toString());
         }
+    }
+
+
+    @GetMapping("/querySystemAlarmInfo/{orgId}")
+    @ApiOperation(value = "获取组织下资产告警")
+    @ResponseBody
+    public ResultVo querySystemAlarmInfo(@PathVariable String orgId) {
+        return ResultVoUtil.success(alarmInfoService.getAssetAlarmByOrg(orgId));
+    }
+
+    @GetMapping("/initAssetPort/{orgId}")
+    @ApiOperation(value = "获取车站所有端口/网卡状态")
+    @ResponseBody
+    public ResultVo initAssetPort(@PathVariable String orgId) {
+        QueryWrapper<Asset> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ORG_ID", orgId);
+        queryWrapper.eq("IS_DEL", 1);
+        List<Asset> assets = assetService.list(queryWrapper);
+        ArrayList<TopoPortVo> topoPortVos = new ArrayList<>();
+        for (Asset asset : assets) {
+            String id = asset.getId();
+            if (asset.getAssetMode() == AssetModeConst.ROUTER || asset.getAssetMode() == AssetModeConst.SWITCH) {
+                intefacesServ.getRealTimeData(id).stream().forEach(i -> {
+                    TopoPortVo topoPortVo = new TopoPortVo();
+                    topoPortVo.setAssetId(id);
+                    topoPortVo.setName(i.getPortName());
+                    topoPortVo.setStatus(i.getStatus().intValue());
+                    topoPortVos.add(topoPortVo);
+                });
+            }else{
+                networkCardService.getRealTimeData(id).stream().forEach(n->{
+                    TopoPortVo topoPortVo = new TopoPortVo();
+                    topoPortVo.setAssetId(id);
+                    topoPortVo.setName(n.getName());
+                    topoPortVo.setStatus(n.getStatus().intValue());
+                    topoPortVos.add(topoPortVo);
+                });
+            }
+        }
+        return ResultVoUtil.success(topoPortVos);
     }
 
 }

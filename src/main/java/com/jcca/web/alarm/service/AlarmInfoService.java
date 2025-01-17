@@ -388,4 +388,9 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
      * @return
      */
     AlarmInfo selectUnOverAlarm(String alarmCode);
+
+    /**
+    * 获取组织下资产的最大告警级别
+    * */
+    List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
 }

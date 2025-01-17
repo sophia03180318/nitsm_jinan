@@ -18,10 +18,7 @@ import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web2.dto.AlarmPageDto;
 import com.jcca.web2.dto.CabinetAlarmQueryDto;
 import com.jcca.web2.dto.DialogsAlarmListDto;
-import com.jcca.web2.vo.AlarmPageStatisticsVo;
-import com.jcca.web2.vo.AlarmPageVo;
-import com.jcca.web2.vo.CabinetAlarmInfoVo;
-import com.jcca.web2.vo.DialogsAlarmListVo;
+import com.jcca.web2.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -224,4 +221,8 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      */
     @Select("select * from ALARM_INFO where (STATUS = 1 or ALARM_STATE = 1) and ALARM_CODE =#{alarmCode}")
     AlarmInfo selectUnOverAlarm(@Param("alarmCode") String alarmCode);
+
+    @Select("select min(ALARM_LEVEL) as alarmLevel ,ASSET_ID as assetId from ALARM_INFO where ORG_ID =#{orgId}  group by ASSET_ID")
+    List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
+
 }
