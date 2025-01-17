@@ -381,7 +381,7 @@ public class StationControllerV2 {
             detailList.add(detail1);
             detailList.add(detail2);
         } else if (StationVersionStatusEnum.UPLOAD_FAIL.name().equals(status)) {
-            StationUpdateDetail detail1 = getItem("上传失败", "文件上传失败：" + versionLog.getRemark(), true, 1);
+            StationUpdateDetail detail1 = getItem("上传失败",  versionLog.getRemark(), true, 1);
             detail1.setButtonName("重新上传");
             detailList.add(detail1);
         } else if (StationVersionStatusEnum.UPDATEING.name().equals(status)) {
