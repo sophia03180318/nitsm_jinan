@@ -373,7 +373,7 @@ public class StationControllerV2 {
             StationUpdateDetail detail = getItem("正在排队等待上传JAR", "任务已提交系统！正在等待上传JAR", false, 1);
             detailList.add(detail);
         } else if (StationVersionStatusEnum.UPLOADING.name().equals(status)) {
-            StationUpdateDetail detail = getItem("JAR正在上传中", "JAR上传中，让JAR飞一会~", false, 1);
+            StationUpdateDetail detail = getItem("JAR正在上传中", "JAR上传中，稍等片刻~", false, 1);
             detailList.add(detail);
         } else if (StationVersionStatusEnum.UPLOAD_OK.name().equals(status)) {
             StationUpdateDetail detail1 = getItem("上传完成",

@@ -338,7 +338,7 @@ public class StationVersionController {
             model.addAttribute("showButton", "hidden");
 
         } else if (StationVersionStatusEnum.UPLOADING.name().equals(status)) {
-            StationUpdateDetail detail = getItem("JAR正在上传中", "JAR上传中，让JAR飞一会~", false, 1);
+            StationUpdateDetail detail = getItem("JAR正在上传中", "JAR上传中,稍等片刻~", false, 1);
             detailList.add(detail);
             model.addAttribute("showButton", "hidden");
 
