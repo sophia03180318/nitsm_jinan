@@ -108,6 +108,8 @@ public class SysOrg extends Model<SysOrg> implements java.io.Serializable {
      */
     @TableField(exist = false)
     private Boolean existAdd;
+    @TableField(exist = false)
+    private String truePid;
 
     void sysOrg(String id) {
         this.id = id;

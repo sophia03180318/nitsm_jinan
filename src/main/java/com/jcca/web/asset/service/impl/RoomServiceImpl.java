@@ -29,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -126,12 +123,18 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "参数不可为空");
         }
 
-
         ArrayList<Room> rooms = new ArrayList<>();
         // 中英文兼容并进行分隔
         List<String> split = Arrays.asList(ToolUtil.cToe(req.getName()).split(","));
         // 若元素为空(两个连续的逗号分割完后会出现空元素,例:"机房1,,机房2,机房3"),将其移除,避免空字符bug
         List<String> afterTreatment = split.stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        // 查看集合中是否有相同数据
+        if (afterTreatment.size() > 1) {
+            boolean flag = this.isDup(afterTreatment);
+            if (flag) {
+                return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "所添加的机房名称有重复");
+            }
+        }
 
         // 同一级组织下机房名称重复的不能添加
         List<String> existName = roomMapper.getRoomNames(req.getOrgId());
@@ -141,11 +144,11 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             if (contains) {
                 return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "所添加的机房名称在该组织下有重复");
             }
-            for (int i = 0; i < afterTreatment.size(); i++) {
+            for (String s : afterTreatment) {
                 Room room = new Room();
                 room.setId(MyIdUtil.getId());
                 room.setOrgId(req.getOrgId());
-                room.setName(afterTreatment.get(i));
+                room.setName(s);
                 room.setRemark(req.getRemark());
                 rooms.add(room);
             }
@@ -154,10 +157,13 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             return ResultVoUtil.success("添加成功");
         }
 
-       /* boolean contains = CollectionUtil.contains(existName, req.getName());
-        if (contains) {
-            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "所添加的机房名称在该组织下有重复");
-        }*/
+        QueryWrapper<Room> query = Wrappers.query();
+        query.eq("NAME", req.getName());
+        query.ne("ID", req.getId());
+        List<Room> list = this.list(query);
+        if (!list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "已有该名称机房存在");
+        }
 
         Room room = new Room();
         room.setId(req.getId());
@@ -167,8 +173,17 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         this.updateById(room);
 
         return ResultVoUtil.success("编辑成功");
+    }
 
-//        return ResultVoUtil.error();
+    private boolean isDup(List<String> list) {
+        Set<String> set = new HashSet<>();
+        for (String str : list) {
+            if (set.contains(str)) {
+                return true;
+            }
+            set.add(str);
+        }
+        return false;
     }
 
 

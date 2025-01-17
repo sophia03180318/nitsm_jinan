@@ -6,6 +6,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.entity.CabinetTask;
 import com.jcca.admin.system.entity.ImportCabinet;
 import com.jcca.admin.system.entity.SysOrg;
@@ -128,9 +129,7 @@ public class CabinetControllerV2 {
     @ActionLog(name = "删除机柜", title = "机柜管理", key = LogTypeConstant.REMOVEE)
     public ResultVo<Object> del(@PathVariable String id) {
 
-        cabinetServ.delById(id);
-
-        return ResultVoUtil.success();
+        return cabinetServ.delById(id);
     }
 
 
@@ -170,8 +169,9 @@ public class CabinetControllerV2 {
      * @Author: sophia
      */
     @PostMapping("/index")
-    public ResultVo<Object> index(@RequestBody ImportCabinet importCabinet, Integer size, Integer page) {
-        /*获取模板列表*/
+    public ResultVo<Object> index(@RequestBody ImportCabinet importCabinet) {
+        Integer page = importCabinet.getPage();
+        Integer size = importCabinet.getSize();
         IPage iPage = PagePlugin.startPage(page, size);
 
         QueryWrapper<ImportCabinet> wrapper = new QueryWrapper<>();
@@ -224,12 +224,12 @@ public class CabinetControllerV2 {
 
         try {
             Map<String, String> cabinetTemplate = new LinkedHashMap<String, String>();
-            cabinetTemplate.put("组织名称", "orgName");
-            cabinetTemplate.put("机房名称", "roomName");
-            cabinetTemplate.put("机柜名称", "name");
-            cabinetTemplate.put("机柜编号", "code");
-            cabinetTemplate.put("横向索引", "rowIndex");
-            cabinetTemplate.put("纵向索引", "columnIndex");
+            cabinetTemplate.put("*组织名称(16个汉字)", "orgName");
+            cabinetTemplate.put("*机房名称(16个汉字)", "roomName");
+            cabinetTemplate.put("*机柜名称(16个汉字)", "name");
+            cabinetTemplate.put("*机柜编号(不可重复)", "code");
+            cabinetTemplate.put("*横向索引", "rowIndex");
+            cabinetTemplate.put("*纵向索引", "columnIndex");
             cabinetTemplate.put("备注", "remark");
             cabinetTemplate.put("识别号", "qrCodeNum");
 
@@ -239,6 +239,33 @@ public class CabinetControllerV2 {
         } catch (Exception e) {
 
         }
+    }
+
+    @GetMapping("/exportErrorCabinet")
+    @ActionLog(name = "导出失败机柜列表", title = "组织管理", key = LogTypeConstant.DOWNLOAD)
+    public void exportErrorCabinet(HttpServletResponse response) {
+        try {
+            Map<String, String> cabinetTemplate = new LinkedHashMap<>();
+            cabinetTemplate.put("组织名称", "orgName");
+            cabinetTemplate.put("机房名称", "roomName");
+            cabinetTemplate.put("机柜名称", "name");
+            cabinetTemplate.put("机柜编号", "code");
+            cabinetTemplate.put("横向索引", "rowIndex");
+            cabinetTemplate.put("纵向索引", "columnIndex");
+            cabinetTemplate.put("备注", "remark");
+            cabinetTemplate.put("识别号", "qrCodeNum");
+            cabinetTemplate.put("错误信息", "erroLog");
+
+            QueryWrapper<ImportCabinet> query = Wrappers.query();
+            query.eq("STATUS", "1");
+            List<ImportCabinet> list = importCabinetService.list(query);
+            SXSSFWorkbook excel = TemplateExportUtil.createErrorCabinetExcel(cabinetTemplate, list);
+            DispatchRecordExcelUtil.responseBody(excel, response, "ErrorCabinetLog");
+
+        } catch (Exception e) {
+
+        }
+
     }
 
 

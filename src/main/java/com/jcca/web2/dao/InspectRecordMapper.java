@@ -3,6 +3,7 @@ package com.jcca.web2.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.vo.InspectOrgAssetVo;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -81,4 +82,7 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
 
     @Select("SELECT INSPECT_TYPE FROM INSPECT_RECORD GROUP BY INSPECT_TYPE")
     String findNowInspectType();
+
+    @Delete("DELETE FROM INSPECT_RECORD WHERE ORG_ID = #{orgId}")
+    void deleteByOrgId(String orgId);
 }

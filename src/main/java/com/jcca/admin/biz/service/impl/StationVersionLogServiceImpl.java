@@ -169,7 +169,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
         if (Objects.isNull(versionMsg)) {
             logReq.setStatus(StationVersionStatusEnum.UPLOAD_FAIL.name());
             logReq.setRemark("版本信息被移除，请删除此次记录重新操作");
-            logReq.setUpdateRate("0");
+            logReq.setUpdateRate("10");
             logMapper.updateById(logReq);
             redisServ.remove(QuartzStationUploadManagerJob.KEY_UPLOAD);
             return;
@@ -253,6 +253,7 @@ public class StationVersionLogServiceImpl extends ServiceImpl<StationVersionLogM
                 log.error(e.getMessage(), e);
                 logReq.setStatus(StationVersionStatusEnum.UPLOAD_FAIL.name());
                 logReq.setRemark("上传失败：" + e.getMessage());
+                logReq.setUpdateRate("10");
 
                 logMapper.updateById(logReq);
                 redisServ.remove(QuartzStationUploadManagerJob.KEY_UPLOAD);

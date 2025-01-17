@@ -35,7 +35,7 @@ public class StationCollectClientImpl implements StationCollectClient {
     private static final String REFRESH_URI = "/station/home/refresh";
     private static final String REMOVE_JAR_URI = "/station/home/removeJar";
     private static final String QUERY_UPDATE_RESULT_URI = "/station/home/result";
-    private static final String QUERY_UPDATE_RESULT_URI_V2 = "/openApi/station/version/info";
+    private static final String QUERY_UPDATE_RESULT_URI_V2 = "/openApi/station/version/max";
 
     private static final String NOTIFY_PING_STATUS = "/station/notify/pingStatus";
     private static final String NOTIFY_ALARM_STATUS = "/station/notify/alarmStatus";

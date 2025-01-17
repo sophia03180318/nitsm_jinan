@@ -3,8 +3,6 @@ package com.jcca.web2.controller;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -112,9 +110,10 @@ public class StationControllerV2 {
         }
 
         if(StrUtil.isNotEmpty(dto.getTagNum())){
-            wrapper.like("TARGET_NAME",dto.getTagNum());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper,"TARGET_NAME",dto.getTagNum());
         }
         IPage<Station> iPage = PagePlugin.startPageT(dto.getPage(), dto.getSize(), Station.class);
+        wrapper.orderByDesc("MODIFY_TIME");
         IPage<Station> page = stationService.page(iPage, wrapper);
 
         List<Station> records = page.getRecords();
@@ -184,8 +183,21 @@ public class StationControllerV2 {
             query.and(w->w.eq("IP",station.getIp()).or().eq("IP2",station.getIp2()
             ));
         }
+        Integer flag = station.getFlag();
+        if(Objects.isNull(flag)){
+            return ResultVoUtil.error("接口缺少操作标识");
+        }
 
         Station one = stationService.getOne(query);
+
+        Station oldStation = stationService.getById(station.getOrgId());
+        if(Objects.isNull(oldStation)  &&  flag==2){
+            return ResultVoUtil.error("数据不存在，无法更新");
+        }
+        if(Objects.nonNull(oldStation) && flag==1){
+            return ResultVoUtil.error("此车站已存在绑定数据！");
+        }
+
         if (Objects.nonNull(one)) {
             return ResultVoUtil.error("IP[" + station.getIp() + "]和车站" + one.getTitle() + "的IP重复");
         }
@@ -361,7 +373,7 @@ public class StationControllerV2 {
             StationUpdateDetail detail = getItem("正在排队等待上传JAR", "任务已提交系统！正在等待上传JAR", false, 1);
             detailList.add(detail);
         } else if (StationVersionStatusEnum.UPLOADING.name().equals(status)) {
-            StationUpdateDetail detail = getItem("JAR正在上传中", "JAR上传中，让JAR飞一会~", false, 1);
+            StationUpdateDetail detail = getItem("JAR正在上传中", "JAR上传中，稍等片刻~", false, 1);
             detailList.add(detail);
         } else if (StationVersionStatusEnum.UPLOAD_OK.name().equals(status)) {
             StationUpdateDetail detail1 = getItem("上传完成",
@@ -370,7 +382,7 @@ public class StationControllerV2 {
             detailList.add(detail1);
             detailList.add(detail2);
         } else if (StationVersionStatusEnum.UPLOAD_FAIL.name().equals(status)) {
-            StationUpdateDetail detail1 = getItem("上传失败", "文件上传失败：" + versionLog.getRemark(), true, 1);
+            StationUpdateDetail detail1 = getItem("上传失败",  versionLog.getRemark(), true, 1);
             detail1.setButtonName("重新上传");
             detailList.add(detail1);
         } else if (StationVersionStatusEnum.UPDATEING.name().equals(status)) {

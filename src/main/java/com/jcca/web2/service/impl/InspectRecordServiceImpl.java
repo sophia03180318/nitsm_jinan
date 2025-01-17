@@ -1027,6 +1027,10 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             InspectOrgAssetVo orgVo = iterator.next();
             String orgId = orgVo.getOrgId();
             SysOrg org = orgService.getById(orgId);
+            if (Objects.isNull(org)) {
+                inspectRecordMapper.deleteByOrgId(orgId);
+                continue;
+            }
             if (OrgTypeConst.CENTER == org.getType()) {
                 orgVo.setId(MyIdUtil.getId());
                 this.setAssetList(orgVo);
