@@ -110,9 +110,7 @@ public class CabinetControllerV2 {
     @ActionLog(name = "删除机柜", title = "机柜管理", key = LogTypeConstant.REMOVEE)
     public ResultVo<Object> del(@PathVariable String id) {
 
-        cabinetServ.delById(id);
-
-        return ResultVoUtil.success();
+        return cabinetServ.delById(id);
     }
 
 
