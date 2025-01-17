@@ -238,8 +238,8 @@ public class CabinetControllerV2 {
             cabinetTemplate.put("错误信息", "erroLog");
 
             QueryWrapper<ImportCabinet> query = Wrappers.query();
-            query.eq("STATUS", 1);
-            List<ImportCabinet> list = importCabinetService.list();
+            query.eq("STATUS", "1");
+            List<ImportCabinet> list = importCabinetService.list(query);
             SXSSFWorkbook excel = TemplateExportUtil.createErrorCabinetExcel(cabinetTemplate, list);
             DispatchRecordExcelUtil.responseBody(excel, response, "ErrorCabinetLog");
 
