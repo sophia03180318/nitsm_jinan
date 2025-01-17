@@ -6,6 +6,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.entity.CabinetTask;
 import com.jcca.admin.system.entity.ImportCabinet;
 import com.jcca.admin.system.service.CabinetTaskService;
@@ -236,6 +237,8 @@ public class CabinetControllerV2 {
             cabinetTemplate.put("识别号", "qrCodeNum");
             cabinetTemplate.put("错误信息", "erroLog");
 
+            QueryWrapper<ImportCabinet> query = Wrappers.query();
+            query.eq("STATUS", 1);
             List<ImportCabinet> list = importCabinetService.list();
             SXSSFWorkbook excel = TemplateExportUtil.createErrorCabinetExcel(cabinetTemplate, list);
             DispatchRecordExcelUtil.responseBody(excel, response, "ErrorCabinetLog");
