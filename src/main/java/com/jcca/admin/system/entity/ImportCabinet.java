@@ -96,4 +96,9 @@ public class ImportCabinet extends Model<ImportCabinet> implements java.io.Seria
      */
     @TableField("QR_CODE_NUM")
     private String qrCodeNum;
+
+    @TableField(exist = false)
+    private Integer page;
+    @TableField(exist = false)
+    private Integer size;
 }

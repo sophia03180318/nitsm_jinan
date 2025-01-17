@@ -15,6 +15,7 @@ import com.jcca.web.asset.utils.NullFieldException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -118,12 +119,14 @@ public class TemplateImportCabinet {
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("1");
                 importCabinet.setErrorLog(e.getMessage());
-                int length = importCabinet.getName().length();
-                if (length > 20) {
-                    importCabinet.setName("名称不能超过20个字符");
-                    importCabinet.setErrorLog("名称不能超过20个字符");
-                    importCabinetService.save(importCabinet);
-                    continue;
+                if (!StringUtils.isEmpty(importCabinet.getName())) {
+                    int length = importCabinet.getName().length();
+                    if (length > 20) {
+                        importCabinet.setName("名称不能超过20个字符");
+                        importCabinet.setErrorLog("名称不能超过20个字符");
+                        importCabinetService.save(importCabinet);
+                        continue;
+                    }
                 }
                 importCabinetService.save(importCabinet);
                 //更新taski信息
@@ -135,11 +138,14 @@ public class TemplateImportCabinet {
                 ImportCabinet importCabinet = rowMap.get(i);
                 importCabinet.setStatus("1");
                 importCabinet.setErrorLog(e.getMessage());
-                if (importCabinet.getName().length() > 20) {
-                    importCabinet.setName("名称不能超过20个字符");
-                    importCabinet.setErrorLog("名称不能超过20个字符");
-                    importCabinetService.save(importCabinet);
-                    continue;
+                if (!StringUtils.isEmpty(importCabinet.getName())) {
+                    int length = importCabinet.getName().length();
+                    if (length > 20) {
+                        importCabinet.setName("名称不能超过20个字符");
+                        importCabinet.setErrorLog("名称不能超过20个字符");
+                        importCabinetService.save(importCabinet);
+                        continue;
+                    }
                 }
                 importCabinetService.save(importCabinet);
                 //更新taski信息

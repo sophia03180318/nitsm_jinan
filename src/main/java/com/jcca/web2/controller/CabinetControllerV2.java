@@ -151,8 +151,9 @@ public class CabinetControllerV2 {
      * @Author: sophia
      */
     @PostMapping("/index")
-    public ResultVo<Object> index(@RequestBody ImportCabinet importCabinet, Integer size, Integer page) {
-        /*获取模板列表*/
+    public ResultVo<Object> index(@RequestBody ImportCabinet importCabinet) {
+        Integer page = importCabinet.getPage();
+        Integer size = importCabinet.getSize();
         IPage iPage = PagePlugin.startPage(page, size);
 
         QueryWrapper<ImportCabinet> wrapper = new QueryWrapper<>();
@@ -238,8 +239,8 @@ public class CabinetControllerV2 {
             cabinetTemplate.put("错误信息", "erroLog");
 
             QueryWrapper<ImportCabinet> query = Wrappers.query();
-            query.eq("STATUS", 1);
-            List<ImportCabinet> list = importCabinetService.list();
+            query.eq("STATUS", "1");
+            List<ImportCabinet> list = importCabinetService.list(query);
             SXSSFWorkbook excel = TemplateExportUtil.createErrorCabinetExcel(cabinetTemplate, list);
             DispatchRecordExcelUtil.responseBody(excel, response, "ErrorCabinetLog");
 
