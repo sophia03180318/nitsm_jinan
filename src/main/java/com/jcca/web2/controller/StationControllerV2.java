@@ -113,6 +113,7 @@ public class StationControllerV2 {
             SqlInjectionUtils.formattingQueryWrapper(wrapper,"TARGET_NAME",dto.getTagNum());
         }
         IPage<Station> iPage = PagePlugin.startPageT(dto.getPage(), dto.getSize(), Station.class);
+        wrapper.orderByDesc("MODIFY_TIME");
         IPage<Station> page = stationService.page(iPage, wrapper);
 
         List<Station> records = page.getRecords();
