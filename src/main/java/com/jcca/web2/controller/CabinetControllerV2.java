@@ -151,8 +151,9 @@ public class CabinetControllerV2 {
      * @Author: sophia
      */
     @PostMapping("/index")
-    public ResultVo<Object> index(@RequestBody ImportCabinet importCabinet, Integer size, Integer page) {
-        /*获取模板列表*/
+    public ResultVo<Object> index(@RequestBody ImportCabinet importCabinet) {
+        Integer page = importCabinet.getPage();
+        Integer size = importCabinet.getSize();
         IPage iPage = PagePlugin.startPage(page, size);
 
         QueryWrapper<ImportCabinet> wrapper = new QueryWrapper<>();
