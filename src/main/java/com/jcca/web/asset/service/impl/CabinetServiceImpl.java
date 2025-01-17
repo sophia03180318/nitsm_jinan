@@ -252,6 +252,7 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
             query.eq("ROOM_ID", cabinet.getRoomId());
         }
 
+        query.orderByDesc("CODE");
         return this.list(query);
     }
 
