@@ -190,14 +190,12 @@ public class StationControllerV2 {
 
         Station one = stationService.getOne(query);
 
-        if(Objects.isNull(one)  &&  flag==2){
+        Station oldStation = stationService.getById(station.getOrgId());
+        if(Objects.isNull(oldStation)  &&  flag==2){
             return ResultVoUtil.error("数据不存在，无法更新");
         }
-        if(flag==1){
-            Station oldStation = stationService.getById(station.getOrgId());
-            if(Objects.nonNull(oldStation)){
-                return ResultVoUtil.error("此车站已存在绑定数据！");
-            }
+        if(Objects.nonNull(oldStation) && flag==1){
+            return ResultVoUtil.error("此车站已存在绑定数据！");
         }
 
         if (Objects.nonNull(one)) {
