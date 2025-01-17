@@ -234,6 +234,7 @@ public class ApiController {
         }
         ArrayList<SysOrg> sysOrgs = new ArrayList<>();
         for (SysOrg subjectOrg : subjectOrgs) {
+            subjectOrg.setTruePid(subjectOrg.getPid());
             if (subjectOrg.getType().byteValue() == OrgTypeConst.LINE) {
                 subjectOrg.setPid(pid);
             }
