@@ -172,24 +172,7 @@ public class StationControllerV2 {
     @PostMapping("/save")
     @ApiOperation("保存车站信息")
     public ResultVo save(@Validated @RequestBody Station station) {
-        QueryWrapper<Station> query = Wrappers.query();
-        if (StrUtil.isNotEmpty(station.getOrgId())) {
-            query.ne("org_id", station.getOrgId());
-        }
-        if(StrUtil.isEmpty(station.getIp2())){
-            station.setIp2("");
-        }
-        if(StrUtil.isNotEmpty(station.getIp())){
-            query.and(w->w.eq("IP",station.getIp()).or().eq("IP2",station.getIp2()
-            ));
-        }
         Integer flag = station.getFlag();
-        if(Objects.isNull(flag)){
-            return ResultVoUtil.error("接口缺少操作标识");
-        }
-
-        Station one = stationService.getOne(query);
-
         Station oldStation = stationService.getById(station.getOrgId());
         if(Objects.isNull(oldStation)  &&  flag==2){
             return ResultVoUtil.error("数据不存在，无法更新");
@@ -198,9 +181,30 @@ public class StationControllerV2 {
             return ResultVoUtil.error("此车站已存在绑定数据！");
         }
 
-        if (Objects.nonNull(one)) {
-            return ResultVoUtil.error("IP[" + station.getIp() + "]和车站" + one.getTitle() + "的IP重复");
+        if(StrUtil.isNotEmpty(station.getIp())){
+            QueryWrapper<Station> queryIp1 = Wrappers.query();
+            queryIp1.ne("ORG_ID",station.getOrgId());
+            queryIp1.and(w->w.eq("IP",station.getIp()).or().eq("IP2",station.getIp()
+            ));
+
+            Station one = stationService.getOne(queryIp1);
+            if (Objects.nonNull(one)) {
+                return ResultVoUtil.error("IP[" + station.getIp() + "]和车站" + one.getTitle() + "的IP重复");
+            }
         }
+
+        if(StrUtil.isNotEmpty(station.getIp2())){
+            QueryWrapper<Station> queryIp2 = Wrappers.query();
+            queryIp2.ne("ORG_ID",station.getOrgId());
+            queryIp2.and(w->w.eq("IP",station.getIp2()).or().eq("IP2",station.getIp2()
+            ));
+
+            Station one = stationService.getOne(queryIp2);
+            if (Objects.nonNull(one)) {
+                return ResultVoUtil.error("IP2[" + station.getIp2() + "]和车站" + one.getTitle() + "的IP重复");
+            }
+        }
+
 
         stationService.saveOrUpdate(station);
 
