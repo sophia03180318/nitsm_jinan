@@ -53,7 +53,7 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
     @Resource
     private SysOrgService orgService;
     @Resource
-    private AssetService   assetService;
+    private AssetService assetService;
 
     /**
      * 根据机房ID获取机柜列表
@@ -253,14 +253,14 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
             query.eq("ROOM_ID", cabinet.getRoomId());
         }
 
-        query.orderByDesc("CODE");
+        query.orderByAsc("ROW_INDEX", "COLUMN_INDEX");
         return this.list(query);
     }
 
     @Override
     public List<String> topoCabinetByAssetStr(String roomId, String keyword) {
 
-      return   cabinetMapper.topoCabinetByAssetStr( roomId,  keyword);
+        return cabinetMapper.topoCabinetByAssetStr(roomId, keyword);
 
     }
 
