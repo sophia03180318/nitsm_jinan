@@ -8,6 +8,8 @@ import com.jcca.admin.system.entity.ImportCabinet;
 import com.jcca.admin.system.service.CabinetTaskService;
 import com.jcca.admin.system.service.ImportCabinetService;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
+import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
 import com.jcca.web.asset.entity.Cabinet;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.utils.AssetImportUtils;
@@ -74,9 +76,24 @@ public class TemplateImportCabinet {
                     }
                 }
                 //根据组织名称和机房名称获取机房id
-                // cabinet.setCreator("import");
-                String roomId = importCabinetService.getRoomID(importCabinets.get("orgName").toString().trim(), importCabinets.get("roomName").toString().trim());
+                String roomName = importCabinets.get("roomName").toString().trim();
+                String roomId = importCabinetService.getRoomID(importCabinets.get("orgName").toString().trim(), roomName);
                 cabinet.setRoomId(roomId);
+                QueryWrapper<Cabinet> query = Wrappers.query();
+                query.eq("NAME", cabinet.getName());
+                query.eq("ROOM_ID", roomId);
+                List<Cabinet> list = cabinetService.list(query);
+                if (!list.isEmpty()) {
+                    throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "同一机房内机柜名称不能重复");
+                }
+
+                query = Wrappers.query();
+                query.eq("CODE", cabinet.getCode());
+                query.eq("ROOM_ID", roomId);
+                list = cabinetService.list(query);
+                if (!list.isEmpty()) {
+                    throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "同一机房内机柜编号不能重复");
+                }
 
                 //存储机柜
                 QueryWrapper<Cabinet> cabinetQuery = Wrappers.query();
@@ -110,7 +127,7 @@ public class TemplateImportCabinet {
                 importCabinet.setErrorLog("成功");
                 importCabinetService.save(importCabinet);
 
-                cabinetService.saveOrUpdate(cabinet);
+                cabinetService.save(cabinet);
 
                 success++;
                 cabinetTask.setSuccess(success);
