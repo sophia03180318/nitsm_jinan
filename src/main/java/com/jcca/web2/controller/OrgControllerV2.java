@@ -166,9 +166,14 @@ public class OrgControllerV2 {
                     }
 
                 } else {//编辑
-                    String oldName = orgService.getById(req.getId()).getTitle();
+                    SysOrg org = orgService.getById(req.getId());
+                    String oldName = org.getTitle();
                     if (!oldName.equals(req.getTitle()) && existNameList.contains(name)) {
                         return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "检测到" + name + "存在名称重复!");
+                    }
+                    int type = org.getType();
+                    if (type != req.getType()) {
+                        return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "不能修改组织类型");
                     }
                     if (req.getType() == 1 && ObjectUtil.isNotNull(orgId) && !req.getId().equals(orgId)) {
                         return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能存在一个局组织");
