@@ -203,12 +203,13 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
 
         QueryWrapper<Cabinet> query = Wrappers.query();
         query.eq("NAME", cabinet.getName());
+        query.eq("ROOM_ID", cabinet.getRoomId());
         if (!StringUtils.isEmpty(cabinet.getId())) {
             query.ne("ID", cabinet.getId());
         }
         List<Cabinet> list = this.list(query);
         if (!list.isEmpty()) {
-            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "机柜名称不能重复");
+            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "同一机房内机柜名称不能重复");
         }
 
         query = Wrappers.query();
@@ -219,7 +220,7 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
         }
         list = this.list(query);
         if (!list.isEmpty()) {
-            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "机柜编号不能重复");
+            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "同一机房内机柜编号不能重复");
         }
 
         QueryWrapper<Cabinet> cabinetQuery = Wrappers.query();
