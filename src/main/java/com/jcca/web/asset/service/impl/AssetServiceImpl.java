@@ -2067,7 +2067,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
             for (AssetPortVo port : ports) {
-                if (Objects.nonNull(port.getStatus()) && !InterfaceStatus.isUp(port.getStatus().byteValue())) {
+                if (Objects.nonNull(port.getStatus()) && !InterfaceStatus.isUp(port.getStatus().byteValue())  &&
+                        port.getStatus().intValue() != InterfaceStatus.UNKINOW.getCode().intValue()) {
                     vo.setStatus(-1);
                     break;
                 }
