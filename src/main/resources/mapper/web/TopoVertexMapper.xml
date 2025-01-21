@@ -146,9 +146,8 @@
                t.asset_mode  as assetMode,
                t.watch
         FROM asset t
-                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id and v.NODE_TYPE = #{nodeType}
                  left join COLLECT_CLUSTER r on t.id = r.ASSET_ID and v.NAME = r.SERVER_NAME
-            and v.NODE_TYPE = #{nodeType}
                  left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
                             FROM ALARM_INFO i
                                      LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
