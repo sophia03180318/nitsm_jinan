@@ -29,6 +29,8 @@ import com.jcca.common.input.ErrorCodeEnum;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.DevLog;
+import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.shiro.util.ShiroUtil;
@@ -120,7 +122,7 @@ public class AlarmInfoController extends ListenerManager {
     @ApiOperation(value = "删除告警")
     @RequiresPermissions({"api:alarm:info:removeAlarm"})
     @PostMapping("/removeAlarm")
-    @ActionLog(name = "删除告警", title = "告警管理", key = LogTypeConstant.REMOVEE)
+    @DevLog(title = "告警管理", name = "删除告警", dev = DevLogConstant.ALARM_DEL_SINGLE, key = LogTypeConstant.DEV)
     ResultVo<?> removeAlarm(@RequestBody String reqStr) {
         JSONObject reqJson = JSONUtil.parseObj(reqStr);
         String id = reqJson.getStr("id");
@@ -584,9 +586,9 @@ public class AlarmInfoController extends ListenerManager {
             vo.setCorrelationId(alarmInfo.getCorrelationId());
 
             Asset asset = assetServ.getById(alarmInfo.getAssetId());
-            if(Objects.nonNull(asset)){
+            if (Objects.nonNull(asset)) {
                 vo.setAssetName(asset.getName());
-            }else{
+            } else {
                 vo.setAssetName("设备已删除");
             }
 
@@ -746,7 +748,7 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/confirm")
     @ApiOperation(value = "确认告警")
     @RequiresPermissions({"api:alarm:info:confirm"})
-    @ActionLog(name = "确认告警", title = "告警管理", key = LogTypeConstant.CONFIRM)
+    @DevLog(title = "告警管理", name = "单个确认告警", dev = DevLogConstant.ALARM_CONFIRM_SINGLE, key = LogTypeConstant.DEV)
     public ResultVo<?> confirm(@RequestBody AlarmHandleVo vo) {
         AlarmInfo alarmInfo = alarmInfoService.getById(vo.getId());
         if (Objects.isNull(alarmInfo)) {
@@ -762,11 +764,11 @@ public class AlarmInfoController extends ListenerManager {
         }
         //v2 判定逻辑
         QueryWrapper<AlarmRepository> queryWrapper = new QueryWrapper<AlarmRepository>();
-        queryWrapper.eq("ALARM_CODE",alarmInfo.getAlarmCode());
+        queryWrapper.eq("ALARM_CODE", alarmInfo.getAlarmCode());
         queryWrapper.eq("FLAG_TYPE", EventLevelEnum.NORMAL.getCode());
         List<AlarmRepository> repoList = alarmRepoServ.list(queryWrapper);
 
-        if(repoList.isEmpty()){
+        if (repoList.isEmpty()) {
             Asset asset = assetServ.getById(alarmInfo.getAssetId());
             //这些是不会恢复的类型的 确认后强制恢复
             alarmInfo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
@@ -830,7 +832,7 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/batchDispose")
     @ApiOperation(value = "批量确认告警")
     @RequiresPermissions({"api:alarm:info:batchDispose"})
-    @ActionLog(name = "批量确认告警", title = "告警管理", key = LogTypeConstant.CONFIRM)
+    @DevLog(title = "告警管理", name = "批量确认告警", dev = DevLogConstant.ALARM_CONFIRM_BATCH, key = LogTypeConstant.DEV)
     public ResultVo<?> batchDispose(@Validated @RequestBody DisposeAlarmReq req) {
         List<String> idList = req.getIdList();
         if (CollectionUtil.isEmpty(idList)) {
@@ -855,11 +857,11 @@ public class AlarmInfoController extends ListenerManager {
             }
 
             QueryWrapper<AlarmRepository> queryWrapper = new QueryWrapper<AlarmRepository>();
-            queryWrapper.eq("ALARM_CODE",alarm.getAlarmCode());
+            queryWrapper.eq("ALARM_CODE", alarm.getAlarmCode());
             queryWrapper.eq("FLAG_TYPE", EventLevelEnum.NORMAL.getCode());
             List<AlarmRepository> repoList = alarmRepoServ.list(queryWrapper);
 
-            if(repoList.isEmpty()){
+            if (repoList.isEmpty()) {
                 //这些是不会恢复的类型的 确认后强制恢复
                 alarm.setAlarmState(AlarmStateEnum.RECOVER.getCode());
 
@@ -890,7 +892,7 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/affirm")
     @ApiOperation(value = "批量确认2号")
     @RequiresPermissions({"api:alarm:info:affirm"})
-    @ActionLog(name = "批量确认告警2号", title = "告警管理", key = LogTypeConstant.CONFIRM)
+    @DevLog(title = "告警管理", name = "按条件确认告警", dev = DevLogConstant.ALARM_CONFIRM_CONDITION, key = LogTypeConstant.DEV)
     ResultVo affirm(@RequestBody AlarmInfoPageQuery req) {
         QueryWrapper<AlarmInfo> query = this.getQueryWrapper(req);
         query.eq("status", AlarmStatusEnum.UNCONFIRM.getCode());
@@ -911,11 +913,11 @@ public class AlarmInfoController extends ListenerManager {
                 alarm.setAlarmState(AlarmStateEnum.RECOVER.getCode());
             }
             QueryWrapper<AlarmRepository> queryWrapper = new QueryWrapper<AlarmRepository>();
-            queryWrapper.eq("ALARM_CODE",alarm.getAlarmCode());
+            queryWrapper.eq("ALARM_CODE", alarm.getAlarmCode());
             queryWrapper.eq("FLAG_TYPE", EventLevelEnum.NORMAL.getCode());
             List<AlarmRepository> repoList = alarmRepoServ.list(queryWrapper);
 
-            if(repoList.isEmpty()){
+            if (repoList.isEmpty()) {
                 //这些是不会恢复的类型的 确认后强制恢复
                 alarm.setAlarmState(AlarmStateEnum.RECOVER.getCode());
 
@@ -1015,7 +1017,7 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/clear")
     @ApiOperation(value = "清除告警")
     @RequiresPermissions({"api:alarm:info:clear"})
-    @ActionLog(name = "一键清除告警", title = "告警管理", key = LogTypeConstant.REMOVEE)
+    @DevLog(title = "告警管理", name = "清除告警", dev = DevLogConstant.ALARM_CLEAR_CONDITION, key = LogTypeConstant.DEV)
     public ResultVo<?> clear(@RequestBody AlarmInfoPageQuery req) {
         // 按照筛选条件一键清除告警  20221102 godwone
         List<List<String>> listList = new ArrayList<>();
@@ -1066,10 +1068,10 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/exportAll/verify")
     @ApiOperation(value = "导出全部告警信息校验")
     public ResultVo exportAllVerify(@RequestBody AlarmInfoPageQuery query) {
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
         FileUtil.createTmpPath();
@@ -1095,10 +1097,10 @@ public class AlarmInfoController extends ListenerManager {
         if (StrUtil.isEmpty(query.getOrgId())) {
             query.setOrgIds(ShiroUtil.getSubjectOrgIds());
         }
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
         List<AlarmExportVo> exportVoList = alarmInfoService.findExportAllAlarm(query);
@@ -1117,10 +1119,10 @@ public class AlarmInfoController extends ListenerManager {
         if (StrUtil.isEmpty(query.getOrgId())) {
             query.setOrgIds(ShiroUtil.getSubjectOrgIds());
         }
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
         List<AlarmExportVo> exportVoList = alarmInfoService.findExportAllAlarm(query);
@@ -1171,10 +1173,10 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/alarmAnalysisWordExport/verify")
     @ApiOperation(value = "告警分析报告导出校验")
     public ResultVo alarmAnalysisWordExport(@RequestBody AlarmInfoPageQuery query) {
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
         if (StrUtil.isEmpty(query.getOrgId())) {
@@ -1202,10 +1204,10 @@ public class AlarmInfoController extends ListenerManager {
         if (StrUtil.isEmpty(query.getOrgId())) {
             query.setOrgIds(ShiroUtil.getSubjectOrgIds());
         }
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
         List<BrokenRecordWord> list = brokenRecordWordService.getBrokenRecordWords(query);
@@ -1227,10 +1229,10 @@ public class AlarmInfoController extends ListenerManager {
         if (StrUtil.isEmpty(query.getOrgId())) {
             query.setOrgIds(ShiroUtil.getSubjectOrgIds());
         }
-        if(Objects.isNull(query.getAlarmLevelList())||query.getAlarmLevelList().isEmpty()){
+        if (Objects.isNull(query.getAlarmLevelList()) || query.getAlarmLevelList().isEmpty()) {
             query.setAlarmLevelList(null);
         }
-        if(Objects.isNull(query.getAlarmCodeList())||query.getAlarmCodeList().isEmpty()){
+        if (Objects.isNull(query.getAlarmCodeList()) || query.getAlarmCodeList().isEmpty()) {
             query.setAlarmCodeList(null);
         }
         List<BrokenRecordWord> list = brokenRecordWordService.getBrokenRecordWords(query);

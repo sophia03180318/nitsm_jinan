@@ -26,6 +26,8 @@ import com.jcca.common.input.ErrorCodeEnum;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.DevLog;
+import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
@@ -497,7 +499,7 @@ public class ThresholdProcessController extends ListenerManager {
     @PostMapping("/update")
     @ApiOperation(value = "修改资产进程阈值配置")
     @RequiresPermissions("api:processThreshold:update")
-    @ActionLog(name = "修改资产进程阈值配置", title = "监控管理", key = LogTypeConstant.MODIFY)
+    @DevLog(title = "业务配置管理", name = "进程阈值配置", dev = DevLogConstant.THRESHOLD_PROCESS, key = LogTypeConstant.DEV)
     ResultVo<?> update(@RequestBody ThresholdProcessUpdateReq req) {
         String validateReq = ValidatorUtils.validateReq(req);
         if (StrUtil.isNotEmpty(validateReq)) {
@@ -552,7 +554,7 @@ public class ThresholdProcessController extends ListenerManager {
     @PostMapping("/remove/{id}")
     @ApiOperation(value = "删除资产进程阈值配置")
     @RequiresPermissions("api:processThreshold:remomve")
-    @ActionLog(name = "删除资产进程阈值配置", title = "监控管理", key = LogTypeConstant.REMOVEE)
+    @DevLog(title = "业务配置管理", name = "删除进程", dev = DevLogConstant.PROCESS_DEL, key = LogTypeConstant.DEV)
     ResultVo<?> remove(@PathVariable("id") String id) {
         ThresholdProcess process = thresholdProcessService.getById(id);
         if (Objects.isNull(process)) {
@@ -622,7 +624,7 @@ public class ThresholdProcessController extends ListenerManager {
     @ApiOperation(value = "改变进程配置模式",
             notes = "同一组下两台机器配置相同进程,进程模式分为双机双活、双击单活，另外还有普通模式。进程可以在这三种模式间进行切换")
     @RequiresPermissions("api:processThreshold:modeChange")
-    @ActionLog(name = "修改资产进程配置模式", title = "监控管理", key = LogTypeConstant.MODIFY)
+    @DevLog(title = "业务配置管理", name = "修改进程模式", dev = DevLogConstant.PROCESS_MODE, key = LogTypeConstant.DEV)
     public ResultVo<?> modeChange(@RequestBody ChangeProcessModeReq req) {
         ResultVo<?> vo = thresholdProcessService.modeChange(req);
         return ResultVoUtil.success(vo);

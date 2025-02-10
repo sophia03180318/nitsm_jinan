@@ -37,6 +37,8 @@ import com.jcca.common.input.ErrorCodeEnum;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.DevLog;
+import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.shiro.util.ShiroUtil;
@@ -297,6 +299,7 @@ public class ApiAssetController {
      */
     @PostMapping("/commitAlarmConf")
     @ApiOperation(value = "设置告警轮询次数")
+    @DevLog(title = "资产管理", name = "设置告警轮询次数", dev = DevLogConstant.ALARM_ROUND_TIME, key = LogTypeConstant.DEV)
     public ResultVo<?> commitAlarmConf(@RequestBody @Validated AlarmVerifyBean req) {
         SysModuleConfig sysModuleConfig = sysModuleConfServ.getSysModuleConfig(SysModuleConfigServiceImpl.SYS_ALARM_MODULE_CONFIG_KEY);
         if (Objects.isNull(sysModuleConfig)) {
@@ -1008,7 +1011,7 @@ public class ApiAssetController {
     @PostMapping("/del/{ids}")
     @ApiOperation(value = "删除资产")
     @RequiresPermissions({"api:asset:del"})
-    @ActionLog(name = "删除资产", title = "资产管理", key = LogTypeConstant.REMOVEE)
+    @DevLog(title = "资产管理", name = "删除资产", dev = DevLogConstant.ASSET_DEL, key = LogTypeConstant.DEV)
     public ResultVo del(@PathVariable("ids") String ids) {
         try {
             assetService.deleteAsset(ids);

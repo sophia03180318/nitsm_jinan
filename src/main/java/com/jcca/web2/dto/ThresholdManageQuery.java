@@ -17,6 +17,7 @@ public class ThresholdManageQuery {
     private String orgId;
     private List<String> orgIds;
 
+    private String assetId;
     /**
      * 资产类型
      */

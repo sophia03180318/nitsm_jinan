@@ -6,6 +6,8 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.ThresholdAutoFlagConst;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.DevLog;
+import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.dataProcessing.manager.threshold.Event;
@@ -54,7 +56,7 @@ public class ThresholdControllerV2 extends ListenerManager {
     @PostMapping("/save")
     @ApiOperation("保存阈值配置")
     @RequiresPermissions("api:v2:threshold:save")
-    @ActionLog(name = "保存阈值配置", title = "阈值管理", key = LogTypeConstant.ADD)
+    @DevLog(title = "资产生命周期", name = "设置阈值", dev = DevLogConstant.THRESHOLD_DEFAULT, key = LogTypeConstant.DEV)
     public ResultVo<Object> save(@RequestBody List<ThresholdManage> list) {
 
         for (ThresholdManage manage : list) {

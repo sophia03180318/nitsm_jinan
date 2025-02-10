@@ -44,5 +44,9 @@ public interface LogTypeConstant {
      * 恢复
      */
     String RECOVER = "8";
+    /**
+     * 运维日志
+     */
+    String DEV = "9";
 
 }

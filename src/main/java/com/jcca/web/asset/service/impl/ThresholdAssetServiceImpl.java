@@ -6,11 +6,13 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.bean.constant.RedisCacheConst;
 import com.jcca.common.bean.constant.ThresholdAutoFlagConst;
 import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.redis.service.RedisService;
+import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.component.event.bean.CreateEventReq;
@@ -62,6 +64,8 @@ public class ThresholdAssetServiceImpl extends ServiceImpl<ThresholdMapper, Thre
     private CollectInterfacesService interfacesServ;
     @Resource
     private AlarmInfoService alarmInfoService;
+    @Resource
+    private ThresholdMapper thresholdMapper;
 
 
     @Override
@@ -582,6 +586,55 @@ public class ThresholdAssetServiceImpl extends ServiceImpl<ThresholdMapper, Thre
             return;
         }
         alarmInfoService.recoverAlarm(orgMsgFlag, assetId);
+    }
+
+    /**
+     * 按资产类型查询阈值
+     *
+     * @param assetMode 资产类型
+     * @return 阈值
+     */
+    @Override
+    public ThresholdAsset findByAssetMode(Integer assetMode) {
+        List<String> subjectAssetIds = ShiroUtil.getSubjectAssetIds();
+        List<String> ids = new ArrayList<>();
+        List<ThresholdAsset> list = new ArrayList<>();
+        if (subjectAssetIds.size() > 1000) {
+            for (int i = 0; i < subjectAssetIds.size(); i++) {
+                ids.add(subjectAssetIds.get(i));
+                if (i % 900 == 0) {
+                    QueryWrapper<ThresholdAsset> query = Wrappers.query();
+                    query.eq("ASSET_MODE", assetMode);
+                    query.eq("AUTO_FLAG", ThresholdAutoFlagConst.ORG_THRESHOLD);
+                    query.in("ASSET_ID", ids);
+                    query.eq("ROWNUM", 1);
+                    list = this.list(query);
+                    ids = new ArrayList<>();
+                    if (!CollectionUtils.isEmpty(list)) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            QueryWrapper<ThresholdAsset> query = Wrappers.query();
+            query.eq("ASSET_MODE", assetMode);
+            query.eq("AUTO_FLAG", ThresholdAutoFlagConst.ORG_THRESHOLD);
+            query.in("ASSET_ID", subjectAssetIds);
+            query.eq("ROWNUM", 1);
+            list = this.list(query);
+        }
+        return list.get(0);
+    }
+
+    /**
+     * 按资产类型查询运行时长
+     *
+     * @param assetMode 资产类型
+     * @return 运行时长
+     */
+    @Override
+    public List<Integer> findRuntimeByAssetMode(Integer assetMode) {
+        return thresholdMapper.findRuntimeByAssetMode(assetMode);
     }
 
 

@@ -102,4 +102,20 @@ public interface ThresholdAssetService extends IService<ThresholdAsset> {
      * 阶段阈值是单独的告警
      */
     void recoverAlarm(String assetId) throws Exception;
+
+    /**
+     * 按资产类型查询阈值
+     *
+     * @param assetMode 资产类型
+     * @return 阈值
+     */
+    ThresholdAsset findByAssetMode(Integer assetMode);
+
+    /**
+     * 按资产类型查询运行时长
+     *
+     * @param assetMode 资产类型
+     * @return 运行时长
+     */
+    List<Integer> findRuntimeByAssetMode(Integer assetMode);
 }

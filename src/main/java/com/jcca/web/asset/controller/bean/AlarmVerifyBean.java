@@ -15,6 +15,7 @@ public class AlarmVerifyBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private String id;
     /**
      * ping 次数
      */

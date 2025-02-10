@@ -8,6 +8,8 @@ import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.DevLog;
+import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
@@ -189,7 +191,7 @@ public class ProcessConfigControllerV2 extends ListenerManager {
     @PostMapping("/configProcess")
     @ApiOperation("配置资产进程")
     @RequiresPermissions("api:v2:process:configProcess")
-    @ActionLog(name = "进程配置相关", title = "配置资产进程", key = LogTypeConstant.ADD)
+    @DevLog(title = "业务配置管理", name = "添加进程", dev = DevLogConstant.PROCESS_CONFIG, key = LogTypeConstant.DEV)
     public ResultVo<String> saveProcess(@RequestBody List<ConfigProcessDto> list) {
 
         if (CollectionUtils.isEmpty(list)) {
