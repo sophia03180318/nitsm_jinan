@@ -22,6 +22,7 @@ import com.jcca.web2.vo.InspectVo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -163,6 +164,10 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
 
                 ) {
                     inspectResultVo.setInspectValue(filteredMapValue.get(key).toString());
+                    if (key.contains(StatusInfoChangeTypeEnum.event_run_time_state.getCode())) {
+                        BigDecimal collectDay = new BigDecimal(filteredMapValue.get(key).toString()).divide(new BigDecimal(86400), 0, BigDecimal.ROUND_DOWN);
+                        inspectResultVo.setInspectValue(collectDay.toString());
+                    }
                 }
             }
         }

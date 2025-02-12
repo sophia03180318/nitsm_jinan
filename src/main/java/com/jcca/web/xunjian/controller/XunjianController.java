@@ -459,8 +459,6 @@ public class XunjianController {
         assetQuery.orderByDesc("CREATE_TIME");
 
         List<XunjianAsset> records = xunjianAssetService.list(assetQuery);
-        List<String> assetIdList = new ArrayList<String>();
-
         // fatten
         // 调度台总数
         int displayerNum = 0;
@@ -499,8 +497,6 @@ public class XunjianController {
             } else if (netServList.contains(asset.getAssetMode())) {
                 netServerNum++;
             }
-
-            assetIdList.add(xunjianAsset.getAssetId());
 
             XunjianRepoBody body = new XunjianRepoBody();
             for (XunjianDetail detail : details) {
