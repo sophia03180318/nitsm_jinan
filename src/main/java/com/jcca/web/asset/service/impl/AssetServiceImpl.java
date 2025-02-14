@@ -1689,6 +1689,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             asset.setPort(Asset.getDefaultPort(asset.getCollectionType()));
         }
         // 当选择不监控时 把设备监控状态状态 初始化为不监控
+        if(Objects.isNull(asset.getWatch())){
+            asset.setWatch(AssetWatchStatusEnum.WATCH_STATUS_NO.getCode());
+        }
         if (asset.getWatch() == AssetWatchStatusEnum.WATCH_STATUS_NO.getCode()) {
             asset.setStatus(AssetStatusEnum.ASSET_STATUS_NO_WATCH.getCode());
             asset.setMonitor(AssetMonitorEnum.UNMONITOR.code);
