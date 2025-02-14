@@ -460,23 +460,39 @@ public class InspectControllerV2 {
         if (StatusInfoChangeTypeEnum.event_CPU_normal.getCode().equals(targetItem)) {
             report.setCpuNormalFlag(flag);
             report.setCpuResultMsg(thresholdTemp);
+            if (StringUtils.isEmpty(detail.getThresholdValue())) {
+                report.setCpuNormalFlag(XunjianDetail.NORMAL_FLAG);
+                report.setCpuResultMsg("未设置CPU阈值");
+            }
             return;
         }
         if (StatusInfoChangeTypeEnum.event_disk_normal.getCode().equals(targetItem)) {
             thresholdTemp = TemplateUtil.getThresholdTemp(Double.parseDouble(detail.getThresholdValue()), Double.parseDouble(detail.getInspectValue()), true, false);
             report.setDiskNormalFlag(flag);
             report.setDiskResultMsg(thresholdTemp);
+            if (StringUtils.isEmpty(detail.getThresholdValue())) {
+                report.setDiskNormalFlag(XunjianDetail.NORMAL_FLAG);
+                report.setDiskResultMsg("未设置磁盘阈值");
+            }
             return;
         }
         if (StatusInfoChangeTypeEnum.event_memory_normal.getCode().equals(targetItem)) {
             report.setMemoryNormalFlag(flag);
             report.setMemoryResultMsg(thresholdTemp);
+            if (StringUtils.isEmpty(detail.getThresholdValue())) {
+                report.setMemoryNormalFlag(XunjianDetail.NORMAL_FLAG);
+                report.setMemoryResultMsg("未设置内存阈值");
+            }
             return;
         }
         if (StatusInfoChangeTypeEnum.event_run_time_state.getCode().equals(targetItem)) {
             thresholdTemp = TemplateUtil.getThresholdTemp(Double.parseDouble(detail.getThresholdValue()), Double.parseDouble(detail.getInspectValue()), false, false);
             report.setRunTimelog(flag);
             report.setRunTimeMag(thresholdTemp);
+            if (StringUtils.isEmpty(detail.getThresholdValue())) {
+                report.setRunTimelog(XunjianDetail.NORMAL_FLAG);
+                report.setRunTimeMag("未设置运行时长阈值");
+            }
             return;
         }
 
@@ -485,11 +501,19 @@ public class InspectControllerV2 {
         if (StatusInfoChangeTypeEnum.event_port_in_normal.getCode().equals(targetItem)) {
             report.setPortInNormalFlag(flag);
             report.setPortInResultMsg(thresholdTemp);
+            if (StringUtils.isEmpty(detail.getThresholdValue())) {
+                report.setPortInNormalFlag(XunjianDetail.NORMAL_FLAG);
+                report.setPortInResultMsg("未设置端口流入阈值");
+            }
             return;
         }
         if (StatusInfoChangeTypeEnum.event_port_out_normal.getCode().equals(targetItem)) {
             report.setPortOutNormalFlag(flag);
             report.setPortOutResultMsg(thresholdTemp);
+            if (StringUtils.isEmpty(detail.getThresholdValue())) {
+                report.setPortOutNormalFlag(XunjianDetail.NORMAL_FLAG);
+                report.setPortOutResultMsg("未设置端口流出阈值");
+            }
         }
     }
 
