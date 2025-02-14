@@ -159,7 +159,7 @@ public class ApiStatisticsDbController {
             List<CollectTablespace> tablespaces = collectTablespaceService.list(query);
             for (CollectTablespace item : tablespaces) {
                 if (StrUtil.isEmpty(item.getStatus())) {
-                    item.setStatus("正常");
+                    item.setStatus("ONLINE");
                 }
             }
             vo.setTablespaceList(tablespaces);

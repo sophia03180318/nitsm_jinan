@@ -90,16 +90,18 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
             tempReq.setFlag(info.getPortName());
 
             AssetLinkAsset linkAssetByAsset = null;
+            String statusStr="端口恢复";
             //如果为异常事件，查询对端设备
             if (portStatus == 2) {
+                statusStr="端口断开";
                 linkAssetByAsset = assetLinkAssetServ.findLinkAssetByAsset(info.getAssetId(), info.getPortIndex());
             }
             //如果对端设备不为空
-            String descStr = String.format(StatusInfoChangeTypeEnum.event_port_state.getDescr(), info.getPortName());
+            String descStr = String.format(StatusInfoChangeTypeEnum.event_port_state.getDescr(), info.getPortName(),statusStr);
             if (linkAssetByAsset != null) {
                 if (StrUtil.isNotEmpty(linkAssetByAsset.getLinkAssetName())) {
                     tempReq.setLinkAssetName(linkAssetByAsset.getLinkAssetName());
-                    descStr = String.format(StatusInfoChangeTypeEnum.event_port_state.getDescr(), info.getPortName()) + ",对端设备【" + linkAssetByAsset.getLinkAssetName() + "】";
+                    descStr = descStr + ",对端设备【" + linkAssetByAsset.getLinkAssetName() + "】";
                 }
                 if (StrUtil.isNotEmpty(linkAssetByAsset.getLinkAssetIp())) {
                     tempReq.setLinkAssetIp(linkAssetByAsset.getLinkAssetIp());

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -59,6 +60,12 @@ public class CollectTablespace extends Model<CollectTablespace> implements java.
      */
     @TableField("USED_RATE")
     private Double usedRate;
+
+    /**
+     * 表空间最大扩展大小 M
+     */
+    @TableField("MAX_SIZE")
+    private Long maxSize;
     /**
      * 采集时间
      */

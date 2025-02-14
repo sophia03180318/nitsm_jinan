@@ -294,7 +294,7 @@ public enum StatusInfoChangeTypeEnum {
 
     //端口状态事件
     event_port("event:event_port", "网络设备端口状态", "", "端口巡检", "201_42"),
-    event_port_state("event:event_port:state", "端口状态事件", "端口%s状态发生变化。", "端口状态", ""),
+    event_port_state("event:event_port:state", "端口状态事件", "端口%s状态发生变化(%s)。", "端口状态", ""),
     //端口流入事件
     event_port_in_normal("event:event_port:in_normal", "端口流入普通阈值事件", getPubThresholdMsg("端口%s", "端口流入率", "%%"), "端口流入状态", ""),
     event_port_in_section("event:event_port:in_section", "端口流入区间阈值事件", getSectionThresholdMsg("端口%s", "端口流入", "Bps"), "区间流入阈值状态", ""),

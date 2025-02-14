@@ -3,6 +3,7 @@ package com.jcca.dataProcessing.Entity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -42,6 +43,10 @@ public class CollectTablespaceEntity extends CommonEntity implements Serializabl
      * 使用率%
      */
     private Double usedRate;
+    /**
+     * 表空间最大扩展大小 M
+     */
+    private Long maxSize;
 
     /**
      * 创建时间
