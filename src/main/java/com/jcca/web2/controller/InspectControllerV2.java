@@ -45,7 +45,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -518,37 +517,45 @@ public class InspectControllerV2 {
     }
 
     private void setAlarmResult(InspectDetail detail, XunjianRepoBody report) {
-        String assetId = detail.getAssetId();
-        QueryWrapper<AlarmInfo> queryWrapper = new QueryWrapper<AlarmInfo>();
-        queryWrapper.eq("ASSET_ID", assetId);
-        queryWrapper.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
-        queryWrapper.ne("ALARM_LEVEL", AlarmLevelEnum.LEVEL_MSG.getCode());
-        List<AlarmInfo> list = alarmInfoService.list(queryWrapper);
-
-        if (list.isEmpty()) {
+        if (detail == null || detail.getAssetId() == null) {
             report.setAlarmResultMsg(String.format("【一级告警】：%s,【二级告警】：%s,【三级告警】：%s,【未知告警】：%s", 0, 0, 0, 0));
             report.setAlarmNormalFlag(XunjianDetail.NORMAL_FLAG);
             return;
         }
-        List<AlarmInfo> oneLevel = list.stream()
-                .filter(item -> AlarmLevelEnum.LEVEL_ONE.getCode() == item.getAlarmLevel().byteValue())
-                .collect(Collectors.toList());
 
-        List<AlarmInfo> twoLevel = list.stream()
-                .filter(item -> AlarmLevelEnum.LEVEL_TWO.getCode() == item.getAlarmLevel().byteValue())
-                .collect(Collectors.toList());
+        String assetId = detail.getAssetId();
+        QueryWrapper<AlarmInfo> queryWrapper = new QueryWrapper<AlarmInfo>();
+        queryWrapper.eq("ASSET_ID", assetId);
+        queryWrapper.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
+        queryWrapper.eq("BLANK", AlarmStateEnum.ALARM.getCode());
+        queryWrapper.ne("ALARM_LEVEL", AlarmLevelEnum.LEVEL_MSG.getCode());
 
-        List<AlarmInfo> threeLevel = list.stream()
-                .filter(item -> AlarmLevelEnum.LEVEL_THREE.getCode() == item.getAlarmLevel().byteValue())
-                .collect(Collectors.toList());
+        List<AlarmInfo> list = alarmInfoService.list(queryWrapper);
+        if (list == null || list.isEmpty()) {
+            report.setAlarmResultMsg(String.format("【一级告警】：%s,【二级告警】：%s,【三级告警】：%s,【未知告警】：%s", 0, 0, 0, 0));
+            report.setAlarmNormalFlag(XunjianDetail.NORMAL_FLAG);
+            return;
+        }
 
-        BigDecimal unkonow = new BigDecimal(list.size()).subtract(new BigDecimal(oneLevel.size()))
-                .subtract(new BigDecimal(twoLevel.size())).subtract(new BigDecimal(threeLevel.size()));
+        int oneLevelCount = 0, twoLevelCount = 0, threeLevelCount = 0, unknownCount = 0;
 
-        report.setAlarmResultMsg(String.format("【一级告警】：%s,【二级告警】：%s,【三级告警】：%s,【未知告警】：%s", oneLevel.size(), twoLevel.size(),
-                threeLevel.size(), unkonow.intValue()));
+        for (AlarmInfo item : list) {
+            byte alarmLevel = item.getAlarmLevel();
+            if (alarmLevel == AlarmLevelEnum.LEVEL_ONE.getCode()) {
+                oneLevelCount++;
+            } else if (alarmLevel == AlarmLevelEnum.LEVEL_TWO.getCode()) {
+                twoLevelCount++;
+            } else if (alarmLevel == AlarmLevelEnum.LEVEL_THREE.getCode()) {
+                threeLevelCount++;
+            } else {
+                unknownCount++;
+            }
+        }
+
+        report.setAlarmResultMsg(String.format("【一级告警】：%s,【二级告警】：%s,【三级告警】：%s,【未知告警】：%s", oneLevelCount, twoLevelCount, threeLevelCount, unknownCount));
         report.setAlarmNormalFlag(XunjianDetail.EXCEPTION_FLAG);
     }
+
 
     private void setDefaultResult(XunjianRepoBody report, Integer assetDesk) {
         report.setOracleMag("该设备类型无此指标");
