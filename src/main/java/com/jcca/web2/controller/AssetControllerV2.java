@@ -4,6 +4,8 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.DevLog;
+import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.EncryptUtil;
 import com.jcca.common.utils.ResultVoUtil;
@@ -83,7 +85,7 @@ public class AssetControllerV2 {
     @ApiOperation("保存资产")
     @PostMapping("/save")
     @RequiresPermissions("api:v2:asset:save")
-    @ActionLog(name = "保存资产", title = "资产管理", key = LogTypeConstant.ADD)
+    @DevLog(title = "资产管理", name = "保存/修改资产", dev = DevLogConstant.ASSET_MODIFY, key = LogTypeConstant.DEV)
     public ResultVo<Object> add(@Validated @RequestBody Asset asset) throws Exception {
 
         assetServ.saveAssetV2(asset);

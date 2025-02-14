@@ -140,7 +140,7 @@ public enum StatusInfoChangeTypeEnum {
     //自定义事件信息  category分类
     //CPU事件
     event("event", "设备事件", "", "", "183_1831_1832_1833_1834_201_42"),
-    event_CPU("event:event_CPU", "cpu状态", "", "CPU巡检", ""),
+    event_CPU("event:event_CPU", "cpu状态", "", "CPU巡检", "183_1831_1832_1833_1834_201_42"),
     event_cpu_state("event:event_CPU:status", "cpu状态", "%s状态%s", "CPU状态", ""),
     event_CPU_normal("event:event_CPU:normal", "cpu普通阈值事件", getPubThresholdMsg("", "CPU使用率", "%%"), "CPU阈值状态", ""),
     event_CPU_section("event:event_CPU:section", "cpu区间阈值事件", getSectionThresholdMsg("", "CPU使用率", "%%"), "CPU区间阈值状态", ""),

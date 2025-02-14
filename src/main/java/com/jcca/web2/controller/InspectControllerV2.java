@@ -1,9 +1,13 @@
 package com.jcca.web2.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.enums.AlarmLevelEnum;
+import com.jcca.common.enums.AlarmStateEnum;
+import com.jcca.common.enums.AlarmStatusEnum;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
@@ -12,7 +16,19 @@ import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.poi.xssf.streaming.SXSSFWorkbook;
+import com.jcca.web.alarm.entity.AlarmInfo;
+import com.jcca.web.alarm.service.AlarmInfoService;
+import com.jcca.web.asset.utils.DispatchRecordExcelUtil;
 import com.jcca.web.asset.vo.DetailCabinetVo;
+import com.jcca.web.xunjian.adapter.v1.util.TemplateUtil;
+import com.jcca.web.xunjian.controller.bean.XunjianRepoBody;
+import com.jcca.web.xunjian.controller.util.XunjianReportUtil;
+import com.jcca.web.xunjian.controller.util.bean.XunjianReportTemp;
+import com.jcca.web.xunjian.entity.XunjianAlarmMsg;
+import com.jcca.web.xunjian.entity.XunjianDetail;
+import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.InspectDetailService;
@@ -29,10 +45,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author HanHW
@@ -50,6 +65,8 @@ public class InspectControllerV2 {
     private InspectRecordService inspectRecordService;
     @Resource
     private InspectDetailService inspectDetailService;
+    @Resource
+    private AlarmInfoService alarmInfoService;
 
     @GetMapping("/modeTarget")
     @ApiOperation("按资产类型获取指标列表")
@@ -335,6 +352,201 @@ public class InspectControllerV2 {
 
         inspectDetailService.exportAssetRecord(inspectCode, assetId, response);
 
+    }
+
+    @GetMapping("/exportReport")
+    @ApiOperation(value = "导出智能巡检报告单")
+    public void exportReport(String inspectCode, HttpServletResponse response) {
+        QueryWrapper<InspectDetail> detailQuery = Wrappers.query();
+        detailQuery.eq("INSPECT_CODE", inspectCode);
+        detailQuery.eq("TARGET_STATUS", Web2Const.AVAILABLE);
+        detailQuery.eq("ASSET_STATUS", Web2Const.AVAILABLE);
+        List<InspectDetail> list = inspectDetailService.list(detailQuery);
+        if (list.isEmpty()) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, inspectCode, "智能巡检找不到指定巡检报告");
+            return;
+        }
+        list = list.stream().filter(s -> Arrays.asList(itemArr).contains(s.getTargetItem())).collect(Collectors.toList());
+
+        ArrayList<XunjianAlarmMsg> alarmList2 = new ArrayList<>();
+        Set<String> assetIds = list.stream().map(InspectDetail::getAssetId).collect(Collectors.toSet());
+        Set<String> targetNames = list.stream().map(InspectDetail::getTargetName).collect(Collectors.toSet());
+        QueryWrapper<AlarmInfo> alarmQuery = Wrappers.query();
+        alarmQuery.in("ASSET_ID", assetIds);
+        alarmQuery.eq("STATUS", AlarmStatusEnum.UNCONFIRM.getCode());
+        alarmQuery.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
+        List<AlarmInfo> alarmList = alarmInfoService.list(alarmQuery);
+        for (AlarmInfo alarmInfo : alarmList) {
+            XunjianAlarmMsg alarmMsg = new XunjianAlarmMsg();
+            List<String> descriptionList = alarmInfoService.queryDescriptionList(alarmInfo.getId());
+            alarmMsg.setOpinion(descriptionList.toString());
+            alarmMsg.setContent(alarmInfo.getContent());
+            alarmList2.add(alarmMsg);
+        }
+
+        Map<String, XunjianRepoBody> map = new HashMap<>();
+        Set<String> nset = new HashSet<>();
+        int exceptionNum = 0;
+        for (InspectDetail detail : list) {
+            String assetId = detail.getAssetId();
+            XunjianRepoBody report = map.get(assetId);
+            if (Objects.isNull(report)) {
+                report = new XunjianRepoBody();
+                report.setAssetId(assetId);
+                report.setAssetName(detail.getAssetName());
+                map.put(assetId, report);
+            }
+            this.setResult(detail, report);
+
+            if (nset.contains(assetId)) {
+                continue;
+            }
+            if (!Web2Const.INSPECTED.equals(detail.getInspectState())) {
+                exceptionNum += 1;
+                nset.add(assetId);
+            }
+        }
+
+        List<XunjianRepoBody> reportList = new ArrayList<>(map.values());
+        XunjianReportTemp req = new XunjianReportTemp();
+        req.setAlarmList(alarmList2);
+        req.setReportList(reportList);
+        req.setOperator(ShiroUtil.getSubject().getNickname());
+        req.setXunjianShift("");
+        req.setXunjianTarget(targetNames.toString());
+        req.setExceptionNum(exceptionNum);
+        req.setNormalNum(assetIds.size() - req.getExceptionNum());
+        req.setXunjianTime(list.get(0).getInspectTime());
+
+        SXSSFWorkbook createExcel = XunjianReportUtil.createExcel(req);
+        DispatchRecordExcelUtil.responseBody(createExcel, response, "智能巡检报告单");
+    }
+
+    private String[] itemArr = {
+            StatusInfoChangeTypeEnum.event_net_state.getCode(), StatusInfoChangeTypeEnum.event_process_status.getCode(),
+            StatusInfoChangeTypeEnum.event_CPU_normal.getCode(), StatusInfoChangeTypeEnum.event_disk_normal.getCode(),
+            StatusInfoChangeTypeEnum.event_memory_normal.getCode(), StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
+            StatusInfoChangeTypeEnum.event_port_in_normal.getCode(), StatusInfoChangeTypeEnum.event_port_out_normal.getCode()
+    };
+
+    private void setResult(InspectDetail detail, XunjianRepoBody report) {
+        Integer flag = "3".equals(detail.getInspectState()) ? XunjianDetail.NORMAL_FLAG : XunjianDetail.EXCEPTION_FLAG;
+        String targetItem = detail.getTargetItem();
+        String result = StringUtils.isEmpty(detail.getResultMsg()) ? "暂无" : detail.getResultMsg();
+        Integer assetDesk = detail.getAssetDesk();
+        this.setDefaultResult(report, assetDesk);
+
+        this.setAlarmResult(detail, report);
+
+        if (StatusInfoChangeTypeEnum.event_net_state.getCode().equals(targetItem)) {
+            report.setNetCardNormalFlag(flag);
+            report.setNetCardResultMsg(result);
+            return;
+        }
+        if (StatusInfoChangeTypeEnum.event_process_status.getCode().equals(targetItem)) {
+            report.setSoftwareNormalFlag(flag);
+            report.setSoftwareResultMsg(result);
+            return;
+        }
+        if (StringUtils.isEmpty(detail.getThresholdValue())) {
+            return;
+        }
+        if (!(targetItem.contains("normal") || targetItem.contains("run_state"))) {
+            return;
+        }
+
+        String thresholdTemp = TemplateUtil.getThresholdTemp(Double.parseDouble(detail.getThresholdValue()), Double.parseDouble(detail.getInspectValue()), false, true);
+        if (StatusInfoChangeTypeEnum.event_CPU_normal.getCode().equals(targetItem)) {
+            report.setCpuNormalFlag(flag);
+            report.setCpuResultMsg(thresholdTemp);
+            return;
+        }
+        if (StatusInfoChangeTypeEnum.event_disk_normal.getCode().equals(targetItem)) {
+            thresholdTemp = TemplateUtil.getThresholdTemp(Double.parseDouble(detail.getThresholdValue()), Double.parseDouble(detail.getInspectValue()), true, false);
+            report.setDiskNormalFlag(flag);
+            report.setDiskResultMsg(thresholdTemp);
+            return;
+        }
+        if (StatusInfoChangeTypeEnum.event_memory_normal.getCode().equals(targetItem)) {
+            report.setMemoryNormalFlag(flag);
+            report.setMemoryResultMsg(thresholdTemp);
+            return;
+        }
+        if (StatusInfoChangeTypeEnum.event_run_time_state.getCode().equals(targetItem)) {
+            thresholdTemp = TemplateUtil.getThresholdTemp(Double.parseDouble(detail.getThresholdValue()), Double.parseDouble(detail.getInspectValue()), false, false);
+            report.setRunTimelog(flag);
+            report.setRunTimeMag(thresholdTemp);
+            return;
+        }
+
+
+        thresholdTemp = TemplateUtil.getThresholdTemp(Double.parseDouble(detail.getThresholdValue()), Double.parseDouble(detail.getInspectValue()), true, false);
+        if (StatusInfoChangeTypeEnum.event_port_in_normal.getCode().equals(targetItem)) {
+            report.setPortInNormalFlag(flag);
+            report.setPortInResultMsg(thresholdTemp);
+            return;
+        }
+        if (StatusInfoChangeTypeEnum.event_port_out_normal.getCode().equals(targetItem)) {
+            report.setPortOutNormalFlag(flag);
+            report.setPortOutResultMsg(thresholdTemp);
+        }
+    }
+
+    private void setAlarmResult(InspectDetail detail, XunjianRepoBody report) {
+        String assetId = detail.getAssetId();
+        QueryWrapper<AlarmInfo> queryWrapper = new QueryWrapper<AlarmInfo>();
+        queryWrapper.eq("ASSET_ID", assetId);
+        queryWrapper.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
+        queryWrapper.ne("ALARM_LEVEL", AlarmLevelEnum.LEVEL_MSG.getCode());
+        List<AlarmInfo> list = alarmInfoService.list(queryWrapper);
+
+        if (list.isEmpty()) {
+            report.setAlarmResultMsg(String.format("【一级告警】：%s,【二级告警】：%s,【三级告警】：%s,【未知告警】：%s", 0, 0, 0, 0));
+            report.setAlarmNormalFlag(XunjianDetail.NORMAL_FLAG);
+            return;
+        }
+        List<AlarmInfo> oneLevel = list.stream()
+                .filter(item -> AlarmLevelEnum.LEVEL_ONE.getCode() == item.getAlarmLevel().byteValue())
+                .collect(Collectors.toList());
+
+        List<AlarmInfo> twoLevel = list.stream()
+                .filter(item -> AlarmLevelEnum.LEVEL_TWO.getCode() == item.getAlarmLevel().byteValue())
+                .collect(Collectors.toList());
+
+        List<AlarmInfo> threeLevel = list.stream()
+                .filter(item -> AlarmLevelEnum.LEVEL_THREE.getCode() == item.getAlarmLevel().byteValue())
+                .collect(Collectors.toList());
+
+        BigDecimal unkonow = new BigDecimal(list.size()).subtract(new BigDecimal(oneLevel.size()))
+                .subtract(new BigDecimal(twoLevel.size())).subtract(new BigDecimal(threeLevel.size()));
+
+        report.setAlarmResultMsg(String.format("【一级告警】：%s,【二级告警】：%s,【三级告警】：%s,【未知告警】：%s", oneLevel.size(), twoLevel.size(),
+                threeLevel.size(), unkonow.intValue()));
+        report.setAlarmNormalFlag(XunjianDetail.EXCEPTION_FLAG);
+    }
+
+    private void setDefaultResult(XunjianRepoBody report, Integer assetDesk) {
+        report.setOracleMag("该设备类型无此指标");
+        report.setOracleFlag(XunjianDetail.NORMAL_FLAG);
+        if (assetDesk == 201 || assetDesk == 42) {
+            report.setSoftwareNormalFlag(XunjianDetail.NORMAL_FLAG);
+            report.setRunTimelog(XunjianDetail.NORMAL_FLAG);
+            report.setNetCardNormalFlag(XunjianDetail.NORMAL_FLAG);
+            report.setDiskNormalFlag(XunjianDetail.NORMAL_FLAG);
+
+            report.setSoftwareResultMsg("该设备类型无此指标");
+            report.setRunTimeMag("此设备无法获取运行时长");
+            report.setNetCardResultMsg("该设备类型无此指标");
+            report.setDiskResultMsg("该设备类型无此指标");
+        } else {
+            report.setRunTimelog(XunjianDetail.NORMAL_FLAG);
+            report.setPortOutNormalFlag(XunjianDetail.NORMAL_FLAG);
+            report.setPortInNormalFlag(XunjianDetail.NORMAL_FLAG);
+
+            report.setRunTimeMag("此设备未采集系统时间");
+            report.setPortOutResultMsg("该设备类型无此指标");
+            report.setPortInResultMsg("该设备类型无此指标");
+        }
     }
 
 
