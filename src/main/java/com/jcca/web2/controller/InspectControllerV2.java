@@ -375,6 +375,7 @@ public class InspectControllerV2 {
         alarmQuery.in("ASSET_ID", assetIds);
         alarmQuery.eq("STATUS", AlarmStatusEnum.UNCONFIRM.getCode());
         alarmQuery.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
+        alarmQuery.eq("BLANK", AlarmStateEnum.ALARM.getCode());
         List<AlarmInfo> alarmList = alarmInfoService.list(alarmQuery);
         for (AlarmInfo alarmInfo : alarmList) {
             XunjianAlarmMsg alarmMsg = new XunjianAlarmMsg();
