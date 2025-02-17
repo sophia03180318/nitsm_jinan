@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.syslog;
 
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.EventInfo;
 import com.jcca.dataProcessing.Entity.SyslogEventInfoEntity;
@@ -41,7 +42,7 @@ public class SyslogOtherFilterHandler extends IFilterHandler<SyslogEventInfoEnti
 
         EventInfo eventInfo = new EventInfo();
         eventInfo.setMessage(contentStr);
-        eventInfo.setMessageId("");
+        eventInfo.setMessageId(MyIdUtil.getId());
         eventInfo.setLevel(info.getLevel());
 
         ChangeInfo changeInfo = new ChangeInfo();

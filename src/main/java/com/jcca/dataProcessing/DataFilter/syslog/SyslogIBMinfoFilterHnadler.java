@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,29 +131,33 @@ public class SyslogIBMinfoFilterHnadler extends IFilterHandler<SyslogEventInfoEn
         EventInfo eventInfo = null;
         // 现在创建 matcher 对象
         Matcher m = patten.matcher(contentStr);
-        if (m.find()) {//告警内容
+        Matcher m2 = patten2.matcher(contentStr);
+        Matcher m3 = patten3.matcher(contentStr);
+        Matcher m4 = patten4.matcher(contentStr);
+        if (m.find()) {
+            //告警内容
             eventInfo = new EventInfo();
             String alarmPatternString = m.group(0);
             String text = alarmPatternString.substring(11, alarmPatternString.length() - 1);
             eventInfo.setMessage(text);
         }
-        Matcher m2 = patten2.matcher(contentStr);
-        if (m2.find()) {//告警类型
+        if(m2.find()) {
+            //告警类型
             String alertType = m2.group(0).split(":")[1];
             eventInfo.setEventType(alertType.trim());
-
         }
-        Matcher m3 = patten3.matcher(contentStr);
-        if (m3.find()) {//事件ID
+        if (m3.find()) {
+            //事件ID
             String eId = m3.group(0).split(":")[1];
             eventInfo.setMessageId(eId.trim());
         }
-        Matcher m4 = patten4.matcher(contentStr);
-        if (m4.find()) {//原始告警级别
+        if (m4.find()) {
+            //原始告警级别
             String level = m4.group(0).split(":")[1];
             eventInfo.setLevel(Integer.parseInt(level.trim()));
         }
-        if (eventInfo == null) {
+
+        if(Objects.isNull(eventInfo)) {
             return true;
         }
         //修改message，添加事件ID
