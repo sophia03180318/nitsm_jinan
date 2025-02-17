@@ -48,7 +48,7 @@ public class CommonSystemRestartFilterHandler extends IFilterHandler<CommonEntit
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(StatusInfoChangeTypeEnum.event_run_restart.getDescr());
             alarmTempReq.setCollectValue(newTimeduration+"秒");
-            if (0 < newTimeduration && newTimeduration < timeduration && newTimeduration < 1800) {
+            if (newTimeduration < timeduration && newTimeduration < 1800) {
                 Asset asset = assetService.getById(info.getAssetId());
                 //windows snmp运行时长会归0
                 if (Objects.nonNull(asset) && Objects.nonNull(asset.getCollectionType()) && asset.getCollectionType() == 1) {
