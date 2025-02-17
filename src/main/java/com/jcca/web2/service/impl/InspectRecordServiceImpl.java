@@ -573,7 +573,9 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         }
         wrapper.set("ASSET_STATUS", status);
         wrapper.set("MODIFY_TIME", new Date());
-        wrapper.set("ASSET_DESK", assetDesk);
+        if (!StringUtils.isEmpty(assetDesk)) {
+            wrapper.set("ASSET_DESK", assetDesk);
+        }
         this.update(wrapper);
     }
 
