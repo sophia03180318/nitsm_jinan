@@ -565,6 +565,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         Map<String, String> map = list.get(0);
         String status = map.get("status");
         String type = map.get("modeType");
+        String assetDesk = map.get("assetDesk");
         UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
         wrapper.in("ASSET_ID", ids);
         if (!StringUtils.isEmpty(type)) {
@@ -572,6 +573,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         }
         wrapper.set("ASSET_STATUS", status);
         wrapper.set("MODIFY_TIME", new Date());
+        wrapper.set("ASSET_DESK", assetDesk);
         this.update(wrapper);
     }
 

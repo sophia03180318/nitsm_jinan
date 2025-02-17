@@ -52,6 +52,7 @@ public class NotifyInspectImpl implements AssetNotifyService {
         List<Map<String, String>> list = new ArrayList<>();
         Map<String, String> map = new HashMap<>();
         map.put("assetId", asset.getId());
+        map.put("assetDesk", asset.getDesk() + "");
         map.put("status", asset.getWatch() + "");
         list.add(map);
         inspectRecordService.modifyAsset(list);
