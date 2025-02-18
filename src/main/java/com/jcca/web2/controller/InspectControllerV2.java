@@ -591,6 +591,4 @@ public class InspectControllerV2 {
             report.setPortInResultMsg("该设备类型无此指标");
         }
     }
-
-
 }
