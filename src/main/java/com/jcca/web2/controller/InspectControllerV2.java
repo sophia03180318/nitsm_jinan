@@ -401,7 +401,8 @@ public class InspectControllerV2 {
             if (nset.contains(assetId)) {
                 continue;
             }
-            if (!Web2Const.INSPECTED.equals(detail.getInspectState())) {
+            if (!(Web2Const.INSPECTED.equals(detail.getInspectState())
+                    || Web2Const.UNKNOWN.equals(detail.getInspectState()))) {
                 exceptionNum += 1;
                 nset.add(assetId);
             }
