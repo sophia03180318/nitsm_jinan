@@ -143,17 +143,17 @@ public class CollectDB extends Model<CollectDB> {
     /**
      * java池大小
      */
-    @TableField(exist = false)
+    @TableField("JAVA_POOL_SIZE")
     private String javaPoolSize;
     /**
      * 大池大小
      */
-    @TableField(exist = false)
+    @TableField("LARGE_POOL_SIZE")
     private String largePoolSize;
     /**
      * redoLogBuffer
      */
-    @TableField(exist = false)
+    @TableField("REDO_LOG_BUFFER")
     private String redoLogBuffer;
     /**
      * 缓冲库命中率
