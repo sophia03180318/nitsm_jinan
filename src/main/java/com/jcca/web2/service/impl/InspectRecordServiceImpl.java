@@ -19,11 +19,14 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.utils.TestIpUtil;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.Cabinet;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.vo.DetailCabinetVo;
+import com.jcca.web.db.entity.ManageDb;
+import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectRecordMapper;
 import com.jcca.web2.entity.InspectDetail;
@@ -74,6 +77,8 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
     private InspectDetailService inspectDetailService;
     @Resource
     private AssetModeService assetModeService;
+    @Resource
+    private ManageDbService manageDbService;
 
     @Value("${project.upload.file-path}")
     private String filePath;
@@ -907,11 +912,10 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         Set<String> deskSet = new HashSet<>();
         for (InspectVo vo : voList) {
             String desks = vo.getId();
-            if (!desks.contains("_")) {
-                continue;
-            }
             deskSet.addAll(Arrays.asList(desks.split("_")));
         }
+
+        List<ManageDb> dbList = manageDbService.list();
 
         String inspectCode = MyIdUtil.getId();
         QueryWrapper<Asset> query = Wrappers.query();
@@ -957,6 +961,29 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             }
         }
 
+        if (dbList.isEmpty()) {
+            return records;
+        }
+
+        for (ManageDb db : dbList) {
+            for (Asset asset : assets) {
+                if (!asset.getId().equals(db.getAssetId())) {
+                    continue;
+                }
+                InspectRecord record = new InspectRecord();
+                InspectVo inspectVo = new InspectVo();
+                inspectVo.setId(StatusInfoChangeTypeEnum.event_db_connect.getCode());
+                inspectVo.setName(StatusInfoChangeTypeEnum.event_db_connect.getXuanjianName());
+                this.setRecordData(asset, inspectVo, record);
+                record.setModeType("263_" + StatusInfoChangeTypeEnum.event_db_connect.getCode());
+                record.setModeName(StatusInfoChangeTypeEnum.event_db_connect.getName());
+                record.setInspectCode(inspectCode);
+                record.setAssetDesk(asset.getDesk());
+                record.setDeskName(assetModeService.getByCode(asset.getDesk()).getName());
+                records.add(record);
+            }
+        }
+
         return records;
     }
 
@@ -971,10 +998,10 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         record.setOrgId(asset.getOrgId());
         record.setTargetItem(vo.getId());
         record.setTargetName(vo.getName());
-        if(Objects.nonNull(org)){
+        if (Objects.nonNull(org)) {
             record.setOrgName(org.getTitle());
-        }else{
-            return ;
+        } else {
+            return;
         }
         record.setInspectType(1);
         record.setInspectState(Web2Const.INSPECT);
