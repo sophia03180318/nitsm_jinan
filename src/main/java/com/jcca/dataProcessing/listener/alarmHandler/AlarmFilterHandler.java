@@ -42,12 +42,14 @@ public class AlarmFilterHandler extends IFilterHandler<IEvent> {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean handler(IEvent info) {
-        if(Objects.isNull(info.getEventAlarmLevelBaseEntity())||Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())){
-            //未设定告警级别的告警不上报，只存事件
+        if(StrUtil.isEmpty(info.getAssetId())||StrUtil.isEmpty(info.getMapKey())){
+
             return false;
         }
-        if(StrUtil.isEmpty(info.getAssetId())||StrUtil.isEmpty(info.getMapKey())){
-            return false;
+
+        if(Objects.isNull(info.getEventAlarmLevelBaseEntity())||Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())){
+            //未设定告警级别的告警不上报，只存事件
+            return true;
         }
         String alarmCoded = info.getRedisKey();
         String flag = info.getMapKey();

@@ -64,7 +64,6 @@ public class SyslogCiscoinfoFilterHnadler extends IFilterHandler<SyslogEventInfo
             redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_syslog.getCode();
         }
         String mapKey = eventInfo.getMessageId();
-        changeInfo.setValue(eventInfo.getMessage());
         changeInfo.setRedisKey(redisKey);
         changeInfo.setMapKey(mapKey);
         changeInfo.setCollectTime(new Date());

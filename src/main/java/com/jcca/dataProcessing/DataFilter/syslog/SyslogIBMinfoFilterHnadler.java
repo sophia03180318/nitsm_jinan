@@ -164,22 +164,23 @@ public class SyslogIBMinfoFilterHnadler extends IFilterHandler<SyslogEventInfoEn
         eventInfo.setMessage(info.getMessage() + "," + "当前事件ID：" + eventInfo.getMessageId() + "。");
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setCollectTime(new Date());
-        changeInfo.setEventInfo(eventInfo);
         String redisKey = null;
+
         if (info.getAssetId() == null) {
             redisKey = info.getIp() + ":" + StatusInfoChangeTypeEnum.event_syslog.getCode();
         } else {
             redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_syslog.getCode();
         }
+
         String mapKey = eventInfo.getMessageId();
-        changeInfo.setValue(eventInfo.getMessage());
+        changeInfo.setEventInfo(eventInfo);
         changeInfo.setRedisKey(redisKey);
         changeInfo.setMapKey(mapKey);
         changeInfo.setCollectTime(new Date());
         info.getMaps().put(mapKey, changeInfo);
         String eventRedisKey = StatusInfoChangeTypeEnum.event_syslog.getCode();
         //为了区别重复把时间添加上
-        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + new Date().getTime();
+        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + System.currentTimeMillis();
         Integer status = EventLevelEnum.ABNORMAL.getCode();
 
         AlarmTempReq tempReq = new AlarmTempReq();

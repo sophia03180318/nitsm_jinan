@@ -17,6 +17,8 @@ import com.jcca.component.event.constant.EventGroupConstant;
 import com.jcca.component.event.constant.EventUniqueCode;
 import com.jcca.component.quartz.alarm.bean.UnhealthyAsset;
 import com.jcca.component.thresholds.bean.CollectInterfaceBean;
+import com.jcca.dataProcessing.Entity.SyslogEventInfoEntity;
+import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.collect.entity.CollectCpu;
@@ -84,12 +86,19 @@ public class CollectSpringTest {
     @Resource
     private CollectDsService dsService;
 
+    @Resource(name = "dataProcessManager")
+    private DataProcessManager dataProcessManager;
+
     @Resource(name = "redisTransactionTemplate")
     private RedisTemplate redisTransactionTemplate;
 
     @Test
-    public void testRedis(){
-
+    public void testSyslog() throws Exception {
+        SyslogEventInfoEntity syslogEventInfoEntity = new SyslogEventInfoEntity();
+        syslogEventInfoEntity.setIp("192.168.73.88");
+        syslogEventInfoEntity.setMessage("1 2025-02-14T09:36:04-00:00 XCC-7X04-J900V142 XCC-LOG - - - \n\tServer MTM: 7X04CTO1WW\n\n\n\tAlert Text: Security: Userid: USERID using default authentication had 1 login failures from WEB client at IP address 220.0.1.250.\n\tType of Alert: System - Remote Login\n\n\tSeverity: 4\n\tDate(m/d/y): 02/14/2025\n\tTime(h:m:s): 09:36:03\n\n\tContact: jcca\n\n\tLocation: jcca\n\tBMC Text ID: UnknownBMC\n\tBMC Serial Number: J900V142\n\tBMC UUID: 725FE55C404211EEB22472E2842E61EF\n\tEvent ID: 4000001000000000\n\tServiceable Event Indicator: Not Serviceable\n\tFRU list: Not available\n\tRoom ID: Not available\n\tRack ID: Not available\n\tLowest U-position: 1\n\tBlade Bay: Not available\n\tTest Alert: no\n\tAuxiliary Data: Not available\n\tCommon Event ID: FQXSPSE4002I\n\tEvent Type: 0\n\tReport Chain: XCC");
+        syslogEventInfoEntity.setLevel(6);
+        dataProcessManager.syslogEventHandlerRequest(syslogEventInfoEntity);
     }
 
 
