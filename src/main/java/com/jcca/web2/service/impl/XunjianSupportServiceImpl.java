@@ -58,7 +58,7 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
         //循环分类
         for (StatusInfoChangeTypeEnum value : values) {
             String code = value.getCode();
-            if (code.startsWith("event:") && value.getAssetMode() != null && !value.getAssetMode().equals("")) {
+            if (code.startsWith("event:") && value.getAssetMode() != null && !value.getAssetMode().isEmpty()) {
                 InspectVo inspectVo = new InspectVo();
                 inspectVo.setId(value.getAssetMode());
                 inspectVo.setCode(code);
@@ -70,7 +70,7 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
         //循环指标项
         for (StatusInfoChangeTypeEnum value : values) {
             String code = value.getCode();
-            if (code.startsWith("event:") && !value.getXuanjianName().equals("") && value.getAssetMode().equals("")) {
+            if (code.startsWith("event:") && !value.getXuanjianName().isEmpty() && value.getAssetMode().isEmpty()) {
                 String[] str = code.split(":");
                 InspectVo inspectVo = map.get(str[0] + ":" + str[1]);
                 if (inspectVo != null) {
