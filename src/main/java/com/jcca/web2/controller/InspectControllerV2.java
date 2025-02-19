@@ -395,6 +395,9 @@ public class InspectControllerV2 {
                 report.setAssetId(assetId);
                 report.setAssetName(detail.getAssetName());
                 map.put(assetId, report);
+
+                Integer assetDesk = detail.getAssetDesk();
+                this.setDefaultResult(report, assetDesk);
             }
             this.setResult(detail, report);
 
@@ -435,8 +438,6 @@ public class InspectControllerV2 {
         Integer flag = "3".equals(detail.getInspectState()) ? XunjianDetail.NORMAL_FLAG : XunjianDetail.EXCEPTION_FLAG;
         String targetItem = detail.getTargetItem();
         String result = StringUtils.isEmpty(detail.getResultMsg()) ? "暂无" : detail.getResultMsg();
-        Integer assetDesk = detail.getAssetDesk();
-        this.setDefaultResult(report, assetDesk);
 
         this.setAlarmResult(detail, report);
 
