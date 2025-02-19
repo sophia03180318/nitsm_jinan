@@ -560,7 +560,7 @@ public class ThresholdProcessController extends ListenerManager {
         if (Objects.isNull(process)) {
             return ResultVoUtil.paramError("该配置不存在", String.class);
         }
-        Asset asset = assetService.getById(id);
+        Asset asset = assetService.getById(process.getAssetId());
         // 通知采集变动
         ProcessOnChangeVo changeVo = new ProcessOnChangeVo();
         changeVo.setAssetId(process.getAssetId());
