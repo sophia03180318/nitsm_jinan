@@ -34,5 +34,9 @@ public class ProcessAlarmQueueEntity extends  CommonEntity implements Serializab
      * 进程在阈值表的ID
      */
     private String thresholdId;
+    /**
+     *  类型
+     */
+    private Integer hostMode;
 
 }
