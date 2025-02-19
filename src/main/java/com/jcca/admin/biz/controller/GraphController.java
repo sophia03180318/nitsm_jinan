@@ -145,24 +145,6 @@ public class GraphController {
                         list = topoVertexService.selectNodeByAsset(category, orgId);
                 }
             }
-            List<TopoVertexVo> addList = new ArrayList<>();
-            List<TopoVertexVo> removeList = new ArrayList<>();
-            for (TopoVertexVo topoVertexVo : list) {
-                if (CLUSTER.equals(topoVertexVo.getABFlag())) {
-                    //集群 需要根据集群信息在查一遍
-                    List<TopoVertexVo> clusterTopo = collectClusterService.selectNodeById(topoVertexVo.getAssetId());
-                    if (!clusterTopo.isEmpty()) {
-                        addList.addAll(clusterTopo);
-                    }
-                    removeList.add(topoVertexVo);
-                }
-            }
-            if (!addList.isEmpty()) {
-                list.addAll(addList);
-            }
-            if (!removeList.isEmpty()) {
-                list.removeAll(removeList);
-            }
 
             map.put("vertex", list);
 
