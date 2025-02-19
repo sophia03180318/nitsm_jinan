@@ -560,7 +560,7 @@ public class ThresholdProcessController extends ListenerManager {
         if (Objects.isNull(process)) {
             return ResultVoUtil.paramError("该配置不存在", String.class);
         }
-
+        Asset asset = assetService.getById(id);
         // 通知采集变动
         ProcessOnChangeVo changeVo = new ProcessOnChangeVo();
         changeVo.setAssetId(process.getAssetId());
@@ -575,8 +575,26 @@ public class ThresholdProcessController extends ListenerManager {
             return ResultVoUtil.error("因采集器异常等原因不可以删除进程，待启动后可以维护");
         }
         //  同时清除redis中该进程的缓存信息
+        String mapKey = String.format("%s:%s:statusEvent", asset.getIp(), asset.getId());
+        String mapKey2 = String.format("%s:%s:statusEventValue", asset.getIp(), asset.getId());
         String assetCode = assetService.getById(process.getAssetId()).getAssetCode();
         redisService.remove("GROUP:PROCESS:" + assetCode + "_" + process.getProcessName() + "_" + process.getHostMode());
+        Map<String, Object> hashMap = redisService.getHashMap(mapKey);
+        Map<String, Object> hashMap2 = redisService.getHashMap(mapKey2);
+        Set<String> keySet1 = hashMap.keySet();
+        for (String key : keySet1) {
+            if(key.contains(process.getProcessName())){
+                redisService.deleteHashMap(mapKey,key);
+            }
+        }
+        Set<String> keySet2 = hashMap2.keySet();
+        for (String key : keySet2) {
+            Object value = hashMap2.get(key);
+            if(value.toString().contains(process.getProcessName())){
+                redisService.deleteHashMap(mapKey2,key);
+            }
+        }
+
 
         //组进程采集模式集体更改为普通
         if (process.getHostMode() == 1 || process.getHostMode() == 2) {
