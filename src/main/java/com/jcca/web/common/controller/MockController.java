@@ -58,6 +58,7 @@ public class MockController {
         processAlarmQueueEntity.setProcessName("sublime_text.exe");
         processAlarmQueueEntity.setProcessId("12848");
         processAlarmQueueEntity.setHostMode(3);
+        processAlarmQueueEntity.setThresholdId("1892086660787871744");
 
         processGroupEntity.setQueueObj(Arrays.asList(processAlarmQueueEntity));
 
