@@ -152,7 +152,7 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         alarmInfo.setType(AlarmTypeEnum.HARDWARE.getCode());
 
         alarmInfo.setContent(content);
-        if (content.contains("Redundancy Lost for Power Unit")) {
+        if ((content.contains("Redundancy") && content.contains("Lost")) || content.contains("Non-redundant")) {
             alarmInfo.setContent("电源模块冗余电源丢失");
         }
         alarmInfo.setDescription(event.getDescStr());

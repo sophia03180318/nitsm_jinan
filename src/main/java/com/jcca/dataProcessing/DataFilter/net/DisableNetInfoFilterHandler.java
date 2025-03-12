@@ -1,9 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.net;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.jcca.common.enums.ResultEnum;
-import com.jcca.common.exception.ResultException;
 import com.jcca.dataProcessing.Entity.CollectNetworkCardEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.AssetHidConf;
@@ -34,11 +31,7 @@ public class DisableNetInfoFilterHandler extends IFilterHandler<CollectNetworkCa
         queryWrapper.eq("flag", info.getName());
         queryWrapper.eq("type", AssetHidConf.TypeEnum.NET_CARD.name());
         List<AssetHidConf> list = hidConfServ.list(queryWrapper);
-        if (list != null && list.size() >= 1) {
-            return false;
-        } else {
-            return true;
-        }
+        return list == null || list.isEmpty();
     }
 
     @Override
