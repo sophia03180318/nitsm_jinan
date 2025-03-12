@@ -2,7 +2,6 @@ package com.jcca.dataProcessing.listener.alarmHandler;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.enums.AlarmStateEnum;
-import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
 import com.jcca.dataProcessing.manager.bean.SaveAlarmResp;
@@ -38,8 +37,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
     private IDataChangeManagerService dataChangeManagerService;
     @Resource
     private EventInfoManagerService eventInfoManagerService;
-    @Resource
-    private RedisService redisService;
 
     @Resource
     private AssetService assetServ;
@@ -63,6 +60,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             return true;
         }
         try {
+            redisTransactionTemplate.setEnableTransactionSupport(true);
             redisTransactionTemplate.multi();
 
             SaveAlarmResp resp = new SaveAlarmResp();
@@ -136,12 +134,8 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             redisTransactionTemplate.exec();
 
         } catch (Exception e) {
-           log.error(e.getMessage(),e);
-           try {
-               redisTransactionTemplate.discard();
-           }catch (Exception e1){
-                log.error("结束事务失败……");
-           }
+            log.error(e.getMessage(), e);
+            redisTransactionTemplate.discard();
         }
         return true;
     }

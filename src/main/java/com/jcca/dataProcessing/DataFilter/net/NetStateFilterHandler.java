@@ -45,7 +45,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
         String eventRedisKey = StatusInfoChangeTypeEnum.event_net_state.getCode();
         String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
 
-        Integer status = StatusEnum.status_net_2.getCode().equals(info.getStatus().toString()) ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
+        Integer status = StatusEnum.status_net_1.getCode().equals(info.getStatus().toString()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
         Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
         if (Objects.isNull(flag) && status.equals(EventLevelEnum.ABNORMAL.getCode())) {
             return true;

@@ -10,6 +10,7 @@ import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -49,6 +50,9 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
 
         for (ProcessAlarmQueueEntity info : queueObj) {
+            if (!StringUtils.isEmpty(info.getProcessChange())) {
+                continue;
+            }
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process_status.getCode();
             String mapKey = info.getProcessName() + "_all_down";
             Boolean processStatus = info.getProcessStatus();

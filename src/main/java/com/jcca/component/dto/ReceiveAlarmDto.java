@@ -40,4 +40,8 @@ public class ReceiveAlarmDto extends CommonEntity {
      */
     private String jccaSyslogLevel;
 
+    /**
+     * 双机单活进程切换标志
+     */
+    private String processChange;
 }

@@ -52,13 +52,10 @@ public class ProcessGroupAdapter extends AssetIpAdd implements IAdapter<ReceiveA
 
     @Override
     public void dispose(ReceiveAlarmDto alarmDto) {
-
         ProcessGroupEntity processGroupEntity = new ProcessGroupEntity();
         List<ProcessAlarmQueueEntity> queueObj = JSONUtil.toList(JSONUtil.parseArray(alarmDto.getContent()), ProcessAlarmQueueEntity.class);
         ProcessAlarmQueueEntity entity = queueObj.get(0);
         processGroupEntity.setAssetIp(entity.getAssetIp());
-
-
         for (ProcessAlarmQueueEntity processAlarmQueueEntity : queueObj) {
             ThresholdProcess process = processServ.getOneByAssetIpAndName(processAlarmQueueEntity.getAssetIp(), entity.getProcessName());
             if (Objects.isNull(process)) {
@@ -71,28 +68,22 @@ public class ProcessGroupAdapter extends AssetIpAdd implements IAdapter<ReceiveA
             }
             processAlarmQueueEntity.setProcessName(process.getProcessName());
             processAlarmQueueEntity.setThresholdId(process.getId());
+            processAlarmQueueEntity.setProcessChange(alarmDto.getProcessChange());
         }
 
         processGroupEntity.setQueueObj(queueObj);
 
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                getAssetId(processGroupEntity);
-                try {
-                    dataProcessManager.processGroupHandlerRequest(processGroupEntity);
-                } catch (Exception e) {
-                    String message = "设备" + processGroupEntity.getAssetIp() + "processGroupHandlerRequest 抛出异常【%s】";
-                    String format = String.format(message, JSONUtil.parse(alarmDto).toString());
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, format, e);
-
-                }
+        excutorService.execute(() -> {
+            getAssetId(processGroupEntity);
+            try {
+                dataProcessManager.processGroupHandlerRequest(processGroupEntity);
+            } catch (Exception e) {
+                String message = "设备" + processGroupEntity.getAssetIp() + "processGroupHandlerRequest 抛出异常【%s】";
+                String format = String.format(message, JSONUtil.parse(alarmDto).toString());
+                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, format, e);
             }
         });
-
-
     }
-
 
 
     @Override

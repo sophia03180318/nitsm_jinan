@@ -10,6 +10,7 @@ import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -34,6 +35,9 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
         List<ProcessAlarmQueueEntity> queueObj = req.getQueueObj();
         if (queueObj.size() == 1) {
             ProcessAlarmQueueEntity info = queueObj.get(0);
+            if (!StringUtils.isEmpty(info.getProcessChange())) {
+                return true;
+            }
 
             String redisKey = req.getAssetIp() + ":" + req.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process_status.getCode();
             boolean compare = info.getProcessStatus();

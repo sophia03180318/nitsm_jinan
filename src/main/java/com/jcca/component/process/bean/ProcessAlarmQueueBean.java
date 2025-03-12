@@ -35,4 +35,6 @@ public class ProcessAlarmQueueBean implements Serializable {
     private String processId;
 
     private Asset asset;
+
+    private Integer hostMode;
 }

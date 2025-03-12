@@ -211,6 +211,7 @@ public enum LogFunctionEnum {
 
     //性能数据处理62
     DATA_PROCESS(LogFunctionConstant.DATA_PROCESS, "数据处理", "性能处理数量"),
+    DATA_PROCESS_CHANGE(LogFunctionConstant.DATA_PROCESS_CHANGE, "数据处理", "进程切换"),
 
     // 数据分发 63
     COLLECT_DATA_PARSER(LogFunctionConstant.COLLECT_DATA_PARSER, "数据分发", ""),

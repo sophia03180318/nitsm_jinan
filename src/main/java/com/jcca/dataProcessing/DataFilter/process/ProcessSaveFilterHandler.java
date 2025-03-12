@@ -1,19 +1,18 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectProcessEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.ThresholdProcess;
 import com.jcca.web.asset.service.ThresholdProcessService;
+import com.jcca.web.asset.utils.enums.ProcessHostModeEnum;
 import com.jcca.web.collect.entity.CollectProcess;
 import com.jcca.web.collect.service.CollectProcessService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -36,18 +35,20 @@ public class ProcessSaveFilterHandler extends IFilterHandler<CollectProcessEntit
     @Override
     public boolean handler(CollectProcessEntity info) {
         ThresholdProcess threshold = thresholdService.getById(info.getThresholdId());
-
         threshold.setProcessId(info.getProcessId());
-        threshold.setCollectStatus(info.getStatus() ? StatusEnum.OK.getCode() : StatusEnum.NO.getCode());
-        if(Objects.nonNull(info.getCpuRate())){
+        if (Objects.nonNull(info.getCpuRate())) {
             threshold.setCpuRate(info.getCpuRate().toString());
         }
-        if(Objects.nonNull(info.getMemoryRate())){
+        if (Objects.nonNull(info.getMemoryRate())) {
             threshold.setMemoryRate(info.getMemoryRate().toString());
+        }
+        // 这里不修改组进程状态
+        if (threshold.getHostMode() == ProcessHostModeEnum.COMMON.getCode().intValue()) {
+            threshold.setCollectStatus(info.getStatus() ? StatusEnum.OK.getCode() : StatusEnum.NO.getCode());
         }
         thresholdService.updateById(threshold);
 
-        if(Objects.isNull(info.getCpuRate())||Objects.isNull(info.getMemoryRate())){
+        if (Objects.isNull(info.getCpuRate()) || Objects.isNull(info.getMemoryRate())) {
             return true;
         }
         Double cpuRate = info.getCpuRate();

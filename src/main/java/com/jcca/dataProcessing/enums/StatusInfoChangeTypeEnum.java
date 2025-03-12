@@ -421,6 +421,7 @@ public enum StatusInfoChangeTypeEnum {
     event_process_other_down("event:event_process:other_down", "进程部分掉线事件", "集群进程%s，当前设备进程丢失,当前设备进程号:%s", "进程组部分丢失状态", ""),
     event_process_all_down("event:event_process:all_down", "进程全部掉线事件", "集群进程%s,组内设备进程全部丢失,当前设备进程号：%s", "进程组全部丢失状态", ""),
     event_process_status("event:event_process:status", "进程状态事件", "进程%s丢失,当前进程号：%s,", "单进程状态", ""),
+    event_process_once("event:event_process:once", "双机单活进程事件", "进程 %s，已切换到 %s 上运行", "双机单活进程状态", ""),
     //进程事件对应的状态数据
     status_process("status:process", "进程信息", "", "", ""),
     status_process_cpu("process_cpu", "进程CPU阈值状态", "", "", ""),

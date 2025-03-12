@@ -871,6 +871,9 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         int count = this.count();
         if (count == 0) {
             List<InspectRecord> records = this.checkReadyRecords();
+            if (CollectionUtils.isEmpty(records)) {
+                return;
+            }
             this.saveBatch(records, 1000);
 
             inspectCode = records.get(0).getInspectCode();

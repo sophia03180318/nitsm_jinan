@@ -28,8 +28,6 @@ public class ProcessAlarmQueueEntity extends  CommonEntity implements Serializab
      */
     private String processId;
 
-    private String assetIp;
-
     /**
      * 进程在阈值表的ID
      */
@@ -38,5 +36,10 @@ public class ProcessAlarmQueueEntity extends  CommonEntity implements Serializab
      *  类型
      */
     private Integer hostMode;
+
+    /**
+     * 双机单活进程切换标志
+     */
+    private String processChange;
 
 }
