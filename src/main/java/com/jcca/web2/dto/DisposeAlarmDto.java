@@ -1,6 +1,7 @@
 package com.jcca.web2.dto;
 
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -36,6 +37,7 @@ public class DisposeAlarmDto {
     /**
      * 故障发生时间
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date occurTime;
     /**
      * 故障现象
@@ -49,10 +51,12 @@ public class DisposeAlarmDto {
     /**
      * 天窗开始时间
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
     /**
      * 天窗结束时间
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private String endTime;
     /**
      * 施工计划
