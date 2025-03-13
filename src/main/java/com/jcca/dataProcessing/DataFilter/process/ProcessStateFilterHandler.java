@@ -7,7 +7,6 @@ import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
-import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +25,6 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
 
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
-    @Resource
-    private ThresholdProcessService thresholdProcessService;
 
     @Override
     public boolean handler(CollectProcessEntity entity) {
