@@ -1,14 +1,9 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
-import com.jcca.component.constants.RedisQueueConst;
-import com.jcca.component.dto.ReceiveAlarmDto;
-import com.jcca.component.process.bean.ProcessAlarmQueueBean;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ProcessAlarmQueueEntity;
 import com.jcca.dataProcessing.Entity.ProcessGroupEntity;
@@ -24,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,43 +35,6 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
     private IEventInfoManagerService eventInfoChangeManagerService;
     @Resource
     private AssetService assetService;
-    @Resource
-    private RedisService redisService;
-
-    private boolean flag = false;
-
-    //    @Scheduled(cron = "0 0/2 * * * *")
-    public void processChange() {
-
-        List<ProcessAlarmQueueBean> queueList = new ArrayList<>();
-
-        ProcessAlarmQueueBean bean1 = new ProcessAlarmQueueBean();
-        bean1.setProcessName("Notepad.exe");
-        bean1.setHostMode(1);
-        bean1.setProcessId(flag ? "12345" : "0");
-        bean1.setAssetIp("192.168.1.188");
-        bean1.setProcessStatus(flag);
-
-        ProcessAlarmQueueBean bean2 = new ProcessAlarmQueueBean();
-        bean2.setProcessName("Notepad.exe");
-        bean2.setHostMode(1);
-        bean2.setProcessId(flag ? "0" : "54321");
-        bean2.setAssetIp("192.168.20.130");
-        bean2.setProcessStatus(!flag);
-
-        queueList.add(bean1);
-        queueList.add(bean2);
-
-        ReceiveAlarmDto dto1 = new ReceiveAlarmDto();
-        dto1.setOccurTime(System.currentTimeMillis() + "");
-        dto1.setCategory("27");
-        dto1.setAssetIp("once");
-        dto1.setProcessChange("once"); // 因json处理时不能有相同名称字段，因此增加此字段
-        dto1.setContent(JSONUtil.parseArray(queueList).toString());
-        String queueMsg1 = JSONUtil.toJsonStr(dto1);
-        redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, queueMsg1);
-        flag = !flag;
-    }
 
     @Override
     public boolean handler(ProcessGroupEntity entity) throws Exception {

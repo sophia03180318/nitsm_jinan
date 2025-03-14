@@ -50,20 +50,17 @@ public class NetAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         List<CollectNetworkCardEntity> netList = JSONUtil.toList(data, CollectNetworkCardEntity.class);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_net.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                String collectCode = MyIdUtil.getId();
-                for (CollectNetworkCardEntity item : netList) {
-                    setAssetIp(item);
-                    item.setCollectCode(collectCode);
-                    try {
-                        dataProcessManager.networkHandlerRequest(item);
-                    } catch (ResultException e) {
-                        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS, item.getAssetIp(), "networkHandlerRequest 抛出异常:" + e.getMessage());
-                    } catch (Exception e) {
-                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + " networkHandlerRequest 抛出异常", e);
-                    }
+        excutorService.execute(() -> {
+            String collectCode = MyIdUtil.getId();
+            for (CollectNetworkCardEntity item : netList) {
+                setAssetIp(item);
+                item.setCollectCode(collectCode);
+                try {
+                    dataProcessManager.networkHandlerRequest(item);
+                } catch (ResultException e) {
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS, item.getAssetIp(), "networkHandlerRequest 抛出异常:" + e.getMessage());
+                } catch (Exception e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + " networkHandlerRequest 抛出异常", e);
                 }
             }
         });

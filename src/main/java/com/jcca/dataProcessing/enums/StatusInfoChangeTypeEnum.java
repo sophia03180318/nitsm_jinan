@@ -281,7 +281,7 @@ public enum StatusInfoChangeTypeEnum {
     //网卡状态事件
     event_net("event:event_net", "网卡状态", "", "网卡状态巡检", "183_1831_1832_1833_1834"),
     event_net_flow("event:event_net:flow", "网卡流量阈值事件", getPubThresholdMsg("网卡：%s", "网卡流量", "Kbps"), "网卡流量状态", ""),
-    event_net_state("event:event_net:state", "网卡状态事件", "网卡%s状态变化。", "网卡状态", ""),
+    event_net_state("event:event_net:state", "网卡状态事件", "网卡 %s 状态变化。", "网卡状态", ""),
     //网卡事件对应的状态数据
     status_net("status:net", "网卡状态", "", "", ""),
     status_net_status("netStatus", "网卡状态", "", "", ""),

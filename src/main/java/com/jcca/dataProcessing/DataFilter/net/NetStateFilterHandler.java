@@ -16,6 +16,7 @@ import com.jcca.web.collect.service.AssetLinkAssetService;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Objects;
@@ -56,21 +57,26 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
             //判断网卡A/B网
             Asset asset = assetService.getById(info.getAssetId());
             String name = "";
-            if (StrUtil.isNotEmpty(info.getIp())) {
-                if (info.getIp().equals(asset.getIp())) {
+            String ip = info.getIp();
+            if (StrUtil.isNotEmpty(ip)) {
+                if (ip.equals(asset.getIp())) {
                     name = "【A网】";
-                } else if (info.getIp().equals(asset.getIp2())) {
+                } else if (!StringUtils.isEmpty(asset.getIp2()) && ip.equals(asset.getIp2())) {
                     name = "【B网】";
                 }
             }
-            String descStr = name + String.format(StatusInfoChangeTypeEnum.event_net_state.getDescr(), info.getName() + "【" + info.getIp() + "】");
+            String descStr = name + String.format(StatusInfoChangeTypeEnum.event_net_state.getDescr(), info.getName() + "【" + ip + "】");
+            if (NetSaveFilterHandler.DEFAULT_VALUE_STR.equals(ip)) {
+                descStr = name + String.format(StatusInfoChangeTypeEnum.event_net_state.getDescr(), info.getName());
+            }
+
             AlarmTempReq tempReq = new AlarmTempReq();
-            AssetLinkAsset linkAsset = assetLinkAssetServ.findAssetByLinkAsset(info.getAssetId(), info.getIp());
+            AssetLinkAsset linkAsset = assetLinkAssetServ.findAssetByLinkAsset(info.getAssetId(), ip);
             if (Objects.nonNull(linkAsset)) {
                 tempReq.setLinkAssetIp(linkAsset.getLinkAssetIp());
                 tempReq.setLinkAssetName(linkAsset.getLinkAssetName());
                 Asset intAsset = assetService.getById(linkAsset.getAssetId());
-                descStr = descStr + "【" + info.getIp() + "】,对端设备【" + intAsset.getName() + "】,对端设备IP【" + intAsset.getIp() + "】";
+                descStr = descStr + "【" + ip + "】,对端设备【" + intAsset.getName() + "】,对端设备IP【" + intAsset.getIp() + "】";
             }
             tempReq.setOrgMsg(descStr);
             tempReq.setCollectValue(info.getStatus().toString());

@@ -53,4 +53,9 @@ public class CollectNetworkCardEntity extends CommonEntity implements Serializab
     private String ip;
 
     private String collectCode;
+
+    /**
+     * 双网卡绑定标记
+     */
+    private String bondType;
 }
