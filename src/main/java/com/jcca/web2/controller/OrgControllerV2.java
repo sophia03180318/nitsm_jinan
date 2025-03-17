@@ -111,7 +111,7 @@ public class OrgControllerV2 {
         List<String> split = Arrays.asList(ToolUtil.cToe(req.getTitle()).split(","));
 
         // 排空+倒序
-        List<String> afterTreatment = split.stream().filter(StrUtil::isNotBlank).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        List<String> afterTreatment = split.stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
         // 查看集合中是否有相同数据
         if (afterTreatment.size() > 1) {
             boolean flag = this.isDup(afterTreatment);
