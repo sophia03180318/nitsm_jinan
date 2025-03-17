@@ -47,10 +47,6 @@ public class CollectNetworkCardEntity extends CommonEntity implements Serializab
      * mac地址
      */
     private String macAddress;
-    /**
-     * ip地址
-     */
-    private String ip;
 
     private String collectCode;
 
