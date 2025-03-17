@@ -152,6 +152,11 @@ public class OrgControllerV2 {
                     sysOrg.setSort(req.getSort());
                     sysOrg.setRemark(req.getRemark());
                     sysOrg.setExistAdd(true);
+                    List<SysOrg> levelOrg = orgService.getListByPid(req.getPid(), sysOrg.getId());
+                    if (req.getSort() == 0) {
+                        sysOrg.setSort((byte) (levelOrg.size() + 1));
+                    }
+
                     this.doSave(sysOrg);
                     //添加组织权限
                     if (req.getType() != 1 && !ShiroUtil.getSubject().getId().equals(AdminConst.ADMIN_ID)) {
