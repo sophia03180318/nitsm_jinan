@@ -29,9 +29,10 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
     @Override
     public boolean handler(CollectProcessEntity entity) {
         String redisKey = entity.getAssetIp() + ":" + entity.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode() + ":" + entity.getName();
-        if (!entity.getStationAsset()) {
-            return true;
-        }
+        // 这里不能只走车站的，中心的单机进程也走这里，所以注掉了下面的if，如需要修改 请谨慎！！
+//        if (!entity.getStationAsset()) {
+//            return true;
+//        }
         //只走车站的进程状态判断
         String mapKey = StatusInfoChangeTypeEnum.status_process_status.getCode();
         boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, entity.getStatus());
@@ -43,12 +44,10 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
             changeInfo.setCollectTime(new Date());
             entity.getMaps().put(mapKey, changeInfo);
 
-
-            Integer status = entity.getStatus() ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
-
             String eventRedisKey = StatusInfoChangeTypeEnum.event_process_status.getCode();
             String eventMapKey = entity.getAssetIp() + "_" + entity.getAssetId() + "_" + entity.getName();
 
+            Integer status = entity.getStatus() ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             if (status == EventLevelEnum.NORMAL.getCode()) {
                 alarmTempReq.setOrgMsg(" 恢复的进程ID:" + entity.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getProcessId()));

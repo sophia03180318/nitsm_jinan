@@ -68,29 +68,23 @@ public class EventInfoManagerService implements IEventInfoManagerService {
             if (((Number) changeValue).intValue() == (Integer) obj) {
                 return false;
             }
-            ;
-
         }
         //Integer类型对比
         if (changeValue instanceof Integer && obj instanceof Integer) {
             if (((Number) changeValue).intValue() == (Integer) obj) {
                 return false;
             }
-            ;
-
         }
         //Long类型对比
         if (changeValue instanceof Long && obj instanceof Integer) {
             if (((Number) changeValue).longValue() == (Integer) obj) {
                 return false;
             }
-            ;
         }
         if (changeValue instanceof Long && obj instanceof Long) {
             if (((Number) changeValue).longValue() == (Long) obj) {
                 return false;
             }
-            ;
         }
 
         // 字符串对比
@@ -106,12 +100,16 @@ public class EventInfoManagerService implements IEventInfoManagerService {
                 return false;
             }
         }
+
+        if (changeValue instanceof Boolean && obj instanceof Boolean) {
+            return (Boolean) changeValue ^ (Boolean) obj;
+        }
         return true;
     }
 
     @Override
     public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq) {
-        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status,alarmTempReq);
+        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq);
         return event;
     }
 
@@ -178,7 +176,6 @@ public class EventInfoManagerService implements IEventInfoManagerService {
         redisService.hmDel(redisKey, mapKey);
         redisService.hmSet(redisKey, mapKey, value);
     }
-
 
 
 }

@@ -34,7 +34,7 @@ public class ProcessMemoryFilterHandler extends IFilterHandler<CollectProcessEnt
 
     @Override
     public boolean handler(CollectProcessEntity info) {
-        if(info.getStatus()!=true){
+        if (!info.getStatus()) {
             return true;
         }
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode()+":"+info.getName();

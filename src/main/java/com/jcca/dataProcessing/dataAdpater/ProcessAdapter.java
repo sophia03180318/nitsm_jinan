@@ -23,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -63,10 +62,10 @@ public class ProcessAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         if (CollectionUtils.isEmpty(processBeans)) {
             return;
         }
-        QueryWrapper<ThresholdProcess> queryWrapper = new QueryWrapper<ThresholdProcess>();
+        QueryWrapper<ThresholdProcess> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ASSET_ID", processBeans.get(0).getAssetId());
         List<ThresholdProcess> thresholdList = thresholdService.list(queryWrapper);
-        if (thresholdList == null || thresholdList.size() == 0) {
+        if (thresholdList == null || thresholdList.isEmpty()) {
             return;
         }
         List<CollectProcessEntity> disposeList = new ArrayList<>();
@@ -84,7 +83,7 @@ public class ProcessAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             setAssetIp(collectProcess);
 
             List<CollectProcessEntity> collectProcessList = processBeans.stream().filter(item -> item.getName().contains(thresholdProcess.getProcessName())).collect(Collectors.toList());
-            if(Objects.isNull(collectProcessList)||collectProcessList.isEmpty()){
+            if (collectProcessList.isEmpty()) {
                 collectProcess.setStatus(false);
             }else {
                 CollectProcessEntity collectProcessEntity = collectProcessList.get(0);
@@ -97,19 +96,15 @@ public class ProcessAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             disposeList.add(collectProcess);
         }
 
-
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_process.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                for (CollectProcessEntity collectProcessEntity : disposeList) {
-                    try {
-                        dataProcessManager.processHandlerRequest(collectProcessEntity);
-                    } catch (Exception e) {
-                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectProcessEntity.getAssetIp() + "processHandlerRequest 抛出异常", e);
+        excutorService.execute(() -> {
+            for (CollectProcessEntity collectProcessEntity : disposeList) {
+                try {
+                    dataProcessManager.processHandlerRequest(collectProcessEntity);
+                } catch (Exception e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectProcessEntity.getAssetIp() + "processHandlerRequest 抛出异常", e);
 
-                    }
                 }
             }
         });

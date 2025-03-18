@@ -26,7 +26,7 @@ public class ProcessIdFilterHandler extends IFilterHandler<CollectProcessEntity>
 
     @Override
     public boolean handler(CollectProcessEntity info) {
-        if (info.getStatus() != true) {
+        if (!info.getStatus()) {
             return true;
         }
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode() + ":" + info.getName();
@@ -37,7 +37,7 @@ public class ProcessIdFilterHandler extends IFilterHandler<CollectProcessEntity>
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getProcessId());
             changeInfo.setRedisKey(redisKey);
-            changeInfo.setIsChange(flag);
+            changeInfo.setIsChange(true);
             changeInfo.setMapKey(mapKey);
             changeInfo.setCollectTime(new Date());
             info.getMaps().put(mapKey, changeInfo);
