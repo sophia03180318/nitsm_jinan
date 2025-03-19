@@ -152,7 +152,8 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         alarmInfo.setType(AlarmTypeEnum.HARDWARE.getCode());
 
         alarmInfo.setContent(content);
-        if ((content.contains("Non-redundant") && content.contains("deasserted"))) {
+        if ((content.contains("Non-redundant") && content.contains("deasserted"))
+                || (content.contains("Power Supply") && content.contains("lost"))) {
             alarmInfo.setContent("电源模块冗余电源丢失");
         }
         alarmInfo.setDescription(event.getDescStr());
