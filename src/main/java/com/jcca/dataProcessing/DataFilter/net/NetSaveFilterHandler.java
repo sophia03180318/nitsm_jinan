@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectNetworkCardEntity;
-import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.collect.entity.CollectNetworkCard;
@@ -33,17 +32,18 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
     private CollectNetworkCardService networkService;
 
     @Override
-    public boolean handler(CollectNetworkCardEntity info) {
+    public synchronized boolean handler(CollectNetworkCardEntity info) {
         //过滤掉IP地址为空的网卡 同时组的还要上
         if (StrUtil.isEmpty(info.getIp()) || DEFAULT_VALUE_STR.equals(info.getIp())) {
-            Object stateValue = eventInfoChangeManagerService.getStateValue(info.getAssetIp() + ":" + info.getAssetId() + ":"
-                    + StatusInfoChangeTypeEnum.status_net.getCode() + ":" + info.getName(), StatusInfoChangeTypeEnum.status_net_ip.getCode());
-            if (!StringUtils.isEmpty(stateValue)) {
-                info.setIp(stateValue.toString());
-                info.setStatus((byte) 2);
-            } else if (!StringUtils.isEmpty(info.getBondType())) {
-                // 双网卡绑定的网卡没有IP
-                info.setName(info.getName() + info.getBondType());
+            // 双网卡绑定的网卡没有IP
+//            Object stateValue = eventInfoChangeManagerService.getStateValue(info.getAssetIp() + ":" + info.getAssetId() + ":"
+//                    + StatusInfoChangeTypeEnum.status_net.getCode() + ":" + info.getName(), StatusInfoChangeTypeEnum.status_net_ip.getCode());
+//            if (!StringUtils.isEmpty(stateValue)) {
+//                info.setIp(stateValue.toString());
+//                info.setStatus((byte) 2);
+//            } else
+            if (!StringUtils.isEmpty(info.getBondType()) && !info.getName().contains("WFP") && !info.getName().contains("QoS")) {
+                // 标记行
             } else if (!info.getName().contains("组") || info.getName().contains("WFP") || info.getName().contains("QoS")) {
                 //过滤掉名字不包含组，或包含组 含有WFP、QoS的
                 return false;
