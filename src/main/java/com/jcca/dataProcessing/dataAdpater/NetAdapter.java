@@ -50,7 +50,7 @@ public class NetAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         List<CollectNetworkCardEntity> netList = JSONUtil.toList(data, CollectNetworkCardEntity.class);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_net.getCode(), "monitor", true);
-        excutorService.execute(() -> {
+        excutorService.submit(() -> {
             String collectCode = MyIdUtil.getId();
             for (CollectNetworkCardEntity item : netList) {
                 setAssetIp(item);

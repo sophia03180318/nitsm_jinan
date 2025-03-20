@@ -98,7 +98,7 @@ public class ProcessAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
 
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_process.getCode(), "monitor", true);
-        excutorService.execute(() -> {
+        excutorService.submit(() -> {
             for (CollectProcessEntity collectProcessEntity : disposeList) {
                 try {
                     dataProcessManager.processHandlerRequest(collectProcessEntity);

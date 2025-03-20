@@ -73,7 +73,7 @@ public class ProcessGroupAdapter extends AssetIpAdd implements IAdapter<ReceiveA
 
         processGroupEntity.setQueueObj(queueObj);
 
-        excutorService.execute(() -> {
+        excutorService.submit(() -> {
             getAssetId(processGroupEntity);
             try {
                 dataProcessManager.processGroupHandlerRequest(processGroupEntity);
