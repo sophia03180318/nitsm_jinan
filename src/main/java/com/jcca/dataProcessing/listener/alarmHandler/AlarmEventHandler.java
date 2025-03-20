@@ -37,13 +37,10 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
     private IDataChangeManagerService dataChangeManagerService;
     @Resource
     private EventInfoManagerService eventInfoManagerService;
-
     @Resource
     private AssetService assetServ;
-
     @Resource
     private AlarmInfoService alarmInfoService;
-
     @Resource(name = "redisTransactionTemplate")
     private RedisTemplate redisTransactionTemplate;
 
@@ -60,7 +57,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             return true;
         }
         try {
-            redisTransactionTemplate.setEnableTransactionSupport(true);
             redisTransactionTemplate.multi();
 
             SaveAlarmResp resp = new SaveAlarmResp();
@@ -94,7 +90,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 redisTransactionTemplate.exec();
                 return true;
             }
-
 
             // 历史告警为空创建新告警
             if (alarmInfo == null) {
@@ -135,7 +130,11 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            redisTransactionTemplate.discard();
+            try {
+                redisTransactionTemplate.discard();
+            } catch (Exception e1) {
+                log.error("结束事务失败……");
+            }
         }
         return true;
     }
