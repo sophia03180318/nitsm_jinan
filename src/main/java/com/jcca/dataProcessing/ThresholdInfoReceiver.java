@@ -57,8 +57,8 @@ public class ThresholdInfoReceiver implements Runnable {
                 //connection.bLPop,阻塞获取数据，如果缓存中不存在采集信息则将会停在此处
                 List<byte[]> thresholdList = connection.bLPop(0, RedisQueueConst.THRESHOLD_QUEUE.getBytes());
                 String bodyJson = queueTemplate.getRedisTemplate().getStringSerializer().deserialize(thresholdList.get(1));
-                AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "从 _threshold_queue 队列中读取数据", bodyJson);
                 ReceiveCollectDto dto = JSONUtil.toBean(bodyJson, ReceiveCollectDto.class);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "从 _threshold_queue 队列中读取数据", dto.getCategory());
                 String content = dto.getContent();
                 JSONArray result = JSONUtil.parseArray(content);
                 IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
