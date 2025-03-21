@@ -53,8 +53,8 @@ public class ConstructionRecordServiceImpl extends ServiceImpl<ConstructionRecor
     public Boolean isBlank(String assetId, Date occurTime) {
         QueryWrapper<ConstructionRecord> query = new QueryWrapper<ConstructionRecord>();
         query.like("INFLUENCE", assetId);
-        query.le("END_TIME", occurTime);
-        query.ge("START_TIME", occurTime);
+        query.ge("END_TIME", occurTime);
+        query.le("START_TIME", occurTime);
         List<ConstructionRecord> constructionRecords = constructMapper.selectList(query);
 
         return !constructionRecords.isEmpty();
