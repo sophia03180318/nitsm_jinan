@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.cpu;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectCpuEntity;
@@ -26,6 +28,7 @@ public class CpuSaveFilterHandler extends IFilterHandler<CollectCpuEntity> {
 
     @Override
     public boolean handler(CollectCpuEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存CPU数据", info.getAssetIp());
         Date date = new Date();
         date.setTime(info.getCollectTime());
         CollectCpu cpu = EntityBeanUtil.copy(info, CollectCpu.class);

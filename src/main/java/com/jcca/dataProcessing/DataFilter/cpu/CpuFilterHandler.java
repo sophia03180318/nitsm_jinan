@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.cpu;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectCpuEntity;
@@ -11,7 +13,6 @@ import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.event.enums.EventLevelEnum;
-import com.jcca.web.event.service.AlarmEventTypeService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -31,11 +32,10 @@ public class CpuFilterHandler extends IFilterHandler<CollectCpuEntity> {
     private IEventInfoManagerService eventInfoChangeManagerService;
     @Resource
     private ThresholdManager thresholdManager;
-    @Resource
-    private AlarmEventTypeService repoServ;
 
     @Override
     public boolean handler(CollectCpuEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "CPU普通阈值变动处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_CPUState.getCode();
         //判断数据是否有变化

@@ -28,6 +28,7 @@ public class PingGeneralSaveFilterHandler extends IFilterHandler<ReceiveAlarmEnt
 
     @Override
     public boolean handler(ReceiveAlarmEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存ping状态", info.getAssetIp());
         Asset asset = null;
         if(StrUtil.isEmpty(info.getAssetId())){
             asset = assetServ.findOneByIp(info.getAssetIp());

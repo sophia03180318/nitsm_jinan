@@ -204,6 +204,7 @@ public interface LogFunctionConstant {
     // 数据采集 62
     String DATA_PROCESS = "6201";
     String DATA_PROCESS_CHANGE = "6202";
+    String DATA_PROCESS_SINGLE = "6203";
 
     // 数据分发 63
     String COLLECT_DATA_PARSER = "6301";

@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.net;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectNetworkCardEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -24,6 +26,7 @@ public class NetInfoFilterHandler extends IFilterHandler<CollectNetworkCardEntit
 
     @Override
     public boolean handler(CollectNetworkCardEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "网卡信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_net.getCode() + ":" + info.getName();
         String mapKey1 = StatusInfoChangeTypeEnum.status_net_status.getCode();
         String mapKey2 = StatusInfoChangeTypeEnum.status_net_portIn.getCode();

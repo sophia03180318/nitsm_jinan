@@ -1,12 +1,12 @@
 package com.jcca.dataProcessing.DataFilter.ipmi;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectSensorEntity;
-import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
-import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.collect.enums.SensorTypeEnum;
@@ -17,7 +17,6 @@ import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @description: 温度状态
@@ -29,8 +28,6 @@ public class IpmiTemperatureStatusFilterHandler extends IFilterHandler<CollectSe
 
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
-    @Resource
-    private ThresholdManager thresholdManager;
 
 
     @Override
@@ -38,7 +35,7 @@ public class IpmiTemperatureStatusFilterHandler extends IFilterHandler<CollectSe
         if (!SensorTypeEnum.GAUGE.name().equals(info.getSensorType())) {
             return true;
         }
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口温度状态过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_temp.getCode() + ":" + info.getName();
         String mapKey1 = StatusInfoChangeTypeEnum.status_tempStatus.getCode();
         boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getStatus());

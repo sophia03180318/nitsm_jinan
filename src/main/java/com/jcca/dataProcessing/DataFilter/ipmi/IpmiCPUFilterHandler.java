@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.ipmi;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectSensorEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -32,6 +34,7 @@ public class IpmiCPUFilterHandler extends IFilterHandler<CollectSensorEntity> {
         if (!SensorTypeEnum.CPU.name().equals(info.getSensorType())) {
             return true;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口CPU信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_CPU.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_cpu_value.getCode();
         boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());

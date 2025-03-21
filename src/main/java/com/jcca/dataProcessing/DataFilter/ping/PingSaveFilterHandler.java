@@ -2,6 +2,8 @@ package com.jcca.dataProcessing.DataFilter.ping;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.other.bean.PingAssetStatus;
 import com.jcca.dataProcessing.Entity.ReceiveAlarmEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -29,6 +31,7 @@ public class PingSaveFilterHandler extends IFilterHandler<ReceiveAlarmEntity> {
 
     @Override
     public boolean handler(ReceiveAlarmEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存PING数据", info.getAssetIp());
         String content = info.getContent();
         if (StrUtil.isEmpty(content) || !JSONUtil.isJsonArray(content)) {
             //异常数据

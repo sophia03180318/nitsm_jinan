@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
 import com.jcca.common.enums.StatusEnum;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectProcessEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -33,6 +35,7 @@ public class ProcessSaveFilterHandler extends IFilterHandler<CollectProcessEntit
 
     @Override
     public boolean handler(CollectProcessEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存进程数据", info.getAssetIp());
         ThresholdProcess threshold = thresholdService.getById(info.getThresholdId());
         threshold.setProcessId(info.getProcessId());
         if (Objects.nonNull(info.getCpuRate())) {

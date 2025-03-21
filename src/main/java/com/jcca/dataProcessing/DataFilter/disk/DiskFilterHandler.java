@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.disk;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectDiskEntity;
@@ -34,6 +36,7 @@ public class DiskFilterHandler extends IFilterHandler<CollectDiskEntity> {
 
     @Override
     public boolean handler(CollectDiskEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "磁盘普通阈值过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_disk.getCode();
         String mapKey = info.getName();
         if (info.getUsedRate() == null) {

@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.net;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.CollectNetworkCardEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.AssetHidConf;
@@ -25,6 +27,7 @@ public class DisableNetInfoFilterHandler extends IFilterHandler<CollectNetworkCa
 
     @Override
     public boolean handler(CollectNetworkCardEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "查询网卡是否配置了禁用", info.getAssetIp());
         //查询网卡是否配置了禁用
         QueryWrapper<AssetHidConf> queryWrapper = new QueryWrapper<AssetHidConf>();
         queryWrapper.eq("asset_id", info.getAssetId());

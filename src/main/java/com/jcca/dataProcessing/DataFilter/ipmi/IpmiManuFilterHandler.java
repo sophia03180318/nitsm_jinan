@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.ipmi;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectSensorEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -29,6 +31,7 @@ public class IpmiManuFilterHandler extends IFilterHandler<CollectSensorEntity> {
         if (!SensorTypeEnum.MANU.name().equals(info.getSensorType())) {
             return true;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "ipmiManuFilterHandler", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_ipmi_manu.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_ipmi_manuName.getCode();
         boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());

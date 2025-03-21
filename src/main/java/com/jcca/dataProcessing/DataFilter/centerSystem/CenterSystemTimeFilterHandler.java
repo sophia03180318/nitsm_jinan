@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.centerSystem;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectSystemTimeEntity;
@@ -39,6 +41,7 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
         if (timeSpan == null) {
             return true;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "中心设备时间偏差信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
 
         BigDecimal timeSpanAbs = new BigDecimal(timeSpan).abs();

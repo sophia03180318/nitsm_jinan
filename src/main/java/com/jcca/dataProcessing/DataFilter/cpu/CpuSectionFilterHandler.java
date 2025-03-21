@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.cpu;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectCpuEntity;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -29,6 +31,7 @@ public class CpuSectionFilterHandler extends IFilterHandler<CollectCpuEntity> {
 
     @Override
     public boolean handler(CollectCpuEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "CPU区间阈值处理类", info.getAssetIp());
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_CPUState.getCode());
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_CPU_section.getCode();

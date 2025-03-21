@@ -1,10 +1,11 @@
 package com.jcca.dataProcessing.DataFilter.net;
 
 import cn.hutool.core.util.StrUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectNetworkCardEntity;
-import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.collect.entity.CollectNetworkCard;
 import com.jcca.web.collect.service.CollectNetworkCardService;
@@ -27,12 +28,11 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
     public static final String DEFAULT_VALUE_STR = "--";
 
     @Resource
-    private IEventInfoManagerService eventInfoChangeManagerService;
-    @Resource
     private CollectNetworkCardService networkService;
 
     @Override
     public synchronized boolean handler(CollectNetworkCardEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存网卡信息", info.getAssetIp());
         //过滤掉IP地址为空的网卡 同时组的还要上
         if (StrUtil.isEmpty(info.getIp()) || DEFAULT_VALUE_STR.equals(info.getIp())) {
             // 双网卡绑定的网卡没有IP

@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectProcessEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -28,6 +30,7 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
 
     @Override
     public boolean handler(CollectProcessEntity entity) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "普通模式进程状态处理", entity.getAssetIp());
         String redisKey = entity.getAssetIp() + ":" + entity.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode() + ":" + entity.getName();
         // 这里不能只走车站的，中心的单机进程也走这里，所以注掉了下面的if，如需要修改 请谨慎！！
 //        if (!entity.getStationAsset()) {

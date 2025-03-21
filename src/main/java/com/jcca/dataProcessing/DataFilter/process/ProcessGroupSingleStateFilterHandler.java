@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ProcessAlarmQueueEntity;
 import com.jcca.dataProcessing.Entity.ProcessGroupEntity;
@@ -32,6 +34,7 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
 
     @Override
     public boolean handler(ProcessGroupEntity req) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机单断进程处理", req.getAssetIp());
         List<ProcessAlarmQueueEntity> queueObj = req.getQueueObj();
         if (queueObj.size() == 1) {
             ProcessAlarmQueueEntity info = queueObj.get(0);

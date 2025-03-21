@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.centerSystem;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectSystemTimeEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -25,6 +27,8 @@ public class CenterSystemTimeSaveFilterHandler extends IFilterHandler<CollectSys
 
     @Override
     public boolean handler(CollectSystemTimeEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存中心设备的时间", info.getAssetIp());
+
         Date date = new Date();
         date.setTime(Long.valueOf(info.getCollectTime()));
 

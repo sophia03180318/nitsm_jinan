@@ -3,6 +3,8 @@ package com.jcca.dataProcessing.DataFilter.aix;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.enums.UnitEnum;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.CollectAixSystemFattenEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.Asset;
@@ -37,6 +39,7 @@ public class AixSystemMsgSaveIFilterHandlerHandler extends IFilterHandler<Collec
 
     @Override
     public boolean handler(CollectAixSystemFattenEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "小型机基础信息数据保存", info.getAssetIp());
         String assetId = info.getAssetId();
 
         if (StrUtil.isEmpty(assetId)) {

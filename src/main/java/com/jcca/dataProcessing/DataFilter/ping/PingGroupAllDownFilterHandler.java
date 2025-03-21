@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.ping;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CommonEntity;
 import com.jcca.dataProcessing.Entity.ReceiveAlarmEntity;
@@ -35,7 +37,7 @@ public class PingGroupAllDownFilterHandler extends IFilterHandler<ReceiveAlarmEn
 
     @Override
     public boolean handler(ReceiveAlarmEntity info) {
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "组ping全断", info.getAssetIp());
         //全断才是异常
         boolean status = false;
         boolean isGroup = false;

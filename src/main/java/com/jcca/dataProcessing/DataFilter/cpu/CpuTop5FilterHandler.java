@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.cpu;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.CollectCpuEntity;
 import com.jcca.dataProcessing.Entity.CollectProcessEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -23,6 +25,7 @@ public class CpuTop5FilterHandler  extends IFilterHandler<CollectCpuEntity> {
     private IEventInfoManagerService eventInfoChangeManagerService;
     @Override
     public boolean handler(CollectCpuEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "CPU TOP5阈值处理类", info.getAssetIp());
         String redisKey= info.getAssetIp()+":"+info.getAssetId()+":"+ StatusInfoChangeTypeEnum.status_CPUTop5.getCode();
         List<CollectProcessEntity> list=info.getProcessTop5List();
         boolean flag=false;

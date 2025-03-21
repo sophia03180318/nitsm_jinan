@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.centerSystem;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectSystemTimeEntity;
@@ -38,6 +40,7 @@ public class CenterSystemRunTimeFilterHandler extends IFilterHandler<CollectSyst
         if (Objects.isNull(info.getTimeduration())) {
             return true;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "中心运行时长信息过滤处理类", info.getAssetIp());
         BigDecimal collectDay = new BigDecimal(info.getTimeduration()).divide(new BigDecimal(86400), 0, BigDecimal.ROUND_DOWN);
 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();

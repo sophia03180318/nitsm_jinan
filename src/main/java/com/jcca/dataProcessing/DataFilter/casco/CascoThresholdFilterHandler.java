@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.casco;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -28,6 +30,7 @@ public class CascoThresholdFilterHandler extends IFilterHandler<ItsmQueueEntity>
 
     @Override
     public boolean handler(ItsmQueueEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "casco容量信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softThresholdState.getCode();
         String mapKey = info.getAssetId() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
         ChangeInfo changeInfo = new ChangeInfo();

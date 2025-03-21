@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.memory;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
@@ -27,7 +29,7 @@ public class MemorySaveFilterHandler extends IFilterHandler<CollectMemoryEntity>
 
     @Override
     public boolean handler(CollectMemoryEntity info) {
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存内存数据", info.getAssetIp());
         Date date = new Date();
         date.setTime(info.getCollectTime());
 

@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.net;
 
 import cn.hutool.core.util.StrUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectNetworkCardEntity;
 import com.jcca.dataProcessing.enums.StatusEnum;
@@ -42,6 +44,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
 
     @Override
     public boolean handler(CollectNetworkCardEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "网卡状态判断", info.getAssetIp());
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_net_status.getCode());
         String eventRedisKey = StatusInfoChangeTypeEnum.event_net_state.getCode();
         String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();

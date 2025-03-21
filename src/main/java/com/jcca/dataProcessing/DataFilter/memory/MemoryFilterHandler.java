@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.memory;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectMemoryEntity;
@@ -34,6 +36,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
 
     @Override
     public boolean handler(CollectMemoryEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "内存普通阈值信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_memoryState.getCode();
 

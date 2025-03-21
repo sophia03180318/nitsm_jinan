@@ -2,6 +2,8 @@ package com.jcca.dataProcessing.DataFilter.disk;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectDiskEntity;
@@ -28,7 +30,7 @@ public class DiskSaveFilterHandler extends IFilterHandler<CollectDiskEntity> {
 
     @Override
     public boolean handler(CollectDiskEntity info) {
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "磁盘数据保存", info.getAssetIp());
         if(StrUtil.isNotEmpty(info.getMountPoint())){
             if(info.getMountPoint().toLowerCase().contains("/mnt")||info.getMountPoint().toLowerCase().contains("/media")){
                 //不采集/mnt 路径

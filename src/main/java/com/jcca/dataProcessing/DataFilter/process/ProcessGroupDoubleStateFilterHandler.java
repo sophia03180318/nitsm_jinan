@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ProcessAlarmQueueEntity;
 import com.jcca.dataProcessing.Entity.ProcessGroupEntity;
@@ -36,7 +38,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
         if (entity.getQueueObj().size() < 2) {
             return true;
         }
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机双活进程处理", entity.getAssetIp());
         List<ProcessAlarmQueueEntity> normalAsset = new ArrayList<ProcessAlarmQueueEntity>();
         List<ProcessAlarmQueueEntity> errorAsset = new ArrayList<ProcessAlarmQueueEntity>();
 

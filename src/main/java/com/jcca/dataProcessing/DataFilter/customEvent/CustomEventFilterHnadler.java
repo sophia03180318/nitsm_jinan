@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.customEvent;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CustomEvent;
 import com.jcca.dataProcessing.Entity.EventInfo;
@@ -23,6 +25,7 @@ public class CustomEventFilterHnadler extends IFilterHandler<CustomEvent> {
 
     @Override
     public boolean handler(CustomEvent info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "customEventFilterHnadler", info.getAssetIp());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setCollectTime(new Date());
         EventInfo eventInfo = new EventInfo();

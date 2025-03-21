@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppMathUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectProcessEntity;
@@ -37,6 +39,7 @@ public class ProcessMemoryFilterHandler extends IFilterHandler<CollectProcessEnt
         if (!info.getStatus()) {
             return true;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "进程内存过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode()+":"+info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_process_mem.getCode();
         //判断数据是否有变化

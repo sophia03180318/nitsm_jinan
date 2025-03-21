@@ -58,7 +58,6 @@ public class ThresholdInfoReceiver implements Runnable {
                 List<byte[]> thresholdList = connection.bLPop(0, RedisQueueConst.THRESHOLD_QUEUE.getBytes());
                 String bodyJson = queueTemplate.getRedisTemplate().getStringSerializer().deserialize(thresholdList.get(1));
                 ReceiveCollectDto dto = JSONUtil.toBean(bodyJson, ReceiveCollectDto.class);
-                AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "从 _threshold_queue 队列中读取数据", dto.getCategory());
                 String content = dto.getContent();
                 JSONArray result = JSONUtil.parseArray(content);
                 IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());

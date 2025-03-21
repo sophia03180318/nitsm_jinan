@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.memory;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.CollectMemoryEntity;
 import com.jcca.dataProcessing.Entity.CollectProcessEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -23,6 +25,7 @@ public class MemoryTop5FilterHandler  extends IFilterHandler<CollectMemoryEntity
     private IEventInfoManagerService eventInfoChangeManagerService;
     @Override
     public boolean handler(CollectMemoryEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "内存TOP5阈值信息过滤处理类", info.getAssetIp());
         String redisKey= info.getAssetIp()+":"+info.getAssetId()+":"+ StatusInfoChangeTypeEnum.status_MEMTop5.getCode();
         List<CollectProcessEntity> list=info.getProcessTop5List();
         boolean flag=false;

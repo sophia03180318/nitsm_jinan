@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.ipmi;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectSensorEntity;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -14,9 +16,7 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,7 +38,7 @@ public class IpmiTemperatureFilterHandler extends IFilterHandler<CollectSensorEn
         if (!SensorTypeEnum.GAUGE.name().equals(info.getSensorType())) {
             return true;
         }
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口温度信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_temp.getCode() + ":" + info.getSerialNumberName();
         String mapKey = StatusInfoChangeTypeEnum.status_tempValue.getCode();
         boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());

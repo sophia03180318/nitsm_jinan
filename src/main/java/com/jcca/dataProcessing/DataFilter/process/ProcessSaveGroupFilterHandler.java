@@ -3,6 +3,8 @@ package com.jcca.dataProcessing.DataFilter.process;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.enums.StatusEnum;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ProcessAlarmQueueEntity;
 import com.jcca.dataProcessing.Entity.ProcessGroupEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -30,6 +32,7 @@ public class ProcessSaveGroupFilterHandler extends IFilterHandler<ProcessGroupEn
 
     @Override
     public boolean handler(ProcessGroupEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存组进程数据", info.getAssetIp());
         List<ProcessAlarmQueueEntity> queueObj = info.getQueueObj();
         QueryWrapper<ThresholdProcess> query;
         for (ProcessAlarmQueueEntity processAlarmQueueEntity : queueObj) {

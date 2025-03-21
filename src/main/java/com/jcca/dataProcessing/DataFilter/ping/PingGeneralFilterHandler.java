@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.ping;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ReceiveAlarmEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -28,6 +30,7 @@ public class PingGeneralFilterHandler extends IFilterHandler<ReceiveAlarmEntity>
 
     @Override
     public boolean handler(ReceiveAlarmEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "普通单个设备ping", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_ping.getCode();
 

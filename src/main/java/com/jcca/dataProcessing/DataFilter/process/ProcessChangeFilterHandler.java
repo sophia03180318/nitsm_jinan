@@ -38,6 +38,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
 
     @Override
     public boolean handler(ProcessGroupEntity entity) throws Exception {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机单活进程切换", entity.getAssetIp());
         List<ProcessAlarmQueueEntity> queueObj = entity.getQueueObj();
         for (ProcessAlarmQueueEntity info : queueObj) {
             String processChange = info.getProcessChange();

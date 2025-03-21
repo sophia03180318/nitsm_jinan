@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.casco;
 
 import cn.hutool.core.util.StrUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -32,6 +34,8 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
 
     @Override
     public boolean handler(ItsmQueueEntity info) {
+
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "casco软件连接过滤处理类", info.getAssetIp());
 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softLinkState.getCode();
         String mapKey = info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();

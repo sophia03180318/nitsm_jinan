@@ -56,7 +56,6 @@ public class NoThresholdInfoReceiver implements Runnable {
                 List<byte[]> thresholdList = connection.bLPop(0, RedisQueueConst.ALARM_QUEUE.getBytes());
                 String bodyJson = queueTemplate.getRedisTemplate().getStringSerializer().deserialize(thresholdList.get(1));
                 ReceiveAlarmDto alarmDto = JSONUtil.toBean(bodyJson, ReceiveAlarmDto.class);
-                AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "从 _alarm_queue 队列中读取数据", alarmDto.getCategory());
                 IAdapter adapter = null;
                 if (alarmDto.getCategory().equals("19")) {
                     //数据库状态，因数据不统一做的转换

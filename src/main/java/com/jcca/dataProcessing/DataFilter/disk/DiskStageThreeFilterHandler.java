@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.DataFilter.disk;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectDiskEntity;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -29,6 +31,7 @@ public class DiskStageThreeFilterHandler extends IFilterHandler<CollectDiskEntit
 
     @Override
     public boolean handler(CollectDiskEntity info) {
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "磁盘三阶阈值过滤处理类", info.getAssetIp());
         ChangeInfo changeInfo = info.getMaps().get(info.getName());
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_disk_sectionThree.getCode();

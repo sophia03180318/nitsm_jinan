@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.aix;
 
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectAixSystemFattenEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -34,7 +36,7 @@ public class AixSystemMsgIFilterHandlerHandler extends IFilterHandler<CollectAix
 
     @Override
     public boolean handler(CollectAixSystemFattenEntity info) {
-
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "小型机基础信息过滤处理类", info.getAssetIp());
         String redisKey= info.getAssetIp()+":"+info.getAssetId()+":"+StatusInfoChangeTypeEnum.status.getCode();
         String mapKey1=StatusInfoChangeTypeEnum.status_serial.getCode();
         String mapKey2=StatusInfoChangeTypeEnum.status_powerModel.getCode();

@@ -3,6 +3,8 @@ package com.jcca.dataProcessing.DataFilter.aix;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.AixIoCardEntity;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectAixSystemFattenEntity;
@@ -38,6 +40,8 @@ public class AixIoCardIFilterHandlerHandler extends IFilterHandler<CollectAixSys
 
     @Override
     public boolean handler(CollectAixSystemFattenEntity info) {
+
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "小型机IO卡过滤处理类", info.getAssetIp());
 
         List<AixIoCardEntity> beanList = JSONUtil.toList(new JSONArray(info.getIoCard()), AixIoCardEntity.class);
         beanList.size();
