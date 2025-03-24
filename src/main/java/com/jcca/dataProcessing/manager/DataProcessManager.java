@@ -824,6 +824,7 @@ public class DataProcessManager {
 
         //syslog事件信息处理
         List<String> syslogHandlerList = Arrays.asList(
+                "syslogPowerSupplyFilterHnadler",
                 "sysloglevel3FilterHnadler",
                 "syslogCiscoinfoFilterHnadler",
                 "syslogIBMinfoFilterHnadler",
@@ -831,12 +832,12 @@ public class DataProcessManager {
         );
 
         List<String> syslogEventHandlerList = Arrays.asList(
+                "syslogPowerSupplyFilterHnadler",
                 "sysloglevel3FilterHnadler",
                 "syslogCiscoinfoFilterHnadler",
                 "syslogIBMinfoFilterHnadler",
                 "syslogOtherFilterHandler"
         );
-
 
         syslogHandler = createHandler(syslogHandlerList, syslogEventHandlerList, eventInfoListener);
 
