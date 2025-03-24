@@ -41,7 +41,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
         String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + new Date().getTime();
 
         EventInfo eventInfo = new EventInfo();
-        eventInfo.setMessage("电源模块冗余电源丢失");
+        eventInfo.setMessage(info.getMessage());
         eventInfo.setMessageId(MyIdUtil.getId());
         eventInfo.setLevel(info.getLevel());
 
@@ -58,7 +58,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
 
         AlarmTempReq tempReq = new AlarmTempReq();
         tempReq.setAssetIp(info.getAssetIp());
-        tempReq.setOrgMsg(info.getMessage());
+        tempReq.setOrgMsg("电源模块冗余电源丢失");
 
         IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq);
         if (event != null) {
