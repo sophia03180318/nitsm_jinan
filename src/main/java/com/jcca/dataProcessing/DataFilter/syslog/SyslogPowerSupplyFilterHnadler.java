@@ -1,6 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.syslog;
 
-import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.EventInfo;
@@ -29,7 +28,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
     private IEventInfoManagerService eventInfoChangeManagerService;
 
     @Override
-    public boolean handler(SyslogEventInfoEntity info) throws ResultException, Exception {
+    public boolean handler(SyslogEventInfoEntity info) throws Exception {
         String content = info.getMessage();
         if (!((content.contains("Non-redundant") && content.contains("deasserted"))
                 || (content.contains("Power Supply") && content.contains("lost")))) {

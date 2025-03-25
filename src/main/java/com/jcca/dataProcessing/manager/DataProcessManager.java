@@ -364,8 +364,8 @@ public class DataProcessManager {
         processHandler = createHandler(processHandlerList, processEventHandlerList, eventInfoListener);
         //进程组
         List<String> processGroupHandlerList = Arrays.asList(
-                "processChangeFilterHandler",
                 "processSaveGroupFilterHandler",
+                "processChangeFilterHandler",
                 "processGroupSingleStateFilterHandler",
                 "ProcessGroupDoubleStateFilterHandler",
                 "saveFilterHandler");

@@ -45,10 +45,6 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
             if (StringUtils.isEmpty(processChange)) {
                 continue;
             }
-            String processId = info.getProcessId();
-            if (!"0".equals(processId)) {
-                continue;
-            }
 
             AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_CHANGE, info.getProcessName() + "进程切换告警处理", info);
 
@@ -83,6 +79,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
                     event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_once.getDescr(),
                             info.getProcessName(), asset.getName() + "(" + asset.getIp() + ")"));
                     this.dispatureEvent(event);
+                    return false;
                 }
             }
         }
