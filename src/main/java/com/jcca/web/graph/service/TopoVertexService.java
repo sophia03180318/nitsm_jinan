@@ -238,4 +238,8 @@ public interface TopoVertexService extends IService<TopoVertex> {
      * @return
      */
     List<TopoVertexVo> selectWanTopoNodeByAsset(String category, List<String> ids);
+
+    List<TopoVertexAlarmLevelVo> selectAllTopoNodeAlarmLevelByAsset(String category, String orgId);
+
+    List<TopoVertexVo> selectAllTopoNodeByAsset(String category, String orgId);
 }

@@ -314,13 +314,6 @@ public class GraphControllerV2 {
             }
         }
 
-        for (TopoVertexAlarmLevelVo topoVertexAlarmLevelVo : list) {
-            if (CLUSTER.equals(topoVertexAlarmLevelVo.getABFlag())) {
-                if (!topoVertexAlarmLevelVo.getAssetName().equals(topoVertexAlarmLevelVo.getName())) {
-                    topoVertexAlarmLevelVo.setAssetName(topoVertexAlarmLevelVo.getName());
-                }
-            }
-        }
 
         map.put("vertex", list);
         //网络设备资产连线拓扑
@@ -344,6 +337,58 @@ public class GraphControllerV2 {
         map.put("marks", marks);
         return ResultVoUtil.success(map);
     }
+
+
+    /**
+     * 获取指定组织下的网络拓扑图
+     */
+    @GetMapping("/allTopoNode/{orgId}")
+    @ApiOperation(value = "获取全局拓扑图")
+    public ResultVo<Object> allTopoNode(@PathVariable String orgId) {
+        // 获取组织结构Id
+        if (Objects.isNull(orgId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
+        }
+        SysOrg org = orgService.getById(orgId);
+        Integer type = org.getType();
+        Map<String, Object> map = new HashMap<>();
+        if (OrgTypeEnum.GROUP.getCode() == type || OrgTypeEnum.PARENT.getCode() == type) {
+            return ResultVoUtil.success(map);
+        }
+        String category = TopoCategoryEnum.ALL_TOPO.category;
+
+
+        // 全局拓扑
+        List<TopoVertexAlarmLevelVo> topoVertexAlarmLevelVos = topoVertexService.selectAllTopoNodeAlarmLevelByAsset(category, orgId);
+        map.put("vertex", topoVertexAlarmLevelVos);
+
+        //网络设备资产连线拓扑
+        map.put("points", topoPointsService.getTopoPoints(category, orgId));
+        map.put("edge", topoEdgeService.getTopoEdge(category, orgId));
+
+
+        List<TopoAssetGroup> groupList = topoAssetGroupService.queryAssetGroup(orgId, category);
+        for (TopoAssetGroup topoAssetGroup : groupList) {
+            String str = new String(topoAssetGroup.getContent());
+            topoAssetGroup.setContentStr(str);
+        }
+        // 拓扑图分组
+        map.put("groups", groupList);
+
+        // 拓扑图编辑备注
+        List<TopoAssetMark> marks = topoAssetMarkService.queryAssetMark(orgId, category);
+        for (TopoAssetMark topoAssetMark : marks) {
+            String str = null;
+            try {
+                str = new String(topoAssetMark.getContent(), "UTF-8");
+                topoAssetMark.setContentStr(str);
+            } catch (Exception e) {
+            }
+        }
+        map.put("marks", marks);
+        return ResultVoUtil.success(map);
+    }
+
 
     /**
      * 获取指定中心组织下的机柜的拓扑图
@@ -632,24 +677,6 @@ public class GraphControllerV2 {
                         list = topoVertexService.selectNodeByAsset(category, orgId);
                 }
             }
-            List<TopoVertexVo> addList = new ArrayList<>();
-            List<TopoVertexVo> removeList = new ArrayList<>();
-            for (TopoVertexVo topoVertexVo : list) {
-                if (CLUSTER.equals(topoVertexVo.getABFlag())) {
-                    //集群 需要根据集群信息在查一遍
-                    List<TopoVertexVo> clusterTopo = collectClusterService.selectNodeById(topoVertexVo.getAssetId());
-                    if (!clusterTopo.isEmpty()) {
-                        addList.addAll(clusterTopo);
-                    }
-                    removeList.add(topoVertexVo);
-                }
-            }
-            if (!addList.isEmpty()) {
-                list.addAll(addList);
-            }
-            if (!removeList.isEmpty()) {
-                list.removeAll(removeList);
-            }
 
             map.put("vertex", list);
 
@@ -670,30 +697,12 @@ public class GraphControllerV2 {
         if (TopoCategoryEnum.WAN_TOPO.category.equals(category)) {
             this.setWanMap(category, orgId, map);
         }
-        //网络设备资产连线拓扑
-        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
-            List<TopoVertexVo> list = topoVertexService.selectNetworkAssetTopoNodeByAsset(category, graph.getAssetId());
 
-            map.put("vertex", list);
-            List<TopoEdge> topoEdgeList = topoEdgeService.queryNetWorkEdge(category, graph.getAssetId());
-            //如果曾经已经配置过设备连线
-            if (topoEdgeList == null || topoEdgeList.size() == 0) {
-                map.put("AssetEdge", collectRouteService.queryCollectRoute(graph.getAssetId()));
-            }
-            map.put("edge", topoEdgeList);
-            map.put("points", topoPointsService.queryNetWorkPoints(category, graph.getAssetId()));
-        } else {
-            map.put("edge", topoEdgeService.getTopoEdge(category, orgId));
-            map.put("points", topoPointsService.getTopoPoints(category, orgId));
-        }
+        map.put("edge", topoEdgeService.getTopoEdge(category, orgId));
+        map.put("points", topoPointsService.getTopoPoints(category, orgId));
 
         // 拓扑图分组
-        List<TopoAssetGroup> list = null;
-        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
-            list = topoAssetGroupService.queryNetWorkAssetGroup(graph.getAssetId(), category);
-        } else {
-            list = topoAssetGroupService.queryAssetGroup(orgId, category);
-        }
+        List<TopoAssetGroup> list = topoAssetGroupService.queryAssetGroup(orgId, category);
 
         for (TopoAssetGroup topoAssetGroup : list) {
             String str = new String(topoAssetGroup.getContent());
@@ -701,12 +710,8 @@ public class GraphControllerV2 {
         }
         map.put("groups", list);
         // 拓扑图编辑备注
-        List<TopoAssetMark> marks = null;
-        if (TopoCategoryEnum.NET_WORKASSET_TOPO.category.equals(category)) {
-            marks = topoAssetMarkService.queryNetWorkAssetMark(graph.getAssetId(), category);
-        } else {
-            marks = topoAssetMarkService.queryAssetMark(orgId, category);
-        }
+        List<TopoAssetMark> marks = topoAssetMarkService.queryAssetMark(orgId, category);
+
         for (TopoAssetMark topoAssetMark : marks) {
             String str = new String(topoAssetMark.getContent(), StandardCharsets.UTF_8);
             topoAssetMark.setContentStr(str);
@@ -864,8 +869,8 @@ public class GraphControllerV2 {
                     topoPortVo.setStatus(i.getStatus().intValue());
                     topoPortVos.add(topoPortVo);
                 });
-            }else{
-                networkCardService.getRealTimeData(id).stream().forEach(n->{
+            } else {
+                networkCardService.getRealTimeData(id).stream().forEach(n -> {
                     TopoPortVo topoPortVo = new TopoPortVo();
                     topoPortVo.setAssetId(id);
                     topoPortVo.setName(n.getName());

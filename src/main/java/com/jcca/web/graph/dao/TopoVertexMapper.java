@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -157,4 +158,13 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
     List<TopoVertexVo> selectCabinetNodeV2(@Param("roomId") String roomId);
 
     List<TopoVertexVo> selectWanTopoNodeByAsset(@Param("nodeType") String nodeType, @Param("ids") List<String> ids);
+
+
+    List<TopoVertexAlarmLevelVo> selectAllTopoNodeAlarmLevelByAsset(String category, String orgId);
+
+    List<TopoVertexVo> selectAllTopoNodeByAsset(String category, String orgId);
+
+    List<TopoVertexAlarmLevelVo> selectAllTopoNodeByLine(String category, String orgId);
+
+    List<TopoVertexVo> selectAllTopoNodeByLine2(String category, String orgId);
 }

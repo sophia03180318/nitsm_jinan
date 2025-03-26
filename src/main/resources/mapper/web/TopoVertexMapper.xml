@@ -528,4 +528,95 @@
         order by t.name
     </select>
 
+
+
+    <select id="selectAllTopoNodeAlarmLevelByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+ SELECT alarm.alarmLevel,
+ 			   c.CABINET_ID,
+			   cc.ROW_INDEX as roww,
+			   cc.COLUMN_INDEX as col,
+               v.*,
+               t.name        as assetName,
+               t.id          as assetId,
+               t.org_id      as assetOrgId,
+               t.asset_image as assetImage,
+               t.show_core   as showCore,
+               t.watch,
+               t.A_B_FLAG,
+               t.asset_mode  as assetMode
+        FROM asset t
+				 left join ASSET_ATTACH c on t.id = c.ASSET_ID
+                 left join CABINET cc on c.CABINET_ID = cc.id
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id  AND v.node_type ='all_topo'
+                 left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM ALARM_INFO i
+                                     LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
+                            WHERE a.ASSET_MODE IN (42, 201, 183)
+                              AND a.ORG_ID = #{orgId}
+                              AND (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+                              and i.BLANK = 1
+                            GROUP BY a.ID) alarm on t.id = alarm.id
+
+        where t.ORG_ID = #{orgId}
+          and t.SHOW_TOPO = 1
+          and IS_DEL = 1
+        order by col,roww ,v.name
+    </select>
+
+
+    <select id="selectAllTopoNodeByLine"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+      SELECT
+            v.*,
+            o.title  as assetName,
+            o.id    as assetId,
+            'line' as assetMode
+           FROM sys_org o
+           left join TOPO_VERTEX v on o.id  = v.asset_id AND v.node_type ='all_topo'
+           where o.type=3 and o.PID = #{orgId}
+           order by v.name
+    </select>
+
+    <select id="selectAllTopoNodeByAsset"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+ SELECT
+ 			   c.CABINET_ID,
+			   cc.ROW_INDEX as roww,
+			   cc.COLUMN_INDEX as col,
+               v.*,
+               t.name        as assetName,
+               t.id          as assetId,
+               t.org_id      as assetOrgId,
+               t.asset_image as assetImage,
+               t.show_core   as showCore,
+               t.watch,
+               t.A_B_FLAG,
+               t.asset_mode  as assetMode
+        FROM asset t
+				 left join ASSET_ATTACH c on t.id = c.ASSET_ID
+                 left join CABINET cc on c.CABINET_ID = cc.id
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id  AND v.node_type ='all_topo'
+
+        where t.ORG_ID = #{orgId}
+          and t.SHOW_TOPO = 1
+          and IS_DEL = 1
+        order by col,roww ,v.name
+
+    </select>
+
+    <select id="selectAllTopoNodeByLine2"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+      SELECT
+            v.*,
+            o.title  as assetName,
+            o.id    as assetId,
+            'line' as assetMode
+           FROM sys_org o
+           left join TOPO_VERTEX v on o.id  = v.asset_id AND v.node_type ='all_topo'
+           where o.type=3  and o.PID = #{orgId}
+           order by v.name
+    </select>
+
+
 </mapper>

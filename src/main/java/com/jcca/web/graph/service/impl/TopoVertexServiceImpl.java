@@ -436,4 +436,48 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
         return topoVertexMapper.selectWanTopoNodeByAsset(category, ids);
     }
 
+
+    @Override
+    public List<TopoVertexAlarmLevelVo> selectAllTopoNodeAlarmLevelByAsset(String category, String orgId) {
+        List<TopoVertexAlarmLevelVo> topoVertexAlarmLevelVos = topoVertexMapper.selectAllTopoNodeAlarmLevelByAsset(category, orgId).stream().map(t->{
+            if (!"183".equals(t.getAssetMode()) && ObjectUtil.isNull(t.getNodeY())){
+                t.setNodeY(3.0);
+            }
+            return t;
+        }).collect(Collectors.toList());
+        List<TopoVertexAlarmLevelVo> topoVertexList2 = topoVertexMapper.selectAllTopoNodeByLine(category, orgId).stream().map(t->{
+            if (ObjectUtil.isNull(t.getNodeY())){
+                t.setNodeY(5.0);
+            }
+            return t;
+        }).collect(Collectors.toList());
+
+        if (!topoVertexList2.isEmpty()){
+            topoVertexAlarmLevelVos.addAll(topoVertexList2);
+        }
+        return topoVertexAlarmLevelVos;
+    }
+
+
+
+    @Override
+    public List<TopoVertexVo> selectAllTopoNodeByAsset(String category, String orgId) {
+        List<TopoVertexVo> topoVertVos = topoVertexMapper.selectAllTopoNodeByAsset(category, orgId).stream().map(t->{
+            if (!"183".equals(t.getAssetMode()) && ObjectUtil.isNull(t.getNodeY())){
+                t.setNodeY(3.0);
+            }
+            return t;
+        }).collect(Collectors.toList());
+        List<TopoVertexVo> topoVertexList2 = topoVertexMapper.selectAllTopoNodeByLine2(category, orgId).stream().map(t->{
+            if (ObjectUtil.isNull(t.getNodeY())){
+                t.setNodeY(5.0);
+            }
+            return t;
+        }).collect(Collectors.toList());
+
+        if (!topoVertexList2.isEmpty()){
+            topoVertVos.addAll(topoVertexList2);
+        }
+        return topoVertVos;
+    }
 }

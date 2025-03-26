@@ -25,6 +25,7 @@ public enum TopoCategoryEnum {
     PC_TOPO("pc_topo", "调度台拓扑"),
     WAN_TOPO("wan_topo", "广域网拓扑"),
     NET_WORKASSET_TOPO("netWorkAsset_topo", "资产连线拓扑"),
+    ALL_TOPO("all_topo", "全局topo"),
     ;
 
     public String category;
@@ -39,7 +40,7 @@ public enum TopoCategoryEnum {
         if (OrgTypeConst.CENTER == orgType) {
             return NET_TOPO.category.equals(category) || CABINET_TOPO.category.equals(category)
                     || BIZ_TOPO.category.equals(category) || PC_TOPO.category.equals(category)
-                    || WAN_TOPO.category.equals(category);
+                    || WAN_TOPO.category.equals(category)||ALL_TOPO.category.equals(category);
         }
         if (OrgTypeConst.LINE == orgType) {
             return NET_TOPO.category.equals(category) || BIZ_TOPO.category.equals(category);
