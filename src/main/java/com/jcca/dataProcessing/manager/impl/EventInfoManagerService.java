@@ -47,7 +47,7 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public Boolean infoIschangeFirst(String redisKey, String mapKey, Object changeValue) {
+    public synchronized Boolean infoIschangeFirst(String redisKey, String mapKey, Object changeValue) {
         Object obj = redisService.hmGet(redisKey, mapKey);
         if (obj == null) {
             return null;

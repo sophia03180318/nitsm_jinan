@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.net;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
@@ -14,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Zhaozheng
@@ -34,7 +37,8 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
     public synchronized boolean handler(CollectNetworkCardEntity info) {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存网卡信息", info.getAssetIp());
         //过滤掉IP地址为空的网卡 同时组的还要上
-        if (StrUtil.isEmpty(info.getIp()) || DEFAULT_VALUE_STR.equals(info.getIp())) {
+        String ip = info.getIp();
+        if (StrUtil.isEmpty(ip) || DEFAULT_VALUE_STR.equals(ip)) {
             // 双网卡绑定的网卡没有IP
 //            Object stateValue = eventInfoChangeManagerService.getStateValue(info.getAssetIp() + ":" + info.getAssetId() + ":"
 //                    + StatusInfoChangeTypeEnum.status_net.getCode() + ":" + info.getName(), StatusInfoChangeTypeEnum.status_net_ip.getCode());
@@ -47,6 +51,17 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
             } else if (!info.getName().contains("组") || info.getName().contains("WFP") || info.getName().contains("QoS")) {
                 //过滤掉名字不包含组，或包含组 含有WFP、QoS的
                 return false;
+            }
+        }
+
+        // 断网后有的网卡采集不到IP 使用原有IP
+        if (DEFAULT_VALUE_STR.equals(ip)) {
+            QueryWrapper<CollectNetworkCard> query = Wrappers.query();
+            query.eq("ASSET_ID", info.getAssetId());
+            query.eq("NAME", info.getName());
+            List<CollectNetworkCard> list = networkService.list(query);
+            if (!list.isEmpty()) {
+                info.setIp(list.get(0).getIp());
             }
         }
 

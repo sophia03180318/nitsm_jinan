@@ -9,10 +9,11 @@ import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Zhaozheng
@@ -28,6 +29,8 @@ public class AssetIpAdd {
     @Resource
     AssetService assetService;
 
+    private Map<String, String> ipMap = new ConcurrentHashMap<>(256);
+
     /**
      * 通用资产Ip的添加功能
      * 由于一些信息不携带资产IP需要，此方法用户添加资产的IP
@@ -37,21 +40,11 @@ public class AssetIpAdd {
      */
     public void setAssetIp(CommonEntity commonEntity) {
         try {
-            if (StringUtils.isEmpty(commonEntity.getAssetIp())) {
-                List<String> listKey = redisService.getKeyByPattern("*" + commonEntity.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode());
-                if (!listKey.isEmpty()) {
-                    for (String key : listKey) {
-                        String[] keys = key.split(":");
-                        if (keys[0] != null && !keys[0].equals("null")) {
-                            commonEntity.setAssetIp(keys[0]);
-                            break;
-                        }
-                    }
-                } else {
-                    Asset asset = assetService.getById(commonEntity.getAssetId());
-                    commonEntity.setAssetIp(asset.getIp());
-                }
+            if (ipMap.get(commonEntity.getAssetId()) == null) {
+                Asset asset = assetService.getById(commonEntity.getAssetId());
+                ipMap.put(commonEntity.getAssetId(), asset.getIp());
             }
+            commonEntity.setAssetIp(ipMap.get(commonEntity.getAssetId()));
 
             if (StrUtil.isEmpty(commonEntity.getCollectCode())) {
                 commonEntity.setCollectCode(MyIdUtil.getId());

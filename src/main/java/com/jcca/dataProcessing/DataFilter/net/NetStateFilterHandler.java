@@ -43,7 +43,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
     private AssetService assetService;
 
     @Override
-    public boolean handler(CollectNetworkCardEntity info) {
+    public synchronized boolean handler(CollectNetworkCardEntity info) {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "网卡状态判断", info.getAssetIp());
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_net_status.getCode());
         String eventRedisKey = StatusInfoChangeTypeEnum.event_net_state.getCode();
@@ -58,10 +58,10 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
         if (Objects.isNull(flag) || flag) {
 
             //判断网卡A/B网
-            Asset asset = assetService.getById(info.getAssetId());
             String name = "";
             String ip = info.getIp();
-            if (StrUtil.isNotEmpty(ip)) {
+            if (StrUtil.isNotEmpty(ip) && !NetSaveFilterHandler.DEFAULT_VALUE_STR.equals(ip)) {
+                Asset asset = assetService.getById(info.getAssetId());
                 if (ip.equals(asset.getIp())) {
                     name = "【A网】";
                 } else if (!StringUtils.isEmpty(asset.getIp2()) && ip.equals(asset.getIp2())) {
@@ -79,7 +79,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
                 tempReq.setLinkAssetIp(linkAsset.getLinkAssetIp());
                 tempReq.setLinkAssetName(linkAsset.getLinkAssetName());
                 Asset intAsset = assetService.getById(linkAsset.getAssetId());
-                descStr = descStr + "【" + ip + "】,对端设备【" + intAsset.getName() + "】,对端设备IP【" + intAsset.getIp() + "】";
+                descStr = descStr + ",对端设备【" + intAsset.getName() + "】,对端设备IP【" + intAsset.getIp() + "】";
             }
             tempReq.setOrgMsg(descStr);
             tempReq.setCollectValue(info.getStatus().toString());
