@@ -66,5 +66,21 @@ public class AddFileReq implements Serializable {
      * 备注
      */
     private String remark;
+    /**
+     * 元素ID，元素可以是机柜ID，可以是设备ID
+     */
+    private String itemId;
+    /**
+     * 元素名称
+     */
+    private Integer itemName;
+    /**
+     * 元素类型，OrgTypeConst
+     */
+    private Integer itemType;
+    /**
+     * 是否预览，true预览，只能为图片或PDF文件。false不预览
+     */
+    private Boolean viewFlag;
 
 }

@@ -48,4 +48,10 @@ public class FileVo implements Serializable {
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
+    /**
+     * 元素名称
+     */
+    private Integer itemName;
+
+    private String viewUrl;
 }

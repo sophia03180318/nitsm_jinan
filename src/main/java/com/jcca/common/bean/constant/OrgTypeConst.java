@@ -29,6 +29,14 @@ public interface OrgTypeConst {
      */
     byte STATION = 4;
     /**
+     * 设备
+     */
+    byte ASSET = 96;
+    /**
+     * 机柜列
+     */
+    byte ROW = 97;
+    /**
      * 机房
      */
     byte ROOM = 98;

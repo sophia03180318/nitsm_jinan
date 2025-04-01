@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.entity.SysFile;
@@ -22,6 +23,7 @@ import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.shiro.util.ShiroUtil;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.file.FileUpload;
 import com.jcca.common.utils.file.config.properties.UploadProjectProperties;
@@ -32,6 +34,8 @@ import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.handbook.controller.bean.*;
 import com.jcca.web.handbook.vo.FileVo;
 import com.jcca.web.handbook.vo.FolderVo;
+import com.jcca.web2.entity.FileRelate;
+import com.jcca.web2.service.FileRelateService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -78,9 +82,15 @@ public class ApiMaintainHandBookController {
     private SysOrgService orgService;
     @Resource
     private RoomService roomService;
+    @Resource
+    private FileRelateService fileRelateService;
 
     @Value("${project.base-url}")
     private String baseUrl;
+    @Value("${project.upload.static-url}")
+    private String staticUrl;
+    @Value("${project.upload.file-path}")
+    private String filePath;
 
     /**
      * 维护手册文件夹分页查询
@@ -199,6 +209,7 @@ public class ApiMaintainHandBookController {
         IPage pageResult = fileService.page(page, wrapper);
         List records = pageResult.getRecords();
 
+        FileRelate relate;
         List<FileVo> fileList = new ArrayList<>();
         for (Object object : records) {
             SysFile sysFile = BeanUtil.copyProperties(object, SysFile.class);
@@ -208,6 +219,12 @@ public class ApiMaintainHandBookController {
             fileVo.setId(sysFile.getId());
             fileVo.setOrignName(sysFile.getOrignName());
             fileVo.setRemark(sysFile.getRemark());
+
+            relate = fileRelateService.getByFileId(sysFile.getId());
+            if (Objects.nonNull(relate)) {
+                fileVo.setItemName(relate.getItemName());
+                fileVo.setViewUrl(staticUrl + sysFile.getFilePath());
+            }
 
             fileList.add(fileVo);
         }
@@ -368,13 +385,29 @@ public class ApiMaintainHandBookController {
             return ResultVoUtil.error("文件提交保存失败请重新上传");
         }
         SysFile sysFile = BeanUtil.copyProperties(file, SysFile.class);
-        sysFile.setId(null);
+        sysFile.setId(MyIdUtil.getId());
         sysFile.setStatus(StatusEnum.OK.getCode());
         sysFile.setFilePath(file.getFilePath().replace(UPLOAD_MODEL_TMP_PATH, UPLOAD_MODEL_PROD_PATH));
 
         fileService.save(sysFile);
 
+        if (true) {
+            file.setId(sysFile.getId());
+            this.saveRelate(file);
+        }
+
         return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    private void saveRelate(AddFileReq file) {
+        FileRelate relate = new FileRelate();
+        relate.setId(MyIdUtil.getId());
+        relate.setItemId(file.getItemId());
+        relate.setItemName(file.getItemName());
+        relate.setFileId(file.getId());
+        relate.setItemType(file.getItemType());
+        relate.setRemark(file.getRemark());
+        fileRelateService.save(relate);
     }
 
     /**
@@ -396,6 +429,10 @@ public class ApiMaintainHandBookController {
         file.setStatus(StatusEnum.DELETE.getCode());
         fileService.updateById(file);
 
+        UpdateWrapper<FileRelate> update = Wrappers.update();
+        update.eq("FILE_ID", file.getId());
+        fileRelateService.remove(update);
+
         return ResultVoUtil.success();
     }
 
@@ -414,7 +451,7 @@ public class ApiMaintainHandBookController {
         fileWrapper.eq("STATUS", StatusEnum.OK.getCode());
         List<SysFile> fileList = fileService.list(fileWrapper);
 
-        if (fileList.size() > 0) {
+        if (!fileList.isEmpty()) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "文件夹内有未删除文件");
         }
         folder.setStatus(StatusEnum.DELETE.getCode());

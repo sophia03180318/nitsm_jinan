@@ -12,6 +12,7 @@ import lombok.Data;
 public class CabinetVo {
     private String id;
     private String name;
+    private String orgId;
     private String roomId;
     private String rowIndex;
     private String columnIndex;

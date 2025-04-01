@@ -5,6 +5,8 @@ import com.jcca.admin.system.entity.SysUser;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.web.websocket.util.SshRemoteUtil;
+import com.jcca.web.websocket.util.TelnetRemoteUtil;
 import com.jcraft.jsch.JSchException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.stereotype.Component;
@@ -79,15 +81,15 @@ public class WebRemoteConnect {
             return;
         }
         AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "收到远程登录消息：" + message);
-        RemoteConnetDto dto = JSONUtil.toBean(message, RemoteConnetDto.class);
-        if ("SSH".equals(dto.getMsgType())) {
-            this.ssh(dto, session);
-            return;
-        }
-
-        if ("TELNET".equals(dto.getMsgType())) {
-            this.telnet(dto, session);
-        }
+//        RemoteConnetDto dto = JSONUtil.toBean(message, RemoteConnetDto.class);
+//        if ("SSH".equals(dto.getMsgType())) {
+//            this.ssh(dto, session);
+//            return;
+//        }
+//
+//        if ("TELNET".equals(dto.getMsgType())) {
+//            this.telnet(dto, session);
+//        }
     }
 
     private void telnet(RemoteConnetDto dto, Session session) {

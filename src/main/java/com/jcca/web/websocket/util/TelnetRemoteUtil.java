@@ -1,4 +1,4 @@
-package com.jcca.web.websocket;
+package com.jcca.web.websocket.util;
 
 import org.apache.commons.net.telnet.TelnetClient;
 
