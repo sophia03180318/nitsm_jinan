@@ -2,7 +2,10 @@ package com.jcca.web.websocket.util;
 
 import com.jcraft.jsch.*;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class SshRemoteUtil {
 
@@ -19,9 +22,11 @@ public class SshRemoteUtil {
         JSch jsch = new JSch();
         Session session = jsch.getSession(username, host, port);
         session.setPassword(password);
-        session.setConfig("StrictHostKeyChecking", "no");
-        session.connect();
+        java.util.Properties config = new java.util.Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
         session.setTimeout(3000);
+        session.connect();
         return session;
     }
 
@@ -34,30 +39,26 @@ public class SshRemoteUtil {
      * @throws JSchException       当SSH通道建立失败或连接异常时抛出
      * @throws java.io.IOException 当读取命令输出流发生I/O错误时抛出
      */
-    public static String executeCommand(Session session, String command) throws JSchException, java.io.IOException {
-        Channel channel = session.openChannel("exec");
+    public static String executeCommand(String itsmUsername, Session session, String command) throws JSchException, java.io.IOException {
+        BufferedReader reader = null;
+        Channel channel = null;
+
+        StringBuilder sb = new StringBuilder();
+
+        String channelCommand = "exec";
+        channel = session.openChannel(channelCommand);
         ((ChannelExec) channel).setCommand(command);
         channel.setInputStream(null);
         ((ChannelExec) channel).setErrStream(System.err);
-
-        InputStream in = channel.getInputStream();
         channel.connect();
-
-        StringBuilder output = new StringBuilder();
-        byte[] tmp = new byte[1024];
-        while (true) {
-            while (in.available() > 0) {
-                int i = in.read(tmp, 0, 1024);
-                if (i < 0) break;
-                output.append(new String(tmp, 0, i));
-            }
-            if (channel.isClosed()) {
-                if (in.available() > 0) continue;
-                break;
-            }
+        InputStream in = channel.getInputStream();
+        reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        String buf;
+        while ((buf = reader.readLine()) != null) {
+            sb.append(buf).append("  ");
         }
         channel.disconnect();
-        return output.toString();
+        return sb.toString();
     }
 
     /**

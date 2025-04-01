@@ -10,7 +10,6 @@ import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.ResultVoUtil;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -22,7 +21,7 @@ import java.util.Objects;
  * @author hanwone
  * @date 2018/10/19
  */
-@Controller
+@RestController
 @RequestMapping("/api/v2/actionLog")
 public class ActionLogControllerV2 {
 
@@ -33,7 +32,7 @@ public class ActionLogControllerV2 {
      * 列表页面
      */
     @PostMapping("/index")
-    public ResultVo<Object> index(SysActionLog actionLog, Integer page, Integer size) {
+    public ResultVo<Object> index(@RequestBody SysActionLog actionLog, Integer page, Integer size) {
         IPage iPage = PagePlugin.startPage(page, size);
 
         if (actionLog.getFlag()) {

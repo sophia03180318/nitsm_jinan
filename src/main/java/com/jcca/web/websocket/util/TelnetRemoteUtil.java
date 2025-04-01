@@ -1,10 +1,13 @@
 package com.jcca.web.websocket.util;
 
+import com.jcca.web.websocket.WebRemoteConnect;
 import org.apache.commons.net.telnet.TelnetClient;
 
+import javax.websocket.Session;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Objects;
 
 public class TelnetRemoteUtil {
 
@@ -29,7 +32,7 @@ public class TelnetRemoteUtil {
      * @return 命令执行结果
      * @throws IOException IO异常
      */
-    public static String executeCommand(TelnetClient telnetClient, String command) throws IOException {
+    public static String executeCommand(String itsmUsername, TelnetClient telnetClient, String command) throws IOException {
         PrintStream out = new PrintStream(telnetClient.getOutputStream());
         out.println(command);
         out.flush();
@@ -40,6 +43,10 @@ public class TelnetRemoteUtil {
         int readLength;
         while ((readLength = in.read(buffer)) != -1) {
             output.append(new String(buffer, 0, readLength));
+            Session session = WebRemoteConnect.SESSION_POOL.get(itsmUsername);
+            if (Objects.nonNull(session)) {
+                session.getAsyncRemote().sendText(output.toString());
+            }
         }
         return output.toString();
     }
