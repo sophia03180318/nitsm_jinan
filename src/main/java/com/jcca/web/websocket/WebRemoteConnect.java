@@ -1,9 +1,7 @@
 package com.jcca.web.websocket;
 
 import cn.hutool.json.JSONUtil;
-import com.jcca.admin.system.entity.SysUser;
 import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.web.websocket.util.SshRemoteUtil;
 import com.jcca.web.websocket.util.TelnetRemoteUtil;
@@ -40,17 +38,10 @@ public class WebRemoteConnect {
 
     @OnOpen
     public synchronized void onOpen(Session session, @PathParam(value = "username") String username) {
-        SysUser user = ShiroUtil.getSubject();
-        if (Objects.isNull(user)) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "未登录用户不允许远程访问");
-            return;
-        }
-        if (user.getUsername().equals(username)) {
-            this.username = username;
-            if (Objects.isNull(sessionPool.get(username))) {
-                sessionPool.put(username, session);
-                AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "准备远程访问设备");
-            }
+        this.username = username;
+        if (Objects.isNull(sessionPool.get(username))) {
+            sessionPool.put(username, session);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "准备远程访问设备");
         }
     }
 
@@ -81,15 +72,15 @@ public class WebRemoteConnect {
             return;
         }
         AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "收到远程登录消息：" + message);
-//        RemoteConnetDto dto = JSONUtil.toBean(message, RemoteConnetDto.class);
-//        if ("SSH".equals(dto.getMsgType())) {
-//            this.ssh(dto, session);
-//            return;
-//        }
-//
-//        if ("TELNET".equals(dto.getMsgType())) {
-//            this.telnet(dto, session);
-//        }
+        RemoteConnetDto dto = JSONUtil.toBean(message, RemoteConnetDto.class);
+        if ("SSH".equals(dto.getMsgType())) {
+            this.ssh(dto, session);
+            return;
+        }
+
+        if ("TELNET".equals(dto.getMsgType())) {
+            this.telnet(dto, session);
+        }
     }
 
     private void telnet(RemoteConnetDto dto, Session session) {
