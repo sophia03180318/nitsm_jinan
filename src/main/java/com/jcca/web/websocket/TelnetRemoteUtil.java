@@ -8,11 +8,6 @@ import java.io.PrintStream;
 
 public class TelnetRemoteUtil {
 
-    private TelnetClient telnetClient;
-
-    public TelnetRemoteUtil() {
-        this.telnetClient = new TelnetClient();
-    }
 
     /**
      * 连接到远程服务器
@@ -21,8 +16,10 @@ public class TelnetRemoteUtil {
      * @param port 端口号
      * @throws IOException 连接异常
      */
-    public void connect(String host, int port) throws IOException {
+    public static TelnetClient connect(String host, int port) throws IOException {
+        TelnetClient telnetClient = new TelnetClient();
         telnetClient.connect(host, port);
+        return telnetClient;
     }
 
     /**
@@ -32,7 +29,7 @@ public class TelnetRemoteUtil {
      * @return 命令执行结果
      * @throws IOException IO异常
      */
-    public String executeCommand(String command) throws IOException {
+    public static String executeCommand(TelnetClient telnetClient, String command) throws IOException {
         PrintStream out = new PrintStream(telnetClient.getOutputStream());
         out.println(command);
         out.flush();
@@ -54,7 +51,7 @@ public class TelnetRemoteUtil {
      * @param password 密码
      * @throws IOException IO异常
      */
-    public void sendCredentials(String username, String password) throws IOException {
+    public static void sendCredentials(TelnetClient telnetClient, String username, String password) throws IOException {
         PrintStream out = new PrintStream(telnetClient.getOutputStream());
         out.println(username);
         out.flush();
@@ -65,7 +62,7 @@ public class TelnetRemoteUtil {
     /**
      * 关闭Telnet连接
      */
-    public void disconnect() {
+    public static void disconnect(TelnetClient telnetClient) {
         try {
             if (telnetClient.isConnected()) {
                 telnetClient.disconnect();

@@ -2,18 +2,18 @@ package com.jcca.web.websocket;
 
 import cn.hutool.json.JSONUtil;
 import com.jcca.admin.system.entity.SysUser;
-import com.jcca.admin.system.service.SysUserService;
 import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
-import com.jcca.common.utils.SpringContextUtil;
-import com.jcca.web2.enums.DangerCommand;
 import com.jcraft.jsch.JSchException;
+import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,17 +34,20 @@ public class WebRemoteConnect {
     private Map<String, Session> sessionPool = new ConcurrentHashMap<>();
 
     private Map<String, com.jcraft.jsch.Session> sshMap = new ConcurrentHashMap<>();
+    private Map<String, TelnetClient> telnetMap = new ConcurrentHashMap<>();
 
     @OnOpen
     public synchronized void onOpen(Session session, @PathParam(value = "username") String username) {
-        SysUserService userService = SpringContextUtil.getBean(SysUserService.class);
-        SysUser user = userService.findByUsername(username);
-        if (Objects.nonNull(user) && user.getUsername().equals(username)) {
+        SysUser user = ShiroUtil.getSubject();
+        if (Objects.isNull(user)) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "未登录用户不允许远程访问");
+            return;
+        }
+        if (user.getUsername().equals(username)) {
             this.username = username;
             if (Objects.isNull(sessionPool.get(username))) {
                 sessionPool.put(username, session);
-                AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username,
-                        "准备远程访问设备");
+                AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "准备远程访问设备");
             }
         }
     }
@@ -53,19 +56,22 @@ public class WebRemoteConnect {
     public synchronized void onClose() {
         if (Objects.nonNull(sessionPool.get(username))) {
             sessionPool.remove(username);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username,
-                    "已结束远程访问");
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "已结束远程访问");
         }
         if (Objects.nonNull(sshMap.get(username))) {
             com.jcraft.jsch.Session remove = sshMap.remove(username);
             SshRemoteUtil.disconnect(remove);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username,
-                    "已断开远程连接");
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "已断开SSH远程连接");
+        }
+        if (Objects.nonNull(telnetMap.get(username))) {
+            TelnetClient remove = telnetMap.remove(username);
+            TelnetRemoteUtil.disconnect(remove);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "已断开TELNET远程连接");
         }
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) {
+    public synchronized void onMessage(String message, Session session) {
         String path = session.getRequestURI().getPath();
 
         String username = path.substring(path.lastIndexOf("/") + 1);
@@ -86,7 +92,36 @@ public class WebRemoteConnect {
 
     private void telnet(RemoteConnetDto dto, Session session) {
         dto.setMessage("TELNET连接测试");
-        session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+        TelnetClient connect = telnetMap.get(username);
+        if (Objects.isNull(connect)) {
+            String host = dto.getHost();
+            String passwd = dto.getPasswd();
+            if (StringUtils.isEmpty(host) || StringUtils.isEmpty(passwd)) {
+                dto.setMessage("主机IP、密码均不能为空");
+                session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+                return;
+            }
+            try {
+                connect = TelnetRemoteUtil.connect(dto.getHost(), dto.getPort());
+                telnetMap.put(username, connect);
+            } catch (IOException e) {
+                dto.setMessage(e.getMessage());
+                session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+                telnetMap.remove(username);
+                return;
+            }
+        }
+
+        try {
+            String s = TelnetRemoteUtil.executeCommand(connect, dto.getMessage());
+            dto.setMessage(s);
+            session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+        } catch (IOException e) {
+            dto.setMessage(e.getMessage());
+            session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+            telnetMap.remove(username);
+        }
+
     }
 
     private void ssh(RemoteConnetDto dto, Session session) {
@@ -106,14 +141,7 @@ public class WebRemoteConnect {
             } catch (JSchException e) {
                 dto.setMessage(e.getMessage());
                 session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
-                return;
-            }
-        }
-        DangerCommand[] values = DangerCommand.values();
-        for (DangerCommand value : values) {
-            if (dto.getMessage().contains(value.getCommand())) {
-                dto.setMessage("不允许的操作：" + dto.getMessage());
-                session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+                sshMap.remove(username);
                 return;
             }
         }
@@ -124,11 +152,14 @@ public class WebRemoteConnect {
         } catch (Exception e) {
             dto.setMessage(e.getMessage());
             session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+            sshMap.remove(username);
         }
     }
 
     @OnError
     public void onError(Throwable error) {
+        sshMap.remove(username);
+        telnetMap.remove(username);
         AppLogUtils.buildLogError(LogFunctionEnum.REAL_TIME_MSG, "远程连接发生错误", error);
     }
 }
