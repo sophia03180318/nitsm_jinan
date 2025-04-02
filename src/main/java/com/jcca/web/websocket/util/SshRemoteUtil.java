@@ -67,14 +67,14 @@ public class SshRemoteUtil {
                 }
             } catch (IOException e) {
                 disconnect(session);
-                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接读取数据异常", JSONUtil.toJsonStr(dto));
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接读取数据异常", dto);
             } finally {
                 try {
                     assert inputStream != null;
                     inputStream.close();
                 } catch (IOException e) {
                     disconnect(session);
-                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接流关闭异常", JSONUtil.toJsonStr(dto));
+                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接流关闭异常", dto);
                 }
             }
         });

@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since: 2.1.4.0
  */
 @Component
-@ServerEndpoint("/ws/re")
+@ServerEndpoint("/ws/re/{username}")
 public class WebRemoteConnect {
 
     private String username;
