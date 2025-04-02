@@ -42,7 +42,7 @@ public class SshRemoteUtil {
         java.util.Properties config = new java.util.Properties();
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
-        session.setTimeout(9000);
+        session.setTimeout(30000);
         session.connect();
         return session;
     }
