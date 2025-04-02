@@ -1,13 +1,28 @@
 package com.jcca.web.websocket.util;
 
-import com.jcraft.jsch.*;
+import cn.hutool.json.JSONUtil;
+import com.jcca.web.websocket.RemoteConnetDto;
+import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
-import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static com.jcca.web.websocket.WebRemoteConnect.SESSION_POOL;
 
 public class SshRemoteUtil {
+
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private static final Map<String, ChannelShell> shellMap = new ConcurrentHashMap<>();
 
     /**
      * 连接到远程服务器
@@ -30,35 +45,47 @@ public class SshRemoteUtil {
         return session;
     }
 
-    /**
-     * 执行远程服务器命令并返回结果
-     *
-     * @param session 已建立的SSH会话连接，必须为已成功连接的Session对象
-     * @param command 需要在远程服务器上执行的Linux命令字符串
-     * @return 命令标准输出的完整内容，包含多行执行结果
-     * @throws JSchException       当SSH通道建立失败或连接异常时抛出
-     * @throws java.io.IOException 当读取命令输出流发生I/O错误时抛出
-     */
-    public static String executeCommand(String itsmUsername, Session session, String command) throws JSchException, java.io.IOException {
-        BufferedReader reader = null;
-        Channel channel = null;
-
-        StringBuilder sb = new StringBuilder();
-
-        String channelCommand = "exec";
-        channel = session.openChannel(channelCommand);
-        ((ChannelExec) channel).setCommand(command);
-        channel.setInputStream(null);
-        ((ChannelExec) channel).setErrStream(System.err);
+    public static void shellConnect(RemoteConnetDto dto, Session session) throws JSchException {
+        ChannelShell channel = (ChannelShell) session.openChannel("shell");
         channel.connect();
-        InputStream in = channel.getInputStream();
-        reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String buf;
-        while ((buf = reader.readLine()) != null) {
-            sb.append(buf).append("  ");
+
+        shellMap.put(dto.getItsmUsername(), channel);
+        executorService.execute(() -> {
+            InputStream inputStream = null;
+            try {
+                inputStream = channel.getInputStream();
+                byte[] tmp = new byte[1024];
+                int i = 0;
+                while ((i = inputStream.read(tmp, 0, 1024)) != -1) {
+                    String s = new String(tmp, 0, i);
+                    dto.setMessage(s);
+                    SESSION_POOL.get(dto.getItsmUsername()).getBasicRemote().sendText(JSONUtil.toJsonStr(dto));
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                try {
+                    assert inputStream != null;
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public static void execCommand(String itsmUsername, String command) {
+        try {
+            ChannelShell shell = shellMap.get(itsmUsername);
+            if (Objects.isNull(shell)) {
+                return;
+            }
+            OutputStream os = shell.getOutputStream();
+            os.write((command + "\n").getBytes());
+            os.flush();
+        } catch (IOException e) {
+
         }
-        channel.disconnect();
-        return sb.toString();
     }
 
     /**

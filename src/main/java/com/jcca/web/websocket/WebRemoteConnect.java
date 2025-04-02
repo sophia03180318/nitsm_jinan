@@ -24,9 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since: 2.1.4.0
  */
 @Component
-@ServerEndpoint("/ws/re/{username}")
+@ServerEndpoint("/ws/re")
 public class WebRemoteConnect {
-
 
     private String username;
 
@@ -126,13 +125,15 @@ public class WebRemoteConnect {
             }
             try {
                 connect = SshRemoteUtil.connect(host, dto.getPort() == null ? 22 : dto.getPort(), username1, passwd);
+                SshRemoteUtil.shellConnect(dto, connect);
                 SSH_MAP.put(username, connect);
             } catch (Exception e) {
                 dto.setMessage(e.getMessage());
                 session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
                 SSH_MAP.remove(username);
-                return;
+                SshRemoteUtil.disconnect(connect);
             }
+            return;
         }
 
         if (StringUtils.isEmpty(dto.getMessage())) {
@@ -144,19 +145,19 @@ public class WebRemoteConnect {
         }
 
         try {
-            String s = SshRemoteUtil.executeCommand(dto.getItsmUsername(), connect, dto.getMessage());
-            dto.setMessage(s);
-            session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
+            SshRemoteUtil.execCommand(dto.getItsmUsername(), dto.getMessage());
         } catch (Exception e) {
             dto.setMessage(e.getMessage());
             session.getAsyncRemote().sendText(JSONUtil.toJsonStr(dto));
             SSH_MAP.remove(username);
+            SshRemoteUtil.disconnect(connect);
         }
     }
 
     @OnError
     public void onError(Throwable error) {
-        SSH_MAP.remove(username);
+        com.jcraft.jsch.Session connect = SSH_MAP.remove(username);
+        SshRemoteUtil.disconnect(connect);
         TELNET_MAP.remove(username);
         AppLogUtils.buildLogError(LogFunctionEnum.REAL_TIME_MSG, "远程连接发生错误", error);
     }
