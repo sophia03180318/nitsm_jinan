@@ -8,6 +8,7 @@ import com.jcca.web.asset.vo.CabinetVo;
 import com.jcca.web.asset.vo.DetailCabinetVo;
 import com.jcca.web.graph.vo.GraphStatusVo;
 import com.jcca.web2.dto.CabinetBaseInfoQueryDto;
+import com.jcca.web2.entity.FileRelate;
 import com.jcca.web2.vo.CabinetBaseInfoVo;
 import com.jcca.web2.vo.CabinetTopoDetailVo;
 
@@ -127,4 +128,6 @@ public interface CabinetService extends IService<Cabinet> {
      * 筛选  包含这个名称或IP资产的机柜 ID
      * */
     List<String> topoCabinetByAssetStr(String roomId, String keyword);
+
+    List<FileRelate> findAssetInCabinet(String cabinetId);
 }

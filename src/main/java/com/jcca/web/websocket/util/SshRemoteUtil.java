@@ -42,7 +42,7 @@ public class SshRemoteUtil {
         java.util.Properties config = new java.util.Properties();
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
-        session.setTimeout(3000);
+        session.setTimeout(9000);
         session.connect();
         return session;
     }
@@ -60,7 +60,7 @@ public class SshRemoteUtil {
                 byte[] tmp = new byte[1024];
                 int i = 0;
                 while ((i = inputStream.read(tmp, 0, 1024)) != -1) {
-                    String msg = new String(tmp, 0, i) + "\n";
+                    String msg = new String(tmp, 0, i);
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH命令执行结果", msg);
                     dto.setMessage(msg);
                     SESSION_POOL.get(dto.getItsmUsername()).getBasicRemote().sendText(JSONUtil.toJsonStr(dto));

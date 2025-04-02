@@ -8,6 +8,7 @@ import com.jcca.web.asset.vo.CabinetVo;
 import com.jcca.web.asset.vo.DetailCabinetVo;
 import com.jcca.web.graph.vo.GraphStatusVo;
 import com.jcca.web2.dto.CabinetBaseInfoQueryDto;
+import com.jcca.web2.entity.FileRelate;
 import com.jcca.web2.vo.CabinetBaseInfoVo;
 import com.jcca.web2.vo.CabinetTopoDetailVo;
 import org.apache.ibatis.annotations.Param;
@@ -104,4 +105,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
     @Select(value = "select c.* from cabinet c  join room r on c.room_id = r.id where r.org_id = #{orgId} order by c.column_index")
     List<Cabinet> findCabinetByOrgId(@Param("orgId") String orgId);
 
+    @Select("select t.id itemId, t.name itemName, '96' itemType from asset t left join asset_attach a on t.id = a.cabinet_id where a.cabinet_id = #{cabinetId} and t.is_del = 1")
+    List<FileRelate> findAssetInCabinet(String cabinetId);
 }

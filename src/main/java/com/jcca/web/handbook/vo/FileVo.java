@@ -51,7 +51,7 @@ public class FileVo implements Serializable {
     /**
      * 元素名称
      */
-    private Integer itemName;
+    private String itemName;
 
     private String viewUrl;
 }

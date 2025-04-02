@@ -73,7 +73,7 @@ public class AddFileReq implements Serializable {
     /**
      * 元素名称
      */
-    private Integer itemName;
+    private String itemName;
     /**
      * 元素类型，OrgTypeConst
      */

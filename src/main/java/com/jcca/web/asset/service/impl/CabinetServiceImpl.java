@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
@@ -19,13 +18,13 @@ import com.jcca.web.asset.entity.AssetAttach;
 import com.jcca.web.asset.entity.Cabinet;
 import com.jcca.web.asset.entity.Room;
 import com.jcca.web.asset.service.AssetAttachService;
-import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.asset.vo.CabinetVo;
 import com.jcca.web.asset.vo.DetailCabinetVo;
 import com.jcca.web.graph.vo.GraphStatusVo;
 import com.jcca.web2.dto.CabinetBaseInfoQueryDto;
+import com.jcca.web2.entity.FileRelate;
 import com.jcca.web2.vo.CabinetBaseInfoVo;
 import com.jcca.web2.vo.CabinetTopoDetailVo;
 import org.springframework.stereotype.Service;
@@ -50,10 +49,6 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
     private AssetAttachService assetAttachService;
     @Resource
     private RoomService roomService;
-    @Resource
-    private SysOrgService orgService;
-    @Resource
-    private AssetService assetService;
 
     /**
      * 根据机房ID获取机柜列表
@@ -262,6 +257,11 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
 
         return cabinetMapper.topoCabinetByAssetStr(roomId, keyword);
 
+    }
+
+    @Override
+    public List<FileRelate> findAssetInCabinet(String cabinetId) {
+        return cabinetMapper.findAssetInCabinet(cabinetId);
     }
 
 }

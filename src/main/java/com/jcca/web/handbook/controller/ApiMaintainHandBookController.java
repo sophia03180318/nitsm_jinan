@@ -391,7 +391,7 @@ public class ApiMaintainHandBookController {
 
         fileService.save(sysFile);
 
-        if (true) {
+        if (file.getViewFlag()) {
             file.setId(sysFile.getId());
             this.saveRelate(file);
         }

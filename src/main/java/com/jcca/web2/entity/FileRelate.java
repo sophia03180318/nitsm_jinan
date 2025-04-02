@@ -37,7 +37,7 @@ public class FileRelate extends Model<FileRelate> {
     /**
      * 元素名称
      */
-    private Integer itemName;
+    private String itemName;
     /**
      * 备注
      */

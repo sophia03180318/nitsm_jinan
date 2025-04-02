@@ -23,13 +23,11 @@ import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.handbook.controller.bean.FolderQueryReq;
 import com.jcca.web.handbook.vo.FolderVo;
+import com.jcca.web2.entity.FileRelate;
 import com.jcca.web2.vo.MaintainHandBookVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -56,6 +54,22 @@ public class ApiMaintainHandBookControllerV2 {
     private SysOrgService orgService;
     @Resource
     private RoomService roomService;
+
+
+    @ApiOperation(value = "查询维护手册关联元素")
+    @GetMapping("/getItem")
+    public ResultVo<Object> getItem(String cabinetId) {
+
+        List<FileRelate> voList = cabinetServ.findAssetInCabinet(cabinetId);
+        Cabinet one = cabinetServ.getById(cabinetId);
+        FileRelate vo = new FileRelate();
+        vo.setItemId(one.getId());
+        vo.setItemName(one.getName());
+        vo.setItemType(Integer.parseInt(OrgTypeConst.CABINET + ""));
+        voList.add(vo);
+
+        return ResultVoUtil.success(voList);
+    }
 
     /**
      * 维护手册文件分页查询
@@ -112,7 +126,7 @@ public class ApiMaintainHandBookControllerV2 {
             cabinetIds.add(req.getOrgId());
         }
 
-        if (CollUtil.isEmpty(cabinetIds) || cabinetIds.size() < 1) {
+        if (CollUtil.isEmpty(cabinetIds) || cabinetIds.isEmpty()) {
             return ResultVoUtil.success("该组织下没有机柜！", pageResp);
         }
 
@@ -123,7 +137,7 @@ public class ApiMaintainHandBookControllerV2 {
 
         List<SysFolder> folderList = folderService.list(wrapper);
         QueryWrapper<SysFile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("FOLDER_ID",cabinetIds);
+        queryWrapper.in("FOLDER_ID", cabinetIds);
         queryWrapper.eq("STATUS", StatusEnum.OK.getCode());
         List<SysFile> fileList = fileService.list(queryWrapper);
 
