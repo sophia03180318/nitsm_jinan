@@ -1,6 +1,8 @@
 package com.jcca.web.websocket.util;
 
 import cn.hutool.json.JSONUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.web.websocket.RemoteConnetDto;
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
@@ -50,6 +52,7 @@ public class SshRemoteUtil {
         channel.connect();
 
         shellMap.put(dto.getItsmUsername(), channel);
+
         executorService.execute(() -> {
             InputStream inputStream = null;
             try {
@@ -57,18 +60,21 @@ public class SshRemoteUtil {
                 byte[] tmp = new byte[1024];
                 int i = 0;
                 while ((i = inputStream.read(tmp, 0, 1024)) != -1) {
-                    String s = new String(tmp, 0, i);
-                    dto.setMessage(s);
+                    String msg = new String(tmp, 0, i) + "\n";
+                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH命令执行结果", msg);
+                    dto.setMessage(msg);
                     SESSION_POOL.get(dto.getItsmUsername()).getBasicRemote().sendText(JSONUtil.toJsonStr(dto));
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (IOException e) {
+                disconnect(session);
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接读取数据异常", JSONUtil.toJsonStr(dto));
             } finally {
                 try {
                     assert inputStream != null;
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    disconnect(session);
+                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接流关闭异常", JSONUtil.toJsonStr(dto));
                 }
             }
         });
@@ -84,7 +90,7 @@ public class SshRemoteUtil {
             os.write((command + "\n").getBytes());
             os.flush();
         } catch (IOException e) {
-
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接执行命令异常", command);
         }
     }
 

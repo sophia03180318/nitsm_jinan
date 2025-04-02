@@ -31,15 +31,15 @@ public class WebRemoteConnect {
 
     public static Map<String, Session> SESSION_POOL = new ConcurrentHashMap<>();
 
-    private Map<String, com.jcraft.jsch.Session> SSH_MAP = new ConcurrentHashMap<>();
-    private Map<String, TelnetClient> TELNET_MAP = new ConcurrentHashMap<>();
+    public Map<String, com.jcraft.jsch.Session> SSH_MAP = new ConcurrentHashMap<>();
+    public Map<String, TelnetClient> TELNET_MAP = new ConcurrentHashMap<>();
 
     @OnOpen
     public synchronized void onOpen(Session session, @PathParam(value = "username") String username) {
         this.username = username;
         if (Objects.isNull(SESSION_POOL.get(username))) {
             SESSION_POOL.put(username, session);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "准备远程访问设备");
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, username, "准备远程访问设备");
         }
     }
 
@@ -47,23 +47,23 @@ public class WebRemoteConnect {
     public synchronized void onClose() {
         if (Objects.nonNull(SESSION_POOL.get(username))) {
             SESSION_POOL.remove(username);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "已结束远程访问");
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, username, "已结束远程访问");
         }
         if (Objects.nonNull(SSH_MAP.get(username))) {
             com.jcraft.jsch.Session remove = SSH_MAP.remove(username);
             SshRemoteUtil.disconnect(remove);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "已断开SSH远程连接");
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, username, "已断开SSH远程连接");
         }
         if (Objects.nonNull(TELNET_MAP.get(username))) {
             TelnetClient remove = TELNET_MAP.remove(username);
             TelnetRemoteUtil.disconnect(remove);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "已断开TELNET远程连接");
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, username, "已断开TELNET远程连接");
         }
     }
 
     @OnMessage
     public synchronized void onMessage(String message, Session session) {
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REAL_TIME_MSG, username, "收到远程登录消息：" + message);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, username, "收到远程登录消息：" + message);
         RemoteConnetDto dto = JSONUtil.toBean(message, RemoteConnetDto.class);
         if ("SSH".equals(dto.getMsgType())) {
             this.ssh(dto, session);
@@ -159,6 +159,6 @@ public class WebRemoteConnect {
         com.jcraft.jsch.Session connect = SSH_MAP.remove(username);
         SshRemoteUtil.disconnect(connect);
         TELNET_MAP.remove(username);
-        AppLogUtils.buildLogError(LogFunctionEnum.REAL_TIME_MSG, "远程连接发生错误", error);
+        AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "远程连接发生错误", error);
     }
 }

@@ -13,6 +13,7 @@ public interface LogFunctionConstant {
     String LOGIN_WEB = "1001";
     String LOGIN_ADMIN = "1002";
     String REAL_TIME_MSG = "1003";
+    String REMOTE_CONNECT = "1004";
 
     //===========================================系统管理============================================
 

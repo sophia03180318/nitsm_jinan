@@ -21,6 +21,7 @@ public enum LogFunctionEnum {
     LOGIN_WEB(LogFunctionConstant.LOGIN_WEB, "登录/退出", "前端登录"),
     LOGIN_ADMIN(LogFunctionConstant.LOGIN_ADMIN, "登录/退出", "后台登录"),
     REAL_TIME_MSG(LogFunctionConstant.REAL_TIME_MSG, "实时消息", ""),
+    REMOTE_CONNECT(LogFunctionConstant.REMOTE_CONNECT, "远程访问", ""),
 
     //===========================================系统管理============================================
 
