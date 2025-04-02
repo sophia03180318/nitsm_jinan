@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -60,8 +61,11 @@ public class ApiMaintainHandBookControllerV2 {
     @GetMapping("/getItem")
     public ResultVo<Object> getItem(String cabinetId) {
 
-        List<FileRelate> voList = cabinetServ.findAssetInCabinet(cabinetId);
         Cabinet one = cabinetServ.getById(cabinetId);
+        if (Objects.isNull(one)) {
+            return ResultVoUtil.error("未查询到机柜：" + cabinetId);
+        }
+        List<FileRelate> voList = cabinetServ.findAssetInCabinet(cabinetId);
         FileRelate vo = new FileRelate();
         vo.setItemId(one.getId());
         vo.setItemName(one.getName());

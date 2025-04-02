@@ -47,11 +47,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,7 +93,7 @@ public class ApiMaintainHandBookController {
     @Value("${project.upload.static-url}")
     private String staticUrl;
     @Value("${project.upload.file-path}")
-    private String filePath;
+    private String staticFilePath;
 
     /**
      * 维护手册文件夹分页查询
@@ -392,11 +395,33 @@ public class ApiMaintainHandBookController {
         fileService.save(sysFile);
 
         if (file.getViewFlag()) {
-            file.setId(sysFile.getId());
-            this.saveRelate(file);
+            String orignName = file.getOrignName();
+            String type = orignName.substring(orignName.lastIndexOf(".") + 1);
+            if ("pdf".equalsIgnoreCase(type) || isImg(staticFilePath.replace("upload", "") + sysFile.getFilePath())) {
+                file.setId(sysFile.getId());
+                this.saveRelate(file);
+            } else {
+                return ResultVoUtil.error("关联文件应为PDF或图片格式");
+            }
         }
 
         return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    private boolean isImg(String filePath) {
+        File pig = new File(filePath);
+        if (pig.exists()) {
+            Image img = null;
+            try {
+                img = ImageIO.read(pig);
+                return img != null && img.getWidth(null) > 0 && img.getHeight(null) > 0;
+            } catch (Exception e) {
+                return false;
+            } finally {
+                img = null;
+            }
+        }
+        return false;
     }
 
     private void saveRelate(AddFileReq file) {
