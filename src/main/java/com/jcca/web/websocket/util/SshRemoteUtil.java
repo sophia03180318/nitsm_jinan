@@ -8,6 +8,7 @@ import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,41 +50,52 @@ public class SshRemoteUtil {
 
     public static void shellConnect(RemoteConnetDto dto, Session session) throws JSchException {
         ChannelShell channel = (ChannelShell) session.openChannel("shell");
-        channel.connect();
-
+        channel.connect(3000);
+        channel.setPtySize(80, 24, 640, 480);
         shellMap.put(dto.getItsmUsername(), channel);
 
         executorService.execute(() -> {
             InputStream inputStream = null;
+            byte[] tmp = new byte[1024];
+            int i;
             try {
                 inputStream = channel.getInputStream();
-                byte[] tmp = new byte[1024];
-                int i = 0;
                 while ((i = inputStream.read(tmp, 0, 1024)) != -1) {
                     String msg = new String(tmp, 0, i);
-                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH命令执行结果", msg);
+                    msg = msg.replace(temComd + "\r\n", "");
+                    if (StringUtils.isEmpty(msg)) continue;
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "SSH命令执行结果", msg);
                     dto.setMessage(msg);
                     SESSION_POOL.get(dto.getItsmUsername()).getBasicRemote().sendText(JSONUtil.toJsonStr(dto));
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 disconnect(session);
+                shellMap.remove(dto.getItsmUsername());
                 AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接读取数据异常", dto);
             } finally {
                 try {
                     assert inputStream != null;
                     inputStream.close();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     disconnect(session);
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接流关闭异常", dto);
                 }
+                channel.disconnect();
             }
         });
     }
 
+    private static String temComd = "";
+
     public static void execCommand(String itsmUsername, String command) {
+        temComd = command;
         try {
             ChannelShell shell = shellMap.get(itsmUsername);
             if (Objects.isNull(shell)) {
+                return;
+            }
+            if (!shell.isConnected()) {
+                shellMap.remove(itsmUsername);
                 return;
             }
             OutputStream os = shell.getOutputStream();
@@ -91,6 +103,7 @@ public class SshRemoteUtil {
             os.flush();
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH远程连接执行命令异常", command);
+            shellMap.remove(itsmUsername);
         }
     }
 

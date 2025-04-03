@@ -139,10 +139,6 @@ public class WebRemoteConnect {
         if (StringUtils.isEmpty(dto.getMessage())) {
             return;
         }
-        dto.setMessage(dto.getMessage().replaceAll("\r", ""));
-        if (StringUtils.isEmpty(dto.getMessage())) {
-            return;
-        }
 
         try {
             SshRemoteUtil.execCommand(dto.getItsmUsername(), dto.getMessage());
