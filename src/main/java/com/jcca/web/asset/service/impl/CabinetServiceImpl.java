@@ -181,6 +181,7 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
         }
         List<CabinetBaseAssetVo> assetList = baseInfoVo.getAssetList();
         for (CabinetBaseAssetVo assetVo : assetList) {
+            if (StringUtils.isEmpty(assetVo.getAssetId())) continue;
             relate = fileRelateService.getByItemId(assetVo.getAssetId());
             if (Objects.nonNull(relate)) {
                 assetVo.setViewUrl(relate.getViewUrl());
