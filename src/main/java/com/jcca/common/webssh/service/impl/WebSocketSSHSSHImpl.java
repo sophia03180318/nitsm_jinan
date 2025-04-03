@@ -6,7 +6,7 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.webssh.constant.ConstantPool;
 import com.jcca.common.webssh.pojo.ConnectInfo;
 import com.jcca.common.webssh.pojo.WebSSHData;
-import com.jcca.common.webssh.service.WebSocketService;
+import com.jcca.common.webssh.service.WebSocketSSHService;
 import com.jcraft.jsch.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
  * @Date: 2020/3/8
  */
 @Service
-public class WebSocketSSHImpl implements WebSocketService {
+public class WebSocketSSHSSHImpl implements WebSocketSSHService {
     private static Map<String, ConnectInfo> sshMap = new ConcurrentHashMap<>();
     private ExecutorService executorService = Executors.newCachedThreadPool();
 

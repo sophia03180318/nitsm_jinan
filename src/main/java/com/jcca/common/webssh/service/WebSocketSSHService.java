@@ -9,7 +9,7 @@ import java.io.IOException;
  * @Author: NoCortY
  * @Date: 2020/3/7
  */
-public interface WebSocketService {
+public interface WebSocketSSHService {
     /**
      * @Description: 初始化ssh连接
      * @Param:

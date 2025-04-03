@@ -4,7 +4,8 @@ import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.webssh.pojo.WebSSHData;
-import com.jcca.common.webssh.service.WebSocketService;
+import com.jcca.common.webssh.service.WebSocketSSHService;
+import com.jcca.common.webssh.service.WebSocketTelnetService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
@@ -20,7 +21,9 @@ import java.util.Objects;
 @Component
 public class WebSSHWebSocketHandler implements WebSocketHandler {
     @Resource
-    private WebSocketService webSocketService;
+    private WebSocketSSHService webSocketSSHService;
+    @Resource
+    private WebSocketTelnetService webSocketTelnetService;
 
     /**
      * @Description: 用户连接上WebSocket的回调
@@ -34,7 +37,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
         String path = Objects.requireNonNull(webSocketSession.getUri()).getPath();
         String username = path.substring(path.lastIndexOf("/") + 1);
         AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "准备远程访问设备", username);
-        webSocketService.initConnection(webSocketSession);
+        webSocketSSHService.initConnection(webSocketSession);
     }
 
     /**
@@ -51,11 +54,12 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
             String payload = ((TextMessage) webSocketMessage).getPayload();
             WebSSHData data = JSONUtil.toBean(payload, WebSSHData.class);
             if ("SSH".equals(data.getMsgType())) {
-                webSocketService.recvHandle(payload, webSocketSession);
+                webSocketSSHService.recvHandle(payload, webSocketSession);
                 return;
             }
             if ("TELNET".equals(data.getMsgType())) {
-                webSocketService.recvHandle(payload, webSocketSession);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "telnet连接测试", webSocketMessage);
+                webSocketTelnetService.recvHandle(payload, webSocketSession);
             }
         }
     }
@@ -86,7 +90,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
         String path = Objects.requireNonNull(webSocketSession.getUri()).getPath();
         String username = path.substring(path.lastIndexOf("/") + 1);
         AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "用户断开远程访问连接", username);
-        webSocketService.close(webSocketSession);
+        webSocketSSHService.close(webSocketSession);
     }
 
     @Override

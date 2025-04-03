@@ -1,6 +1,6 @@
 package com.jcca.common.webssh.service.impl;
 
-import com.jcca.common.webssh.service.WebSocketService;
+import com.jcca.common.webssh.service.WebSocketTelnetService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
  * @since: 2.1.5.0
  */
 @Service
-public class WebSocketTelnetImpl implements WebSocketService {
+public class WebSocketTelnetImpl implements WebSocketTelnetService {
 
     private static Map<String, Object> telnetMap = new ConcurrentHashMap<>();
     private ExecutorService executorService = Executors.newCachedThreadPool();

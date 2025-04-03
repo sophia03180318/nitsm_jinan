@@ -3,6 +3,7 @@ package com.jcca.common.webssh.pojo;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import lombok.Data;
+import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
@@ -15,4 +16,5 @@ public class ConnectInfo {
     private WebSocketSession webSocketSession;
     private JSch jSch;
     private Channel channel;
+    private TelnetClient telnetClient;
 }
