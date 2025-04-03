@@ -37,9 +37,9 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
         String path = Objects.requireNonNull(webSocketSession.getUri()).getPath();
         String username = path.substring(path.lastIndexOf("/") + 1);
         AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "准备远程访问设备", username);
-        webSocketSSHService.initConnection(webSocketSession);
+        webSocketSSHService.initConnection(webSocketSession, username);
 
-        webSocketTelnetService.initConnection(webSocketSession);
+        webSocketTelnetService.initConnection(webSocketSession, username);
     }
 
     /**
@@ -74,9 +74,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
      */
     @Override
     public void handleTransportError(WebSocketSession webSocketSession, Throwable throwable) throws Exception {
-        String path = Objects.requireNonNull(webSocketSession.getUri()).getPath();
-        String username = path.substring(path.lastIndexOf("/") + 1);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "数据传输错误", username);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "数据传输错误", throwable.getMessage());
     }
 
     /**
@@ -88,9 +86,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
-        String path = Objects.requireNonNull(webSocketSession.getUri()).getPath();
-        String username = path.substring(path.lastIndexOf("/") + 1);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "用户断开远程访问连接", username);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "用户断开远程访问连接", closeStatus);
         webSocketSSHService.close(webSocketSession);
     }
 

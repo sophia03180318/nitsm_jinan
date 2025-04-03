@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public interface WebSocketTelnetService {
 
-    void initConnection(WebSocketSession session);
+    void initConnection(WebSocketSession session, String username);
 
 
     void recvHandle(String buffer, WebSocketSession session);
@@ -21,5 +21,5 @@ public interface WebSocketTelnetService {
     void sendMessage(WebSocketSession session, byte[] buffer) throws IOException;
 
 
-    void close(WebSocketSession session);
+    void close(WebSocketSession session, String username);
 }

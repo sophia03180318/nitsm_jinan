@@ -17,7 +17,7 @@ public interface WebSocketSSHService {
      * @Author: NoCortY
      * @Date: 2020/3/7
      */
-    void initConnection(WebSocketSession session);
+    void initConnection(WebSocketSession session, String username);
 
     /**
      * @Description: 处理客户段发的数据
@@ -44,5 +44,5 @@ public interface WebSocketSSHService {
      * @Author: NoCortY
      * @Date: 2020/3/7
      */
-    void close(WebSocketSession session);
+    void close(WebSocketSession session, String username);
 }

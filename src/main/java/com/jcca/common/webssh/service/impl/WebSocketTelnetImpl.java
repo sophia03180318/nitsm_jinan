@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,14 +35,12 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override
-    public void initConnection(WebSocketSession session) {
+    public void initConnection(WebSocketSession session, String username) {
         TelnetClient client = new TelnetClient();
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setTelnetClient(client);
         connectInfo.setWebSocketSession(session);
 
-        String path = Objects.requireNonNull(session.getUri()).getPath();
-        String username = path.substring(path.lastIndexOf("/") + 1);
         telnetMap.put(username, connectInfo);
     }
 
@@ -79,6 +76,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                     }
                 } catch (IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet连接异常", e.getMessage());
+                    this.close(webSocketSession, itsmUsername);
                 }
             });
         } else if (ConstantPool.WEBSSH_OPERATE_COMMAND.equals(webRemoteData.getOperate())) {
@@ -90,6 +88,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 outputStream.flush();
             } catch (IOException e) {
                 AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet读取数据异常", e.getMessage());
+                this.close(webSocketSession, itsmUsername);
             }
 
         }
@@ -101,9 +100,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
     }
 
     @Override
-    public void close(WebSocketSession session) {
-        String path = Objects.requireNonNull(session.getUri()).getPath();
-        String username = path.substring(path.lastIndexOf("/") + 1);
+    public void close(WebSocketSession session, String username) {
         ConnectInfo connectInfo = telnetMap.get(username);
         try {
             if (connectInfo != null) {
