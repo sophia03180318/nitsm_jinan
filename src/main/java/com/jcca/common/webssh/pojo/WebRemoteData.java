@@ -8,7 +8,7 @@ import lombok.Data;
  * @Date: 2020/3/8
  */
 @Data
-public class WebSSHData {
+public class WebRemoteData {
     private String operate;
     private String itsmUsername;
     // 消息类型 SSH TELNET

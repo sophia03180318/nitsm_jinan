@@ -5,7 +5,7 @@ import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.webssh.constant.ConstantPool;
 import com.jcca.common.webssh.pojo.ConnectInfo;
-import com.jcca.common.webssh.pojo.WebSSHData;
+import com.jcca.common.webssh.pojo.WebRemoteData;
 import com.jcca.common.webssh.service.WebSocketSSHService;
 import com.jcraft.jsch.*;
 import org.springframework.stereotype.Service;
@@ -62,25 +62,25 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
     @Override
     public void recvHandle(String buffer, WebSocketSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
-        WebSSHData webSSHData = null;
+        WebRemoteData webRemoteData = null;
         try {
-            webSSHData = objectMapper.readValue(buffer, WebSSHData.class);
+            webRemoteData = objectMapper.readValue(buffer, WebRemoteData.class);
         } catch (IOException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "读取前端数据异常", e.getMessage());
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH读取前端数据异常", e.getMessage());
             return;
         }
-        if (StringUtils.isEmpty(webSSHData.getMessage())) {
-            webSSHData.setOperate(ConstantPool.WEBSSH_OPERATE_CONNECT);
+        if (StringUtils.isEmpty(webRemoteData.getMessage())) {
+            webRemoteData.setOperate(ConstantPool.WEBSSH_OPERATE_CONNECT);
         } else {
-            webSSHData.setOperate(ConstantPool.WEBSSH_OPERATE_COMMAND);
+            webRemoteData.setOperate(ConstantPool.WEBSSH_OPERATE_COMMAND);
         }
-        String itsmUsername = webSSHData.getItsmUsername();
-        if (ConstantPool.WEBSSH_OPERATE_CONNECT.equals(webSSHData.getOperate())) {
+        String itsmUsername = webRemoteData.getItsmUsername();
+        if (ConstantPool.WEBSSH_OPERATE_CONNECT.equals(webRemoteData.getOperate())) {
             ConnectInfo connectInfo = sshMap.get(itsmUsername);
-            WebSSHData finalWebSSHData = webSSHData;
+            WebRemoteData finalWebRemoteData = webRemoteData;
             executorService.execute(() -> {
                 try {
-                    connectToSSH(connectInfo, finalWebSSHData, session);
+                    connectToSSH(connectInfo, finalWebRemoteData, session);
                     if (connectInfo.getChannel().isClosed()) {
                         close(session);
                     }
@@ -94,14 +94,14 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                     close(session);
                 }
             });
-        } else if (ConstantPool.WEBSSH_OPERATE_COMMAND.equals(webSSHData.getOperate())) {
-            String command = webSSHData.getMessage();
+        } else if (ConstantPool.WEBSSH_OPERATE_COMMAND.equals(webRemoteData.getOperate())) {
+            String command = webRemoteData.getMessage();
             ConnectInfo connectInfo = sshMap.get(itsmUsername);
             if (connectInfo != null) {
                 try {
                     ChannelShell channel = (ChannelShell) connectInfo.getChannel();
                     if (channel != null) {
-                        channel.setPtySize(webSSHData.getCols(), webSSHData.getRows(), webSSHData.getWidth(), webSSHData.getHeight());
+                        channel.setPtySize(webRemoteData.getCols(), webRemoteData.getRows(), webRemoteData.getWidth(), webRemoteData.getHeight());
                         transToSSH(channel, command);
                         if (channel.isClosed()) {
                             close(session);
@@ -118,7 +118,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                     close(session);
                 }
             }
-        } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webSSHData.getOperate())) {
+        } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
             //检查心跳
             ConnectInfo connectInfo = sshMap.get(itsmUsername);
             if (connectInfo != null) {
@@ -166,19 +166,19 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
      * @Author: NoCortY
      * @Date: 2020/3/7
      */
-    private void connectToSSH(ConnectInfo connectInfo, WebSSHData webSSHData, WebSocketSession webSocketSession) throws JSchException, IOException {
+    private void connectToSSH(ConnectInfo connectInfo, WebRemoteData webRemoteData, WebSocketSession webSocketSession) throws JSchException, IOException {
         Session session = null;
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
-        session = connectInfo.getJSch().getSession(webSSHData.getUsername(), webSSHData.getHost(), webSSHData.getPort());
+        session = connectInfo.getJSch().getSession(webRemoteData.getUsername(), webRemoteData.getHost(), webRemoteData.getPort());
         session.setConfig(config);
-        session.setPassword(webSSHData.getPasswd());
+        session.setPassword(webRemoteData.getPasswd());
         session.connect(30000);
 
         //开启shell通道
         Channel channels = session.openChannel("shell");
         ChannelShell channel = (ChannelShell) channels;
-        channel.setPtySize(webSSHData.getCols(), webSSHData.getRows(), webSSHData.getWidth(), webSSHData.getHeight());
+        channel.setPtySize(webRemoteData.getCols(), webRemoteData.getRows(), webRemoteData.getWidth(), webRemoteData.getHeight());
         channel.connect(3000);
 
         connectInfo.setChannel(channel);

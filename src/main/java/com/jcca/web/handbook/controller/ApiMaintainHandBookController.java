@@ -438,7 +438,7 @@ public class ApiMaintainHandBookController {
         relate.setFileId(file.getId());
         relate.setItemType(file.getItemType());
         relate.setRemark(file.getRemark());
-        relate.setViewUrl(staticUrl + staticFilePath.replace("upload", "") + file.getFilePath());
+        relate.setViewUrl(staticUrl + file.getFilePath());
         fileRelateService.save(relate);
     }
 

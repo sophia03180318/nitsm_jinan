@@ -1631,7 +1631,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public void notifySubjectV2(Asset asset, Integer state) throws AddAssetException {
         NotifyDelAssetImpl delAsset = SpringContextUtil.getBean(NotifyDelAssetImpl.class);
         delAsset.assetChange(asset, state);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, asset.getIp(), "删除资产成功");
+        AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, asset.getIp(), "资产修改成功");
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         for (AssetNotifyService notifyService : notifyServiceList) {

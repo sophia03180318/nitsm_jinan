@@ -3,7 +3,7 @@ package com.jcca.common.webssh.websocket;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
-import com.jcca.common.webssh.pojo.WebSSHData;
+import com.jcca.common.webssh.pojo.WebRemoteData;
 import com.jcca.common.webssh.service.WebSocketSSHService;
 import com.jcca.common.webssh.service.WebSocketTelnetService;
 import org.springframework.stereotype.Component;
@@ -38,6 +38,8 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
         String username = path.substring(path.lastIndexOf("/") + 1);
         AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "准备远程访问设备", username);
         webSocketSSHService.initConnection(webSocketSession);
+
+        webSocketTelnetService.initConnection(webSocketSession);
     }
 
     /**
@@ -52,13 +54,12 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
         if (webSocketMessage instanceof TextMessage) {
             AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "接收到用户命令", webSocketMessage);
             String payload = ((TextMessage) webSocketMessage).getPayload();
-            WebSSHData data = JSONUtil.toBean(payload, WebSSHData.class);
+            WebRemoteData data = JSONUtil.toBean(payload, WebRemoteData.class);
             if ("SSH".equals(data.getMsgType())) {
                 webSocketSSHService.recvHandle(payload, webSocketSession);
                 return;
             }
             if ("TELNET".equals(data.getMsgType())) {
-                AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "telnet连接测试", webSocketMessage);
                 webSocketTelnetService.recvHandle(payload, webSocketSession);
             }
         }
