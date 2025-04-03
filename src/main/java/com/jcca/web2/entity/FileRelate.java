@@ -39,6 +39,10 @@ public class FileRelate extends Model<FileRelate> {
      */
     private String itemName;
     /**
+     * 预览地址
+     */
+    private String viewUrl;
+    /**
      * 备注
      */
     private String remark;

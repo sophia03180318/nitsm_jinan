@@ -39,5 +39,9 @@ public class CabinetBaseInfoVo {
      * 机柜内的资产列表
      */
     private List<CabinetBaseAssetVo> assetList;
+    /**
+     * 维护手册资料预览地址
+     */
+    private String viewUrl;
 
 }

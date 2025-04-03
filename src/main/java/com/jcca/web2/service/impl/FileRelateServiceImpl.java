@@ -25,4 +25,9 @@ public class FileRelateServiceImpl extends ServiceImpl<FileRelateMapper, FileRel
     public FileRelate getByFileId(String fileId) {
         return fileRelateMapper.getByFileId(fileId);
     }
+
+    @Override
+    public FileRelate getByItemId(String itemId) {
+        return fileRelateMapper.getByItemId(itemId);
+    }
 }

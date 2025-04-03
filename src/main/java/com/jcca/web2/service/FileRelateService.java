@@ -13,4 +13,6 @@ import com.jcca.web2.entity.FileRelate;
 public interface FileRelateService extends IService<FileRelate> {
 
     FileRelate getByFileId(String fileId);
+
+    FileRelate getByItemId(String itemId);
 }

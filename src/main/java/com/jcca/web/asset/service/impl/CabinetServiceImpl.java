@@ -25,6 +25,8 @@ import com.jcca.web.asset.vo.DetailCabinetVo;
 import com.jcca.web.graph.vo.GraphStatusVo;
 import com.jcca.web2.dto.CabinetBaseInfoQueryDto;
 import com.jcca.web2.entity.FileRelate;
+import com.jcca.web2.service.FileRelateService;
+import com.jcca.web2.vo.CabinetBaseAssetVo;
 import com.jcca.web2.vo.CabinetBaseInfoVo;
 import com.jcca.web2.vo.CabinetTopoDetailVo;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,8 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
     private AssetAttachService assetAttachService;
     @Resource
     private RoomService roomService;
+    @Resource
+    private FileRelateService fileRelateService;
 
     /**
      * 根据机房ID获取机柜列表
@@ -169,7 +173,21 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
 
     @Override
     public CabinetBaseInfoVo findCabinetBaseInfoV2(CabinetBaseInfoQueryDto query) {
-        return cabinetMapper.selectCabinetBaseInfoV2(query);
+        CabinetBaseInfoVo baseInfoVo = cabinetMapper.selectCabinetBaseInfoV2(query);
+        String cabinetId = baseInfoVo.getCabinetId();
+        FileRelate relate = fileRelateService.getByItemId(cabinetId);
+        if (Objects.nonNull(relate)) {
+            baseInfoVo.setViewUrl(relate.getViewUrl());
+        }
+        List<CabinetBaseAssetVo> assetList = baseInfoVo.getAssetList();
+        for (CabinetBaseAssetVo assetVo : assetList) {
+            relate = fileRelateService.getByItemId(assetVo.getAssetId());
+            if (Objects.nonNull(relate)) {
+                assetVo.setViewUrl(relate.getViewUrl());
+            }
+        }
+        baseInfoVo.setAssetList(assetList);
+        return baseInfoVo;
     }
 
     /**

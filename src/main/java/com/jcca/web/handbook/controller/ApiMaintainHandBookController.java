@@ -395,7 +395,7 @@ public class ApiMaintainHandBookController {
         fileService.save(sysFile);
 
         if (file.getViewFlag()) {
-            String orignName = file.getOrignName();
+            String orignName = sysFile.getOrignName();
             String type = orignName.substring(orignName.lastIndexOf(".") + 1);
             if ("pdf".equalsIgnoreCase(type) || isImg(staticFilePath.replace("upload", "") + sysFile.getFilePath())) {
                 file.setId(sysFile.getId());
@@ -432,6 +432,8 @@ public class ApiMaintainHandBookController {
         relate.setFileId(file.getId());
         relate.setItemType(file.getItemType());
         relate.setRemark(file.getRemark());
+        relate.setViewUrl(staticUrl + staticFilePath.replace("upload", "")
+                + file.getFilePath().replace(UPLOAD_MODEL_TMP_PATH, UPLOAD_MODEL_PROD_PATH));
         fileRelateService.save(relate);
     }
 

@@ -37,5 +37,9 @@ public class CabinetBaseAssetVo {
      * 告警最高级别
      */
     private String alarmLevel;
+    /**
+     * 维护手册资料预览地址
+     */
+    private String viewUrl;
 
 }
