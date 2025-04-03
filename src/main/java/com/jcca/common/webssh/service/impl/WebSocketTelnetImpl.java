@@ -97,7 +97,6 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
 
     @Override
     public void sendMessage(WebSocketSession session, byte[] buffer) throws IOException {
-        AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET执行结果", new String(buffer));
         session.sendMessage(new TextMessage(buffer));
     }
 
