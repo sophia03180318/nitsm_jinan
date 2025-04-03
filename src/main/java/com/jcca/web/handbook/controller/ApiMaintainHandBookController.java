@@ -397,8 +397,10 @@ public class ApiMaintainHandBookController {
         if (file.getViewFlag()) {
             String orignName = sysFile.getOrignName();
             String type = orignName.substring(orignName.lastIndexOf(".") + 1);
-            if ("pdf".equalsIgnoreCase(type) || isImg(staticFilePath.replace("upload", "") + sysFile.getFilePath())) {
+            if ("pdf".equalsIgnoreCase(type)
+                    || isImg(staticFilePath.replace("upload", "") + sysFile.getFilePath())) {
                 file.setId(sysFile.getId());
+                file.setFilePath(sysFile.getFilePath());
                 this.saveRelate(file);
             } else {
                 return ResultVoUtil.error("关联文件应为PDF或图片格式");
@@ -425,6 +427,10 @@ public class ApiMaintainHandBookController {
     }
 
     private void saveRelate(AddFileReq file) {
+        UpdateWrapper<FileRelate> update = Wrappers.update();
+        update.eq("ITEM_ID", file.getItemId());
+        fileRelateService.remove(update);
+
         FileRelate relate = new FileRelate();
         relate.setId(MyIdUtil.getId());
         relate.setItemId(file.getItemId());
@@ -432,8 +438,7 @@ public class ApiMaintainHandBookController {
         relate.setFileId(file.getId());
         relate.setItemType(file.getItemType());
         relate.setRemark(file.getRemark());
-        relate.setViewUrl(staticUrl + staticFilePath.replace("upload", "")
-                + file.getFilePath().replace(UPLOAD_MODEL_TMP_PATH, UPLOAD_MODEL_PROD_PATH));
+        relate.setViewUrl(staticUrl + staticFilePath.replace("upload", "") + file.getFilePath());
         fileRelateService.save(relate);
     }
 
