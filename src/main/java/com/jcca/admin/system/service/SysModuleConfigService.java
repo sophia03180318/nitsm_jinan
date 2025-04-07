@@ -73,4 +73,11 @@ public interface SysModuleConfigService extends IService<SysModuleConfig> {
      * @return
      */
     List<SysModuleConfigVo> queryWebConfigList();
+
+    /**
+     * 通过名称更新
+     * @param name
+     * @param value
+     */
+    void updateConfigByName(String name, String value);
 }

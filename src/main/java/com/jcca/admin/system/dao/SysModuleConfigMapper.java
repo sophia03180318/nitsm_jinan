@@ -2,6 +2,9 @@ package com.jcca.admin.system.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.admin.system.entity.SysModuleConfig;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
+import org.mapstruct.Mapper;
 
 
 /**
@@ -12,5 +15,14 @@ import com.jcca.admin.system.entity.SysModuleConfig;
  * @author LuBan
  * @since 2021-01-05
  */
+@Mapper
 public interface SysModuleConfigMapper extends BaseMapper<SysModuleConfig> {
+
+    /**
+     * 更新
+     * @param name
+     * @param value
+     */
+    @Update("update SYS_MODULE_CONFIG set VALUE = #{value} where name = #{name}")
+    void updateByName(@Param("name") String name,@Param("value") String value);
 }

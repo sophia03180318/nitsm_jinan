@@ -46,6 +46,8 @@ public class SysModuleConfigServiceImpl extends ServiceImpl<SysModuleConfigMappe
     private StationService stationService;
     @Resource
     private RedisService redisService;
+    @Resource
+    private SysModuleConfigMapper configMapper;
 
     @Override
     public List<SysModuleConfig> getSysModuleConfigList(SysModuleConfigReq req) {
@@ -271,9 +273,16 @@ public class SysModuleConfigServiceImpl extends ServiceImpl<SysModuleConfigMappe
             String webConf = sysModuleConfig.getWebConf();
             JSONObject webConfObj = JSONUtil.parseObj(webConf);
             SysModuleConfigVo sysModuleConfigVo = JSONUtil.toBean(webConfObj, SysModuleConfigVo.class);
+            sysModuleConfigVo.setKey(sysModuleConfig.getName());
+            sysModuleConfigVo.setDefaultValue(sysModuleConfig.getValue());
             voList.add(sysModuleConfigVo);
         }
 
         return voList;
+    }
+
+    @Override
+    public void updateConfigByName(String name, String value) {
+        configMapper.updateByName( name,  value);
     }
 }
