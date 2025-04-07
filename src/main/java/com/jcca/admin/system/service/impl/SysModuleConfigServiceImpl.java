@@ -3,6 +3,7 @@ package com.jcca.admin.system.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -18,13 +19,11 @@ import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web.asset.controller.bean.AlarmVerifyBean;
 import com.jcca.web.config.vo.SysConfig;
+import com.jcca.web2.vo.SysModuleConfigVo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -257,5 +256,24 @@ public class SysModuleConfigServiceImpl extends ServiceImpl<SysModuleConfigMappe
             resp = JSONUtil.toBean(JSONUtil.parseObj(value), AlarmVerifyBean.class);
         }
         return resp;
+    }
+
+    @Override
+    public List<SysModuleConfigVo> queryWebConfigList() {
+        QueryWrapper<SysModuleConfig> q1 = new QueryWrapper<SysModuleConfig>();
+        q1.isNotNull("WEB_CONF");
+        q1.orderByAsc("TITLE");
+
+        List<SysModuleConfig> list = list(q1);
+
+        List<SysModuleConfigVo> voList = new ArrayList<>();
+        for (SysModuleConfig sysModuleConfig : list) {
+            String webConf = sysModuleConfig.getWebConf();
+            JSONObject webConfObj = JSONUtil.parseObj(webConf);
+            SysModuleConfigVo sysModuleConfigVo = JSONUtil.toBean(webConfObj, SysModuleConfigVo.class);
+            voList.add(sysModuleConfigVo);
+        }
+
+        return voList;
     }
 }

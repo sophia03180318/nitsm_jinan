@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -23,6 +24,7 @@ import java.util.Date;
  * @author LuBan
  * @since 2021-01-05
  */
+@Data
 @TableName("SYS_MODULE_CONFIG")
 public class SysModuleConfig extends Model<SysModuleConfig> {
 
@@ -72,87 +74,11 @@ public class SysModuleConfig extends Model<SysModuleConfig> {
      */
     @TableField("ORG_ID")
     private String orgId;
+    /**
+     * web界面展示形态配置
+     *
+     */
+    @TableField("web_conf")
+    private String webConf;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    public Integer getServiceType() {
-        return serviceType;
-    }
-
-    public void setServiceType(Integer serviceType) {
-        this.serviceType = serviceType;
-    }
-
-    public String getOrgId() {
-        return orgId;
-    }
-
-    public void setOrgId(String orgId) {
-        this.orgId = orgId;
-    }
-
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
-    }
-
-    @Override
-    public String toString() {
-        return "SysModuleConfig{" +
-                "id=" + id +
-                ", name=" + name +
-                ", value=" + value +
-                ", description=" + description +
-                ", createTime=" + createTime +
-                ", creator=" + creator +
-                ", serviceType=" + serviceType +
-                ", orgId=" + orgId +
-                "}";
-    }
 }

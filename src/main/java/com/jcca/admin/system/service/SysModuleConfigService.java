@@ -6,6 +6,7 @@ import com.jcca.admin.system.entity.SysModuleConfig;
 import com.jcca.admin.system.vo.AssetHealthDegreeModuleConf;
 import com.jcca.web.asset.controller.bean.AlarmVerifyBean;
 import com.jcca.web.config.vo.SysConfig;
+import com.jcca.web2.vo.SysModuleConfigVo;
 
 import java.util.List;
 
@@ -67,5 +68,9 @@ public interface SysModuleConfigService extends IService<SysModuleConfig> {
      */
     AlarmVerifyBean getAlarmVerifyValue();
 
-
+    /**
+     * 查询web界面相关配置项
+     * @return
+     */
+    List<SysModuleConfigVo> queryWebConfigList();
 }
