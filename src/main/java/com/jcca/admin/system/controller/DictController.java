@@ -30,7 +30,7 @@ import java.util.List;
  * @date 2018/8/14
  */
 @Controller
-@RequestMapping("/system/dict")
+@RequestMapping({"/system/dict","/api/v2/system/dict"})
 public class DictController {
 
     @Resource

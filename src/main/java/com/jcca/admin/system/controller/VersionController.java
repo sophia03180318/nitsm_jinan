@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Controller
-@RequestMapping("/system/version/manager")
+@RequestMapping({"/system/version/manager","/api/v2/manager"})
 public class VersionController {
 
     @Resource
