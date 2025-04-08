@@ -1,10 +1,12 @@
 package com.jcca.admin.system.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.admin.system.entity.SysDict;
 import com.jcca.admin.system.service.SysDictService;
 import com.jcca.admin.system.validator.DictValid;
+import com.jcca.common.bean.RestBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author hanwone
@@ -84,20 +87,21 @@ public class DictController {
 
     /**
      * 保存添加/修改的数据
-     *
-     * @param valid 验证对象
      */
     @PostMapping({"/add", "/edit"})
     @RequiresPermissions({"system:dict:add", "system:dict:edit"})
     @ResponseBody
     @ActionLog(name = "新增或修改字典", title = "字典管理", key = LogTypeConstant.ADD)
-    public ResultVo save(@Validated DictValid valid, SysDict dict) {
+    public ResultVo save(@RequestBody  SysDict dict) {
         // 清除字典值两边空格
         dict.setValue(dict.getValue().trim());
 
         // 复制保留无需修改的数据
-        if (dict.getId() != null) {
+        if (StrUtil.isNotEmpty(dict.getId())) {
             SysDict beDict = dictService.getById(dict.getId());
+            if(Objects.isNull(beDict)){
+                return ResultVoUtil.error("ID不存在");
+            }
             EntityBeanUtil.copyProperties(beDict, dict);
         } else {
             // 判断字典标识是否重复

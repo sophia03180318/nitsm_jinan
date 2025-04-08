@@ -122,7 +122,7 @@ public class VersionController {
     @PostMapping("/save")
     @ResponseBody
     @ActionLog(name = "保存数据", title = "车站软件管理", key = LogTypeConstant.ADD)
-    public ResultVo save(@Validated VersionManagerSaveReq req) {
+    public ResultVo save(@Validated @RequestBody VersionManagerSaveReq req) {
         SysFile file = uploadService.getById(req.getSysFileId());
         if (Objects.isNull(file)) {
             return ResultVoUtil.error("文件不存在");
@@ -176,10 +176,10 @@ public class VersionController {
 
     @SuppressWarnings("rawtypes")
     private ResultVo saveJar(MultipartFile multipartFile, SysFile upload) throws Exception {
-        String[] types = {"jar", "application/octet-stream", "text/plain"};
+        /*String[] types = {"jar", "application/octet-stream", "text/plain"};
         if (!FileUpload.isContentType(multipartFile, types)) {
             throw new ResultException(ResultEnum.NO_FILE_TYPE);
-        }
+        }*/
         // 判断文件是否存在
         SysFile uploadSha1 = uploadService.getBySha1(FileUpload.getFileSha1(multipartFile));
         if (uploadSha1 != null) {
