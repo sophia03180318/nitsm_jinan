@@ -16,6 +16,7 @@ import com.jcca.web.asset.entity.ThresholdProcess;
 import com.jcca.web.asset.service.ThresholdProcessService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -67,6 +68,7 @@ public class ProcessGroupAdapter extends AssetIpAdd implements IAdapter<ReceiveA
                 processAlarmQueueEntity.setProcessId(process.getProcessId());
             }
             processAlarmQueueEntity.setProcessName(process.getProcessName());
+            processAlarmQueueEntity.setAlias(StringUtils.isEmpty(process.getRemark()) ? process.getProcessName() : process.getRemark());
             processAlarmQueueEntity.setThresholdId(process.getId());
             processAlarmQueueEntity.setProcessChange(alarmDto.getProcessChange());
         }

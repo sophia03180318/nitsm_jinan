@@ -81,6 +81,9 @@ public class ThresholdProcess extends Model<ThresholdProcess> {
     @TableField(value = "CREATOR", fill = FieldFill.INSERT)
     private String creator;
 
+    /**
+     * 进程别名
+     */
     @TableField("REMARK")
     private String remark;
     /**

@@ -60,14 +60,14 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
                 String eventMapKey = req.getAssetIp() + ":" + req.getAssetId() + ":" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 if (status == EventLevelEnum.NORMAL.getCode()) {
-                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getProcessId()));
+                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 } else {
                     alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getProcessId()));
                 }
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
-                this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);
@@ -75,7 +75,7 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
                     if (status == EventLevelEnum.NORMAL.getCode()) {
                         event.setRecoveryProcessIdDescr(" 恢复的进程ID:" + info.getProcessId() + " ");
                     }
-                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getProcessId()));
+                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                     this.dispatureEvent(event);
                 }
             }

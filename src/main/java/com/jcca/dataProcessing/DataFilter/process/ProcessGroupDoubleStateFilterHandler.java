@@ -72,7 +72,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                 Integer status = normalAsset.isEmpty() ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
                 String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
-                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_all_down.getDescr(), info.getProcessName(), info.getProcessId()));
+                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_all_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_all_down.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, entity, changeInfo);
@@ -80,7 +80,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);
-                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_all_down.getDescr(), info.getProcessName(), info.getProcessId()));
+                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_all_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                     this.dispatureEvent(event);
                 }
 
@@ -104,9 +104,10 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
 
                 if (processStatus) {
-                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getProcessId()));
+                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " "
+                            + String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 } else {
-                    alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getProcessId()));
+                    alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 }
                 alarmTempReq.setFlag(info.getProcessId());
                 IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
@@ -115,10 +116,10 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                     changeInfo.setIsEvent(true);
                     if (processStatus) {
                         event.setRecoveryProcessIdDescr(" 恢复的进程ID:" + info.getProcessId() + " ");
-                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getProcessId()));
+                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                         this.dispatureEvent(event);
                     } else {
-                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getProcessId()));
+                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                         this.dispatureEvent(event);
                     }
                 }

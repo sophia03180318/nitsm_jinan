@@ -17,6 +17,10 @@ public class CollectProcessEntity extends  CommonEntity  {
      */
     private String name;
     /**
+     * 进程别名
+     */
+    private String alias;
+    /**
      * 进程ID
      */
     private String processId;

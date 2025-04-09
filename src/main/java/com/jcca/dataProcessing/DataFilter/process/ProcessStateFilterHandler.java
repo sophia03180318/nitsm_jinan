@@ -53,9 +53,10 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
             Integer status = entity.getStatus() ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             if (status == EventLevelEnum.NORMAL.getCode()) {
-                alarmTempReq.setOrgMsg(" 恢复的进程ID:" + entity.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getProcessId()));
+                alarmTempReq.setOrgMsg(" 恢复的进程ID:" + entity.getProcessId() + " "
+                        + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getAlias(), entity.getProcessId()));
             } else {
-                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getProcessId()));
+                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getAlias(), entity.getProcessId()));
             }
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             alarmTempReq.setFlag(entity.getProcessId());
@@ -68,7 +69,7 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
                 if (status == EventLevelEnum.NORMAL.getCode()) {
                     event.setRecoveryProcessIdDescr(" 恢复的进程ID:" + entity.getProcessId() + " ");
                 }
-                event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getProcessId()));
+                event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), entity.getName(), entity.getAlias(), entity.getProcessId()));
                 this.dispatureEvent(event);
             }
 

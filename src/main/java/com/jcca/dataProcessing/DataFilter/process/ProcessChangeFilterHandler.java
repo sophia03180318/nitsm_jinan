@@ -64,7 +64,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_once.getDescr(),
-                        info.getProcessName(), asset.getName() + "(" + asset.getIp() + ")"));
+                        info.getProcessName(), info.getAlias(), asset.getName() + "(" + asset.getIp() + ")"));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_once.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(),
@@ -77,7 +77,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
                 if (event != null) {
                     changeInfo.setIsEvent(true);
                     event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_once.getDescr(),
-                            info.getProcessName(), asset.getName() + "(" + asset.getIp() + ")"));
+                            info.getProcessName(), info.getAlias(), asset.getName() + "(" + asset.getIp() + ")"));
                     this.dispatureEvent(event);
                     return false;
                 }

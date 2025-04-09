@@ -24,6 +24,10 @@ public class ProcessAlarmQueueEntity extends  CommonEntity implements Serializab
      */
     private String processName;
     /**
+     * 进程别名
+     */
+    private String alias;
+    /**
      * 进程号
      */
     private String processId;

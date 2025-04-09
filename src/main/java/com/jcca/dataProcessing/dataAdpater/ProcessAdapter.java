@@ -19,6 +19,7 @@ import com.jcca.web.asset.service.ThresholdProcessService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -71,18 +72,19 @@ public class ProcessAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         List<CollectProcessEntity> disposeList = new ArrayList<>();
         Boolean isStation = assetService.isStationAsset(processBeans.get(0).getAssetId());
         String collectCode = MyIdUtil.getId();
-        for (ThresholdProcess thresholdProcess : thresholdList) {
+        for (ThresholdProcess process : thresholdList) {
             CollectProcessEntity collectProcess = new CollectProcessEntity();
-            collectProcess.setName(thresholdProcess.getProcessName());
-            collectProcess.setProcessId(thresholdProcess.getProcessId());
-            collectProcess.setThresholdId(thresholdProcess.getId());
-            collectProcess.setAssetId(thresholdProcess.getAssetId());
+            collectProcess.setName(process.getProcessName());
+            collectProcess.setProcessId(process.getProcessId());
+            collectProcess.setThresholdId(process.getId());
+            collectProcess.setAssetId(process.getAssetId());
             collectProcess.setStationAsset(isStation);
             collectProcess.setCollectTime(processBeans.get(0).getCollectTime());
             collectProcess.setCollectCode(collectCode);
+            collectProcess.setAlias(StringUtils.isEmpty(process.getRemark()) ? process.getProcessName() : process.getRemark());
             setAssetIp(collectProcess);
 
-            List<CollectProcessEntity> collectProcessList = processBeans.stream().filter(item -> item.getName().contains(thresholdProcess.getProcessName())).collect(Collectors.toList());
+            List<CollectProcessEntity> collectProcessList = processBeans.stream().filter(item -> item.getName().contains(process.getProcessName())).collect(Collectors.toList());
             if (collectProcessList.isEmpty()) {
                 collectProcess.setStatus(false);
             }else {
