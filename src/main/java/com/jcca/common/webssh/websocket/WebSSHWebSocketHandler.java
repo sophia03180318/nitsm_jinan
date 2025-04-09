@@ -86,8 +86,10 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "用户断开远程访问连接", closeStatus);
-        webSocketSSHService.close(webSocketSession,"");
+        String path = Objects.requireNonNull(webSocketSession.getUri()).getPath();
+        String username = path.substring(path.lastIndexOf("/") + 1);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "用户断开远程访问连接", username);
+        webSocketSSHService.close(webSocketSession, username);
     }
 
     @Override
