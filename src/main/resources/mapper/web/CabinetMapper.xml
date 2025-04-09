@@ -53,65 +53,68 @@
         a.ASSET_ID,b.name as asset_name,b.ASSET_MODE ,a.START_POSITION,a.END_POSITION,
         (
         select count(*) from ALARM_INFO d where d.ASSET_ID = a.ASSET_ID
-            <if test="statusLogical==1">
-                <if test="status != null ">
+        <if test="statusLogical==1">
+            <if test="status != null ">
+                and d.STATUS = #{status}
+            </if>
+            <if test="alarmState != null ">
+                and d.ALARM_STATE = #{alarmState}
+            </if>
+        </if>
+        <if test="statusLogical==2">
+            <choose>
+                <when test="status != null and alarmState != null">
+                    and (d.STATUS = #{status} or d.ALARM_STATE = #{alarmState})
+                </when>
+                <when test="status != null ">
                     and d.STATUS = #{status}
-                </if>
-                <if test="alarmState != null ">
+                </when>
+                <when test="alarmState != null ">
                     and d.ALARM_STATE = #{alarmState}
-                </if>
-            </if>
-            <if test="statusLogical==2">
-                <choose>
-                    <when test="status != null and alarmState != null">
-                        and (d.STATUS = #{status} or d.ALARM_STATE = #{alarmState})
-                    </when>
-                    <when test="status != null ">
-                        and d.STATUS = #{status}
-                    </when>
-                    <when test="alarmState != null ">
-                        and d.ALARM_STATE = #{alarmState}
-                    </when>
-                </choose>
-            </if>
-            <if test="blank!=null ">
-                and d.blank = #{blank}
-            </if>
+                </when>
+            </choose>
+        </if>
+        <if test="blank!=null ">
+            and d.blank = #{blank}
+        </if>
+        <if test="showJcca == 2">
+            and (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
+        </if>
         ) as alarm_size,
         (
         select min(e.ALARM_LEVEL) from ALARM_INFO e where e.ASSET_ID = a.ASSET_ID
-            <if test="statusLogical==1">
-                <if test="status != null ">
+        <if test="statusLogical==1">
+            <if test="status != null ">
+                and e.STATUS = #{status}
+            </if>
+            <if test="alarmState != null ">
+                and e.ALARM_STATE = #{alarmState}
+            </if>
+        </if>
+        <if test="statusLogical==2">
+            <choose>
+                <when test="status != null and alarmState != null">
+                    and (e.STATUS = #{status} or e.ALARM_STATE = #{alarmState})
+                </when>
+                <when test="status != null ">
                     and e.STATUS = #{status}
-                </if>
-                <if test="alarmState != null ">
+                </when>
+                <when test="alarmState != null ">
                     and e.ALARM_STATE = #{alarmState}
-                </if>
-            </if>
-            <if test="statusLogical==2">
-                <choose>
-                    <when test="status != null and alarmState != null">
-                        and (e.STATUS = #{status} or e.ALARM_STATE = #{alarmState})
-                    </when>
-                    <when test="status != null ">
-                        and e.STATUS = #{status}
-                    </when>
-                    <when test="alarmState != null ">
-                        and e.ALARM_STATE = #{alarmState}
-                    </when>
-                </choose>
-            </if>
-            <if test="blank!=null ">
-                and e.blank = #{blank}
-            </if>
+                </when>
+            </choose>
+        </if>
+        <if test="blank!=null ">
+            and e.blank = #{blank}
+        </if>
+        <if test="showJcca == 2">
+            and (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
+        </if>
         ) as alarm_level
         from CABINET c
         left join ASSET_ATTACH a on a.CABINET_ID = c.id
         left join asset b on a.ASSET_ID = b.id
         where c.id = #{cabinetId}
-        <if test="showJcca == 2">
-            and (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
-        </if>
         <if test="assetIdList!=null">
             <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->
             and (b.ID IN
