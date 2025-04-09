@@ -109,8 +109,8 @@
         left join ASSET_ATTACH a on a.CABINET_ID = c.id
         left join asset b on a.ASSET_ID = b.id
         where c.id = #{cabinetId}
-        <if test="showJcca==2">
-            and b.ASSET_SUPPLIER not like '%中航%'
+        <if test="showJcca == 2">
+            and (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
         </if>
         <if test="assetIdList!=null">
             <!-- 处理in的集合超过1000条时Oracle不支持的情况 -->

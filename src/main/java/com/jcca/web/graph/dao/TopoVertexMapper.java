@@ -14,7 +14,6 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +48,8 @@ public interface TopoVertexMapper extends BaseMapper<TopoVertex> {
     List<TopoVertexAlarmLevelVo> selectNetWorkTopoNodeAlarmLevelByAsset(@Param("nodeType") String nodeType, @Param("assetId") String assetId, @Param("orgId") String orgId);
 
     List<TopoVertexAlarmLevelVo> selectNodeAlarmLevelByCabnet(@Param("nodeType") String nodeType, @Param("orgId") String orgId);
-    List<TopoVertexAlarmLevelVo> selectNodeAlarmLevelByCabnet2(@Param("nodeType") String nodeType, @Param("orgId") String orgId,@Param("roomId") String roomId);
+
+    List<TopoVertexAlarmLevelVo> selectNodeAlarmLevelByCabnet2(@Param("nodeType") String nodeType, @Param("orgId") String orgId, @Param("roomId") String roomId, @Param("showJcca") Integer showJcca);
 
     @Delete("delete from TOPO_VERTEX where NODE_Type=#{nodeType} and ORG_ID=#{orgId}")
     Boolean deleteTopoVertex(@Param("nodeType") String nodeType, @Param("orgId") String orgId);

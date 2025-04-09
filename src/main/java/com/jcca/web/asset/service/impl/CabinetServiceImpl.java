@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
@@ -22,6 +23,7 @@ import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.asset.vo.CabinetVo;
 import com.jcca.web.asset.vo.DetailCabinetVo;
+import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.graph.vo.GraphStatusVo;
 import com.jcca.web2.dto.CabinetBaseInfoQueryDto;
 import com.jcca.web2.entity.FileRelate;
@@ -53,6 +55,8 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
     private RoomService roomService;
     @Resource
     private FileRelateService fileRelateService;
+    @Resource
+    private SysModuleConfigService configServ;
 
     /**
      * 根据机房ID获取机柜列表
@@ -173,6 +177,10 @@ public class CabinetServiceImpl extends ServiceImpl<CabinetMapper, Cabinet> impl
 
     @Override
     public CabinetBaseInfoVo findCabinetBaseInfoV2(CabinetBaseInfoQueryDto query) {
+        SysConfig sysConfig = configServ.getSysConfig();
+        String showJcca = sysConfig.getShowJcca();
+        Integer jcca = "no".equals(showJcca) ? 2 : 1;
+        query.setShowJcca(jcca);
         CabinetBaseInfoVo baseInfoVo = cabinetMapper.selectCabinetBaseInfoV2(query);
         String cabinetId = baseInfoVo.getCabinetId();
         FileRelate relate = fileRelateService.getByItemId(cabinetId);

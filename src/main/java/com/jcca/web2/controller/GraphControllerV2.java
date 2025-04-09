@@ -36,6 +36,7 @@ import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.AssetLinkAssetService;
 import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web.collect.service.CollectNetworkCardService;
+import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.graph.entity.TopoAssetGroup;
 import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
@@ -115,6 +116,8 @@ public class GraphControllerV2 {
     private CollectNetworkCardService networkCardService;
     @Resource
     private FileRelateService fileRelateService;
+    @Resource
+    private SysModuleConfigService configServ;
 
 
     /**
@@ -693,7 +696,10 @@ public class GraphControllerV2 {
         if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             String roomId = graph.getRoomId();
             //  List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
-            List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet2(category, roomId, roomId);
+            SysConfig sysConfig = configServ.getSysConfig();
+            String showJcca = sysConfig.getShowJcca();
+            Integer jcca = "no".equals(showJcca) ? 2 : 1;
+            List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet2(category, roomId, roomId, jcca);
             map.put("vertex", list);
         }
         // 调度台设备
