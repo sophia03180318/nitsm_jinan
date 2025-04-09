@@ -52,7 +52,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) throws Exception {
         if (webSocketMessage instanceof TextMessage) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "接收到用户命令", webSocketMessage);
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "接收到用户命令", webSocketMessage);
             String payload = ((TextMessage) webSocketMessage).getPayload();
             WebRemoteData data = JSONUtil.toBean(payload, WebRemoteData.class);
             if ("SSH".equals(data.getMsgType())) {
