@@ -152,4 +152,6 @@ public class TopoVertexAlarmLevelVo implements java.io.Serializable {
      */
     private Byte aBFlag;
 
+    private String viewUrl;
+
 }

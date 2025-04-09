@@ -33,7 +33,9 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.collect.controller.route.bean.AssetLinkConst;
 import com.jcca.web.collect.entity.CollectInterfaces;
-import com.jcca.web.collect.service.*;
+import com.jcca.web.collect.service.AssetLinkAssetService;
+import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web.collect.service.CollectNetworkCardService;
 import com.jcca.web.graph.entity.TopoAssetGroup;
 import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
@@ -42,9 +44,11 @@ import com.jcca.web.graph.service.*;
 import com.jcca.web.graph.vo.TopoVertexAlarmLevelVo;
 import com.jcca.web.graph.vo.TopoVertexVo;
 import com.jcca.web2.entity.BusinessServiceType;
+import com.jcca.web2.entity.FileRelate;
 import com.jcca.web2.entity.TopoTag;
 import com.jcca.web2.enums.TopoCategoryEnum;
 import com.jcca.web2.service.BusinessServiceTypeService;
+import com.jcca.web2.service.FileRelateService;
 import com.jcca.web2.service.TopoTagService;
 import com.jcca.web2.vo.*;
 import io.swagger.annotations.Api;
@@ -106,13 +110,11 @@ public class GraphControllerV2 {
     @Resource
     private AssetLinkAssetService linkAssetService;
     @Resource
-    private CollectClusterService collectClusterService;
-    @Resource
-    private CollectRouteService collectRouteService;
-    @Resource
     private AlarmInfoService alarmInfoService;
     @Resource
     private CollectNetworkCardService networkCardService;
+    @Resource
+    private FileRelateService fileRelateService;
 
 
     /**
@@ -314,6 +316,12 @@ public class GraphControllerV2 {
             }
         }
 
+        for (TopoVertexAlarmLevelVo vo : list) {
+            FileRelate one = fileRelateService.getByItemId(vo.getAssetId());
+            if (Objects.nonNull(one)) {
+                vo.setViewUrl(one.getViewUrl());
+            }
+        }
 
         map.put("vertex", list);
         //网络设备资产连线拓扑

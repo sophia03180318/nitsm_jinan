@@ -131,4 +131,6 @@ public class TopoVertexVo implements java.io.Serializable {
     private String showCore;
 
     private Integer watch;
+
+    private String viewUrl;
 }

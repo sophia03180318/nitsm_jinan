@@ -95,8 +95,9 @@
     <select id="selectPcTopoNodeByAsset"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
         SELECT v.*, t.name as assetName, t.id as assetId, t.org_id as
-        assetOrgId, t.asset_mode as assetMode,t.watch, '0' alarmLevel
+        assetOrgId, t.asset_mode as assetMode,t.watch, '0' alarmLevel, f.view_url
         FROM asset t
+        left join FILE_RELATE f on f.ITEM_ID = t.id
         left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id and
         v.node_type =#{nodeType}
         where t.ORG_ID = #{orgId}
@@ -267,9 +268,11 @@
                t.id         as assetId,
                t.org_id     as assetOrgId,
                t.watch,
-               t.asset_mode as assetMode
+               t.asset_mode as assetMode,
+               f.view_url
         FROM asset t
                  left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id and v.node_type = 'pc_topo'
+                 left join FILE_RELATE f on f.ITEM_ID = t.id
                  left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
                             FROM ALARM_INFO i
                                      LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
@@ -325,24 +328,24 @@
                t.id           as assetId,
                t.org_id       as assetOrgId,
                t.row_index    as rowIndex,
-               t.COLUMN_INDEX as columnIndex
-        FROM (select distinct c.id, c.name, c.row_index, c.COLUMN_INDEX, a.org_id,a.id as room_id
+               t.COLUMN_INDEX as columnIndex,
+               f.VIEW_URL
+        FROM (select distinct c.id, c.name, c.row_index, c.COLUMN_INDEX, a.org_id, a.id as room_id
               from cabinet c,
                    room a
               where a.id = c.room_id
                 and a.id = #{orgId}) t
                  left join TOPO_VERTEX v on v.asset_id = t.id and v.org_id = t.room_id
-                 left join (
-            SELECT c.ID id, MIN(i.ALARM_LEVEL) alarmLevel
-            FROM CABINET c
-                     LEFT JOIN ROOM r ON c.ROOM_ID = r.ID
-                     LEFT JOIN ASSET_ATTACH a ON a.CABINET_ID = c.ID
-                     LEFT JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID
-            WHERE (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
-              and i.BLANK = 1
-              AND r.ID = #{orgId}
-            GROUP BY c.ID
-        ) alarm on t.id = alarm.id
+                 left join FILE_RELATE f on t.id = f.ITEM_ID
+                 left join (SELECT c.ID id, MIN(i.ALARM_LEVEL) alarmLevel
+                            FROM CABINET c
+                                     LEFT JOIN ROOM r ON c.ROOM_ID = r.ID
+                                     LEFT JOIN ASSET_ATTACH a ON a.CABINET_ID = c.ID
+                                     LEFT JOIN ALARM_INFO i ON a.ASSET_ID = i.ASSET_ID
+                            WHERE (i.STATUS = 1 OR (i.STATUS = 2 AND i.ALARM_STATE = 1))
+                              and i.BLANK = 1
+                              AND r.ID = #{orgId}
+                            GROUP BY c.ID) alarm on t.id = alarm.id
         where t.room_id = #{orgId}
     </select>
 
@@ -517,9 +520,10 @@
 
     <select id="selectWanTopoNodeByAsset" resultType="com.jcca.web.graph.vo.TopoVertexVo">
         SELECT v.*, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as assetOrgId,
-        t.asset_mode as assetMode,t.watch, t.show_core
+        t.asset_mode as assetMode,t.watch, t.show_core, f.view_url
         FROM asset t
         left join TOPO_VERTEX v on t.id = v.asset_id and v.node_type = 'wan_topo'
+        left join FILE_RELATE f on f.ITEM_ID = t.id
         where t.SHOW_TOPO = 1 and t.IS_DEL = 1 and t.asset_mode = 42
         and t.id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
@@ -532,23 +536,25 @@
 
     <select id="selectAllTopoNodeAlarmLevelByAsset"
             resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
- SELECT alarm.alarmLevel,
- 			   c.CABINET_ID,
-			   cc.ROW_INDEX as roww,
-			   cc.COLUMN_INDEX as col,
+        SELECT alarm.alarmLevel,
+               c.CABINET_ID,
+               cc.ROW_INDEX    as roww,
+               cc.COLUMN_INDEX as col,
                v.*,
-               t.name        as assetName,
-               t.id          as assetId,
-               t.org_id      as assetOrgId,
-               t.asset_image as assetImage,
-               t.show_core   as showCore,
+               t.name          as assetName,
+               t.id            as assetId,
+               t.org_id        as assetOrgId,
+               t.asset_image   as assetImage,
+               t.show_core     as showCore,
                t.watch,
                t.A_B_FLAG,
-               t.asset_mode  as assetMode
+               t.asset_mode    as assetMode,
+               f.VIEW_URL
         FROM asset t
-				 left join ASSET_ATTACH c on t.id = c.ASSET_ID
+                 left join ASSET_ATTACH c on t.id = c.ASSET_ID
                  left join CABINET cc on c.CABINET_ID = cc.id
-                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id  AND v.node_type ='all_topo'
+                 left join FILE_RELATE f on f.ITEM_ID = t.id
+                 left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id = v.org_id AND v.node_type = 'all_topo'
                  left join (SELECT a.ID, MIN(i.ALARM_LEVEL) alarmLevel
                             FROM ALARM_INFO i
                                      LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
@@ -561,7 +567,7 @@
         where t.ORG_ID = #{orgId}
           and t.SHOW_TOPO = 1
           and IS_DEL = 1
-        order by col,roww ,v.name
+        order by col, roww, v.name
     </select>
 
 
