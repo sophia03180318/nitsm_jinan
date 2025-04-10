@@ -833,8 +833,8 @@
                COUNT(CASE WHEN status = 1 THEN 1 ELSE NULL END)      unHandled,
                COUNT(CASE WHEN status = 2 THEN 1 ELSE NULL END)      handled
         FROM alarm_info
-        where occur_time &gt;= TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
-          and occur_time &lt; TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+        where occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+          and occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
     </select>
 
     <select id="findUnhandledAlarm" parameterType="com.jcca.web2.dto.AlarmPageDto"
@@ -843,8 +843,8 @@
         from alarm_info i
                  left join asset a on i.asset_id = a.id
         where i.status = 1
-          and i.occur_time &gt;= TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
-          and i.occur_time &lt; TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+          and i.occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+          and i.occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
         ORDER BY a.IP
     </select>
 
@@ -860,8 +860,8 @@
                      COUNT(1) OVER (PARTITION BY i.asset_id, i.alarm_code) AS alarmCount
               FROM alarm_info i
                        LEFT JOIN asset a ON i.asset_id = a.id
-              WHERE i.occur_time &gt;= TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
-                and i.occur_time &lt; TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')) t
+              WHERE i.occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+                and i.occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')) t
         WHERE t.alarmCount > 5
         ORDER BY t.assetIp
     </select>
