@@ -11,6 +11,7 @@ import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AlarmBlankConst;
 import com.jcca.common.enums.*;
+import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -29,15 +30,14 @@ import com.jcca.web.broken.service.BrokenRecordWordService;
 import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.service.AlarmEventService;
-import com.jcca.web2.dto.AlarmPageDto;
-import com.jcca.web2.dto.CabinetAlarmQueryDto;
-import com.jcca.web2.dto.DialogsAlarmListDto;
-import com.jcca.web2.dto.DisposeAlarmDto;
+import com.jcca.web2.dto.*;
 import com.jcca.web2.service.IndexPageService;
 import com.jcca.web2.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -198,7 +198,7 @@ public class AlarmControllerV2 {
         IPage<AlarmPageVo> page = alarmInfoServ.pageV2(query);
         List<AlarmPageVo> records = page.getRecords();
         for (AlarmPageVo record : records) {
-            if(StrUtil.isEmpty(record.getRepoName())){
+            if (StrUtil.isEmpty(record.getRepoName())) {
                 record.setRepoName("车站告警");
             }
         }
@@ -350,6 +350,19 @@ public class AlarmControllerV2 {
         writer.write(exportList, true);
 
         String fileName = "TDCS-CTC综合维护平台告警-" + DateUtil.formatDate(new Date());
+        this.stream(response, writer, fileName);
+    }
+
+    @GetMapping("/sendUncertainAlarmJob")
+    @ApiOperation("立刻执行未确认告警")
+    String UncertainAlarmJob() {
+        quartzUncertainAlarmJob.init();
+        quartzUncertainAlarmJob.exeJob();
+
+        return "ok";
+    }
+
+    public void stream(HttpServletResponse response, ExcelWriter writer, String fileName) {
         try {
             String utf8FileName = URLEncoder.encode(fileName, "utf8");
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
@@ -362,13 +375,62 @@ public class AlarmControllerV2 {
         }
     }
 
-    @GetMapping("/sendUncertainAlarmJob")
-    @ApiOperation("立刻执行未确认告警")
-    String UncertainAlarmJob() {
-        quartzUncertainAlarmJob.init();
-        quartzUncertainAlarmJob.exeJob();
+    @GetMapping("/countAlarm")
+    @ApiOperation("告警统计")
+    public void countAlarm(HttpServletResponse response, AlarmPageDto req) {
+        String startTime = req.getStartTime();
+        String endTime = req.getEndTime();
+        if (StrUtil.isEmpty(startTime) || StrUtil.isEmpty(endTime)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR);
+        }
 
-        return "ok";
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+        writer.setColumnWidth(0, 18);
+        writer.setColumnWidth(1, 18);
+        writer.setColumnWidth(2, 18);
+        writer.setColumnWidth(3, 18);
+        writer.setColumnWidth(4, 18);
+        writer.setColumnWidth(5, 18);
+        writer.renameSheet("告警统计");
+
+        writer.addHeaderAlias("total", "告警总数");
+        writer.addHeaderAlias("level1", "一级告警数");
+        writer.addHeaderAlias("level2", "二级告警数");
+        writer.addHeaderAlias("level3", "三级告警数");
+        writer.addHeaderAlias("unHandled", "未处理告警数");
+        writer.addHeaderAlias("handled", "已处理告警数");
+        writer.addHeaderAlias("assetName", "设备名称");
+        writer.addHeaderAlias("assetIp", "设备IP");
+        writer.addHeaderAlias("occurTime", "告警时间");
+        writer.addHeaderAlias("content", "告警内容");
+        writer.addHeaderAlias("description", "原始信息");
+        writer.addHeaderAlias("opinion", "解决方案");
+
+        writer.merge(5, "告警数量统计");
+        AlarmCountDto countDto = alarmInfoServ.countAlarm(req);
+        List<AlarmCountDto> list = Collections.singletonList(countDto);
+        writer.write(list, true);
+
+        List<AlarmUnhandledDto> infos = alarmInfoServ.findUnhandledAlarm(req);
+        writer.merge(5, "未处理告警信息（共" + infos.size() + "条）");
+        writer.write(infos, true);
+
+        List<AlarmUnhandledDto> alarms = alarmInfoServ.find5TimesUp(req);
+        writer.merge(5, "告警超过5次信息（共" + alarms.size() + "条）");
+        writer.write(alarms, true);
+
+        writer.getStyleSet().setAlign(HorizontalAlignment.LEFT, VerticalAlignment.CENTER);
+
+        Cell cell00 = writer.getCell(0, 0);
+        cell00.getCellStyle().setAlignment(HorizontalAlignment.CENTER);
+        cell00.getCellStyle().setFillBackgroundColor(IndexedColors.WHITE.index);
+
+        Cell cell30 = writer.getCell(3, 0);
+        cell30.getCellStyle().setAlignment(HorizontalAlignment.CENTER);
+        cell30.getCellStyle().setFillBackgroundColor(IndexedColors.WHITE.index);
+
+        String fileName = "告警统计-" + DateUtil.formatDate(new Date());
+        this.stream(response, writer, fileName);
     }
 
 }

@@ -575,7 +575,8 @@
     <select id="findExportAlarm" parameterType="java.util.List" resultType="com.jcca.web.alarm.vo.AlarmExportVo">
         select decode(i.ALARM_LEVEL, 1, '一级告警', 2, '二级告警', 3, '三级告警', '未知告警') alarmLevel,
         decode(i.ALARM_STATE, 1, '告警', 2, '恢复') alarmStatus, i.title, i.ASSET_IP,
-        a.NAME assetName, decode(i.type, 1, '硬件告警', 2, '软件告警', '未知告警') alarmType,i.DESCRIPTION,i.CONTENT, i.OCCUR_TIME,
+        a.NAME assetName, decode(i.type, 1, '硬件告警', 2, '软件告警', '未知告警') alarmType,i.DESCRIPTION,i.CONTENT,
+        i.OCCUR_TIME,
         decode(i.STATUS, 1, '未确认', 2, '已确认', '未知') status, i.CONFIRMOR, i.CONFIRM_TIME,i.remark
         FROM ALARM_INFO i
         LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
@@ -646,7 +647,8 @@
         decode(i.ALARM_STATE, 1, '告警', 2, '恢复') alarmStatus,
         i.title, i.ASSET_IP, a.NAME assetName, decode(i.type, 1, '硬件告警', 2, '软件告警', '未知告警') alarmType,
         i.DESCRIPTION,i.CONTENT, i.OCCUR_TIME,
-        decode(i.STATUS, 1, '未确认', 2, '已确认', '未知') status, i.CONFIRMOR confirmor, i.CONFIRM_TIME confirmTime,i.remark
+        decode(i.STATUS, 1, '未确认', 2, '已确认', '未知') status, i.CONFIRMOR confirmor, i.CONFIRM_TIME
+        confirmTime,i.remark
         from alarm_info i
         left join asset a on i.ASSET_ID = a.ID
         where rownum &lt; 20000
@@ -823,6 +825,46 @@
         </foreach>
     </select>
 
+    <select id="countAlarm" parameterType="com.jcca.web2.dto.AlarmPageDto" resultType="com.jcca.web2.dto.AlarmCountDto">
+        SELECT COUNT(1)                                              total,
+               COUNT(CASE WHEN alarm_level = 1 THEN 1 ELSE NULL END) level1,
+               COUNT(CASE WHEN alarm_level = 2 THEN 1 ELSE NULL END) level2,
+               COUNT(CASE WHEN alarm_level = 3 THEN 1 ELSE NULL END) level3,
+               COUNT(CASE WHEN status = 1 THEN 1 ELSE NULL END)      unHandled,
+               COUNT(CASE WHEN status = 2 THEN 1 ELSE NULL END)      handled
+        FROM alarm_info
+        where occur_time &gt;= TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
+          and occur_time &lt; TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+    </select>
+
+    <select id="findUnhandledAlarm" parameterType="com.jcca.web2.dto.AlarmPageDto"
+            resultType="com.jcca.web2.dto.AlarmUnhandledDto">
+        select a.name assetName, a.ip assetIp, i.occur_time, i.content, i.description, i.opinion
+        from alarm_info i
+                 left join asset a on i.asset_id = a.id
+        where i.status = 1
+          and i.occur_time &gt;= TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
+          and i.occur_time &lt; TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+        ORDER BY a.IP
+    </select>
+
+    <select id="find5TimesUp" parameterType="com.jcca.web2.dto.AlarmPageDto"
+            resultType="com.jcca.web2.dto.AlarmUnhandledDto">
+        SELECT t.*
+        FROM (SELECT a.name                                                AS assetName,
+                     a.ip                                                  AS assetIp,
+                     i.occur_time,
+                     i.content,
+                     i.description,
+                     i.opinion,
+                     COUNT(1) OVER (PARTITION BY i.asset_id, i.alarm_code) AS alarmCount
+              FROM alarm_info i
+                       LEFT JOIN asset a ON i.asset_id = a.id
+              WHERE i.occur_time &gt;= TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
+                and i.occur_time &lt; TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')) t
+        WHERE t.alarmCount > 5
+        ORDER BY t.assetIp
+    </select>
 
 </mapper>
 

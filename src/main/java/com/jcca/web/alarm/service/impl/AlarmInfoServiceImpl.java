@@ -70,10 +70,7 @@ import com.jcca.web.event.entity.AlarmEventGroup;
 import com.jcca.web.event.entity.AlarmEventRel;
 import com.jcca.web.event.enums.EventRecoverFlagEnum;
 import com.jcca.web.event.service.AlarmEventService;
-import com.jcca.web2.dto.AlarmPageDto;
-import com.jcca.web2.dto.CabinetAlarmQueryDto;
-import com.jcca.web2.dto.DialogsAlarmListDto;
-import com.jcca.web2.dto.DisposeAlarmDto;
+import com.jcca.web2.dto.*;
 import com.jcca.web2.service.impl.IndexPageServiceImpl;
 import com.jcca.web2.vo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -1115,6 +1112,21 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
 
        return alarmInfoMapper.getAssetAlarmByOrg(orgId);
 
+    }
+
+    @Override
+    public AlarmCountDto countAlarm(AlarmPageDto req) {
+        return alarmInfoMapper.countAlarm(req);
+    }
+
+    @Override
+    public List<AlarmUnhandledDto> findUnhandledAlarm(AlarmPageDto req) {
+        return alarmInfoMapper.findUnhandledAlarm(req);
+    }
+
+    @Override
+    public List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req) {
+        return alarmInfoMapper.find5TimesUp(req);
     }
 
 }

@@ -20,10 +20,7 @@ import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.construction.entity.ConstructionRecord;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.entity.AlarmEventGroup;
-import com.jcca.web2.dto.AlarmPageDto;
-import com.jcca.web2.dto.CabinetAlarmQueryDto;
-import com.jcca.web2.dto.DialogsAlarmListDto;
-import com.jcca.web2.dto.DisposeAlarmDto;
+import com.jcca.web2.dto.*;
 import com.jcca.web2.vo.*;
 
 import java.util.List;
@@ -393,4 +390,10 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     * 获取组织下资产的最大告警级别
     * */
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
+
+    AlarmCountDto countAlarm(AlarmPageDto req);
+
+    List<AlarmUnhandledDto> findUnhandledAlarm(AlarmPageDto req);
+
+    List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req);
 }

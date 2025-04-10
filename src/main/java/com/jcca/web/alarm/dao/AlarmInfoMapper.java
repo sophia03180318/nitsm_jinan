@@ -15,9 +15,7 @@ import com.jcca.web.alarm.vo.AlarmExportVo;
 import com.jcca.web.alarm.vo.AlarmUnconfirmVo;
 import com.jcca.web.common.service.bean.ThreeDAlarmReq;
 import com.jcca.web.config.vo.SysConfig;
-import com.jcca.web2.dto.AlarmPageDto;
-import com.jcca.web2.dto.CabinetAlarmQueryDto;
-import com.jcca.web2.dto.DialogsAlarmListDto;
+import com.jcca.web2.dto.*;
 import com.jcca.web2.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -225,4 +223,9 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     @Select("select min(ALARM_LEVEL) as alarmLevel ,ASSET_ID as assetId from ALARM_INFO where ORG_ID =#{orgId}  group by ASSET_ID")
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
 
+    AlarmCountDto countAlarm(AlarmPageDto req);
+
+    List<AlarmUnhandledDto> findUnhandledAlarm(AlarmPageDto req);
+
+    List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req);
 }
