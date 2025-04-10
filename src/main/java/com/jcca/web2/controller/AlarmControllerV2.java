@@ -39,6 +39,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -375,13 +376,14 @@ public class AlarmControllerV2 {
         }
     }
 
-    @GetMapping("/countAlarm")
+    @PostMapping("/countAlarm")
     @ApiOperation("告警统计")
-    public void countAlarm(HttpServletResponse response, AlarmPageDto req) {
+    @RequiresPermissions("api:v2:alarm:countAlarm")
+    public void countAlarm(HttpServletResponse response, @RequestBody AlarmPageDto req) {
         String startTime = req.getStartTime();
         String endTime = req.getEndTime();
         if (StrUtil.isEmpty(startTime) || StrUtil.isEmpty(endTime)) {
-            throw new ResultException(ResultEnum.PARAM_ERROR);
+            throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "请选择起止时间");
         }
 
         ExcelWriter writer = ExcelUtil.getWriter(true);
