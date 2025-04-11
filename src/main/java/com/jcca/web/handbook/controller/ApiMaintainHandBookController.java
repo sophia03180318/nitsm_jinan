@@ -410,8 +410,8 @@ public class ApiMaintainHandBookController {
     }
 
     private boolean isImg(String filePath) {
-        filePath = filePath.replace("/upload", "");
-        File file = new File(filePath);
+        String path = filePath.replace("/upload", "");
+        File file = new File(path);
         if (!file.exists()) {
             return false;
         }
