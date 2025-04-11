@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
 
 /**
  * @author: hhw
@@ -72,7 +73,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                     byte[] buffer = new byte[1024];
                     int i = 0;
                     while ((i = inputStream.read(buffer)) != -1) {
-                        sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
+                        sendMessage(finalWebRemoteData, webSocketSession, Arrays.copyOfRange(buffer, 0, i));
                     }
                 } catch (IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet连接异常", e.getMessage());
@@ -90,15 +91,39 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet读取数据异常", e.getMessage());
                 this.close(webSocketSession, itsmUsername);
             }
-
         }
     }
 
+    private StringBuilder sb = new StringBuilder();
+
     @Override
-    public void sendMessage(WebSocketSession session, byte[] buffer) throws IOException {
+    public void sendMessage(WebRemoteData webRemoteData, WebSocketSession session, byte[] buffer) throws IOException {
         if (session.isOpen()) {
-            session.sendMessage(new TextMessage(buffer));
+            TextMessage textMessage = new TextMessage(buffer);
+            String command = textMessage.getPayload();
+            if (command.contains("\n")) {
+                sb.append(command);
+
+                Matcher matcher = ConstantPool.CTRL_PATTERN.matcher(sb.toString());
+                String sanitized = "";
+                while (matcher.find()) {
+                    sanitized = matcher.replaceAll(replaceMatcher(matcher));
+                }
+                AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT,
+                        "用户：" + webRemoteData.getItsmUsername() + "，TELNET远程IP：" + webRemoteData.getHost(), sanitized);
+                sb = new StringBuilder();
+            } else {
+                sb.append(command);
+            }
+            session.sendMessage(textMessage);
         }
+    }
+
+    private String replaceMatcher(Matcher m) {
+        int code = m.group().charAt(0);
+        String name = ConstantPool.CTRL_NAMES.getOrDefault(code,
+                String.format("CTRL_0x%02X", code));
+        return "<" + name + ">";
     }
 
     @Override
@@ -116,5 +141,16 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "websocket远程连接关闭异常", e.getMessage());
         }
+    }
+}
+
+// 新增 MatcherReplacement 类
+class MatcherReplacement implements java.util.function.Function<Matcher, String> {
+    @Override
+    public String apply(Matcher m) {
+        int code = m.group().charAt(0);
+        String name = ConstantPool.CTRL_NAMES.getOrDefault(code,
+                String.format("CTRL_0x%02X", code));
+        return "<" + name + ">";
     }
 }

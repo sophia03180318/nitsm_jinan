@@ -14,7 +14,7 @@ public class WebRemoteData {
     // 消息类型 SSH TELNET
     private String msgType;
     private String host;
-    private Integer port = 22;
+    private Integer port;
     private String username;
     private String passwd;
     private String message = "";

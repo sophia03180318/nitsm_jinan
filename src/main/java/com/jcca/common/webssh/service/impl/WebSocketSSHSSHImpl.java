@@ -16,12 +16,14 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
 
 /**
  * @Description: WebSSH业务逻辑实现
@@ -99,7 +101,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                     ChannelShell channel = (ChannelShell) connectInfo.getChannel();
                     if (channel != null) {
                         channel.setPtySize(webRemoteData.getCols(), webRemoteData.getRows(), webRemoteData.getWidth(), webRemoteData.getHeight());
-                        transToSSH(channel, command);
+                        transToSSH(webRemoteData, channel, command);
                         if (channel.isClosed()) {
                             close(session, itsmUsername);
                         }
@@ -165,7 +167,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
         Session session = null;
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
-        session = connectInfo.getJSch().getSession(webRemoteData.getUsername(), webRemoteData.getHost(), webRemoteData.getPort());
+        session = connectInfo.getJSch().getSession(webRemoteData.getUsername(), webRemoteData.getHost(), webRemoteData.getPort() == null ? 22 : webRemoteData.getPort());
         session.setConfig(config);
         session.setPassword(webRemoteData.getPasswd());
         session.connect(30000);
@@ -178,7 +180,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
 
         connectInfo.setChannel(channel);
 
-        transToSSH(channel, "\n");
+        transToSSH(webRemoteData, channel, "\n");
 
         //读取终端返回的信息流
         try (InputStream inputStream = channel.getInputStream()) {
@@ -194,6 +196,8 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
         }
     }
 
+    private StringBuilder sb = new StringBuilder();
+
     /**
      * @Description: 将消息转发到终端
      * @Param: [channel, data]
@@ -201,11 +205,31 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
      * @Author: NoCortY
      * @Date: 2020/3/7
      */
-    private void transToSSH(Channel channel, String command) throws IOException {
+    private void transToSSH(WebRemoteData webRemoteData, Channel channel, String command) throws IOException {
         if (channel != null) {
+            if (command.contains("\r")) {
+                sb.append(command);
+                Matcher matcher = ConstantPool.CTRL_PATTERN.matcher(sb.toString());
+                String sanitized = "";
+                while (matcher.find()) {
+                    sanitized = matcher.replaceAll(replaceMatcher(matcher));
+                }
+                AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT,
+                        "用户：" + webRemoteData.getItsmUsername() + "，SSH远程IP：" + webRemoteData.getHost(), sanitized);
+                sb = new StringBuilder();
+            } else {
+                sb.append(command);
+            }
             OutputStream outputStream = channel.getOutputStream();
-            outputStream.write(command.getBytes());
+            outputStream.write(command.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         }
+    }
+
+    private String replaceMatcher(Matcher m) {
+        int code = m.group().charAt(0);
+        String name = ConstantPool.CTRL_NAMES.getOrDefault(code,
+                String.format("CTRL_0x%02X", code));
+        return "<" + name + ">";
     }
 }

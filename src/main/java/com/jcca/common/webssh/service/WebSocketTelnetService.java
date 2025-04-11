@@ -1,5 +1,6 @@
 package com.jcca.common.webssh.service;
 
+import com.jcca.common.webssh.pojo.WebRemoteData;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public interface WebSocketTelnetService {
     void recvHandle(String buffer, WebSocketSession session);
 
 
-    void sendMessage(WebSocketSession session, byte[] buffer) throws IOException;
+    void sendMessage(WebRemoteData webRemoteData, WebSocketSession session, byte[] buffer) throws IOException;
 
 
     void close(WebSocketSession session, String username);

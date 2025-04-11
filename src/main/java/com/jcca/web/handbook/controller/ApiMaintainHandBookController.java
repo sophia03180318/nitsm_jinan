@@ -50,11 +50,10 @@ import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -411,19 +410,16 @@ public class ApiMaintainHandBookController {
     }
 
     private boolean isImg(String filePath) {
-        File pig = new File(filePath);
-        if (pig.exists()) {
-            Image img = null;
-            try {
-                img = ImageIO.read(pig);
-                return img != null && img.getWidth(null) > 0 && img.getHeight(null) > 0;
-            } catch (Exception e) {
-                return false;
-            } finally {
-                img = null;
-            }
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return false;
         }
-        return false;
+        try {
+            BufferedImage image = ImageIO.read(file);
+            return image != null;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private void saveRelate(AddFileReq file) {
