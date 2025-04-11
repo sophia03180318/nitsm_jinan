@@ -96,7 +96,9 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
 
     @Override
     public void sendMessage(WebSocketSession session, byte[] buffer) throws IOException {
-        session.sendMessage(new TextMessage(buffer));
+        if (session.isOpen()) {
+            session.sendMessage(new TextMessage(buffer));
+        }
     }
 
     @Override
