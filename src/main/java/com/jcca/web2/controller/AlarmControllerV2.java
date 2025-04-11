@@ -379,7 +379,7 @@ public class AlarmControllerV2 {
     @PostMapping("/countAlarm")
     @ApiOperation("告警统计")
     @RequiresPermissions("api:v2:alarm:countAlarm")
-    public void countAlarm(HttpServletResponse response, @RequestBody AlarmPageDto req) {
+    public void countAlarm(HttpServletResponse response, AlarmPageDto req) {
         String startTime = req.getStartTime();
         String endTime = req.getEndTime();
         if (StrUtil.isEmpty(startTime) || StrUtil.isEmpty(endTime)) {
@@ -388,11 +388,11 @@ public class AlarmControllerV2 {
 
         ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.setColumnWidth(0, 18);
-        writer.setColumnWidth(1, 18);
+        writer.setColumnWidth(1, 16);
         writer.setColumnWidth(2, 18);
-        writer.setColumnWidth(3, 18);
-        writer.setColumnWidth(4, 18);
-        writer.setColumnWidth(5, 18);
+        writer.setColumnWidth(3, 60);
+        writer.setColumnWidth(4, 60);
+        writer.setColumnWidth(5, 30);
         writer.renameSheet("告警统计");
 
         writer.addHeaderAlias("total", "告警总数");
