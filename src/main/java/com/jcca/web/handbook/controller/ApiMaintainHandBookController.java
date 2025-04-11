@@ -397,7 +397,7 @@ public class ApiMaintainHandBookController {
             String orignName = sysFile.getOrignName();
             String type = orignName.substring(orignName.lastIndexOf(".") + 1);
             if ("pdf".equalsIgnoreCase(type)
-                    || isImg(staticFilePath.replace("upload", "") + sysFile.getFilePath())) {
+                    || isImg(staticFilePath + sysFile.getFilePath())) {
                 file.setId(sysFile.getId());
                 file.setFilePath(sysFile.getFilePath());
                 this.saveRelate(file);
@@ -410,6 +410,7 @@ public class ApiMaintainHandBookController {
     }
 
     private boolean isImg(String filePath) {
+        filePath = filePath.replace("/upload", "");
         File file = new File(filePath);
         if (!file.exists()) {
             return false;
