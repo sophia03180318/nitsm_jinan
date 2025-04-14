@@ -101,11 +101,11 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                         }
                     }
                 } catch (IOException e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "ssh连接异常", e.getMessage());
+                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH执行命令异常", e.getMessage());
                     try {
                         sendMessage(session, ("ERROR : " + e.getMessage()).getBytes());
                     } catch (IOException ex) {
-                        AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送异常", e.getMessage());
+                        AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH执行命令发送消息发送异常", e.getMessage());
 
                     }
                     this.close(session, itsmUsername);
