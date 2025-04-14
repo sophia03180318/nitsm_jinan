@@ -112,14 +112,10 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                 }
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
-            ConnectInfo connectInfo = sshMap.get(itsmUsername);
-            if (connectInfo != null) {
-                try {
-                    if (connectInfo.getChannel().isConnected())
-                        sendMessage(session, "OK".getBytes());
-                } catch (IOException e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
-                }
+            try {
+                sendMessage(session, "OK".getBytes());
+            } catch (IOException e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
             }
         } else {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH不支持的操作", itsmUsername);

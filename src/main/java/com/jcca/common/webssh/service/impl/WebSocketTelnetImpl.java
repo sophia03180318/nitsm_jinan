@@ -86,14 +86,10 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 this.close(webSocketSession, itsmUsername);
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
-            ConnectInfo connectInfo = telnetMap.get(itsmUsername);
-            if (connectInfo != null) {
-                try {
-                    if (connectInfo.getTelnetClient().isConnected())
-                        sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
-                } catch (IOException e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
-                }
+            try {
+                sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
+            } catch (IOException e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
             }
         } else {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET不支持的操作", itsmUsername);
