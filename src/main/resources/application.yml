@@ -62,8 +62,8 @@ spring:
       #url: jdbc:dm://192.168.51.252:5236/DMSERVER
 
       url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
-      username: jinanv4
-      password: jinanv4
+      username: jinanv2
+      password: jinanv2
 
       #      url: jdbc:oracle:thin:@localhost:1521/orcl
       #      username: gz_pusu
@@ -111,7 +111,7 @@ jcca:
     port: 6379
     password: jcca@123
     timeout: 5000
-    database: 8
+    database: 7
 
     jedis:
       pool1:
