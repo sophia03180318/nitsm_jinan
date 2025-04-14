@@ -45,9 +45,7 @@ public class ProcessSaveFilterHandler extends IFilterHandler<CollectProcessEntit
         if (Objects.nonNull(info.getMemoryRate())) {
             threshold.setMemoryRate(info.getMemoryRate().toString());
         }
-        if (threshold.getHostMode() == ProcessHostModeEnum.COMMON.getCode().intValue()) {
-            threshold.setCollectStatus(info.getStatus() ? StatusEnum.OK.getCode() : StatusEnum.NO.getCode());
-        }
+
         thresholdService.updateById(threshold);
 
         if (Objects.isNull(info.getCpuRate()) || Objects.isNull(info.getMemoryRate())) {
