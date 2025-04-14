@@ -75,7 +75,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                 try {
                     connectToSSH(connectInfo, finalWebRemoteData, session);
                     if (connectInfo.getChannel().isClosed()) {
-                        close(session, itsmUsername);
+                        this.close(session, itsmUsername);
                     }
                 } catch (JSchException | IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "ssh连接异常", e.getMessage());
@@ -84,7 +84,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                     } catch (IOException ex) {
                         AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "ssh连接发送消息异常", e.getMessage());
                     }
-                    close(session, itsmUsername);
+                    this.close(session, itsmUsername);
                 }
             });
         } else if (ConstantPool.WEBSSH_OPERATE_COMMAND.equals(webRemoteData.getOperate())) {
@@ -97,7 +97,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                         channel.setPtySize(webRemoteData.getCols(), webRemoteData.getRows(), webRemoteData.getWidth(), webRemoteData.getHeight());
                         transToSSH(webRemoteData, channel, command);
                         if (channel.isClosed()) {
-                            close(session, itsmUsername);
+                            this.close(session, itsmUsername);
                         }
                     }
                 } catch (IOException e) {
@@ -108,7 +108,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                         AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送异常", e.getMessage());
 
                     }
-                    close(session, itsmUsername);
+                    this.close(session, itsmUsername);
                 }
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
@@ -120,7 +120,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
             }
         } else {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH不支持的操作", itsmUsername);
-            close(session, itsmUsername);
+            this.close(session, itsmUsername);
         }
     }
 
@@ -140,11 +140,11 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
             }
             sshMap.remove(username);
         }
-        try {
-            session.close();
-        } catch (IOException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH websocket远程连接关闭异常", e.getMessage());
-        }
+//        try {
+//            session.this.close();
+//        } catch (IOException e) {
+//            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH websocket远程连接关闭异常", e.getMessage());
+//        }
     }
 
     /**
