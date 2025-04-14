@@ -9,7 +9,6 @@ import com.jcca.common.webssh.pojo.WebRemoteData;
 import com.jcca.common.webssh.service.WebSocketSSHService;
 import com.jcraft.jsch.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -68,11 +67,6 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH读取前端数据异常", e.getMessage());
             return;
         }
-        if (StringUtils.isEmpty(webRemoteData.getMessage())) {
-            webRemoteData.setOperate(ConstantPool.WEBSSH_OPERATE_CONNECT);
-        } else {
-            webRemoteData.setOperate(ConstantPool.WEBSSH_OPERATE_COMMAND);
-        }
         String itsmUsername = webRemoteData.getItsmUsername();
         if (ConstantPool.WEBSSH_OPERATE_CONNECT.equals(webRemoteData.getOperate())) {
             ConnectInfo connectInfo = sshMap.get(itsmUsername);
@@ -118,13 +112,11 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                 }
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
-            //检查心跳
             ConnectInfo connectInfo = sshMap.get(itsmUsername);
             if (connectInfo != null) {
                 try {
-                    //处于连接状态则发送健康数据，不能为空，空则断开连接。
                     if (connectInfo.getChannel().isConnected())
-                        sendMessage(session, "Heartbeat healthy".getBytes());
+                        sendMessage(session, "OK".getBytes());
                 } catch (IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
                 }
