@@ -37,6 +37,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
     @Override
     public void initConnection(WebSocketSession session, String username) {
         TelnetClient client = new TelnetClient();
+        client.setConnectTimeout(30000);
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setTelnetClient(client);
         connectInfo.setWebSocketSession(session);
