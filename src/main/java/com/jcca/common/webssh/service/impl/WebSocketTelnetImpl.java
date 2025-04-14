@@ -72,6 +72,11 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                     }
                 } catch (IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet连接异常", e.getMessage());
+                    try {
+                        sendMessage(finalWebRemoteData, webSocketSession, ("ERROR : " + e.getMessage()).getBytes());
+                    } catch (IOException ex) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet连接发送消息异常", ex.getMessage());
+                    }
                     this.close(webSocketSession, itsmUsername);
                 }
             });
