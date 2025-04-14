@@ -86,6 +86,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 this.close(webSocketSession, itsmUsername);
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET心跳消息", ConstantPool.WEBSSH_OPERATE_HEARTBEAT);
             try {
                 sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
             } catch (IOException e) {
