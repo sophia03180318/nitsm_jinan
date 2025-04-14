@@ -89,7 +89,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
             ConnectInfo connectInfo = telnetMap.get(itsmUsername);
             if (connectInfo != null) {
                 try {
-                    if (connectInfo.getChannel().isConnected())
+                    if (connectInfo.getTelnetClient().isConnected())
                         sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
                 } catch (IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
