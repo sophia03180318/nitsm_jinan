@@ -89,7 +89,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
             try {
                 sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
             } catch (IOException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET心跳消息发送失败", e.getMessage());
             }
         } else {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET不支持的操作", itsmUsername);
@@ -142,7 +142,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
 
             session.close();
         } catch (IOException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "websocket远程连接关闭异常", e.getMessage());
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET websocket远程连接关闭异常", e.getMessage());
         }
     }
 }

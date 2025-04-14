@@ -115,7 +115,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
             try {
                 sendMessage(session, "OK".getBytes());
             } catch (IOException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH心跳消息发送失败", e.getMessage());
             }
         } else {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH不支持的操作", itsmUsername);
@@ -140,7 +140,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
         try {
             session.close();
         } catch (IOException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "websocket远程连接关闭异常", e.getMessage());
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH websocket远程连接关闭异常", e.getMessage());
         }
     }
 
