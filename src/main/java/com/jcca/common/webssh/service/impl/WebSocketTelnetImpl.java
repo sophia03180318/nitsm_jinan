@@ -9,7 +9,6 @@ import com.jcca.common.webssh.pojo.WebRemoteData;
 import com.jcca.common.webssh.service.WebSocketTelnetService;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -55,11 +54,6 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET读取前端数据异常", e.getMessage());
             return;
         }
-        if (StringUtils.isEmpty(webRemoteData.getMessage())) {
-            webRemoteData.setOperate(ConstantPool.WEBSSH_OPERATE_CONNECT);
-        } else {
-            webRemoteData.setOperate(ConstantPool.WEBSSH_OPERATE_COMMAND);
-        }
 
         String itsmUsername = webRemoteData.getItsmUsername();
         if (ConstantPool.WEBSSH_OPERATE_CONNECT.equals(webRemoteData.getOperate())) {
@@ -91,6 +85,19 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet读取数据异常", e.getMessage());
                 this.close(webSocketSession, itsmUsername);
             }
+        } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
+            ConnectInfo connectInfo = telnetMap.get(itsmUsername);
+            if (connectInfo != null) {
+                try {
+                    if (connectInfo.getChannel().isConnected())
+                        sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
+                } catch (IOException e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
+                }
+            }
+        } else {
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET不支持的操作", itsmUsername);
+            close(webSocketSession, itsmUsername);
         }
     }
 
@@ -141,16 +148,5 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "websocket远程连接关闭异常", e.getMessage());
         }
-    }
-}
-
-// 新增 MatcherReplacement 类
-class MatcherReplacement implements java.util.function.Function<Matcher, String> {
-    @Override
-    public String apply(Matcher m) {
-        int code = m.group().charAt(0);
-        String name = ConstantPool.CTRL_NAMES.getOrDefault(code,
-                String.format("CTRL_0x%02X", code));
-        return "<" + name + ">";
     }
 }

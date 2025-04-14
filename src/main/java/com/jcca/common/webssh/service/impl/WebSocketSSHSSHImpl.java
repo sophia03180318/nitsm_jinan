@@ -122,7 +122,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                 }
             }
         } else {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "不支持的操作", itsmUsername);
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH不支持的操作", itsmUsername);
             close(session, itsmUsername);
         }
     }
