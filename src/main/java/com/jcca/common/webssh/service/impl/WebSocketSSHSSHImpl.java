@@ -112,7 +112,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
                 }
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "SSH心跳消息", ConstantPool.WEBSSH_OPERATE_HEARTBEAT);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "SSH心跳消息", ConstantPool.WEBSSH_OPERATE_HEARTBEAT);
             try {
                 sendMessage(session, "OK".getBytes());
             } catch (IOException e) {
