@@ -67,7 +67,6 @@ public class ThresholdMangerService implements ThresholdManager {
      */
     public void init() {
         this.initThresholdV2();
-
     }
 
     @Override
@@ -75,14 +74,8 @@ public class ThresholdMangerService implements ThresholdManager {
         this.initThresholdV2();
     }
 
-
-    /**
-     * 适配V2版本的阈值初始化
-     */
-    private void initThresholdV2() {
-        thresholds.clear();
-
-        //进程初始化
+    //进程初始化
+    private void initProcess() {
         List<ThresholdProcess> processList = processServ.list();
         String key = "";
         for (ThresholdProcess thresholdProcess : processList) {
@@ -100,7 +93,24 @@ public class ThresholdMangerService implements ThresholdManager {
                 thresholds.put(key, baseEntity2);
             }
         }
+    }
 
+
+    /**
+     * 适配V2版本的阈值初始化
+     */
+    private void initThresholdV2() {
+        thresholds.clear();
+
+        initProcess();
+
+        initThresh();
+    }
+
+    // 阈值初始化
+    private void initThresh() {
+
+        String key = "";
         List<ThresholdManage> list = thresholdManageServ.list();
         for (ThresholdManage item : list) {
             if (Objects.nonNull(item.getOnAlarm()) && item.getOnAlarm() == 0) {
