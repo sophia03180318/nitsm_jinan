@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
+import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
@@ -34,8 +35,8 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
 
     @Override
     public boolean handler(ProcessGroupEntity req) {
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机单断进程处理", req.getAssetIp());
         List<ProcessAlarmQueueEntity> queueObj = req.getQueueObj();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机单断进程处理", JSONUtil.toJsonStr(queueObj));
         if (queueObj.size() == 1) {
             ProcessAlarmQueueEntity info = queueObj.get(0);
             if (!StringUtils.isEmpty(info.getProcessChange())) {
@@ -77,6 +78,8 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
                     }
                     event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                     this.dispatureEvent(event);
+
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "进程告警上报", JSONUtil.toJsonStr(alarmTempReq));
                 }
             }
         }
