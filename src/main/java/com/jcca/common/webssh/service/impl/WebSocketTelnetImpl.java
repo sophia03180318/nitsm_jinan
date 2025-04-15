@@ -37,6 +37,7 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
     @Override
     public void initConnection(WebSocketSession session, String username) {
         TelnetClient client = new TelnetClient();
+        client.setConnectTimeout(30000);
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setTelnetClient(client);
         connectInfo.setWebSocketSession(session);
@@ -71,6 +72,11 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                     }
                 } catch (IOException e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet连接异常", e.getMessage());
+                    try {
+                        sendMessage(finalWebRemoteData, webSocketSession, ("ERROR : " + e.getMessage()).getBytes());
+                    } catch (IOException ex) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet连接发送消息异常", ex.getMessage());
+                    }
                     this.close(webSocketSession, itsmUsername);
                 }
             });
@@ -83,17 +89,23 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 outputStream.flush();
             } catch (IOException e) {
                 AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet读取数据异常", e.getMessage());
+                try {
+                    sendMessage(webRemoteData, webSocketSession, ("ERROR : " + e.getMessage()).getBytes());
+                } catch (IOException ex) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "telnet执行命令发送消息异常", ex.getMessage());
+                }
                 this.close(webSocketSession, itsmUsername);
             }
         } else if (ConstantPool.WEBSSH_OPERATE_HEARTBEAT.equals(webRemoteData.getOperate())) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "TELNET心跳消息", ConstantPool.WEBSSH_OPERATE_HEARTBEAT);
             try {
                 sendMessage(webRemoteData, webSocketSession, "OK".getBytes());
             } catch (IOException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "消息发送失败", e.getMessage());
+                AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET心跳消息发送失败", e.getMessage());
             }
         } else {
             AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET不支持的操作", itsmUsername);
-            close(webSocketSession, itsmUsername);
+            this.close(webSocketSession, itsmUsername);
         }
     }
 
@@ -140,9 +152,9 @@ public class WebSocketTelnetImpl implements WebSocketTelnetService {
                 telnetMap.remove(username);
             }
 
-            session.close();
+//            session.close();
         } catch (IOException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "websocket远程连接关闭异常", e.getMessage());
+            AppLogUtils.buildLogError(LogFunctionEnum.REMOTE_CONNECT, "TELNET websocket远程连接关闭异常", e.getMessage());
         }
     }
 }
