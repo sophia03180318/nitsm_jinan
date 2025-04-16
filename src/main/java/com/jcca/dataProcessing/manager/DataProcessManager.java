@@ -368,11 +368,14 @@ public class DataProcessManager {
                 "processChangeFilterHandler",
                 "processGroupSingleStateFilterHandler",
                 "ProcessGroupDoubleStateFilterHandler",
-                "saveFilterHandler");
+                "ProcessAloneStateFilterHandler",
+                "saveFilterHandler"
+                );
         List<String> processGroupEventHandlerList = Arrays.asList(
                 "processChangeFilterHandler",
                 "processGroupSingleStateFilterHandler",
-                "ProcessGroupDoubleStateFilterHandler");
+                "ProcessGroupDoubleStateFilterHandler",
+                "ProcessAloneStateFilterHandler");
         processGroupHandler = createHandler(processGroupHandlerList, processGroupEventHandlerList, eventInfoListener);
 
         //IPMI管理口

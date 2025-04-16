@@ -1,7 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
-import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ProcessAlarmQueueEntity;
 import com.jcca.dataProcessing.Entity.ProcessGroupEntity;
@@ -10,9 +8,9 @@ import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
+import com.jcca.web.asset.utils.enums.ProcessHostModeEnum;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -35,14 +33,14 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
     @Override
     public boolean handler(ProcessGroupEntity entity) {
         List<ProcessAlarmQueueEntity> queueObj = entity.getQueueObj();
-        if (entity.getQueueObj().size() < 2) {
-            return true;
-        }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机双活进程处理", entity.getAssetIp());
+
         List<ProcessAlarmQueueEntity> normalAsset = new ArrayList<ProcessAlarmQueueEntity>();
         List<ProcessAlarmQueueEntity> errorAsset = new ArrayList<ProcessAlarmQueueEntity>();
 
         for (ProcessAlarmQueueEntity process : queueObj) {
+            if(!ProcessHostModeEnum.DOUBLE_HOST_DOUBLE_LIVE.getCode().equals(process.getHostMode())){
+                return true;
+            }
             if (process.getProcessStatus()) {
                 normalAsset.add(process);
             } else {
@@ -52,9 +50,6 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
 
         for (ProcessAlarmQueueEntity info : queueObj) {
-            if (!StringUtils.isEmpty(info.getProcessChange())) {
-                continue;
-            }
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process_status.getCode();
             String mapKey = info.getProcessName() + "_all_down";
             Boolean processStatus = info.getProcessStatus();
@@ -104,10 +99,9 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
 
                 if (processStatus) {
-                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " "
-                            + String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
+                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
                 } else {
-                    alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
+                    alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
                 }
                 alarmTempReq.setFlag(info.getProcessId());
                 IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
@@ -116,10 +110,10 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                     changeInfo.setIsEvent(true);
                     if (processStatus) {
                         event.setRecoveryProcessIdDescr(" 恢复的进程ID:" + info.getProcessId() + " ");
-                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
+                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(),info.getProcessId()));
                         this.dispatureEvent(event);
                     } else {
-                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
+                        event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
                         this.dispatureEvent(event);
                     }
                 }

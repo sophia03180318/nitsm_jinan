@@ -1,6 +1,9 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ProcessAlarmQueueEntity;
 import com.jcca.dataProcessing.Entity.ProcessGroupEntity;
@@ -12,6 +15,7 @@ import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.utils.enums.ProcessHostModeEnum;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -19,13 +23,13 @@ import java.util.List;
 
 /**
  * @author Zhaozheng
- * @description TODO 单活判定事件
+ * @description TODO 普通单活判定事件
  * @className ProcessStateFilterHandler
  * @date 2023/10/27 9:57
  * @since 2.1.0.0
  */
-@Component("processGroupSingleStateFilterHandler")
-public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<ProcessGroupEntity> {
+@Component("ProcessAloneStateFilterHandler")
+public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupEntity> {
 
 
     @Resource
@@ -34,57 +38,49 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
     @Override
     public boolean handler(ProcessGroupEntity req) {
         List<ProcessAlarmQueueEntity> queueObj = req.getQueueObj();
-
-        //有一个正常则全部正常
-        boolean status = false;
-        for (ProcessAlarmQueueEntity info : queueObj) {
-            if(!ProcessHostModeEnum.DOUBLE_HOST_SINGLE_LIVE.getCode().equals(info.getHostMode()) ){
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "单进程处理", JSONUtil.toJsonStr(queueObj));
+        if (queueObj.size() == 1) {
+            ProcessAlarmQueueEntity info = queueObj.get(0);
+            if(!ProcessHostModeEnum.COMMON.getCode().equals(info.getHostMode()) ){
                 return true;
             }
-            //排除切换告警
-            if(StrUtil.isNotEmpty( info.getProcessChange())){
-                return true;
-            }
-            Boolean processStatus = info.getProcessStatus();
-            if(processStatus){
-                status = true;
-            }
-        }
-
-        for (ProcessAlarmQueueEntity info : queueObj) {
-            String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_process_status.getCode();
+            String redisKey = req.getAssetIp() + ":" + req.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process_status.getCode();
+            boolean compare = info.getProcessStatus();
             String mapKey = info.getProcessName();
 
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, status);
+            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, compare);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
-                changeInfo.setValue(status);
+                changeInfo.setValue(compare);
                 changeInfo.setRedisKey(redisKey);
                 changeInfo.setMapKey(mapKey);
                 changeInfo.setCollectTime(new Date());
                 req.getMaps().put(mapKey, changeInfo);
 
+                Integer status = compare ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_status.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = req.getAssetIp() + ":" + req.getAssetId() + ":" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
-                if (status) {
-                    alarmTempReq.setOrgMsg("恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
+                if (status == EventLevelEnum.NORMAL.getCode()) {
+                    alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 } else {
                     alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 }
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
-                this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status?EventLevelEnum.NORMAL.getCode():EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
+                this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);
                     //进程恢复
-                    if (status) {
-                        event.setRecoveryProcessIdDescr("【双击单活模式】恢复的进程ID:" + info.getProcessId() + " ");
+                    if (status == EventLevelEnum.NORMAL.getCode()) {
+                        event.setRecoveryProcessIdDescr(" 恢复的进程ID:" + info.getProcessId() + " ");
                     }
-                    event.setDescStr("【双击单活模式】"+String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
+                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                     this.dispatureEvent(event);
+
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "进程告警上报", JSONUtil.toJsonStr(alarmTempReq));
                 }
             }
         }

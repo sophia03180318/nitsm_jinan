@@ -14,6 +14,7 @@ import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,21 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
     public boolean handler(ProcessGroupEntity entity) throws Exception {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "双机单活进程切换", entity.getAssetIp());
         List<ProcessAlarmQueueEntity> queueObj = entity.getQueueObj();
+
+        String assetName = "";
+        String assetIP = "";
+        for (ProcessAlarmQueueEntity processAlarmQueueEntity : queueObj) {
+            if(processAlarmQueueEntity.getProcessStatus()){
+                Asset asset = assetService.getById(processAlarmQueueEntity.getAssetId());
+                assetName = asset.getName();
+                assetIP = asset.getIp();
+            }
+        }
+
+        if(StringUtils.isEmpty(assetName)){
+            return true;
+        }
+
         for (ProcessAlarmQueueEntity info : queueObj) {
             String processChange = info.getProcessChange();
             if (StringUtils.isEmpty(processChange)) {
@@ -60,11 +76,10 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
                 changeInfo.setCollectTime(new Date());
                 entity.getMaps().put(mapKey, changeInfo);
 
-                Asset asset = this.getGroupAsset(info.getAssetId());
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_once.getDescr(),
-                        info.getProcessName(), info.getAlias(), asset.getName() + "(" + asset.getIp() + ")"));
+                        info.getProcessName(), info.getAlias(), assetName + "(" + assetIP + ")"));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_once.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(),
@@ -77,7 +92,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
                 if (event != null) {
                     changeInfo.setIsEvent(true);
                     event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_once.getDescr(),
-                            info.getProcessName(), info.getAlias(), asset.getName() + "(" + asset.getIp() + ")"));
+                            info.getProcessName(), info.getAlias(), assetName + "(" + assetIP + ")"));
                     this.dispatureEvent(event);
                     return false;
                 }
@@ -86,14 +101,6 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
         return true;
     }
 
-    private Asset getGroupAsset(String assetId) {
-        Asset asset = assetService.getById(assetId);
-        QueryWrapper<Asset> query = Wrappers.query();
-        query.eq("ASSET_CODE", asset.getAssetCode());
-        query.ne("ID", asset.getId());
-        List<Asset> list = assetService.list(query);
-        return list.get(0);
-    }
 
     @Override
     public boolean isNeedNexthandle(Boolean flag) {
