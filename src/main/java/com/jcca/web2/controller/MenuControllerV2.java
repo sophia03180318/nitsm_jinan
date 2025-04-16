@@ -31,7 +31,6 @@ public class MenuControllerV2 {
 
     @PostMapping("/list")
     @ApiOperation("获取菜单列表")
-    @RequiresPermissions("api:v2:menu:list")
     public ResultVo<Object> getList(@RequestBody SysMenu menu) {
 
         return ResultVoUtil.success(menuService.getListV2(menu));
