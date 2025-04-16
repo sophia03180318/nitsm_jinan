@@ -39,7 +39,6 @@ public class QuartzStationCommandJob extends QuartzJobBean {
         queryWrapper.orderByAsc("id");
         List<StationVersionLog> needUploadList = versionLogServ.list(queryWrapper);
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, "待发起更新车站："+ JSONUtil.toJsonStr(needUploadList),"开始向车站发起jar更新命令~");
         for (StationVersionLog item : needUploadList) {
             versionLogServ.updateJarToStation(item);
             AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, JSONUtil.toJsonStr(item),"向车站"+item.getStationId()+"发起jar"+item.getJarName()+"更新命令完成~");

@@ -74,7 +74,6 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
             return;
         }
 
-        log.info("");
         AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, DateUtil.formatLocalDateTime(LocalDateTime.now()), "开始巡检中心、车站采集器状态~");
         List<CollectNodesMsg> nodeList = null;
         try {

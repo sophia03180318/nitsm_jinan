@@ -42,16 +42,13 @@ public class QuartzStationNotifyJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         if (NOTIFY_QUEUE.isEmpty()) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_DATA_STATION_PING, DateUtil.formatLocalDateTime(LocalDateTime.now()),"当前没有需要重新进行通知的任务……");
             return;
         }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_DATA_STATION_PING, DateUtil.formatLocalDateTime(LocalDateTime.now()),String.format("通知车站告警定时任务-当前需要重新发送通知数:%s",NOTIFY_QUEUE.size()));
 
         List<StationNotifyBean> tryNotifyList = EntityBeanUtil.copyList(NOTIFY_QUEUE, StationNotifyBean.class);
         for (StationNotifyBean jsonObject : tryNotifyList) {
             String body = stationServ.sendPostToStation(jsonObject.getUrl(), jsonObject.getOrgId(), JSONUtil.toJsonStr(jsonObject));
             AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_DATA_STATION_PING, jsonObject,"通知车站告警定时任务-状态返回：" + body);
-
 
             String errorFlag = "通讯失败";
             if (!body.contains(errorFlag)) {
@@ -59,7 +56,6 @@ public class QuartzStationNotifyJob extends QuartzJobBean {
             }
         }
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_DATA_STATION_PING, DateUtil.formatLocalDateTime(LocalDateTime.now()),String.format("通知车站告警定时任务-当前剩余需要重新发送通知数：%s", NOTIFY_QUEUE.size()));
     }
 
 }
