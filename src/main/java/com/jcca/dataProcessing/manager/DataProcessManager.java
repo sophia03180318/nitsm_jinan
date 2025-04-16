@@ -865,6 +865,7 @@ public class DataProcessManager {
         alarmInfoHandler=alarmFilterHandler;
 
         customHandler = this.getIFilterHandler("customEventFilterHnadler");
+
         customHandler.addDataSourceListener(alarmListener);
     }
 

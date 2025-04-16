@@ -6,6 +6,7 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CustomEvent;
 import com.jcca.dataProcessing.Entity.EventInfo;
+import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
@@ -22,6 +23,8 @@ public class CustomEventFilterHnadler extends IFilterHandler<CustomEvent> {
 
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
+    @Resource
+    private DataProcessManager dataProcessManager;
 
     @Override
     public boolean handler(CustomEvent info) {
@@ -42,7 +45,13 @@ public class CustomEventFilterHnadler extends IFilterHandler<CustomEvent> {
         }
         IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
         event.setDescStr(eventInfo.getMessage());
-        this.dispatureEvent(event);
+        //this.dispatureEvent(event);
+
+        try {
+            dataProcessManager.evntInfoHandlerRequest(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return true;
     }

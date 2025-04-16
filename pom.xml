@@ -386,7 +386,7 @@
 
     </dependencies>
 
-    <!-- 编译插件 -->
+    <!-- 其他配置 -->
     <build>
         <finalName>nitsm</finalName>
         <plugins>
@@ -412,8 +412,7 @@
                     <verbose>true</verbose>
                     <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${pom.basedir}/src/main/resources/git.properties
-                    </generateGitPropertiesFilename>
+                    <generateGitPropertiesFilename>${pom.basedir}/src/main/resources/git.properties</generateGitPropertiesFilename>
                 </configuration>
             </plugin>
             <plugin>
@@ -423,19 +422,7 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <!--设置版本-->
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <fork>true</fork>
-                    <!--设置编译时候的maven内存大小-->
-                    <meminitial>512m</meminitial>
-                    <maxmem>1048m</maxmem>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+    <!-- 其他配置 -->
 </project>

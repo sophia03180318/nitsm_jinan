@@ -90,6 +90,7 @@ public class ApiCollectSyslogController extends ListenerManager {
         customEvent.setMsg(req.getOrgMsg());
         customEvent.setUniqueCode(req.getUniqueCode());
         customEvent.setType(StatusInfoChangeTypeEnum.event_aix_log.getCode());
+        customEvent.setStatus(-1);
         this.dispatureEvent(customEvent);
 
 
@@ -135,6 +136,7 @@ public class ApiCollectSyslogController extends ListenerManager {
         customEvent.setMsg(req.getDescription());
         customEvent.setUniqueCode(req.getEventId());
         customEvent.setType(StatusInfoChangeTypeEnum.event_raid_log.getCode());
+        customEvent.setStatus(-1);
         this.dispatureEvent(customEvent);
 
     }
