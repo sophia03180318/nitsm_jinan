@@ -1,7 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
@@ -14,7 +12,6 @@ import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
-import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -45,14 +42,14 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
         String assetName = "";
         String assetIP = "";
         for (ProcessAlarmQueueEntity processAlarmQueueEntity : queueObj) {
-            if(processAlarmQueueEntity.getProcessStatus()){
+            if (processAlarmQueueEntity.getProcessStatus()) {
                 Asset asset = assetService.getById(processAlarmQueueEntity.getAssetId());
                 assetName = asset.getName();
                 assetIP = asset.getIp();
             }
         }
 
-        if(StringUtils.isEmpty(assetName)){
+        if (StringUtils.isEmpty(assetName)) {
             return true;
         }
 
