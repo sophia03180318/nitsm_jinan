@@ -65,12 +65,15 @@ public class ApiMaintainHandBookControllerV2 {
         if (Objects.isNull(one)) {
             return ResultVoUtil.error("未查询到机柜：" + cabinetId);
         }
-        List<FileRelate> voList = cabinetServ.findAssetInCabinet(cabinetId);
+
+        List<FileRelate> voList = new ArrayList<>();
         FileRelate vo = new FileRelate();
         vo.setItemId(one.getId());
         vo.setItemName(one.getName());
         vo.setItemType(Integer.parseInt(OrgTypeConst.CABINET + ""));
         voList.add(vo);
+        List<FileRelate> list = cabinetServ.findAssetInCabinet(cabinetId);
+        voList.addAll(list);
 
         return ResultVoUtil.success(voList);
     }

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 阈值事件监听管理程序
@@ -41,7 +42,7 @@ import java.util.*;
 @Service
 public class ThresholdMangerService implements ThresholdManager {
 
-    private Map<String, ThresholdBaseEntity> thresholds = new HashMap<>(4096);
+    private Map<String, ThresholdBaseEntity> thresholds = new ConcurrentHashMap<>(4096);
 
 
     @Resource
@@ -66,12 +67,32 @@ public class ThresholdMangerService implements ThresholdManager {
      */
     public void init() {
         this.initThresholdV2();
-
     }
 
     @Override
     public void changeThreshold() {
         this.initThresholdV2();
+    }
+
+    //进程初始化
+    private void initProcess() {
+        List<ThresholdProcess> processList = processServ.list();
+        String key = "";
+        for (ThresholdProcess thresholdProcess : processList) {
+            if (thresholdProcess.getThresholdCpu() != null) {
+                ThresholdBaseEntity baseEntity = new ThresholdBaseEntity();
+                baseEntity.setBaseValue(Double.valueOf(thresholdProcess.getThresholdCpu()));
+                key = StatusInfoChangeTypeEnum.event_process_cpu.getCode() + "_" + thresholdProcess.getAssetId() + "_" + thresholdProcess.getProcessName();
+                thresholds.put(key, baseEntity);
+            }
+
+            if (thresholdProcess.getThresholdMemory() != null) {
+                ThresholdBaseEntity baseEntity2 = new ThresholdBaseEntity();
+                baseEntity2.setBaseValue(Double.valueOf(thresholdProcess.getThresholdMemory()));
+                key = StatusInfoChangeTypeEnum.event_process_memory.getCode() + "_" + thresholdProcess.getAssetId() + "_" + thresholdProcess.getProcessName();
+                thresholds.put(key, baseEntity2);
+            }
+        }
     }
 
 
@@ -80,13 +101,22 @@ public class ThresholdMangerService implements ThresholdManager {
      */
     private void initThresholdV2() {
         thresholds.clear();
+
+        initProcess();
+
+        initThresh();
+    }
+
+    // 阈值初始化
+    private void initThresh() {
+
+        String key = "";
         List<ThresholdManage> list = thresholdManageServ.list();
         for (ThresholdManage item : list) {
             if (Objects.nonNull(item.getOnAlarm()) && item.getOnAlarm() == 0) {
                 continue;
             }
             StatusInfoChangeTypeEnum type = null;
-            String key = "";
             if (ThresholdCategoryEnum.CPU.name().equals(item.getCategory())) {
                 type = StatusInfoChangeTypeEnum.event_CPU_normal;
                 key = StatusInfoChangeTypeEnum.event_CPU_normal.getCode() + "_" + item.getAssetId();
@@ -145,24 +175,6 @@ public class ThresholdMangerService implements ThresholdManager {
             thresholdSection(key, key, item.getRangeMin(), item.getRangeMax());
             //阶梯阈值
             thresholdLevel(key, item.getStepHigh(), item.getStepHigher(), item.getStepHighest());
-
-            //进程初始化
-            List<ThresholdProcess> processList = processServ.list();
-            for (ThresholdProcess thresholdProcess : processList) {
-                if (thresholdProcess.getThresholdCpu() != null) {
-                    ThresholdBaseEntity baseEntity = new ThresholdBaseEntity();
-                    baseEntity.setBaseValue(Double.valueOf(thresholdProcess.getThresholdCpu()));
-                    key = StatusInfoChangeTypeEnum.event_process_cpu.getCode() + "_" + thresholdProcess.getAssetId() + "_" + thresholdProcess.getProcessName();
-                    thresholds.put(key, baseEntity);
-                }
-
-                if (thresholdProcess.getThresholdMemory() != null) {
-                    ThresholdBaseEntity baseEntity2 = new ThresholdBaseEntity();
-                    baseEntity2.setBaseValue(Double.valueOf(thresholdProcess.getThresholdMemory()));
-                    key = StatusInfoChangeTypeEnum.event_process_memory.getCode() + "_" + thresholdProcess.getAssetId() + "_" + thresholdProcess.getProcessName();
-                    thresholds.put(key, baseEntity2);
-                }
-            }
         }
     }
 

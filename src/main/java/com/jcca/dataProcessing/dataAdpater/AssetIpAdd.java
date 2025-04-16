@@ -35,6 +35,7 @@ public class AssetIpAdd {
      * 通用资产Ip的添加功能
      * 由于一些信息不携带资产IP需要，此方法用户添加资产的IP
      * 如果缓存中存在就使用缓存中的资产IP，如果不存在使用数据库中的资产IP
+     * 修改为只使用IP1
      *
      * @param commonEntity
      */

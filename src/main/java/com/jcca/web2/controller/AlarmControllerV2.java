@@ -379,7 +379,7 @@ public class AlarmControllerV2 {
     @PostMapping("/countAlarm")
     @ApiOperation("告警统计")
     @RequiresPermissions("api:v2:alarm:countAlarm")
-    public void countAlarm(HttpServletResponse response, AlarmPageDto req) {
+    public void countAlarm(HttpServletResponse response, @RequestBody AlarmPageDto req) {
         String startTime = req.getStartTime();
         String endTime = req.getEndTime();
         if (StrUtil.isEmpty(startTime) || StrUtil.isEmpty(endTime)) {

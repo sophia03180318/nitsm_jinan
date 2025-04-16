@@ -1,8 +1,5 @@
 package com.jcca.dataProcessing.manager.threshold;
 
-import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.utils.AppLogUtils;
-import com.jcca.dataProcessing.Entity.CollectConnectEntity;
 import com.jcca.dataProcessing.manager.impl.ThresholdMangerService;
 import com.jcca.dataProcessing.support.IListener;
 import org.springframework.stereotype.Component;
@@ -32,12 +29,7 @@ public class ThresholdListener implements IListener<Event> {
 
     @Override
     public void onEvent(Event event) {
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                thresholdMangerService.changeThreshold();
-            }
-        });
+        excutorService.submit(() -> thresholdMangerService.changeThreshold());
 
     }
 }
