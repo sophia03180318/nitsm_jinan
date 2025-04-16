@@ -783,7 +783,10 @@ public class StatisticsServiceImpl implements StatisticsService {
      */
     @Override
     public void saveCoordsV2(List<RollAlarmVo> voList) {
-        UpdateWrapper<SysOrg> update;
+        UpdateWrapper<SysOrg> update = Wrappers.update();
+        update.set("STATIONX", null);
+        update.set("STATIONY", null);
+        orgService.update(update);
         for (RollAlarmVo vo : voList) {
             String orgName = vo.getOrgName();
             if (StringUtils.isEmpty(orgName)) continue;
@@ -793,7 +796,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             update.set("STATIONY", vo.getStationy());
             orgService.update(update);
         }
-
     }
 
     private List<StatisticsAlarmVo> fill7DaysV2(List<StatisticsAlarmVo> latest7DaysList) {
