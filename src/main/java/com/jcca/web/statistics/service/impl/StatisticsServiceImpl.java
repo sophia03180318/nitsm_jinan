@@ -784,8 +784,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public void saveCoordsV2(List<RollAlarmVo> voList) {
         UpdateWrapper<SysOrg> update = Wrappers.update();
-        update.set("STATIONX", null);
-        update.set("STATIONY", null);
+        update.set("STATIONX", "");
+        update.set("STATIONY", "");
         orgService.update(update);
         for (RollAlarmVo vo : voList) {
             String orgName = vo.getOrgName();
