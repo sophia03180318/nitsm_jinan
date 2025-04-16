@@ -65,7 +65,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
             String mapKey = info.getProcessName() + "_processChange";
             Boolean processStatus = info.getProcessStatus();
             Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, processStatus);
-            if (processStatus) {
+            if (flag == null || flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(processStatus);
                 changeInfo.setRedisKey(redisKey);
