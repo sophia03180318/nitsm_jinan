@@ -13,9 +13,9 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface FileRelateMapper extends BaseMapper<FileRelate> {
 
-    @Select("select * from file_relate where file_id = ${fileId}")
+    @Select("select * from file_relate where file_id = #{fileId}")
     FileRelate getByFileId(String fileId);
 
-    @Select("select * from file_relate where item_id = ${itemId}")
+    @Select("select * from file_relate where item_id = #{itemId}")
     FileRelate getByItemId(String itemId);
 }
