@@ -39,9 +39,6 @@ public class RedisProperties {
     @Value("${jcca.redis.jedis.pool1.max-total}")
     public Integer maxTotal;
 
-    @Value("${jcca.redis.jedis.pool1.max-active}")
-    public Integer maxActive;
-
     @Value("${jcca.redis.jedis.pool1.max-wait}")
     public Integer maxWait;
     /**
@@ -76,8 +73,6 @@ public class RedisProperties {
     @Value("${jcca.redis.jedis.pool2.max-total}")
     public Integer maxTotal2;
 
-    @Value("${jcca.redis.jedis.pool2.max-active}")
-    public Integer maxActive2;
 
     @Value("${jcca.redis.jedis.pool2.max-wait}")
     public Integer maxWait2;
