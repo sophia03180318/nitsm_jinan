@@ -3,6 +3,8 @@ package com.jcca.web2.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.admin.system.entity.SysActionLog;
+import com.jcca.admin.system.entity.SysActionLogDetail;
+import com.jcca.admin.system.service.SysActionLogDetailService;
 import com.jcca.admin.system.service.SysActionLogService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,6 +30,8 @@ public class ActionLogControllerV2 {
 
     @Resource
     private SysActionLogService actionLogService;
+    @Resource
+    private SysActionLogDetailService sysActionLogDetailService;
 
     /**
      * 列表页面
@@ -57,8 +62,8 @@ public class ActionLogControllerV2 {
 
     @GetMapping("/detail/{id}")
     public ResultVo<Object> toDetail(@PathVariable("id") String id) {
-        SysActionLog log = actionLogService.getById(id);
-        return ResultVoUtil.success(log);
+        List<SysActionLogDetail> details = sysActionLogDetailService.listByActionLogId(id);
+        return ResultVoUtil.success(details);
     }
 
     /**
