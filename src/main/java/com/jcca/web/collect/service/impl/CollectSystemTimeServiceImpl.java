@@ -12,6 +12,7 @@ import com.jcca.web.collect.service.CollectSystemTimeService;
 import com.jcca.web.common.controller.bean.DurationResp;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Calendar;
@@ -59,6 +60,9 @@ public class CollectSystemTimeServiceImpl extends ServiceImpl<CollectSystemTimeM
     public void updateBatchByAssetId(List<CollectSystemTime> entityList) {
         Assert.isTrue(!entityList.isEmpty(), "updateBatchByAssetId mast be not null");
         String assetId = entityList.get(0).getAssetId();
+        if (StringUtils.isEmpty(assetId)) {
+            return;
+        }
         QueryWrapper<CollectSystemTime> wrapper = new QueryWrapper<CollectSystemTime>();
         wrapper.eq("ASSET_ID", assetId);
         systemTimeMapper.delete(wrapper);
