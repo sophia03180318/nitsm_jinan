@@ -44,12 +44,12 @@ public class CommonVersionFilterHandler extends IFilterHandler<ItsmQueueEntity> 
                 String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag();
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
-                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_version.getDescr(), info.getOldVersion(), info.getNowVersion()));
+                alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_version.getDescr(), info.getCascoSoftName(), info.getOldVersion(), info.getNowVersion()));
                 alarmTempReq.setCollectValue(info.getNowVersion());
                 alarmTempReq.setThresholdValue(info.getOldVersion());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_version.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), "", EventLevelEnum.ABNORMAL.getCode(), info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq);
                 //被事件信息截取
                 changeInfo.setIsEvent(true);
                 //北洋软件的连接有collectValue描述信息
