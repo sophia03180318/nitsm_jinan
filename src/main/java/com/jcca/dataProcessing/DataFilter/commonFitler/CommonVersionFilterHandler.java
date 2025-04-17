@@ -56,7 +56,7 @@ public class CommonVersionFilterHandler extends IFilterHandler<ItsmQueueEntity> 
                 if (info.getCollectValue() != null && !"".equals(info.getCollectValue())) {
                     event.setDescLog(info.getCollectValue());
                 } else {
-                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_CTC_version.getDescr(), info.getOldVersion(), info.getNowVersion()));
+                    event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_CTC_version.getDescr(), info.getCascoSoftName(), info.getOldVersion(), info.getNowVersion()));
                 }
                 this.dispatureEvent(event);
             }
