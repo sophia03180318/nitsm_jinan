@@ -169,27 +169,20 @@ public class IpControllerV2 {
             netWorkVo.setId(netWork.getId());
             netWorkVo.setName(netWork.getName());
 
-            QueryWrapper<IpInfo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("NET_WORK_ADDRESS_ID", netWorkId);
-            queryWrapper.orderByAsc("RANK");
-            List<IpInfo> ips = ipMsgService.list(queryWrapper);
-            ArrayList<IpVo> ipList = new ArrayList<>();
-            for (IpInfo ipMsg : ips) {
-                IpVo ipVo = new IpVo();
-                BeanUtils.copyProperties(ipMsg, ipVo);
-                String[] ipArr = ipMsg.getIp().split("\\.");
+            List<IpVo> ipVos = ipMsgService.selectIPVoV2(netWorkId);
+            for (IpVo ipVo : ipVos) {
+                String[] ipArr = ipVo.getIp().split("\\.");
                 String ipNumStr = ipArr[ipArr.length - 1];
                 ipVo.setIpNumSort(Integer.valueOf(ipNumStr));
                 ipVo.setIpNum(ipNumStr);
-                if (StringUtils.isEmpty(ipMsg.getRemark())) {
+                if (StringUtils.isEmpty(ipVo.getRemark())) {
                     ipVo.setStatus(IpStatusEnum.ALLOT.getCode());
                 } else {
                     ipVo.setStatus(IpStatusEnum.MONITOR.getCode());
                 }
-                ipList.add(ipVo);
             }
 
-            List<IpVo> sortList = ipList.stream().sorted(Comparator.comparing(IpVo::getIpNumSort))
+            List<IpVo> sortList = ipVos.stream().sorted(Comparator.comparing(IpVo::getIpNumSort))
                     .collect(Collectors.toList());
 
             netWorkVo.setIpList(sortList);

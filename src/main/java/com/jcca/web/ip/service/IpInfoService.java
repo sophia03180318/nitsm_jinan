@@ -1,5 +1,6 @@
 package com.jcca.web.ip.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.web.asset.service.bean.AddAssetException;
@@ -97,4 +98,5 @@ public interface IpInfoService extends IService<IpInfo> {
      * @return
      */
     List<IpVo> selectIPVoV2(String netWorkId);
+
 }

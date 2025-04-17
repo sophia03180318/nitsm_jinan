@@ -108,4 +108,12 @@ public class IpInfo extends Model<IpInfo> {
     @TableField(value = "MODIFIER", fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
+    /**
+     * 设备名称
+     * 如果IP分配的有设备
+     * 则会填充此字段
+     */
+    @TableField(exist = false)
+    private String assetName;
+
 }
