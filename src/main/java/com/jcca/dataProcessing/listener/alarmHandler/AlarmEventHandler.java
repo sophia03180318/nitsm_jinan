@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,6 +34,8 @@ import java.util.Objects;
 @Slf4j
 @Component("alarmEventHandler")
 public class AlarmEventHandler extends IFilterHandler<IEvent> {
+
+    private static int THREAD_SIZE = 0;
 
     @Resource
     private IDataChangeManagerService dataChangeManagerService;
@@ -57,6 +61,17 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             return true;
         }
         try {
+            //需要限制流量 最大允许开启50个链接
+            while (true){
+                if(THREAD_SIZE>50){
+                    log.info("事务已超过限制，进程阻塞中……");
+                    Thread.sleep(2 * 1000);
+                }else{
+                    break;
+                }
+            }
+            THREAD_SIZE = THREAD_SIZE + 1;
+
             redisTransactionTemplate.multi();
 
             SaveAlarmResp resp = new SaveAlarmResp();
@@ -135,6 +150,8 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             } catch (Exception e1) {
                 log.error("结束事务失败……");
             }
+        } finally {
+            THREAD_SIZE = THREAD_SIZE - 1;
         }
         return true;
     }
