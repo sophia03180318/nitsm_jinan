@@ -2,6 +2,7 @@ package com.jcca.dataProcessing.listener.alarmHandler;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.enums.AlarmStateEnum;
+import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
 import com.jcca.dataProcessing.manager.bean.SaveAlarmResp;
@@ -47,7 +48,30 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
     private AlarmInfoService alarmInfoService;
     @Resource(name = "redisTransactionTemplate")
     private RedisTemplate redisTransactionTemplate;
+    @Resource
+    private RedisService redisServ;
 
+
+    /**
+     * 锁
+     * @throws InterruptedException
+     */
+    private void verifyNum() throws InterruptedException {
+        while (true){
+            Boolean lock = redisServ.setNx("ALARM_EXE_LOCK", 10);
+            if(lock){
+                if(THREAD_SIZE>20){
+                    log.info("事务已超过限制，进程阻塞中……");
+                    Thread.sleep(2 * 1000);
+                } else {
+                    THREAD_SIZE = THREAD_SIZE + 1;
+                    return;
+                }
+            }else{
+                Thread.sleep(1 * 1000);
+            }
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -62,15 +86,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
         }
         try {
             //需要限制流量 最大允许开启20个链接
-            while (true){
-                if(THREAD_SIZE>20){
-                    log.info("事务已超过限制，进程阻塞中……");
-                    Thread.sleep(2 * 1000);
-                }else{
-                    break;
-                }
-            }
-            THREAD_SIZE = THREAD_SIZE + 1;
+            verifyNum();
 
             redisTransactionTemplate.multi();
 
