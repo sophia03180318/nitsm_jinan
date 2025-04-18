@@ -14,6 +14,7 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.common.utils.SqlInjectionUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class StationVersionControllerV2 {
         IPage iPage = PagePlugin.startPage(page, size);
         QueryWrapper<VersionMsg> queryWrapper = new QueryWrapper<VersionMsg>();
         if (StrUtil.isNotEmpty(msg.getVersion())) {
-            queryWrapper.eq("VERSION", msg.getVersion());
+            SqlInjectionUtils.formattingQueryWrapper(queryWrapper, "VERSION",msg.getVersion());
         }
         if (StrUtil.isNotEmpty(msg.getCreateDateStr())) {
             Date parse = DateUtil.parse(msg.getCreateDateStr(), "yyyy-MM-dd").toJdkDate();

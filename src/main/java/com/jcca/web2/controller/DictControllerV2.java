@@ -8,6 +8,7 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.common.utils.SqlInjectionUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,10 +35,10 @@ public class DictControllerV2 {
 
         QueryWrapper<SysDict> wrapper = new QueryWrapper<>();
         if (dict.getName() != null) {
-            wrapper.like("name", dict.getName());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper, "name",dict.getName());
         }
         if (dict.getTitle() != null) {
-            wrapper.like("title", dict.getTitle());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper, "title",dict.getTitle());
         }
         if (dict.getStatus() == null) {
             wrapper.eq("status", StatusEnum.OK.getCode());
