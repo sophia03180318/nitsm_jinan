@@ -11,6 +11,7 @@ import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.common.utils.SqlInjectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -70,10 +71,10 @@ public class ActionLogControllerV2 {
             }
         }
         if (!StringUtils.isEmpty(actionLog.getLogModel())) {
-            wrapper.like("LOG_MODEL", actionLog.getLogModel());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper, "LOG_MODEL", actionLog.getLogModel());
         }
         if (!StringUtils.isEmpty(actionLog.getCreator())) {
-            wrapper.like("CREATOR", actionLog.getCreator());
+            SqlInjectionUtils.formattingQueryWrapper(wrapper, "CREATOR", actionLog.getCreator());
         }
         return wrapper;
     }

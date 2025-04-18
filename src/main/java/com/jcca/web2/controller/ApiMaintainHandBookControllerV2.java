@@ -24,6 +24,7 @@ import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.handbook.controller.bean.FolderQueryReq;
 import com.jcca.web.handbook.vo.FolderVo;
 import com.jcca.web2.entity.FileRelate;
+import com.jcca.web2.service.FileRelateService;
 import com.jcca.web2.vo.MaintainHandBookVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,7 +56,8 @@ public class ApiMaintainHandBookControllerV2 {
     private SysOrgService orgService;
     @Resource
     private RoomService roomService;
-
+    @Resource
+    private FileRelateService fileRelateService;
 
     @ApiOperation(value = "查询维护手册关联元素")
     @GetMapping("/getItem")
@@ -67,11 +69,9 @@ public class ApiMaintainHandBookControllerV2 {
         }
 
         List<FileRelate> voList = new ArrayList<>();
-        FileRelate vo = new FileRelate();
-        vo.setItemId(one.getId());
-        vo.setItemName(one.getName());
-        vo.setItemType(Integer.parseInt(OrgTypeConst.CABINET + ""));
-        voList.add(vo);
+        FileRelate fileRelate = fileRelateService.getByItemId(cabinetId);
+        voList.add(fileRelate);
+
         List<FileRelate> list = cabinetServ.findAssetInCabinet(cabinetId);
         voList.addAll(list);
 

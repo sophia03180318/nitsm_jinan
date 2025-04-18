@@ -27,8 +27,10 @@ import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.file.FileUpload;
 import com.jcca.common.utils.file.config.properties.UploadProjectProperties;
+import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.Cabinet;
 import com.jcca.web.asset.entity.Room;
+import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.handbook.controller.bean.*;
@@ -80,6 +82,8 @@ public class ApiMaintainHandBookController {
     private UploadProjectProperties fileProp;
     @Resource
     private CabinetService cabinetServ;
+    @Resource
+    private AssetService assetService;
     @Resource
     private SysOrgService orgService;
     @Resource
@@ -224,7 +228,18 @@ public class ApiMaintainHandBookController {
 
             relate = fileRelateService.getByFileId(sysFile.getId());
             if (Objects.nonNull(relate)) {
-                fileVo.setItemName(relate.getItemName());
+                if (relate.getItemType() == OrgTypeConst.CABINET) {
+                    Cabinet one = cabinetServ.getById(relate.getItemId());
+                    if (Objects.nonNull(one)) {
+                        fileVo.setItemName(one.getName());
+                    }
+                }
+                if (relate.getItemType() == OrgTypeConst.ASSET) {
+                    Asset one = assetService.getById(relate.getItemId());
+                    if (Objects.nonNull(one)) {
+                        fileVo.setItemName(one.getName());
+                    }
+                }
                 fileVo.setViewUrl(staticUrl + sysFile.getFilePath());
             }
 

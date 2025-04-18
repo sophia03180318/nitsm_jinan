@@ -109,7 +109,6 @@ public class NotifyDelAssetImpl {
     @Resource
     private InspectRecordService inspectRecordService;
 
-
     /**
      * OutConst
      * 0新增，1删除，2修改
@@ -208,7 +207,6 @@ public class NotifyDelAssetImpl {
         // 删除巡检记录
         inspectRecordService.deleteInspectByAssetId(assetId);
         AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, assetId, "删除巡检记录成功");
-
         // ============================================所有要删除数据应该在删除资产前操作==================================
         // 删除资产
         assetService.removeById(assetId);
