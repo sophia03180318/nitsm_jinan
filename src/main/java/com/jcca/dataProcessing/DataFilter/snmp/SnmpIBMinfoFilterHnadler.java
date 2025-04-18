@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.snmp;
 
+import cn.hutool.log.Log;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.EventInfo;
 import com.jcca.dataProcessing.Entity.SnmpEventInfoEntity;
@@ -12,6 +13,7 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * @author Zhaozheng
@@ -47,17 +49,24 @@ public class SnmpIBMinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEntity
             String text = info.getMap().get("1.3.6.1.4.1.2.6.158.5.1.9");
             String messageId = info.getMap().get("1.3.6.1.4.1.2.6.158.5.1.10");
 
-            ChangeInfo changeInfo = new ChangeInfo();
             EventInfo eventInfo = new EventInfo();
             eventInfo.setLevel(Integer.parseInt(level));
             eventInfo.setMessageId(messageId);
             eventInfo.setMessage(text);
-            changeInfo.setEventInfo(eventInfo);
+
             String eventRedisKey = StatusInfoChangeTypeEnum.event_snmp.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId();
 
+            ChangeInfo changeInfo = new ChangeInfo();
+            changeInfo.setEventInfo(eventInfo);
+            changeInfo.setCollectTime(new Date());
+            changeInfo.setRedisKey(eventRedisKey);
+            changeInfo.setMapKey(eventMapKey);
+
+
             AlarmTempReq tempReq = new AlarmTempReq();
             tempReq.setOrgMsg(text);
+            tempReq.setAssetIp(info.getAssetIp());
 
             IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),tempReq);
             if (event != null) {
