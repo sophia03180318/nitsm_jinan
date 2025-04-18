@@ -113,6 +113,7 @@ public class AssetLinkAssetServiceImpl extends ServiceImpl<AssetLinkAssetMapper,
                         slist.add(linkAsset);
                     }
                 } catch (Exception e) {
+                    this.remove(query);
                     AppLogUtils.buildLogError(LogFunctionEnum.ASSET_LINK_ASSET, "资产端口有重复数据：" + linkAsset.getAssetId(), e);
                 }
             }
