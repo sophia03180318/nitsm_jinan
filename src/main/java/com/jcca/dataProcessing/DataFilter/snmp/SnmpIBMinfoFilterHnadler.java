@@ -49,10 +49,12 @@ public class SnmpIBMinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEntity
             String text = info.getMap().get("1.3.6.1.4.1.2.6.158.5.1.9");
             String messageId = info.getMap().get("1.3.6.1.4.1.2.6.158.5.1.10");
 
+            String msg = String.format(StatusInfoChangeTypeEnum.event_snmp.getDescr(), text);
+
             EventInfo eventInfo = new EventInfo();
             eventInfo.setLevel(Integer.parseInt(level));
             eventInfo.setMessageId(messageId);
-            eventInfo.setMessage(text);
+            eventInfo.setMessage(msg);
 
             String eventRedisKey = StatusInfoChangeTypeEnum.event_snmp.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId();
@@ -65,12 +67,12 @@ public class SnmpIBMinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEntity
 
 
             AlarmTempReq tempReq = new AlarmTempReq();
-            tempReq.setOrgMsg(text);
+            tempReq.setOrgMsg(msg);
             tempReq.setAssetIp(info.getAssetIp());
 
             IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),tempReq);
             if (event != null) {
-                event.setDescStr(text);
+                event.setDescStr(msg);
                 changeInfo.setIsEvent(true);
             }
 
