@@ -332,7 +332,7 @@ public class AlarmControllerV2 {
 
         writer.addHeaderAlias("title", "标题");
         writer.addHeaderAlias("assetName", "资产名称");
-        writer.addHeaderAlias("assetIp", "资产IP");
+        writer.addHeaderAlias("assetIp1", "资产IP");
         writer.addHeaderAlias("alarmLevel", "告警级别");
         writer.addHeaderAlias("alarmType", "告警类型");
 

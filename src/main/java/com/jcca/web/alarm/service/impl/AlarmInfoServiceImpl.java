@@ -921,6 +921,7 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
             alarmInfo.setStatus(AlarmStatusEnum.CONFIRMED.getCode());
             alarmInfo.setRemark(dto.getRemark());
             alarmInfo.setConfirmor(dto.getConfirmor());
+            alarmInfo.setConfirmTime(new Date());
             alarmInfoMapper.updateById(alarmInfo);
 
             if (dto.needDisposeBroken()) {
