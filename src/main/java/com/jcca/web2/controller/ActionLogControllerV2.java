@@ -12,6 +12,7 @@ import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.ResultVoUtil;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -43,8 +44,7 @@ public class ActionLogControllerV2 {
         if (actionLog.getFlag()) {
             actionLog.setLogType(Byte.valueOf(LogTypeConstant.DEV));
         }
-        QueryWrapper<SysActionLog> wrapper = new QueryWrapper<>();
-        wrapper.setEntity(actionLog);
+        QueryWrapper<SysActionLog> wrapper = getSysActionLogQueryWrapper(actionLog);
         if (Objects.nonNull(actionLog.getStartTime()) && Objects.nonNull(actionLog.getEndTime())) {
             wrapper.lt("CREATE_TIME", actionLog.getEndTime());
             wrapper.gt("CREATE_TIME", actionLog.getStartTime());
@@ -58,6 +58,24 @@ public class ActionLogControllerV2 {
         map.put("total", iPage.getTotal());
 
         return ResultVoUtil.success(map);
+    }
+
+    private static QueryWrapper<SysActionLog> getSysActionLogQueryWrapper(SysActionLog actionLog) {
+        QueryWrapper<SysActionLog> wrapper = new QueryWrapper<>();
+        if (actionLog.getFlag()) {
+            wrapper.eq("LOG_TYPE", LogTypeConstant.DEV);
+        } else {
+            if (!StringUtils.isEmpty(actionLog.getLogType())) {
+                wrapper.eq("LOG_TYPE", actionLog.getLogType());
+            }
+        }
+        if (!StringUtils.isEmpty(actionLog.getLogModel())) {
+            wrapper.like("LOG_MODEL", actionLog.getLogModel());
+        }
+        if (!StringUtils.isEmpty(actionLog.getCreator())) {
+            wrapper.like("CREATOR", actionLog.getCreator());
+        }
+        return wrapper;
     }
 
     @GetMapping("/detail/{id}")
