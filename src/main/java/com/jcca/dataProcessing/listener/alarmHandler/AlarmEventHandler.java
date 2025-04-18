@@ -61,9 +61,9 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
             return true;
         }
         try {
-            //需要限制流量 最大允许开启50个链接
+            //需要限制流量 最大允许开启20个链接
             while (true){
-                if(THREAD_SIZE>50){
+                if(THREAD_SIZE>20){
                     log.info("事务已超过限制，进程阻塞中……");
                     Thread.sleep(2 * 1000);
                 }else{

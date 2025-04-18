@@ -1,12 +1,11 @@
 package com.jcca.dataProcessing;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
-import com.jcca.common.input.LogInputUtils;
-import com.jcca.common.input.ServerTypeEnum;
+
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.queue.RedisQueueTemplate;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.AppRedisUtils;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveAlarmDto;
@@ -16,45 +15,34 @@ import com.jcca.dataProcessing.support.IAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.RedisConnection;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 
+@Component
 @Slf4j
-public class NoThresholdInfoReceiver implements Runnable {
+public class NoThresholdInfoReceiver{
 
-    private RedisQueueTemplate queueTemplate;
+    @Resource(name = "stringRedisTemplate")
+    private StringRedisTemplate redisTemplate;
+    @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
 
 
-    @Override
+    @Async
     public void run() {
-        StringRedisTemplate stringRedisTemplate = SpringContextUtil.getBean(StringRedisTemplate.class);
-        dataProcessManager = SpringContextUtil.getBean(DataProcessManager.class);
-        queueTemplate = new RedisQueueTemplate(stringRedisTemplate);
-        int i = 0;
-        RedisConnection connection = null;
+        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();
         while (true) {
-            //建立redis连接
-            if(Objects.isNull(connection)){
-                try {
-                    connection = queueTemplate.getRedisTemplate().getConnectionFactory().getConnection();
-                }catch (Exception e){
-                    AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER, "redis建立链接失败……", e);
-                    try {
-                        Thread.sleep(1000*2);
-                    } catch (InterruptedException ex) {
-                        log.error(ex.getMessage(),ex);
-                    }
-                    continue;
-                }
-            }
             try {
                 //connection.bLPop,阻塞获取数据，如果缓存中不存在采集信息则将会停在此处
                 List<byte[]> thresholdList = connection.bLPop(0, RedisQueueConst.ALARM_QUEUE.getBytes());
-                String bodyJson = queueTemplate.getRedisTemplate().getStringSerializer().deserialize(thresholdList.get(1));
+                String bodyJson = redisTemplate.getStringSerializer().deserialize(thresholdList.get(1));
                 ReceiveAlarmDto alarmDto = JSONUtil.toBean(bodyJson, ReceiveAlarmDto.class);
                 IAdapter adapter = null;
                 if (alarmDto.getCategory().equals("19")) {
@@ -75,26 +63,19 @@ public class NoThresholdInfoReceiver implements Runnable {
             } catch (JedisConnectionException | RedisConnectionFailureException e1) {
                 AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER, "redis 网络断线……", e1);
                 try {
-                    connection.close();
                     AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "已关闭原有连接","");
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER, "redis 网络断线关闭原有链接异常……", e);
                 }
-                //至为空
-                connection = null;
             }catch (Exception e) {
                 AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER,"非阈值处理调度被中断",e);
+            }finally {
+                //检查连接有效性
+                if(!AppRedisUtils.verifyRedisConn(connection)){
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "非阈值处理Redis连接已经失效，重新建立连接","");
+                    connection = redisTemplate.getConnectionFactory().getConnection();
+                }
             }
-        }
-    }
-
-    public static void init() {
-        Thread thresholdDispatchThread = new Thread(new NoThresholdInfoReceiver());
-        thresholdDispatchThread.setName("NothresholdDispatchThread-" + DateUtil.now());
-        thresholdDispatchThread.start();
-
-        if (LogInputUtils.inputInfo(ServerTypeEnum.SYSTEM_INIT)) {
-            log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.SYSTEM_INIT, "", "阈值队列处理调度初始化完成"));
         }
     }
 

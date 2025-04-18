@@ -43,10 +43,13 @@ public class QuartzStartJobListener implements ApplicationListener<ContextRefres
     private AlarmRepoManagerService alarmRepoManagerService;
     @Resource
     private ThresholdMangerService thresholdMangerService;
+    @Resource
+    private ThresholdInfoReceiver thresholdInfoReceiver;
+    @Resource
+    private BusinessInfoReceiver BusinessInfoReceiver;
+    @Resource
+    private NoThresholdInfoReceiver noThresholdInfoReceiver;
 
-    ThreadPoolExecutor excutorService=new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
 
     /**
      * 项目启动后操作
@@ -57,20 +60,20 @@ public class QuartzStartJobListener implements ApplicationListener<ContextRefres
             log.info(LogInputUtils.formattingInfoLog(ServerTypeEnum.SYSTEM_INIT, "", "项目启动开始初始化队列任务"));
         }
 
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                thresholdMangerService.init();
-                AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "ThresholdMangerService初始化完成");
-                alarmRepoManagerService.init();
-                AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "EventInfoManagerService初始化完成");
-                dataProcessManager.init();
-                AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "DataProcessManager初始化完成");
-                ThresholdInfoReceiver.init();
-                BusinessInfoReceiver.init();
-                NoThresholdInfoReceiver.init();
-            }
-        });
+
+        thresholdMangerService.init();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "ThresholdMangerService初始化完成");
+        alarmRepoManagerService.init();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "EventInfoManagerService初始化完成");
+        dataProcessManager.init();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "DataProcessManager初始化完成");
+
+        thresholdInfoReceiver.run();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "阈值启动完成");
+        BusinessInfoReceiver.run();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "业务启动完成");
+        noThresholdInfoReceiver.run();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "非阈值启动完成");
 
 
 

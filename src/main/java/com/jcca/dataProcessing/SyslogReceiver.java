@@ -27,7 +27,8 @@ import java.net.SocketAddress;
 @Component
 @Slf4j
 public class SyslogReceiver implements SyslogServerSessionEventHandlerIF {
-    @Resource
+
+    @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
 
 

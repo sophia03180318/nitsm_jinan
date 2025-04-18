@@ -480,9 +480,5 @@ public class RedisService {
     }
 
 
-    public RedisTemplate getRedisTemplate() {
-        return this.redisTemplate;
-    }
-
 
 }

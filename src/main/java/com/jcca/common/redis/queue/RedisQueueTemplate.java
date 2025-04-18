@@ -5,7 +5,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +17,11 @@ import java.util.List;
  * @author hanwone
  * @date 2018年1月11日
  */
+@Component
 @Slf4j
 public class RedisQueueTemplate {
 
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
     public StringRedisTemplate getRedisTemplate() {

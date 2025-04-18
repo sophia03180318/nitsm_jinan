@@ -18,7 +18,8 @@ import javax.annotation.Resource;
  */
 @Component("customEventListenerReceiver")
 public class CustomEventListenerReceiver implements IListener<CustomEvent> {
-    @Resource
+
+    @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
 
     @Override

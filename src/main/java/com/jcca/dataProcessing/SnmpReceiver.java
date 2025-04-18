@@ -32,7 +32,8 @@ import java.util.Vector;
 @Component
 @Slf4j
 public class SnmpReceiver implements CommandResponder {
-    @Resource
+
+    @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
 
     public void init(String host) throws IOException {

@@ -31,13 +31,13 @@ public class RedisConfig {
     private RedisProperties redisProperties;
 
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Bean
-    public RedisQueueTemplate redisQueueTemplate() {
-        return new RedisQueueTemplate(stringRedisTemplate);
+    @Bean("stringRedisTemplate")
+    public StringRedisTemplate stringRedisTemplate() {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redis1ConnectionFactory());
+        return template;
     }
+
 
     @Bean("redisTemplate")
     public RedisTemplate<String, Object> redisTemplate() {

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -43,6 +44,9 @@ public class AssetIpAdd {
         try {
             if (ipMap.get(commonEntity.getAssetId()) == null) {
                 Asset asset = assetService.getById(commonEntity.getAssetId());
+                if(Objects.isNull(asset)){
+                    return ;
+                }
                 ipMap.put(commonEntity.getAssetId(), asset.getIp());
             }
             commonEntity.setAssetIp(ipMap.get(commonEntity.getAssetId()));
