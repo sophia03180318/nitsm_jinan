@@ -409,6 +409,11 @@ public class ApiMaintainHandBookController {
         fileService.save(sysFile);
 
         if (file.getViewFlag()) {
+            FileRelate one = fileRelateService.getByItemId(file.getItemId());
+            if (Objects.nonNull(one)) {
+                return ResultVoUtil.error("不允许重复关联文件");
+            }
+
             String orignName = sysFile.getOrignName();
             String type = orignName.substring(orignName.lastIndexOf(".") + 1);
             if ("pdf".equalsIgnoreCase(type)
