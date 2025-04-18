@@ -105,6 +105,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
     @Select(value = "select c.* from cabinet c  join room r on c.room_id = r.id where r.org_id = #{orgId} order by c.column_index")
     List<Cabinet> findCabinetByOrgId(@Param("orgId") String orgId);
 
-    @Select("select t.id itemId, t.name itemName, '96' itemType from asset t left join asset_attach a on t.id = a.asset_id where a.cabinet_id = #{cabinetId} and t.is_del = 1")
+    @Select("select t.id itemId, t.name itemName, '96' itemType, f.VIEW_URL from asset t left join asset_attach a on t.id = a.asset_id left join file_relate f on t.id = f.item_id where a.cabinet_id = #{cabinetId} and t.is_del = 1")
     List<FileRelate> findAssetInCabinet(String cabinetId);
 }

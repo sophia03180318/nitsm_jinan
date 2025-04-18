@@ -70,7 +70,16 @@ public class ApiMaintainHandBookControllerV2 {
 
         List<FileRelate> voList = new ArrayList<>();
         FileRelate fileRelate = fileRelateService.getByItemId(cabinetId);
-        voList.add(fileRelate);
+
+        FileRelate vo = new FileRelate();
+        vo.setItemId(one.getId());
+        vo.setItemName(one.getName());
+        vo.setItemType(Integer.parseInt(OrgTypeConst.CABINET + ""));
+        vo.setViewUrl(null);
+        if (Objects.nonNull(fileRelate)) {
+            vo.setViewUrl(fileRelate.getViewUrl());
+        }
+        voList.add(vo);
 
         List<FileRelate> list = cabinetServ.findAssetInCabinet(cabinetId);
         voList.addAll(list);
