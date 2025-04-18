@@ -81,9 +81,9 @@
         <if test="assetDesk != null and assetDesk != ''">
             and m.asset_desk = #{assetDesk}
         </if>
-        group by category, m.org_id, m.asset_desk, m.general, m.range_min, m.range_max, m.step_high, m.step_higher,
+        group by m.category, m.org_id, m.asset_desk, m.general, m.range_min, m.range_max, m.step_high, m.step_higher,
         m.step_highest, m.org_id, md.name, o.title, m.auto_flag
-        order by m.org_id
+        order by m.ASSET_DESK, m.CATEGORY
 
     </select>
 
