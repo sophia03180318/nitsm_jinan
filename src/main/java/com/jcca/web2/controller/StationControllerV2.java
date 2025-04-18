@@ -291,7 +291,7 @@ public class StationControllerV2 {
             stationUpdateDetail.setStationId(stationId);
         }
         List<StationUpdateDetail> sortedDetails = detail.stream()
-                .sorted(Comparator.comparingInt(StationUpdateDetail::getRank).reversed()).collect(Collectors.toList());XC
+                .sorted(Comparator.comparingInt(StationUpdateDetail::getRank).reversed()).collect(Collectors.toList());
 
         return ResultVoUtil.success(sortedDetails);
     }
