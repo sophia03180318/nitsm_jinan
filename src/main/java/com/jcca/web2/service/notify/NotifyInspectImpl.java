@@ -33,7 +33,7 @@ public class NotifyInspectImpl implements AssetNotifyService {
      */
     @Override
     public void assetChange(Asset asset, Integer state) {
-        if (OutConst.MODIFY_ASSET.intValue() == state) {
+        if (OutConst.ALL_ASSET_UPDATE.intValue() == state) {
             UpdateWrapper<InspectRecord> update = Wrappers.update();
             update.eq("asset_id", asset.getId());
             inspectRecordService.remove(update);
