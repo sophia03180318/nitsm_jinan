@@ -3,10 +3,8 @@ package com.jcca.dataProcessing;
 import cn.hutool.json.JSONUtil;
 
 import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.redis.queue.RedisQueueTemplate;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppRedisUtils;
-import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveAlarmDto;
 import com.jcca.dataProcessing.enums.CollectConst;
@@ -23,7 +21,6 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 @Slf4j

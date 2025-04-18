@@ -1,7 +1,6 @@
 package com.jcca.common.redis.config;
 
 import cn.hutool.core.util.StrUtil;
-import com.jcca.common.redis.queue.RedisQueueTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

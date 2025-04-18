@@ -6,7 +6,6 @@ import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.input.ErrorCodeEnum;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
-import com.jcca.common.redis.queue.RedisQueueTemplate;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.component.client.StationCollectClient;
@@ -24,7 +23,6 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.cluster.NoopCacheCluster;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

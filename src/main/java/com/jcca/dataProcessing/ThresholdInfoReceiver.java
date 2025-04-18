@@ -58,6 +58,8 @@ public class ThresholdInfoReceiver {
                     AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER, "redis 网络断线关闭原有链接异常……", e);
                 }
             }catch (Exception e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER,"阈值处理调度被中断",e);
+            }finally {
                 //检查连接有效性
                 if(!AppRedisUtils.verifyRedisConn(connection)){
                     AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "阈值处理Redis连接已经失效，重新建立连接","");

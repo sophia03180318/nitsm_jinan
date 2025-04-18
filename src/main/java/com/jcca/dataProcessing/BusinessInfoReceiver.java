@@ -1,15 +1,9 @@
 package com.jcca.dataProcessing;
 
 import cn.hutool.json.JSONUtil;
-import com.jcca.common.input.ErrorCodeEnum;
-import com.jcca.common.input.LogInputUtils;
-import com.jcca.common.input.ServerTypeEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.log.enums.LogFunctionEnum;
-import com.jcca.common.redis.queue.RedisQueueTemplate;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppRedisUtils;
-import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -24,7 +18,6 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HanHW
@@ -67,7 +60,7 @@ public class BusinessInfoReceiver{
             }finally {
                 //检查连接有效性
                 if(!AppRedisUtils.verifyRedisConn(connection)){
-                    AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "","");
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "业务处理Redis连接已经失效，重新建立连接","");
                     connection = redisTemplate.getConnectionFactory().getConnection();
                 }
             }

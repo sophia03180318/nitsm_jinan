@@ -30,10 +30,6 @@ public class EventInfoManagerService implements IEventInfoManagerService {
 
     @Resource
     private RedisService redisService;
-    @Resource
-    private AlarmRepositoryService repoServ;
-    @Resource
-    private AlarmEventTypeService eventTypeServ;
 
 
     @Override

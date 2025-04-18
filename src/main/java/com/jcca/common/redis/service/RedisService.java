@@ -3,10 +3,11 @@ package com.jcca.common.redis.service;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.jcca.admin.system.vo.RedisManagerVo;
-import com.jcca.common.redis.queue.RedisQueueTemplate;
 import com.jcca.component.thresholds.bean.CollectProcessBean;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class RedisService {
 
     @Resource(name = "redisTemplate")
     private RedisTemplate redisTemplate;
-    @Resource
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate stringRedisTemplate;
 
     private String pingStr = "pingAssetState";
@@ -313,8 +314,13 @@ public class RedisService {
      * @param message 消息内容
      */
     public void convertAndSend(String channel, String message) {
-        RedisQueueTemplate redisQueueTemplate = new RedisQueueTemplate(stringRedisTemplate);
-        redisQueueTemplate.rPush(channel, message);
+        stringRedisTemplate.execute(new RedisCallback<Long>() {
+            @Override
+            public Long doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.rPush(redisTemplate.getStringSerializer().serialize((channel)),
+                        redisTemplate.getStringSerializer().serialize(message));
+            }
+        });
     }
 
 
