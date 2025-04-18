@@ -16,6 +16,7 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.enums.EventLevelEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

@@ -42,10 +42,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @description: 车站
@@ -292,8 +290,10 @@ public class StationControllerV2 {
         for (StationUpdateDetail stationUpdateDetail : detail) {
             stationUpdateDetail.setStationId(stationId);
         }
+        List<StationUpdateDetail> sortedDetails = detail.stream()
+                .sorted(Comparator.comparingInt(StationUpdateDetail::getRank).reversed()).collect(Collectors.toList());XC
 
-        return ResultVoUtil.success(detail);
+        return ResultVoUtil.success(sortedDetails);
     }
 
     @PostMapping("/removeUpdateLog")

@@ -33,7 +33,7 @@ public class RedisConfig {
     @Bean("stringRedisTemplate")
     public StringRedisTemplate stringRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redis1ConnectionFactory());
+        template.setConnectionFactory(redis3ConnectionFactory());
         return template;
     }
 
@@ -69,6 +69,49 @@ public class RedisConfig {
         redisTransactionTemplate.setEnableTransactionSupport(true);
 
         return redisTransactionTemplate;
+    }
+
+
+    /**
+     * 不带redis事务的缓存池 poll3
+     *
+     * @return
+     */
+    @Bean
+    @Primary
+    public RedisConnectionFactory redis3ConnectionFactory() {
+        RedisStandaloneConfiguration localhost = new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort());
+        if (StrUtil.isNotEmpty(redisProperties.getPassword())) {
+            localhost.setPassword(redisProperties.getPassword());
+        }
+        if (Objects.nonNull(redisProperties.getDatabase())) {
+            localhost.setDatabase(redisProperties.getDatabase());
+        }
+
+        JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jpb = JedisClientConfiguration.builder().usePooling();
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        //最大空闲连接数
+        jedisPoolConfig.setMaxIdle(5);
+        //最小空闲连接数
+        jedisPoolConfig.setMinIdle(3);
+        //最大连接数
+        jedisPoolConfig.setMaxTotal(10);
+        jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait());
+        jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
+        //  borrowObject 和 returnObject 时，进行有效性检查
+        jedisPoolConfig.setTestOnBorrow(true);
+        jedisPoolConfig.setTestWhileIdle(true);
+        // 连接空闲多久后可以被驱逐，单位毫秒
+        jedisPoolConfig.setMinEvictableIdleTimeMillis(redisProperties.getMinEvictableIdleTimeMillis());
+        // 空闲连接驱逐前的检测时间
+        jedisPoolConfig.setSoftMinEvictableIdleTimeMillis(redisProperties.getSoftMinEvictableIdleTimeMillis());
+        // 每次驱逐检查的连接数量
+        jedisPoolConfig.setNumTestsPerEvictionRun(redisProperties.getNumTestsPerEvictionRun());
+        // 连接驱逐线程的运行间隔
+        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(redisProperties.getTimeBetweenEvictionRunsMillis());
+        jpb.poolConfig(jedisPoolConfig);
+
+        return new JedisConnectionFactory(localhost, jpb.build());
     }
 
     /**
