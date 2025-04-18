@@ -1,16 +1,15 @@
 package com.jcca.web2.service.notify;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.common.constants.OutConst;
+import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.AssetNotifyService;
 import com.jcca.web2.service.InspectRecordService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author HanHW
@@ -35,26 +34,15 @@ public class NotifyInspectImpl implements AssetNotifyService {
     @Override
     public void assetChange(Asset asset, Integer state) {
         if (OutConst.MODIFY_ASSET.intValue() == state) {
-            this.modifyInspect(asset);
+            UpdateWrapper<InspectRecord> update = Wrappers.update();
+            update.eq("asset_id", asset.getId());
+            inspectRecordService.remove(update);
+
+            inspectRecordService.checkRecord();
         }
 
         if (OutConst.ADD_ASSET.intValue() == state) {
-            this.addInspect();
+            inspectRecordService.checkRecord();
         }
-
-    }
-
-    private void addInspect() {
-        inspectRecordService.checkRecord();
-    }
-
-    private void modifyInspect(Asset asset) {
-        List<Map<String, String>> list = new ArrayList<>();
-        Map<String, String> map = new HashMap<>();
-        map.put("assetId", asset.getId());
-        map.put("assetDesk", asset.getDesk() + "");
-        map.put("status", asset.getWatch() + "");
-        list.add(map);
-        inspectRecordService.modifyAsset(list);
     }
 }
