@@ -60,6 +60,11 @@ public class SnmpIBMinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEntity
             tempReq.setOrgMsg(text);
 
             IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),tempReq);
+            if (event != null) {
+                event.setDescStr(text);
+                changeInfo.setIsEvent(true);
+            }
+
             this.dispatureEvent(event);
             return false;
         }
