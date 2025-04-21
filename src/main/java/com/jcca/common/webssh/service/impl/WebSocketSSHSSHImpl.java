@@ -171,7 +171,7 @@ public class WebSocketSSHSSHImpl implements WebSocketSSHService {
 
         connectInfo.setChannel(channel);
 
-        transToSSH(webRemoteData, channel, "\n");
+        transToSSH(webRemoteData, channel, "");
 
         //读取终端返回的信息流
         try (InputStream inputStream = channel.getInputStream()) {
