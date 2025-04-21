@@ -365,7 +365,12 @@ public class InspectControllerV2 {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, inspectCode, "智能巡检找不到指定巡检报告");
             return;
         }
+
         list = list.stream().filter(s -> Arrays.asList(itemArr).contains(s.getTargetItem())).collect(Collectors.toList());
+        if (list.isEmpty()) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, inspectCode, "没有该类型设备的可导出报表");
+            return;
+        }
 
         ArrayList<XunjianAlarmMsg> alarmList2 = new ArrayList<>();
         Set<String> assetIds = list.stream().map(InspectDetail::getAssetId).collect(Collectors.toSet());
