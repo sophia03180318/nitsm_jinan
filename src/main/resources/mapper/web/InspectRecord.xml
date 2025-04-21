@@ -19,6 +19,14 @@
         ORDER BY CABINET_NAME
     </select>
 
+    <select id="findOrgList" parameterType="java.lang.String" resultType="com.jcca.web2.vo.InspectOrgAssetVo">
+        SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD WHERE ORG_ID IN
+        <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        GROUP BY ORG_ID, ORG_NAME ORDER BY ORG_ID
+    </select>
+
     <select id="findLastGroupByOrgId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.InspectRecord">
         SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD
         <if test="inspectType != null and inspectType != ''">

@@ -15,6 +15,7 @@ import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.enums.SystemTypeEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
@@ -379,6 +380,13 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             throw new ResultException(ResultEnum.INSPECT_BEGIN);
         }
 
+        List<String> subjectOrgIds = ShiroUtil.getSubjectOrgIds();
+        UpdateWrapper<InspectRecord> orgUpdate = Wrappers.update();
+        orgUpdate.notIn("ORG_ID", subjectOrgIds);
+        orgUpdate.eq("ASSET_STATUS", StatusConst.OK);
+        orgUpdate.set("ASSET_STATUS", StatusConst.NO);
+        this.update(orgUpdate);
+
         inspectType = inspectRecordMapper.findNowInspectType();
         if (StringUtils.isEmpty(inspectType)) {
             inspectType = Web2Const.INSPECT_ASSET;
@@ -720,6 +728,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (Web2Const.INSPECT_TARGET.equals(inspectType)) {
             query.eq("TARGET_STATUS", StatusConst.OK);
         }
+
         List<InspectRecord> list = this.list(query);
         Date date = new Date();
         for (InspectRecord record : list) {
@@ -1051,7 +1060,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      */
     @Override
     public List<InspectOrgAssetVo> getOrgAsset() {
-        List<InspectOrgAssetVo> orgList = inspectRecordMapper.findOrgList();
+        List<String> subjectOrgIds = ShiroUtil.getSubjectOrgIds();
+        if (CollectionUtils.isEmpty(subjectOrgIds)) {
+            return Collections.emptyList();
+        }
+        List<InspectOrgAssetVo> orgList = inspectRecordMapper.findOrgList(subjectOrgIds);
         List<InspectOrgAssetVo> resList = new ArrayList<>();
         Set<String> lineIdSet = new HashSet<>();
 

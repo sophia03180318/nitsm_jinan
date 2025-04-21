@@ -3,7 +3,6 @@ package com.jcca.web2.service.notify;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.web.asset.entity.Asset;
-import com.jcca.web.common.constants.OutConst;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.AssetNotifyService;
 import com.jcca.web2.service.InspectRecordService;
@@ -33,16 +32,10 @@ public class NotifyInspectImpl implements AssetNotifyService {
      */
     @Override
     public void assetChange(Asset asset, Integer state) {
-        if (OutConst.ALL_ASSET_UPDATE.intValue() == state) {
-            UpdateWrapper<InspectRecord> update = Wrappers.update();
-            update.eq("asset_id", asset.getId());
-            inspectRecordService.remove(update);
+        UpdateWrapper<InspectRecord> update = Wrappers.update();
+        update.eq("asset_id", asset.getId());
+        inspectRecordService.remove(update);
 
-            inspectRecordService.checkRecord();
-        }
-
-        if (OutConst.ADD_ASSET.intValue() == state) {
-            inspectRecordService.checkRecord();
-        }
+        inspectRecordService.checkRecord();
     }
 }
