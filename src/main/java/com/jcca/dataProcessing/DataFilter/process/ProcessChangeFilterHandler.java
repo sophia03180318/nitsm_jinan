@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author: hhw
@@ -66,6 +67,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
             String mapKey = info.getProcessName() + "_processChange";
             Boolean processStatus = info.getProcessStatus();
             Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, processStatus);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_CHANGE, info.getProcessName()+info.getIp() + "进程切换告警处理判定", flag);
             if (flag == null || flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(processStatus);
@@ -87,6 +89,8 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
                 String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
                 IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey,
                         eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq);
+
+                AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_CHANGE, info.getProcessName()+info.getIp() + "进程切换告警event判定", Objects.nonNull(event));
                 if (event != null) {
                     changeInfo.setIsEvent(true);
                     event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_process_once.getDescr(),
