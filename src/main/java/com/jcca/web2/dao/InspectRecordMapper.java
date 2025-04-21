@@ -57,7 +57,10 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
     @Select("SELECT asset_id FROM (SELECT asset_id FROM INSPECT_RECORD WHERE TARGET_STATUS = 1 AND ASSET_STATUS = 1 ORDER BY ORG_ID, CABINET_NAME, asset_id) GROUP BY asset_id")
     List<String> findAssetIdList();
 
-    List<InspectOrgAssetVo> findOrgList(@Param("orgIds") List<String> orgIds);
+//    List<InspectOrgAssetVo> findOrgList(@Param("orgIds") List<String> orgIds);
+
+    @Select("SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD GROUP BY ORG_ID, ORG_NAME ORDER BY ORG_ID")
+    List<InspectOrgAssetVo> findOrgList();
 
     @Select("SELECT ORG_ID, ASSET_DESK, DESK_NAME FROM INSPECT_RECORD WHERE ORG_ID = #{orgId} GROUP BY ORG_ID, ASSET_DESK, DESK_NAME")
     List<InspectOrgAssetVo> findDeskListByOrgId(String orgId);
