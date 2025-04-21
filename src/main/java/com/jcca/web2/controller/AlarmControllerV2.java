@@ -148,6 +148,18 @@ public class AlarmControllerV2 {
     @GetMapping("/pageStatistics")
     @ApiOperation("统计告警")
     public ResultVo pageStatistics(AlarmPageDto query) {
+        if (StrUtil.isNotEmpty(query.getOrgId())) {
+            List<String> orgIds = orgServ.getStationOrgIdByLineId(query.getOrgId());
+            orgIds.add(query.getOrgId());
+            query.setOrgIdList(orgIds);
+            query.setOrgId("");
+        }else{
+            List<String> orgIds = ShiroUtil.getSubjectOrgIds();
+            orgIds.add("x");
+            query.setOrgIdList(orgIds);
+            query.setOrgId("");
+        }
+
         query.setGroupField("ALARM_LEVEL");
         List<AlarmPageStatisticsVo> pieInfo = alarmInfoServ.statisticsV2(query);
         //填充告警级别统计
@@ -190,6 +202,11 @@ public class AlarmControllerV2 {
         if (StrUtil.isNotEmpty(query.getOrgId())) {
             List<String> orgIds = orgServ.getStationOrgIdByLineId(query.getOrgId());
             orgIds.add(query.getOrgId());
+            query.setOrgIdList(orgIds);
+            query.setOrgId("");
+        }else{
+            List<String> orgIds = ShiroUtil.getSubjectOrgIds();
+            orgIds.add("x");
             query.setOrgIdList(orgIds);
             query.setOrgId("");
         }
