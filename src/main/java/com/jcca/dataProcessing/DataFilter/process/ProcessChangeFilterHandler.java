@@ -58,6 +58,10 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
             if (StringUtils.isEmpty(processChange)) {
                 continue;
             }
+            //告警关联变为异常的那台资产
+            if(info.getProcessStatus()){
+                continue ;
+            }
             entity.setAssetId(info.getAssetId());
 
             AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_CHANGE, info.getProcessName() + "进程切换告警处理", info);
