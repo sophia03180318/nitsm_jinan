@@ -35,13 +35,25 @@ public class EventInfoListener implements IListener<IEvent> {
 
     @Override
     public void onEvent(IEvent event) {
-        if (Objects.isNull(dataProcessManager)) {
-            dataProcessManager = SpringContextUtil.getBean(DataProcessManager.class);
-        }
-        try {
-            dataProcessManager.evntInfoHandlerRequest(event);
-        } catch (Exception e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "rediskey~" + event.getRedisKey() + " mapkey~" + event.getMapKey() + " alarmInfoHandlerRequest 抛出异常", e);
-        }
+
+
+        excutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                if (Objects.isNull(dataProcessManager)) {
+                    dataProcessManager = SpringContextUtil.getBean(DataProcessManager.class);
+                }
+                try {
+                    dataProcessManager.evntInfoHandlerRequest(event);
+                } catch (Exception e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "rediskey~" + event.getRedisKey() + " mapkey~" + event.getMapKey() + " alarmInfoHandlerRequest 抛出异常", e);
+                }
+            }
+        });
+
+
+
+
+
     }
 }

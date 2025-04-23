@@ -2,6 +2,7 @@ package com.jcca.dataProcessing;
 
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppRedisUtils;
 import com.jcca.component.constants.RedisQueueConst;
@@ -11,7 +12,6 @@ import com.jcca.dataProcessing.support.IAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -32,17 +32,17 @@ public class BusinessInfoReceiver{
 
     @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
-    @Resource(name = "stringRedisTemplate")
-    private StringRedisTemplate redisTemplate;
+    @Resource
+    private RedisService redisService;
 
     @Async
     public void run() {
-        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();
+        RedisConnection connection = redisService.getReceiverRedisConnection();
         while (true) {
             try {
                 List<byte[]> list = connection.bLPop(0, RedisQueueConst.BROKER_QUEUE_KEY.getBytes());
                 assert list != null;
-                String str = redisTemplate.getStringSerializer().deserialize(list.get(1));
+                String str =  redisService.stringRedisTemplateDeserialize(list.get(1));
                 ItsmQueueEntity itsmQueueReq = JSONUtil.toBean(str, ItsmQueueEntity.class);
                 IAdapter adapter = dataProcessManager.getAdapter(itsmQueueReq.getCascoAlarmType());
                 adapter.dispose(itsmQueueReq);
@@ -61,7 +61,7 @@ public class BusinessInfoReceiver{
                 //检查连接有效性
                 if(!AppRedisUtils.verifyRedisConn(connection)){
                     AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "业务处理Redis连接已经失效，重新建立连接","");
-                    connection = redisTemplate.getConnectionFactory().getConnection();
+                    connection  = redisService.getReceiverRedisConnection();
                 }
             }
         }

@@ -29,8 +29,42 @@ public class RedisService {
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate stringRedisTemplate;
 
+    @Resource(name = "redisTransactionTemplate")
+    private RedisTemplate redisTransactionTemplate;
+
     private String pingStr = "pingAssetState";
     private String pingStr2 = "pingAssetRecord";
+
+
+
+
+    public RedisConnection getReceiverRedisConnection(){
+        RedisConnection connection = stringRedisTemplate.getConnectionFactory().getConnection();
+        return connection;
+    }
+
+
+    public String stringRedisTemplateDeserialize(byte[] var1){
+        String str = stringRedisTemplate.getStringSerializer().deserialize(var1);
+        return str;
+    }
+
+    public  Long stringRedisTemplateOpsForListSize(String key){
+
+       return  stringRedisTemplate.opsForList().size(key);
+
+    }
+
+    public Integer stringRedisTemplateClientSize(){
+       return Objects.requireNonNull(stringRedisTemplate.getClientList()).size();
+    }
+    public Integer redisTemplateClientSize(){
+        return Objects.requireNonNull(redisTemplate.getClientList()).size();
+    }
+    public Integer redisTransactionTemplateTemplateClientSize(){
+        return Objects.requireNonNull(redisTransactionTemplate.getClientList()).size();
+    }
+
 
     /**
      * 获取设备进程TOP5
@@ -80,11 +114,11 @@ public class RedisService {
      * @return
      */
     public String getIdSeqence(String seqenceName, Long maxValue) {
-        Long seq = stringRedisTemplate.opsForHash().increment(HASH_SEQENCE, seqenceName, 1);
+        Long seq = redisTemplate.opsForHash().increment(HASH_SEQENCE, seqenceName, 1);
 
         if (seq > maxValue) {
             seq = 0L;
-            stringRedisTemplate.opsForHash().put(HASH_SEQENCE, seqenceName, "0");
+            redisTemplate.opsForHash().put(HASH_SEQENCE, seqenceName, "0");
         }
 
         int expectedLen = String.valueOf(maxValue).length();
@@ -314,7 +348,7 @@ public class RedisService {
      * @param message 消息内容
      */
     public void convertAndSend(String channel, String message) {
-        stringRedisTemplate.execute(new RedisCallback<Long>() {
+        redisTemplate.execute(new RedisCallback<Long>() {
             @Override
             public Long doInRedis(RedisConnection connection) throws DataAccessException {
                 return connection.rPush(redisTemplate.getStringSerializer().serialize((channel)),
@@ -328,7 +362,7 @@ public class RedisService {
      * 获取key为string类型的正则List
      */
     public List<String> getKeyByPattern(final String pattern) {
-        Set<String> keys = stringRedisTemplate.keys(pattern);
+        Set<String> keys = redisTemplate.keys(pattern);
         if (ObjectUtil.isNotNull(keys)) {
             return new ArrayList<>(keys);
         }
@@ -358,7 +392,7 @@ public class RedisService {
      * 删除指定hashMap
      */
     public void deleteHashMap(String hashkey, String key) {
-        HashOperations<String, String, String> hashOperations = stringRedisTemplate.opsForHash();
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
         Long delete = hashOperations.delete(hashkey, key);
     }
 
@@ -366,8 +400,8 @@ public class RedisService {
      * 获取zset格式数据
      */
     public Cursor<String> getSet(String setKey) {
-        Long size = stringRedisTemplate.opsForSet().getOperations().boundSetOps(setKey).size();
-        Cursor<String> scan = stringRedisTemplate.opsForSet().getOperations().boundSetOps(setKey).scan(ScanOptions.NONE);
+        Long size = redisTemplate.opsForSet().getOperations().boundSetOps(setKey).size();
+        Cursor<String> scan = redisTemplate.opsForSet().getOperations().boundSetOps(setKey).scan(ScanOptions.NONE);
         return scan;
     }
 
