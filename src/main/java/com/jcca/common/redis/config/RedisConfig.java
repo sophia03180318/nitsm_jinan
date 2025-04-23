@@ -57,7 +57,6 @@ public class RedisConfig {
     public RedisTemplate<String, Object> redisTransactionTemplate() {
         RedisTemplate<String, Object> redisTransactionTemplate = new RedisTemplate<>();
         redisTransactionTemplate.setConnectionFactory(redis2ConnectionFactory());
-
         GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
         redisTransactionTemplate.setKeySerializer(new StringRedisSerializer());
         redisTransactionTemplate.setValueSerializer(genericJackson2JsonRedisSerializer);
@@ -91,11 +90,11 @@ public class RedisConfig {
         JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jpb = JedisClientConfiguration.builder().usePooling();
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         //最大空闲连接数
-        jedisPoolConfig.setMaxIdle(5);
+        jedisPoolConfig.setMaxIdle(3);
         //最小空闲连接数
         jedisPoolConfig.setMinIdle(3);
         //最大连接数
-        jedisPoolConfig.setMaxTotal(10);
+        jedisPoolConfig.setMaxTotal(3);
         jedisPoolConfig.setMaxWaitMillis(redisProperties.getMaxWait());
         jedisPoolConfig.setEvictorShutdownTimeoutMillis(redisProperties.getTimeout());
         //  borrowObject 和 returnObject 时，进行有效性检查

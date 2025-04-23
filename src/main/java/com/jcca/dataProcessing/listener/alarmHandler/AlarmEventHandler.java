@@ -93,8 +93,8 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
         }
         try {
             //需要限制流量 最大允许开启20个线程
-            verifyNum();
-
+           // verifyNum();
+            log.error("------------------------------当前线程名称: " + Thread.currentThread().getName());
             redisTransactionTemplate.multi();
 
             SaveAlarmResp resp = new SaveAlarmResp();

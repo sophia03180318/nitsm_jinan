@@ -142,11 +142,6 @@ public class ApiOutController {
     @Resource
     private UploadProjectProperties fileProp;
 
-    @Resource(name = "redisTemplate")
-    private RedisTemplate redisTemplate;
-
-    @Resource(name = "redisTransactionTemplate")
-    private RedisTemplate redisTransactionTemplate;
 
 
     /**
@@ -238,7 +233,7 @@ public class ApiOutController {
         versionMap.put("commitId前10位", projectVersionConf.getCommitId().substring(0, 10));
 
 
-        versionMap.put("redis线程池", "当前使用连接数："+redisTemplate.getClientList().size()+"事务当前使用连接数："+redisTransactionTemplate.getClientList().size());
+        versionMap.put("redis线程池", "当前使用连接数："+redisService.redisTemplateClientSize()+"事务当前使用连接数："+redisService.redisTransactionTemplateTemplateClientSize());
 
         return versionMap;
     }

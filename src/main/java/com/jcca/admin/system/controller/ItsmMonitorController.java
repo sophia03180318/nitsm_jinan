@@ -14,7 +14,6 @@ import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.common.constants.OutConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,8 +35,6 @@ import java.util.Objects;
 public class ItsmMonitorController {
     @Autowired
     private RedisService redisService;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 获取itsm系统性能
@@ -51,17 +48,17 @@ public class ItsmMonitorController {
 
         // 获取redis信息
         try {
-            Long size1 = stringRedisTemplate.opsForList().size(RedisQueueConst.THRESHOLD_QUEUE);
-            Long size2 = stringRedisTemplate.opsForList().size(RedisQueueConst.ALARM_QUEUE);
-            Long size3 = stringRedisTemplate.opsForList().size(RedisQueueConst.ALARM_PUSH_FRONT_QUEUE);
-            Long size4 = stringRedisTemplate.opsForList().size(RedisQueueConst.BROKER_QUEUE_KEY);
+            Long size1 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.THRESHOLD_QUEUE);
+            Long size2 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.ALARM_QUEUE);
+            Long size3 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.ALARM_PUSH_FRONT_QUEUE);
+            Long size4 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.BROKER_QUEUE_KEY);
 
             //事件告警分发队列
-            Long size5 = stringRedisTemplate.opsForList().size(RedisQueueConst.EVENT_GROUP_ALARM);
+            Long size5 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.EVENT_GROUP_ALARM);
             // 事件添加队列
-            Long size7 = stringRedisTemplate.opsForList().size(RedisQueueConst.EVENT_GROUP_ALARM_ADD);
+            Long size7 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.EVENT_GROUP_ALARM_ADD);
             // 告警处理队列
-            Long size8 = stringRedisTemplate.opsForList().size(RedisQueueConst.EVENT_GROUP_ALARM_EXE);
+            Long size8 = redisService.stringRedisTemplateOpsForListSize(RedisQueueConst.EVENT_GROUP_ALARM_EXE);
 
 
             String url = "";
@@ -111,7 +108,7 @@ public class ItsmMonitorController {
         //线程池名称
         node.setPoolName("redis连接数");
         //当前线程数
-        node.setPoolSize(Objects.requireNonNull(stringRedisTemplate.getClientList()).size());
+        node.setPoolSize(redisService.stringRedisTemplateClientSize());
 
         list.add(node);
 

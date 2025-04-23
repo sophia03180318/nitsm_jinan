@@ -3,6 +3,7 @@ package com.jcca.dataProcessing;
 import cn.hutool.json.JSONUtil;
 
 import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.AppRedisUtils;
 import com.jcca.component.constants.RedisQueueConst;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.RedisConnection;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -26,20 +26,21 @@ import java.util.List;
 @Slf4j
 public class NoThresholdInfoReceiver{
 
-    @Resource(name = "stringRedisTemplate")
-    private StringRedisTemplate redisTemplate;
+    @Resource
+    private RedisService redisService;
     @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
 
 
     @Async
     public void run() {
-        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();
+        RedisConnection connection = redisService.getReceiverRedisConnection();
         while (true) {
             try {
                 //connection.bLPop,阻塞获取数据，如果缓存中不存在采集信息则将会停在此处
                 List<byte[]> thresholdList = connection.bLPop(0, RedisQueueConst.ALARM_QUEUE.getBytes());
-                String bodyJson = redisTemplate.getStringSerializer().deserialize(thresholdList.get(1));
+
+                String bodyJson =  redisService.stringRedisTemplateDeserialize(thresholdList.get(1));
                 ReceiveAlarmDto alarmDto = JSONUtil.toBean(bodyJson, ReceiveAlarmDto.class);
                 IAdapter adapter = null;
                 if (alarmDto.getCategory().equals("19")) {
@@ -70,7 +71,7 @@ public class NoThresholdInfoReceiver{
                 //检查连接有效性
                 if(!AppRedisUtils.verifyRedisConn(connection)){
                     AppLogUtils.buildLogInfo(LogFunctionEnum.COLLECT_DATA_PARSER, "非阈值处理Redis连接已经失效，重新建立连接","");
-                    connection = redisTemplate.getConnectionFactory().getConnection();
+                    connection  = redisService.getReceiverRedisConnection();
                 }
             }
         }
