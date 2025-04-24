@@ -53,18 +53,12 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
 
+    @Resource
     private ListenerManager listenerManager;
     /**
      * 系统启动第一次任务跳过
      */
     private static boolean isOnce = true;
-
-
-    @PostConstruct
-    public void init() {
-        listenerManager = new ListenerManager();
-        listenerManager.addDataSourceListener(new EventInfoListener());
-    }
 
 
     @Override

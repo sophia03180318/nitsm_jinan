@@ -1,5 +1,7 @@
 package com.jcca.dataProcessing.support;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import java.util.List;
  * @date 2023/10/20 11:54
  * @since 2.1.0.0
  */
+@Component
 public class ListenerManager<T> {
     /**
      * 当前存在的监听器
