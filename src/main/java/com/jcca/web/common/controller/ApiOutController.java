@@ -232,9 +232,6 @@ public class ApiOutController {
         versionMap.put("项目分支", projectVersionConf.getBranch());
         versionMap.put("commitId前10位", projectVersionConf.getCommitId().substring(0, 10));
 
-
-        versionMap.put("redis线程池", "当前使用连接数："+redisService.redisTemplateClientSize()+"事务当前使用连接数："+redisService.redisTransactionTemplateTemplateClientSize());
-
         return versionMap;
     }
 
