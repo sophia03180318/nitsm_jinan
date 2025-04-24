@@ -56,12 +56,9 @@ public class EventSaveAlarmHandler extends IFilterHandler<IEvent> {
                 }
                 eventInfoManagerService.saveRedisChange(info,redisTransactionTemplate);
                 redisTransactionTemplate.exec();
-            }catch (JedisConnectionException e1){
-                throw e1;
             }catch (Exception e) {
-                throw e;
-            }finally {
                 redisTransactionTemplate.discard();
+                throw e;
             }
         }
 

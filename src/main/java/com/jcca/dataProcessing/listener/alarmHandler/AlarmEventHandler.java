@@ -145,8 +145,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 } catch (Exception e1) {
                     log.error("结束事务失败……");
                 }
-            } finally {
-                THREAD_SIZE = THREAD_SIZE - 1;
             }
         }
         return true;
