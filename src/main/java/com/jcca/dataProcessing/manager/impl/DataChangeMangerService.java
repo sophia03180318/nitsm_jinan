@@ -21,6 +21,7 @@ import com.jcca.web.construction.service.ConstructionRecordService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.entity.AlarmEventRel;
 import com.jcca.web.event.entity.AlarmEventType;
+import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web.event.service.AlarmEventRelService;
 import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web.event.service.AlarmEventTypeService;
@@ -187,8 +188,14 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         AlarmEvent alarmEvent = new AlarmEvent();
         alarmEvent.setId(MyIdUtil.getId());
         alarmEvent.setAssetId(event.getAssetId());
+        alarmEvent.setEventLevel(event.getStatus());
+
         if (Objects.nonNull(eventAlarmLevelBaseEntity)) {
             //未知事件typeId和repoId都是空
+            if (Objects.isNull(event.getEventAlarmLevelBaseEntity().getAlarmLevel())) {
+                //没有级别  本应该置未空，但是为了满足现场条件，改为 9
+                alarmEvent.setEventLevel(EventLevelEnum.UNKNOW.getCode());
+            }
             alarmEvent.setEventTypeId(eventAlarmLevelBaseEntity.getEventTypeId());
             alarmEvent.setRepositoryId(eventAlarmLevelBaseEntity.getRepoId());
         } else {
@@ -206,7 +213,6 @@ public class DataChangeMangerService implements IDataChangeManagerService {
 
         alarmEvent.setUniqueCode(event.getRedisKey());
         alarmEvent.setFlag(event.getMapKey());
-        alarmEvent.setEventLevel(event.getStatus());
         alarmEvent.setCreateTime(event.getCollectTime());
         alarmEvent.setUpdateTime(new Date());
         alarmEvent.setCreateTime(new Date());

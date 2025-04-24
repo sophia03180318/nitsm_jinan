@@ -15,6 +15,7 @@ import com.jcca.dataProcessing.support.ListenerManager;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.event.entity.AlarmEventType;
+import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web.event.enums.EventTypeStatusEnum;
 import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web.event.service.AlarmEventTypeService;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 事件V2接口
@@ -64,6 +66,10 @@ public class AlarmEventControllerV2 extends ListenerManager {
     @GetMapping("/pageEventList")
     @ApiOperation("分页查询事件列表")
     public ResultVo pageEventList(EventPageDto query) {
+        if(Objects.nonNull(query.getEventType()) && 4==query.getEventType()){
+            query.setEventLevel(EventLevelEnum.UNKNOW.getCode());
+            query.setEventType(null);
+        }
         IPage<EventPageVo> pageResult = eventServ.pageEventListV2(query);
         return ResultVoUtil.success(pageResult);
     }

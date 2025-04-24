@@ -29,7 +29,9 @@ public enum EventLevelEnum {
      * 通知事件
      */
     @Deprecated
-    NOTIFY(0, "通知");
+    NOTIFY(0, "通知"),
+
+    UNKNOW(9,"未定义性质的事件");
 
     private Integer code;
     private String msg;

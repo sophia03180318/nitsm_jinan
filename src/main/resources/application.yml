@@ -115,7 +115,7 @@ jcca:
 
     jedis:
       pool1:
-        max-wait: -1
+        max-wait: 1000
         max-total: 5
         min-idle: 1
         max-idle: 3
@@ -124,7 +124,7 @@ jcca:
         numTestsPerEvictionRun: 100             # 测试间隔
         timeBetweenEvictionRunsMillis: 20000    # 20s检查一次
       pool2:                                     # 带事务的redis 缓存池
-        max-wait: -1
+        max-wait: 1000
         max-total: 5
         min-idle: 1
         max-idle: 2

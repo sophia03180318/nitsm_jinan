@@ -45,10 +45,11 @@ public class CustomEventFilterHnadler extends IFilterHandler<CustomEvent> {
         }
         IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
         event.setDescStr(eventInfo.getMessage());
-        //this.dispatureEvent(event);
+
 
         try {
-            dataProcessManager.evntInfoHandlerRequest(event);
+           // dataProcessManager.evntInfoHandlerRequest(event);
+            this.dispatureEvent(event);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -36,6 +36,7 @@ public class EventPageDto extends PageDto {
      * 0通知
      * 1正常
      * 2警告
+     * 9 未定义级别的事件
      */
     private Integer eventLevel;
     /**

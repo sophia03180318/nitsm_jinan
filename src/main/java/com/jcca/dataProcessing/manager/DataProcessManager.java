@@ -854,6 +854,13 @@ public class DataProcessManager {
         MQ2.setNextFilter(MQ3);
         mqHandler = MQ1;
 
+
+        //外部日志，第三方日志
+        customHandler = this.getIFilterHandler("customEventFilterHnadler");
+
+        customHandler.addDataSourceListener(eventInfoListener);
+
+
         //-----------------以下为事件信息处理程序----------------------------------------------------------------------
         IFilterHandler eventIsConfigAlarmHandler = this.getIFilterHandler("eventIsConfigAlarmHandler");
         eventIsConfigAlarmHandler.addDataSourceListener(alarmListener);
@@ -861,15 +868,17 @@ public class DataProcessManager {
 
         eventIsConfigAlarmHandler.setNextFilter(eventSaveAlarmHandler);
         eventInfoHandler = eventIsConfigAlarmHandler;
+
+
+
+
         //-----------------以下为告警信息处理程序----------------------------------------------------------------------
         IFilterHandler alarmFilterHandler = this.getIFilterHandler("alarmFilterHandler");
           IFilterHandler alarmEventHandler= this.getIFilterHandler("alarmEventHandler");
         alarmFilterHandler.setNextFilter(alarmEventHandler);
         alarmInfoHandler=alarmFilterHandler;
 
-        customHandler = this.getIFilterHandler("customEventFilterHnadler");
 
-        customHandler.addDataSourceListener(alarmListener);
     }
 
 
