@@ -1,7 +1,9 @@
 package com.jcca.dataProcessing.listener.eventInfoHandler;
 
+
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
+import com.jcca.dataProcessing.listener.alarmHandler.AlarmEventHandler;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
 import com.jcca.dataProcessing.manager.impl.EventInfoManagerService;
 import com.jcca.dataProcessing.support.IEvent;
@@ -31,33 +33,37 @@ public class EventSaveAlarmHandler extends IFilterHandler<IEvent> {
     private EventInfoManagerService eventInfoManagerService;
     @Resource(name = "redisTransactionTemplate")
     private RedisTemplate redisTransactionTemplate;
+    @Resource
+    private RedisService redisServ;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handler(IEvent info) {
-        try {
-            redisTransactionTemplate.multi();
-            //改缓存(性能数据)
-            ChangeInfo changeInfo = (ChangeInfo) info.getInfo();
-            if (changeInfo.getRedisKey() != null) {
-                HashOperations<String, Object, Object> hash = redisTransactionTemplate.opsForHash();
-                hash.put(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
+        synchronized (AlarmEventHandler.obj){
+            try {
+                redisTransactionTemplate.multi();
+                //改缓存(性能数据)
+                ChangeInfo changeInfo = (ChangeInfo) info.getInfo();
+                if (changeInfo.getRedisKey() != null) {
+                    HashOperations<String, Object, Object> hash = redisTransactionTemplate.opsForHash();
+                    hash.put(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
+                }
+                Object obj = eventInfoManagerService.getStateValue(info.getRedisKey(), info.getMapKey());
+                //推送的是恢复事件或者是异常事件需要保存事件
+                if ((obj != null && info.getStatus() != obj) || (obj == null && info.getStatus() == EventLevelEnum.ABNORMAL.getCode())) {
+                    dataChangeManagerService.saveEvent(info);
+                }
+                eventInfoManagerService.saveRedisChange(info,redisTransactionTemplate);
+                redisTransactionTemplate.exec();
+            }catch (JedisConnectionException e1){
+                throw e1;
+            }catch (Exception e) {
+                throw e;
+            }finally {
+                redisTransactionTemplate.discard();
             }
-
-            Object obj = eventInfoManagerService.getStateValue(info.getRedisKey(), info.getMapKey());
-            //推送的是恢复事件或者是异常事件需要保存事件
-            if ((obj != null && info.getStatus() != obj) || (obj == null && info.getStatus() == EventLevelEnum.ABNORMAL.getCode())) {
-                dataChangeManagerService.saveEvent(info);
-            }
-            eventInfoManagerService.saveRedisChange(info,redisTransactionTemplate);
-            redisTransactionTemplate.exec();
-        }catch (JedisConnectionException e1){
-            throw e1;
-        }catch (Exception e) {
-            redisTransactionTemplate.discard();
-            throw e;
         }
-
 
         return true;
     }
