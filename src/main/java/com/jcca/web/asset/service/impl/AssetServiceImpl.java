@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jcca.admin.biz.controller.GraphInterfaceController;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
@@ -53,7 +52,6 @@ import com.jcca.web.asset.vo.*;
 import com.jcca.web.broken.service.BrokenRecordService;
 import com.jcca.web.collect.entity.*;
 import com.jcca.web.collect.enums.CollectNetCardStatus;
-import com.jcca.web.collect.enums.InterfaceStatus;
 import com.jcca.web.collect.enums.SensorTypeEnum;
 import com.jcca.web.collect.service.*;
 import com.jcca.web.collect.service.bean.AssetDiskVo;
@@ -2065,17 +2063,15 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 assetStatusItmVos.add(vo);
             }
         } else if (asset.isNetAsset()) {
-            GraphInterfaceController graphInterfaceController = SpringContextUtil.getBean(GraphInterfaceController.class);
-            List<AssetPortVo> ports = (List<AssetPortVo>) graphInterfaceController.portList(assetId, null).get("port");
+            // 网络设备详情端口那个就修改成有端口告警了显示红色异常，没有了就显示绿色正常。
             AssetStatusItmVo vo = new AssetStatusItmVo();
-            vo.setStatus(1);
-            for (AssetPortVo port : ports) {
-                if (Objects.nonNull(port.getStatus()) && !InterfaceStatus.isUp(port.getStatus().byteValue())  &&
-                        port.getStatus().intValue() != InterfaceStatus.UNKINOW.getCode().intValue()) {
-                    vo.setStatus(-1);
-                    break;
-                }
-            }
+            QueryWrapper<AlarmInfo> query = Wrappers.query();
+            query.eq("ASSET_ID", assetId);
+            query.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
+            query.eq("ALARM_CODE", StatusInfoChangeTypeEnum.event_port_state.getCode());
+            List<AlarmInfo> infos = alarmInfoService.list(query);
+            vo.setStatus(infos.isEmpty() ? 1 : -1);
+
             vo.setCode(AssetStatusItmVo.SERVER_PORT);
             vo.setTitle("端口信息列表");
             assetStatusItmVos.add(vo);
