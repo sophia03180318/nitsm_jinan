@@ -77,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -703,7 +704,10 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
             alarmEventServ.removeById(event);
 
             //清楚redis的eventKey V2
-            redisService.deleteHashMap(event.getFlag(), event.getUniqueCode());
+            // 车站上送的事件信息flag为空，所以这里需要判断一下
+            if (!StringUtils.isEmpty(event.getFlag())) {
+                redisService.deleteHashMap(event.getFlag(), event.getUniqueCode());
+            }
 
             //车站，重新推送一次
             stationClient.notifyResetStatus(event);
@@ -1040,9 +1044,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         page.setSize(query.getSize());
 
         SysConfig sysConfig = configService.getSysConfig();
-        if(sysConfig.showJcca()){
+        if (sysConfig.showJcca()) {
             query.setShowJcca(1);
-        }else{
+        } else {
             query.setShowJcca(2);
         }
 
@@ -1067,10 +1071,10 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                 } else {
                     String name = StatusInfoChangeTypeEnum.getName(key);
                     alarmPageStatisticsVo.setCode(key);
-                    if(name.equals(key)){
+                    if (name.equals(key)) {
                         //车站的
                         alarmPageStatisticsVo.setKey("车站设备告警");
-                    }else{
+                    } else {
                         alarmPageStatisticsVo.setKey(name);
                     }
                 }
@@ -1094,10 +1098,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     }
 
 
-
     @Override
     public List<ThreeDAlarmReq> getThreeDAlarm(String roomId1, String roomId2) {
-        return alarmInfoMapper.getThreeDAlarm(roomId1,roomId2);
+        return alarmInfoMapper.getThreeDAlarm(roomId1, roomId2);
 
     }
 
@@ -1111,7 +1114,7 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     @Override
     public List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId) {
 
-       return alarmInfoMapper.getAssetAlarmByOrg(orgId);
+        return alarmInfoMapper.getAssetAlarmByOrg(orgId);
 
     }
 
