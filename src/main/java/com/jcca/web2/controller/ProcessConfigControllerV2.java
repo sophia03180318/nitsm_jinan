@@ -210,13 +210,14 @@ public class ProcessConfigControllerV2 extends ListenerManager {
         Set<String> nset = new HashSet<>();
         List<ThresholdProcess> dtoList = new ArrayList<>();
         for (ConfigProcessDto dto : list) {
-            if (names.contains(dto.getProcessName())) {
+            String processName = dto.getProcessName().trim();
+            if (names.contains(processName)) {
                 continue;
             }
-            if (nset.contains(dto.getProcessName())) {
+            if (nset.contains(processName)) {
                 continue;
             }
-            nset.add(dto.getProcessName());
+            nset.add(processName);
 
             this.checkData(dto);
 
