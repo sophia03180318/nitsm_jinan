@@ -30,13 +30,13 @@ public class CacheDataServiceImpl implements CacheDataService {
     @Resource
     private AssetService assetServ;
     @Resource
-    private CollectInterfacesService  interfacesServ;
+    private CollectInterfacesService interfacesServ;
 
 
     @Override
     public List<AssetStatusItmVo> queryAssetTargetStatus(String assetId) {
         List<AssetStatusItmVo> voList = new ArrayList<>();
-        List<String> filter = Arrays.asList("event:event_net", "event:event_fan","event:event_power","event:event_temp","event:event_port","event:event_process");
+        List<String> filter = Arrays.asList("event:event_net", "event:event_fan", "event:event_power", "event:event_temp", "event:event_port", "event:event_process");
         Asset asset = assetServ.getById(assetId);
         if (Objects.isNull(asset)) {
             return voList;
@@ -55,24 +55,27 @@ public class CacheDataServiceImpl implements CacheDataService {
             if (split.length != 3) {
                 continue;
             }
+            if (mapValue instanceof Boolean) {
+                mapValue = (Boolean) mapValue ? AssetStatusItmVo.NORMAL : AssetStatusItmVo.ERROR;
+            }
             Integer value = Integer.valueOf(mapValue.toString());
             String eventKey = split[0] + ":" + split[1];
-            if (filter.contains(eventKey)){
+            if (filter.contains(eventKey)) {
                 continue;
             }
 
             AssetStatusItmVo assetStatusItmVo = groupMap.get(eventKey);
-            if(Objects.isNull(assetStatusItmVo)){
+            if (Objects.isNull(assetStatusItmVo)) {
                 String replace = StatusInfoChangeTypeEnum.getName(eventKey).replace("事件", "").replace("状态", "");
                 assetStatusItmVo = new AssetStatusItmVo();
                 assetStatusItmVo.setCode(eventKey);
                 assetStatusItmVo.setTitle(replace);
                 assetStatusItmVo.setStatus(value);
 
-            }else if(AssetStatusItmVo.ERROR.equals(value)){
+            } else if (AssetStatusItmVo.ERROR.equals(value)) {
                 assetStatusItmVo.setStatus(value);
             }
-            groupMap.put(eventKey,assetStatusItmVo);
+            groupMap.put(eventKey, assetStatusItmVo);
         }
 
         Set<String> groupMapSet = groupMap.keySet();
@@ -94,7 +97,7 @@ public class CacheDataServiceImpl implements CacheDataService {
 
     @Override
     public AssetStatusDetailVo getAssetStatusDetailV2(String assetId, String code) {
-        String defName = StatusInfoChangeTypeEnum.getName(code).replace("状态","");
+        String defName = StatusInfoChangeTypeEnum.getName(code).replace("状态", "");
 
 
         AssetStatusDetailVo assetStatusDetailVo = new AssetStatusDetailVo();
@@ -106,20 +109,20 @@ public class CacheDataServiceImpl implements CacheDataService {
                 , asset.getId()));
         Set<String> cacheKeySet = hashMap.keySet();
         //数据Map
-        Map<String,JSONObject> dataGroupMap = new HashMap<>(10);
+        Map<String, JSONObject> dataGroupMap = new HashMap<>(10);
         //表头的对应关系
         List<JSONObject> titleList = new ArrayList<>();
         List<String> filterList = new ArrayList<>();
 
         JSONObject json = new JSONObject();
-        json.put("property","name");
+        json.put("property", "name");
         json.put("title", "项");
         titleList.add(json);
 
         //便利所有的 statusEventValue
         for (String key : cacheKeySet) {
-            if(!key.startsWith(code)){
-                continue ;
+            if (!key.startsWith(code)) {
+                continue;
             }
             //值
             Object value = hashMap.get(key);
@@ -129,59 +132,59 @@ public class CacheDataServiceImpl implements CacheDataService {
             String item = "";
             //元素的属性
             String property = "";
-            String statusRedisKey ="";
-            if(keyArray.length==3){
+            String statusRedisKey = "";
+            if (keyArray.length == 3) {
                 item = keyArray[1];
                 property = keyArray[2];
 
-                statusRedisKey = keyArray[0]+"."+keyArray[1];
-            }else if(keyArray.length==2){
+                statusRedisKey = keyArray[0] + "." + keyArray[1];
+            } else if (keyArray.length == 2) {
                 property = keyArray[1];
                 item = defName;
 
                 statusRedisKey = keyArray[0];
-            }else{
-                continue ;
+            } else {
+                continue;
             }
 
             JSONObject dataVo = dataGroupMap.get(item);
-            if(Objects.isNull(dataVo)) {
+            if (Objects.isNull(dataVo)) {
                 dataVo = new JSONObject();
                 String name = StatusInfoChangeTypeEnum.getName(item);
-                dataVo.put("name",name);
+                dataVo.put("name", name);
             }
 
-            List<String> trueList = Arrays.asList("1", "true","0");
-            if(StatusInfoChangeTypeEnum.STATUS.getCode().equals(property) && Objects.nonNull(value)){
-                dataVo.put(property,value.toString());
-            }else if(Objects.nonNull(value)){
-                dataVo.put(property,value);
+            List<String> trueList = Arrays.asList("1", "true", "0");
+            if (StatusInfoChangeTypeEnum.STATUS.getCode().equals(property) && Objects.nonNull(value)) {
+                dataVo.put(property, value.toString());
+            } else if (Objects.nonNull(value)) {
+                dataVo.put(property, value);
             }
             //从缓存statusEvent中判定其状态
             Object status = redisServ.hmGet(String.format("%s:%s:statusEvent", asset.getIp()
                     , asset.getId()), statusRedisKey);
-            String cacheStatusKey = property+"_VALUE_STATUS";
-            dataVo.put(cacheStatusKey,trueList.contains(status.toString())?"正常":"异常");
+            String cacheStatusKey = property + "_VALUE_STATUS";
+            dataVo.put(cacheStatusKey, trueList.contains(status.toString()) ? "正常" : "异常");
 
-            if(!filterList.contains(property)){
-                JSONObject  titleJson = new JSONObject();
-                titleJson.put("property",property);
+            if (!filterList.contains(property)) {
+                JSONObject titleJson = new JSONObject();
+                titleJson.put("property", property);
                 titleJson.put("title", StatusInfoChangeTypeEnum.getName(property));
                 titleList.add(titleJson);
                 filterList.add(property);
 
-                JSONObject  titleJson2 = new JSONObject();
-                titleJson2.put("property",cacheStatusKey);
-                if(StatusInfoChangeTypeEnum.STATUS.getCode().equals(property)){
+                JSONObject titleJson2 = new JSONObject();
+                titleJson2.put("property", cacheStatusKey);
+                if (StatusInfoChangeTypeEnum.STATUS.getCode().equals(property)) {
                     titleJson2.put("title", "状态判定");
-                }else{
-                    titleJson2.put("title", StatusInfoChangeTypeEnum.getName(property)+"状态判定");
+                } else {
+                    titleJson2.put("title", StatusInfoChangeTypeEnum.getName(property) + "状态判定");
                 }
                 titleList.add(titleJson2);
 
             }
 
-            dataGroupMap.put(item,dataVo);
+            dataGroupMap.put(item, dataVo);
         }
 
         Collection<JSONObject> values = dataGroupMap.values();
@@ -189,14 +192,15 @@ public class CacheDataServiceImpl implements CacheDataService {
         //以下循环纯粹为了实现给前端数据排序功能，等到前端可以排序了可以删除此逻辑。
         List<JSONObject> normalList = new ArrayList<>();
         List<JSONObject> errorList = new ArrayList<>();
-        for1:for (JSONObject item : values) {
+        for1:
+        for (JSONObject item : values) {
             Set<String> keySet = item.keySet();
             for (String str : keySet) {
-                if(str.contains("_VALUE_STATUS")){
+                if (str.contains("_VALUE_STATUS")) {
                     String valueStr = item.getStr(str);
-                    if("异常".equals(valueStr)){
+                    if ("异常".equals(valueStr)) {
                         errorList.add(item);
-                        continue for1 ;
+                        continue for1;
                     }
                 }
             }
@@ -224,20 +228,20 @@ public class CacheDataServiceImpl implements CacheDataService {
     @Override
     public InterfaceStatus queryInterfaceStatus(String assetId, String portFullName) {
         Asset asset = assetServ.getById(assetId);
-        if(Objects.isNull(asset)){
+        if (Objects.isNull(asset)) {
             return InterfaceStatus.UNKINOW;
         }
         String portName = interfacesServ.getPortNameByFullName(assetId, portFullName);
 
 
-        String key = asset.getIp()+":"+asset.getId()+":interface_up_down";
+        String key = asset.getIp() + ":" + asset.getId() + ":interface_up_down";
         Object status = redisServ.hmGet(key, portName);
-        if(Objects.isNull(status)){
+        if (Objects.isNull(status)) {
             return InterfaceStatus.UNKINOW;
         }
 
         Boolean up = InterfaceStatus.isUp(Byte.parseByte(status.toString()));
-        if(up){
+        if (up) {
             return InterfaceStatus.OK;
         }
         return InterfaceStatus.NO;
