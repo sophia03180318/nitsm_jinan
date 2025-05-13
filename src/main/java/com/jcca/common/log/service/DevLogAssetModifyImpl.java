@@ -78,7 +78,6 @@ public class DevLogAssetModifyImpl implements DevLogService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            req.setDesk(desk);
         }
     }
 
