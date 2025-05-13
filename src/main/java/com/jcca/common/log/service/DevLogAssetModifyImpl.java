@@ -70,11 +70,7 @@ public class DevLogAssetModifyImpl implements DevLogService {
             actionLog.setLogName("新增资产【" + req.getName() + "】");
         } else {
             Integer desk = req.getDesk();
-            String d = "";
-            if (desk != null) {
-                d = desk + "";
-            }
-            req.setDesk(Integer.parseInt(req.getAssetMode() + d));
+            req.setDesk(desk);
             actionLog.setLogName("修改资产【" + req.getName() + "】");
             Asset one = assetService.getById(id);
             try {

@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jcca.common.log.annotation.FieldLogAnno;
 import com.jcca.web.asset.utils.enums.ManufacturersEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,11 +43,13 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
     @TableField("NAME")
     @NotEmpty(message = "请输入资产名称")
     @Length(max = 64, message = "设备名字不能超过60个字符")
+    @FieldLogAnno(title = "资产名称")
     private String name;
     /**
      * 资产编号
      */
     @TableField("ASSET_CODE")
+    @FieldLogAnno(title = "资产编号")
     private String assetCode;
     /**
      * 20210112hanwone
@@ -57,6 +60,7 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      */
     @TableField("DESK")
     @NotNull(message = "请选择资产小类型")
+    @FieldLogAnno(title = "资产类型")
     private Integer desk;
     /**
      * 调度台
@@ -80,51 +84,60 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * Ip地址
      */
     @TableField("IP")
+    @FieldLogAnno(title = "IP1")
     //@Pattern(message = "ip地址格式不正确", regexp = "^((25[0-5]|2[0-4]\\d|[1]\\d\\d|[1-9]\\d|\\d)($|(?!\\.$)\\.)){4}$")
     private String ip;
     /**
      * 设备登录账号
      */
     @TableField("OS_USER")
+    @FieldLogAnno(title = "设备登录账号")
     private String osUser;
     /**
      * 设备登录密码
      */
     @TableField("OS_PASSWORD")
+    @FieldLogAnno(title = "设备登录密码")
     private String osPassword;
     /**
      * 网络设备登录用户名
      * 网络设备OSUSER存的是团体名
      */
     @TableField("LOGIN_NAME")
+    @FieldLogAnno(title = "登录用户名")
     private String loginName;
     /**
      * 网络设备登录密码
      * 网络设备OSUSER存的是团体名
      */
     @TableField("LOGIN_PWD")
+    @FieldLogAnno(title = "登录密码")
     private String loginPwd;
     /**
      * 服务器的登录端口取这个字段！！！！
      * 登录端口
      */
     @TableField(value = "LOGIN_PORT", updateStrategy = FieldStrategy.IGNORED, jdbcType = JdbcType.VARCHAR)
+    @FieldLogAnno(title = "登录端口")
     private Integer loginPort;
 
     /**
      * 管理口IP
      */
     @TableField("IPMI_IP")
+    @FieldLogAnno(title = "管理口IP")
     private String ipmiIp;
     /**
      * 管理口用户
      */
     @TableField("IPMI_USER")
+    @FieldLogAnno(title = "管理口用户")
     private String ipmiUser;
     /**
      * 管理口密码
      */
     @TableField("IPMI_PWD")
+    @FieldLogAnno(title = "管理口密码")
     private String ipmiPwd;
 
     /**
@@ -141,65 +154,77 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 序列号
      */
     @TableField("SERIAL_NUMBER")
+    @FieldLogAnno(title = "序列号")
     private String serialNumber;
 
     /**
      * 二维码识别码
      */
     @TableField("QR_CODE_NUM")
+    @FieldLogAnno(title = "识别号")
     private String qrCodeNum;
     /**
      * 运行模式
      * AssetRunModelEnum
      */
     @TableField("RUN_MODEL")
+    @FieldLogAnno(title = "运行方式")
     private String runModel;
     /**
      * 电源模块型号
      */
     @TableField("POWER_MODEL")
+    @FieldLogAnno(title = "电源模块型号")
     private String powerModel;
     /**
      * 电源模块数量
      */
     @TableField("POWER_TOTAL")
+    @FieldLogAnno(title = "电源模块数量")
     private Integer powerTotal;
     /**
      * 内存
      */
     @TableField("MEMORY")
+    @FieldLogAnno(title = "内存")
     private String memory;
     /**
      * 是否是核心设备
      */
     @TableField("SHOW_CORE")
+    @FieldLogAnno(title = "是否核心设备")
     private String showCore;
     /**
      * 磁盘数量
      */
     @TableField("DISK_TOTAL")
+    @FieldLogAnno(title = "磁盘数量")
     private Integer diskTotal;
     /**
      * 单磁盘容量
      */
     @TableField("DISK_CAPACITY")
+    @FieldLogAnno(title = "单磁盘容量")
     private String diskCapacity;
     /**
      * 生产厂商ID
      */
     @TableField("MANUFACTURER_ID")
+    @FieldLogAnno(title = "资产厂商")
     private Integer manufacturerId;
     /**
      * 资产供货商
      * ManufacturersEnum
      */
     @TableField("ASSET_SUPPLIER")
+    @FieldLogAnno(title = "供货商")
     private String assetSupplier;
     /**
      * 组织ID
      */
     @TableField("ORG_ID")
     @NotEmpty(message = "请选择资产所属组织")
+    @FieldLogAnno(title = "组织机构")
     private String orgId;
     /**
      * 资产位置
@@ -210,18 +235,21 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 操作系统名称
      */
     @TableField("OPERATION_SYSTEM")
+    @FieldLogAnno(title = "操作系统")
     private String operationSystem;
     /**
      * 上架时间
      */
     @TableField(value = "ONLINE_TIME", updateStrategy = FieldStrategy.IGNORED, jdbcType = JdbcType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @FieldLogAnno(title = "上架时间")
     private Date onlineTime;
     /**
      * 下架时间
      */
     @TableField(value = "DOWNLINE_TIME", updateStrategy = FieldStrategy.IGNORED, jdbcType = JdbcType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @FieldLogAnno(title = "下架时间")
     private Date downlineTime;
     /**
      * 跳转路径
@@ -233,6 +261,7 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 0:linux,1:windows,2:aix,-1:网络设备
      */
     @TableField("COLLECTION_TYPE")
+    @FieldLogAnno(title = "采集类型")
     private Integer collectionType;
     /***
      * 采集协议 0linux  1windows
@@ -249,36 +278,43 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 设备图片
      */
     @TableField("ASSET_IMAGE")
+    @FieldLogAnno(title = "资产型号")
     private String assetImage;
     /**
      * CPU个数
      */
     @TableField("CPU_NUMBER")
+    @FieldLogAnno(title = "CPU个数")
     private Integer cpuNumber;
     /**
      * CPU核数
      */
     @TableField("CPU_CORE_NUMBER")
+    @FieldLogAnno(title = "CPU核数")
     private Integer cpuCoreNumber;
     /**
      * CPU型号
      */
     @TableField("CPU_MODEL")
+    @FieldLogAnno(title = "CPU型号")
     private String cpuModel;
     /**
      * CPU主频
      */
     @TableField("CPU_FREQUENCY")
+    @FieldLogAnno(title = "CPU主频")
     private String cpuFrequency;
     /**
      * Ip地址
      */
     @TableField("IP2")
+    @FieldLogAnno(title = "IP2")
     private String ip2;
     /**
      * AB机标识（0=A机,1=B机，2=集群）
      */
     @TableField("A_B_FLAG")
+    @FieldLogAnno(title = "AB机标识")
     private Byte aBFlag;
     /**
      * 数据状态
@@ -292,25 +328,28 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 0-不显示，1-显示
      */
     @TableField("SHOW_TOPO")
+    @FieldLogAnno(title = "是否topo显示")
     private Byte showTopo;
     /**
      * 是否开启ntp采集
      * 0-不采集，1-采集
      */
     @TableField("NTP_FLAG")
+    @FieldLogAnno(title = "是否采集系统时间")
     private Byte ntpFlag;
     /**
      * 设备是否监控
      * 0-不监控，1-监控
-     * AssetWatchStatusEnum
      */
     @TableField("WATCH")
+    @FieldLogAnno(title = "是否监控")
     private Byte watch;
     /**
      * 质保期限
      */
     @TableField("VALIDITY_DATE")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @FieldLogAnno(title = "质保期限")
     private Date validityDate;
     /**
      * 创建时间
@@ -373,6 +412,7 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 机房ID
      */
     @TableField(exist = false)
+    @FieldLogAnno(title = "机房")
     private String roomId;
     /**
      * 机房名
@@ -388,6 +428,7 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 机柜ID
      */
     @TableField(exist = false)
+    @FieldLogAnno(title = "机柜")
     private String cabinetId;
     /**
      * 机柜名
@@ -398,11 +439,13 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 资产在机柜中起始位置
      */
     @TableField(exist = false)
+    @FieldLogAnno(title = "起始位置")
     private Integer startPosition;
     /**
      * 资产在机柜中结束位置
      */
     @TableField(exist = false)
+    @FieldLogAnno(title = "结束位置")
     private Integer endPosition;
     /**
      * 资产在机柜中占用U位数
