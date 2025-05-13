@@ -312,6 +312,9 @@ public class DevLogAssetModifyImpl implements DevLogService {
         if (temp.equals(bo)) {
             bo = "无";
         }
+        if ("无".equals(ao) && "无".equals(bo)) {
+            return new HashMap<>();
+        }
 
         Map<Object, Object> map = new HashMap<>();
         map.put(ao, bo);
