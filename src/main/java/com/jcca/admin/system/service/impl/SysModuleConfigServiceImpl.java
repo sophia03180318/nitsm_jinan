@@ -283,6 +283,23 @@ public class SysModuleConfigServiceImpl extends ServiceImpl<SysModuleConfigMappe
 
     @Override
     public void updateConfigByName(String name, String value) {
-        configMapper.updateByName( name,  value);
+        SysModuleConfig config = null;
+        Object o = redisService.get(name);
+        if (Objects.isNull(o)) {
+            QueryWrapper<SysModuleConfig> wrapper = Wrappers.query();
+            wrapper.eq("name", name);
+            List<SysModuleConfig> list = this.list(wrapper);
+            if (CollectionUtil.isNotEmpty(list)) {
+                config = list.get(0);
+                redisService.set(name, config);
+            }
+            return;
+        }
+        config = (SysModuleConfig) o;
+        config.setName(name);
+        config.setValue(value);
+        redisService.set(name, config);
+
+        configMapper.updateById(config);
     }
 }
