@@ -25,8 +25,6 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.enums.*;
-import com.jcca.common.log.annotation.ActionLog;
-import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
@@ -62,13 +60,9 @@ import com.jcca.web.ip.entity.IpInfo;
 import com.jcca.web.ip.service.IpInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import redis.clients.jedis.JedisPool;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -225,7 +219,7 @@ public class ApiOutController {
      * @return
      */
     @GetMapping("/version")
-    @ActionLog(name = "查看系统程序版本信息", title = "免密登录", key = LogTypeConstant.QUERY)
+    @ApiOperation(value = "程序版本信息")
     public Map<String, Object> version() {
         Map<String, Object> versionMap = new HashMap<>();
         versionMap.put("项目版本", projectVersionConf.getTags());
