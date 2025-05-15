@@ -222,9 +222,10 @@ public class ApiOutController {
     @ApiOperation(value = "程序版本信息")
     public Map<String, Object> version() {
         Map<String, Object> versionMap = new HashMap<>();
-        versionMap.put("项目版本", projectVersionConf.getTags());
-        versionMap.put("项目分支", projectVersionConf.getBranch());
-        versionMap.put("commitId前10位", projectVersionConf.getCommitId().substring(0, 10));
+        versionMap.put("tags", projectVersionConf.getTags());
+        versionMap.put("branch", projectVersionConf.getBranch());
+        versionMap.put("version", projectVersionConf.getVersion());
+        versionMap.put("commitId", projectVersionConf.getCommitId());
 
         return versionMap;
     }
