@@ -306,6 +306,15 @@
         <if test="map.manufacturerId != null and map.manufacturerId !=''">
             and manufacturer_id = #{map.manufacturerId}
         </if>
+        <if test="map.monitorStatus != null and map.monitorStatus !=''">
+            and MONITOR = #{map.monitorStatus}
+        </if>
+        <if test="map.status != null and map.status !=''">
+            and STATUS = #{map.status}
+        </if>
+        <if test="map.collectionType != null and map.collectionType !=''">
+            and COLLECTION_TYPE = #{map.collectionType}
+        </if>
         <if test="map.orgId != null and map.orgId !=''">
             and org_id = #{map.orgId}
         </if>
@@ -345,6 +354,15 @@
         </if>
         <if test="map.manufacturerId != null and map.manufacturerId !=''">
             and manufacturer_id = #{map.manufacturerId}
+        </if>
+        <if test="map.monitorStatus != null and map.monitorStatus !=''">
+            and MONITOR = #{map.monitorStatus}
+        </if>
+        <if test="map.status != null and map.status !=''">
+            and STATUS = #{map.status}
+        </if>
+        <if test="map.collectionType != null and map.collectionType !=''">
+            and COLLECTION_TYPE = #{map.collectionType}
         </if>
         <if test="map.name != null and map.name !=''">
             and name like concat(concat('%', #{map.name}),'%')
