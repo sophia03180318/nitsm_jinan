@@ -262,7 +262,6 @@ public class ThreeDServiceImpl implements ThreeDService {
 
     @Override
     public ThreeDResult cancelAlarm(AlarmInfo alarmInfo) {
-        log.info("3D机房推送告警" );
         ThreeDResult threeDResult = new ThreeDResult();
         Object o = redisService.get(ThreeDConst.KEY_STATUS);
         if (ObjectUtil.isNull(o) || !String.valueOf(o).equals("1")) {
@@ -273,6 +272,7 @@ public class ThreeDServiceImpl implements ThreeDService {
         if (!isAsset(alarmInfo.getAssetId())) {
             return threeDResult;
         }
+        log.info("3D机房推送告警" );
         JSONObject jsonObject1 = new JSONObject();
         jsonObject1.put("id", alarmInfo.getId());
         jsonObject1.put("assetId", alarmInfo.getAssetId());
