@@ -1,8 +1,8 @@
 package com.jcca.component.quartz.inspect;
 
 import com.jcca.common.utils.SpringContextUtil;
-import com.jcca.web.xunjian.service.XunjianRecordService;
-import com.jcca.web.xunjian.vo.XunjianRecordVo;
+import com.jcca.web2.dto.XunjianJobDto;
+import com.jcca.web2.service.XunjianScheduleService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -23,12 +23,11 @@ public class XunjianJob implements Job {
         JobKey key = jobExecutionContext.getJobDetail().getKey();
         String name = key.getName();
         String operator = key.getGroup();
-        XunjianRecordService bean = SpringContextUtil.getBean(XunjianRecordService.class);
-        XunjianRecordVo vo = new XunjianRecordVo();
-//        vo.setCronUser(operator);
-//        vo.setXunjianTarget(name.split("_")[1]);
-//        vo.setAutoFlag(2);
-//        bean.beginXunjian(vo);
+        XunjianScheduleService scheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
+        XunjianJobDto dto = new XunjianJobDto();
+        dto.setJobId(name.split("_")[0]);
+        dto.setOperator(operator);
+        scheduleService.beginXunjian(dto);
         log.info("定时巡检，巡检人：{}，巡检任务：{}", operator, name);
     }
 }

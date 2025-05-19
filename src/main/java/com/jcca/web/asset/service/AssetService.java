@@ -115,7 +115,7 @@ public interface AssetService extends IService<Asset> {
      *
      * @return
      */
-    List<StatisticsAlarmVo> getModeAsset();
+    List<StatisticsAlarmVo> getModeAsset(List<String> orgIds);
 
     /**
      * 按组织统计设备数量

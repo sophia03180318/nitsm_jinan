@@ -179,6 +179,7 @@
             #{id}
         </foreach>
         group by m.name, m.code
+        order by m.code
     </select>
 
     <select id="getOrgAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"

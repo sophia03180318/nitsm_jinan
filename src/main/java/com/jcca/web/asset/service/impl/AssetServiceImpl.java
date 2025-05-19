@@ -617,8 +617,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
      * @return
      */
     @Override
-    public List<StatisticsAlarmVo> getModeAsset() {
-        List<String> orgIds = ShiroUtil.getSubjectOrgIds();
+    public List<StatisticsAlarmVo> getModeAsset(List<String> orgIds) {
         if (CollectionUtils.isEmpty(orgIds)) {
             return new ArrayList<>();
         }

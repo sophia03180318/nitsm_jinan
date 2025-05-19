@@ -26,10 +26,35 @@ public class XunjianSchedule extends Model<XunjianSchedule> {
 
     @TableId
     private String id;
+    /**
+     * 任务表达式
+     */
     private String cron;
+    /**
+     * 任务编号
+     */
+    private String jobId;
+    /**
+     * 周期时间
+     */
+    private String cronTime;
     private String jobName;
     private String operator;
-    private String xunjianTarget;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date lastTime;
+    /**
+     * 任务状态，1停止，2执行中
+     */
+    private Integer jobState;
+    /**
+     * 任务类型，1手动巡检，2周期巡检
+     */
+    private Integer autoFlag;
+    /**
+     * 执行策略，1手动执行，2立即执行
+     */
+    private Integer startNow;
+    private String remark;
 
     /**
      * 创建时间
