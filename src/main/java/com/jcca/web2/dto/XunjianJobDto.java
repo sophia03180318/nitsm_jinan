@@ -35,7 +35,6 @@ public class XunjianJobDto {
     /**
      * 执行策略，1手动执行，2立即执行
      */
-    @NotNull(message = "执行策略不能为空")
     private Integer startNow;
     private String remark;
 
