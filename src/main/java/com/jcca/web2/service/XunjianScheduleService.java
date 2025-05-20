@@ -29,4 +29,6 @@ public interface XunjianScheduleService extends IService<XunjianSchedule> {
     void removeSchedule(String id);
 
     void updateSchedule(XunjianJobDto dto);
+
+    List<XunjianSchedule> findByJobId(String jobId);
 }

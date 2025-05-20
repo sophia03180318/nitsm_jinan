@@ -75,10 +75,16 @@ public class XunjianFinalController {
     @PostMapping("/job/update")
     @ApiOperation("修改巡检任务")
     public ResultVo<Object> jobUpdate(@RequestBody @Validated XunjianJobDto dto) {
-        String id = dto.getId();
+        String id = dto.getJobId();
         if (StringUtils.isEmpty(id)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
         }
+
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(id);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+
         String username = ShiroUtil.getSubject().getUsername();
         dto.setOperator(username);
         xunjianScheduleService.updateSchedule(dto);

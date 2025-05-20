@@ -351,10 +351,16 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             throw new ResultException(ResultEnum.PARAM_ERROR);
         }
 
+        List<XunjianSchedule> oldList = this.findByJobId(dto.getJobId());
+        XunjianSchedule oldSchedule = oldList.get(0);
+        if (oldSchedule.getAutoFlag().intValue() != dto.getAutoFlag()) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "任务类型不能修改");
+        }
+
         // 手动巡检
         if (autoFlag == 1) {
             XunjianSchedule schedule = this.setJob(dto);
-            schedule.setId(dto.getId());
+            schedule.setId(oldSchedule.getId());
             this.updateById(schedule);
 
             // 是否立即执行
@@ -363,9 +369,15 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
             return;
         }
-
+        // 周期巡检
         String[] tims = cronTimes.split(",");
         Set<String> set = new HashSet<>(Arrays.asList(tims));
+        int osize = oldList.size();
+        int nsize = set.size();
+        if (osize != nsize) {
+            throw new ResultException(ResultEnum.PARAM_ERROR);
+        }
+
         for (String time : set) {
             XunjianSchedule schedule = this.setJob(dto);
             schedule.setId(dto.getId());
@@ -382,6 +394,13 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "添加巡检任务异常");
             }
         }
+    }
+
+    @Override
+    public List<XunjianSchedule> findByJobId(String jobId) {
+        QueryWrapper<XunjianSchedule> query = Wrappers.query();
+        query.eq("JOB_ID", jobId);
+        return this.list(query);
     }
 
     private void getModeAssetList(List<ItemVo> resultList, SysOrg org, ItemVo vo1,
