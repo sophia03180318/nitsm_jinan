@@ -1,5 +1,7 @@
 package com.jcca.web2.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.entity.InspectAsset;
@@ -25,5 +27,12 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     @Override
     public List<InspectAsset> getInspectAssets(List<String> assetIds) {
         return inspectAssetMapper.getInspectAssets(assetIds);
+    }
+
+    @Override
+    public void removeByJobId(String jobId) {
+        QueryWrapper<InspectAsset> query1 = Wrappers.query();
+        query1.eq("JOB_ID", jobId);
+        this.remove(query1);
     }
 }

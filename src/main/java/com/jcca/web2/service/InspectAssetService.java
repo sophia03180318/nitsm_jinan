@@ -15,4 +15,6 @@ import java.util.List;
 public interface InspectAssetService extends IService<InspectAsset> {
 
     List<InspectAsset> getInspectAssets(List<String> assetIds);
+
+    void removeByJobId(String jobId);
 }

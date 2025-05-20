@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author: hhw
@@ -78,5 +79,8 @@ public class XunjianSchedule extends Model<XunjianSchedule> {
      */
     @TableField(value = "MODIFIER", fill = FieldFill.INSERT_UPDATE)
     private String modifier;
+
+    @TableField(exist = false)
+    private List<String> cronList;
 
 }
