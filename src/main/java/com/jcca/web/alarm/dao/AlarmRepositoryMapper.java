@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web2.dto.EventRpoPageDto;
+import com.jcca.web2.vo.ItemVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -46,4 +47,7 @@ public interface AlarmRepositoryMapper extends BaseMapper<AlarmRepository> {
      * @return
      */
     IPage<AlarmRepository> pageListV2(Page page, @Param("query") EventRpoPageDto query);
+
+    @Select("select id, type_alias as name from alarm_event_type where asset_desks like #{assetDesk}")
+    List<ItemVo> listTypeByAssetDesk(String assetDesk);
 }

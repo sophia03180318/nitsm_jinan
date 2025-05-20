@@ -3,6 +3,7 @@ package com.jcca.web.event.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.component.event.bean.AddEventItem;
 import com.jcca.web.event.entity.AlarmEventType;
+import com.jcca.web2.vo.ItemVo;
 
 import java.util.List;
 
@@ -29,4 +30,5 @@ public interface AlarmEventTypeService extends IService<AlarmEventType> {
      */
     AlarmEventType queryUnkonwEvent();
 
+    List<ItemVo> listTypeByAssetDesk(String assetDesk);
 }

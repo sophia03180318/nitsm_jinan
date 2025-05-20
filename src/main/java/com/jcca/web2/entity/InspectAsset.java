@@ -12,13 +12,13 @@ import java.util.Date;
 /**
  * @author HanHW
  * @description 巡检管理实体
- * @className InspectRecord
- * @date 2023/11/16 11:38
- * @since 2.1.0.0
+ * @className InspectAsset
+ * @date 2025/5/19 11:38
+ * @since 2.1.6.0
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("INSPECT_RECORD")
+@TableName("INSPECT_ASSET")
 public class InspectAsset extends Model<InspectAsset> implements Serializable {
 
     private static final long serialVersionUID = -2265325783573462871L;
@@ -26,6 +26,7 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
 
     @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
+    private String jobId;
     private String assetId;
     private String assetName;
     // 巡检设备类型
@@ -67,8 +68,6 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private Integer assetDesk;
     // 资产小类型名称
     private String deskName;
-    // 巡检结果文件路径
-    private String resultPath;
 
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

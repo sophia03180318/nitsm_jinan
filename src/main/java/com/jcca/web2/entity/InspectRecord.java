@@ -69,6 +69,8 @@ public class InspectRecord extends Model<InspectRecord> implements Serializable 
     private String deskName;
     // 巡检结果文件路径
     private String resultPath;
+    // 巡检任务ID
+    private String scheduleId;
 
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

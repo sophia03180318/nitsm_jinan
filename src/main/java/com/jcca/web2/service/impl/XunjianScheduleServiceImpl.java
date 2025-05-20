@@ -19,10 +19,16 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.dao.XunjianScheduleDao;
 import com.jcca.web2.dto.XunjianJobDto;
+import com.jcca.web2.entity.InspectAsset;
+import com.jcca.web2.entity.InspectDetail;
+import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.entity.XunjianSchedule;
+import com.jcca.web2.service.InspectAssetService;
+import com.jcca.web2.service.InspectDetailService;
+import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.util.TimeToCronConverter;
-import com.jcca.web2.vo.OrgModeAssetVo;
+import com.jcca.web2.vo.ItemVo;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
@@ -48,6 +54,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private AssetService assetService;
     @Resource
     private SysOrgService sysOrgService;
+    @Resource
+    private InspectAssetService inspectAssetService;
+    @Resource
+    private InspectRecordService inspectRecordService;
+    @Resource
+    private InspectDetailService inspectDetailService;
 
 
     /**
@@ -104,10 +116,15 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         this.saveInspectAsset(dto);
     }
 
+    // 巡检资产 inspect_asset job_id == xunjian_scheduled_job_id
     private void saveInspectAsset(XunjianJobDto dto) {
         String jobId = dto.getJobId();
         List<String> assetIds = dto.getAssetIds();
         List<String> targetIds = dto.getTargetIds();
+        List<InspectAsset> list = inspectAssetService.getInspectAssets(assetIds);
+        for (InspectAsset asset : list) {
+
+        }
 
     }
 
@@ -141,6 +158,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         // TODO 巡检设备
         String jobId = dto.getJobId();
         String operator = dto.getOperator();
+
+        // 巡检资产 inspect_asset job_id == xunjian_scheduled_job_id
+
+        // 巡检记录 inspect_record scheduled_id == xunjian_scheduled_id
+
+        // 巡检明细 inspect_detail inspect_code == inspect_record_id
 
     }
 
@@ -183,9 +206,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      * @return List
      */
     @Override
-    public List<OrgModeAssetVo> getOrgModeAssetList() {
+    public List<ItemVo> getOrgModeAssetList() {
         List<SysOrg> orgs = ShiroUtil.getSubjectOrgs();
-        List<OrgModeAssetVo> resultList = new ArrayList<>();
+        List<ItemVo> resultList = new ArrayList<>();
         for (SysOrg org : orgs) {
             Integer type = org.getType();
             if (type == OrgTypeConst.GROUP) {
@@ -193,21 +216,21 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
 
             if (type == OrgTypeConst.CENTER) {
-                OrgModeAssetVo vo1 = new OrgModeAssetVo();
+                ItemVo vo1 = new ItemVo();
                 vo1.setId(org.getId());
                 vo1.setName(org.getTitle());
 
-                List<OrgModeAssetVo> modelist = new ArrayList<>();
+                List<ItemVo> modelist = new ArrayList<>();
                 List<StatisticsAlarmVo> mlist = assetService.getModeAsset(Collections.singletonList(org.getId()));
                 getModeAssetList(resultList, org, vo1, modelist, mlist);
             }
 
             if (type == OrgTypeConst.LINE) {
-                OrgModeAssetVo vo1 = new OrgModeAssetVo();
+                ItemVo vo1 = new ItemVo();
                 vo1.setId(org.getId());
                 vo1.setName(org.getTitle());
 
-                List<OrgModeAssetVo> modelist = new ArrayList<>();
+                List<ItemVo> modelist = new ArrayList<>();
                 List<String> stationIds = sysOrgService.getStationOrgIdByLineId(org.getId());
                 stationIds.retainAll(ShiroUtil.getSubjectOrgIds());
 
@@ -218,20 +241,63 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         return resultList;
     }
 
-    private void getModeAssetList(List<OrgModeAssetVo> resultList, SysOrg org, OrgModeAssetVo vo1,
-                                  List<OrgModeAssetVo> modelist, List<StatisticsAlarmVo> mlist) {
+    @Override
+    public void removeSchedule(String id) {
+        XunjianSchedule schedule = this.getById(id);
+        Integer autoFlag = schedule.getAutoFlag();
+        // 删除定时任务
+        if (autoFlag == 2) {
+            try {
+                jobManager.deleteJob(schedule.getJobId() + "_" + schedule.getCronTime(), schedule.getOperator());
+            } catch (SchedulerException e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "删除周期巡检任务异常，jobId：" + schedule.getJobId(), e);
+                throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "删除周期巡检任务异常");
+            }
+        }
+        // 巡检资产 inspect_asset job_id == xunjian_schedule_job_id
+        // 巡检记录 inspect_record schedule_id == xunjian_schedule_id
+        // 巡检明细 inspect_detail inspect_code == inspect_record_id
+        // 删除巡检资产
+        QueryWrapper<XunjianSchedule> query = Wrappers.query();
+        query.eq("JOB_ID", schedule.getJobId());
+        int count = this.count(query);
+        if (count == 1) {
+            QueryWrapper<InspectAsset> query1 = Wrappers.query();
+            query1.eq("JOB_ID", schedule.getJobId());
+            inspectAssetService.remove(query1);
+        }
+
+        QueryWrapper<InspectRecord> query1 = Wrappers.query();
+        query1.eq("SCHEDULE_ID", schedule.getId());
+        List<InspectRecord> list = inspectRecordService.list(query1);
+        for (InspectRecord record : list) {
+            // 删除巡检明细
+            QueryWrapper<InspectDetail> query2 = Wrappers.query();
+            query2.eq("INSPECT_CODE", record.getId());
+            inspectDetailService.remove(query2);
+
+            // 删除巡检记录
+            inspectRecordService.removeById(record.getId());
+        }
+
+        // 删除任务
+        this.removeById(id);
+    }
+
+    private void getModeAssetList(List<ItemVo> resultList, SysOrg org, ItemVo vo1,
+                                  List<ItemVo> modelist, List<StatisticsAlarmVo> mlist) {
         QueryWrapper<Asset> query;
         for (StatisticsAlarmVo mode : mlist) {
             if ((mode.getId()).startsWith("7")) {
                 continue;
             }
-            OrgModeAssetVo vo2 = new OrgModeAssetVo();
+            ItemVo vo2 = new ItemVo();
             vo2.setId(mode.getId());
             vo2.setName(mode.getName());
 
-            List<OrgModeAssetVo> assetlist = new ArrayList<>();
+            List<ItemVo> assetlist = new ArrayList<>();
             query = Wrappers.query();
-            query.select("id", "name");
+            query.select("id", "name", "desk");
             query.eq("DESK", mode.getId());
             query.eq("ORG_ID", org.getId());
             query.eq("WATCH", 1);
@@ -239,9 +305,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             query.orderByAsc("id", "name");
             List<Asset> list = assetService.list(query);
             for (Asset asset : list) {
-                OrgModeAssetVo vo3 = new OrgModeAssetVo();
+                ItemVo vo3 = new ItemVo();
                 vo3.setId(asset.getId());
                 vo3.setName(asset.getName());
+                vo3.setAssetDesk(asset.getDesk() + "");
+                vo3.setFlag(true);
                 assetlist.add(vo3);
             }
             vo2.setChildren(assetlist);

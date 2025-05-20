@@ -3,7 +3,7 @@ package com.jcca.web2.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.entity.XunjianSchedule;
-import com.jcca.web2.vo.OrgModeAssetVo;
+import com.jcca.web2.vo.ItemVo;
 
 import java.util.List;
 
@@ -24,5 +24,7 @@ public interface XunjianScheduleService extends IService<XunjianSchedule> {
      *
      * @return List
      */
-    List<OrgModeAssetVo> getOrgModeAssetList();
+    List<ItemVo> getOrgModeAssetList();
+
+    void removeSchedule(String id);
 }
