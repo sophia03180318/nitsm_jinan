@@ -3,7 +3,7 @@
 <mapper namespace="com.jcca.web2.dao.InspectAssetMapper">
 
     <select id="getInspectAssets" resultType="com.jcca.web2.vo.ItemVo" parameterType="java.lang.String">
-        select a.id,
+        select a.id assetId,
         a.name assetName,
         a.ip assetIp1,
         a.ip2 assetIp2,

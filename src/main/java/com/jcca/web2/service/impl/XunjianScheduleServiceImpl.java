@@ -14,9 +14,12 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.component.quartz.inspect.XunjianJob;
+import com.jcca.web.alarm.entity.AlarmRepository;
+import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
+import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
 import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.entity.InspectAsset;
@@ -51,6 +54,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     @Resource
     private QuartzJobManager jobManager;
     @Resource
+    private AlarmRepositoryService alarmRepositoryService;
+    @Resource
     private AssetService assetService;
     @Resource
     private SysOrgService sysOrgService;
@@ -68,7 +73,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      * @param dto
      */
     @Override
-    public void saveSchedule(XunjianJobDto dto) {
+    public void addSchedule(XunjianJobDto dto) {
 
         Integer autoFlag = dto.getAutoFlag();
         String cronTimes = dto.getCronTimes();
@@ -116,16 +121,50 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         this.saveInspectAsset(dto);
     }
 
-    // 巡检资产 inspect_asset job_id == xunjian_scheduled_job_id
+
+    // 巡检资产 inspect_asset job_id == xunjian_schedule_job_id
     private void saveInspectAsset(XunjianJobDto dto) {
+        Set<String> set = new HashSet<>();
         String jobId = dto.getJobId();
-        List<String> assetIds = dto.getAssetIds();
-        List<String> targetIds = dto.getTargetIds();
+        List<String> assetIds = dto.getAssetList();
+        Map<String, List<String>> targetMap = dto.getTargetList();
+        List<InspectAsset> batchList = new ArrayList<>();
         List<InspectAsset> list = inspectAssetService.getInspectAssets(assetIds);
         for (InspectAsset asset : list) {
+            String desk = asset.getAssetDesk() + ",";
+            List<String> targetList = targetMap.get(desk);
+            if (targetList == null) {
+                continue;
+            }
+            for (String target : targetList) {
+                List<AlarmRepository> repositoryList = alarmRepositoryService.getAllByEventId(target);
+                for (AlarmRepository repository : repositoryList) {
+                    if (set.contains(repository.getAlarmCode())) {
+                        continue;
+                    }
+                    set.add(repository.getAlarmCode());
 
+                    asset.setId(MyIdUtil.getId());
+                    asset.setJobId(jobId);
+                    asset.setTargetItem(repository.getAlarmCode());
+                    asset.setTargetName(repository.getDescStr());
+                    asset.setInspectState(Web2Const.INSPECT);
+                    asset.setInspectType(dto.getAutoFlag());
+                    asset.setTargetId(target);
+                    // 获取阈值设定 TODO
+//                    asset.setThresholdValue();
+
+                    batchList.add(asset);
+                    if (batchList.size() >= 900) {
+                        inspectAssetService.saveBatch(batchList);
+                        batchList.clear();
+                    }
+                }
+            }
         }
-
+        if (!batchList.isEmpty()) {
+            inspectAssetService.saveBatch(batchList);
+        }
     }
 
     /**
@@ -282,6 +321,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
         // 删除任务
         this.removeById(id);
+    }
+
+    @Override
+    public void updateSchedule(XunjianJobDto dto) {
+        this.removeSchedule(dto.getId());
+        this.addSchedule(dto);
     }
 
     private void getModeAssetList(List<ItemVo> resultList, SysOrg org, ItemVo vo1,

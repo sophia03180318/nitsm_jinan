@@ -51,18 +51,12 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String inspectValue;
     // 巡检结果描述
     private String resultMsg;
-    // 巡检时间
-    private Date inspectTime;
     // 1设备巡检，2指标巡视
     private Integer inspectType;
     // 巡检命令
     private String command;
-    // 一次巡检一个代码
-    private String inspectCode;
-    // 资产选中状态，0未选中，1选中
-    private Integer assetStatus;
-    // 指标选中状态，0未选中，1选中
-    private Integer targetStatus;
+    // 指标ID
+    private String targetId;
     private String remark;
     // 资产小类型
     private Integer assetDesk;

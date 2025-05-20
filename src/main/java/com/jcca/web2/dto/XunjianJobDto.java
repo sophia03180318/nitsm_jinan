@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: hhw
@@ -39,7 +40,7 @@ public class XunjianJobDto {
     private String remark;
 
     @NotEmpty(message = "巡检资产不能为空")
-    private List<String> assetIds;
+    private List<String> assetList;
     @NotEmpty(message = "巡检指标不能为空")
-    private List<String> targetIds;
+    private Map<String, List<String>> targetList;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface XunjianScheduleService extends IService<XunjianSchedule> {
 
-    void saveSchedule(XunjianJobDto dto);
+    void addSchedule(XunjianJobDto dto);
 
     void joinScheduleJob();
 
@@ -27,4 +27,6 @@ public interface XunjianScheduleService extends IService<XunjianSchedule> {
     List<ItemVo> getOrgModeAssetList();
 
     void removeSchedule(String id);
+
+    void updateSchedule(XunjianJobDto dto);
 }

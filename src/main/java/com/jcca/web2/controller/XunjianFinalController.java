@@ -3,6 +3,7 @@ package com.jcca.web2.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.event.service.AlarmEventTypeService;
@@ -13,6 +14,7 @@ import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.vo.ItemVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,14 +61,27 @@ public class XunjianFinalController {
     public ResultVo<Object> jobAdd(@RequestBody @Validated XunjianJobDto dto) {
         String username = ShiroUtil.getSubject().getUsername();
         dto.setOperator(username);
-        xunjianScheduleService.saveSchedule(dto);
+        xunjianScheduleService.addSchedule(dto);
         return ResultVoUtil.success();
     }
 
-    @PostMapping("/job/remove/{id}")
+    @GetMapping("/job/remove/{id}")
     @ApiOperation("删除巡检任务")
     public ResultVo<Object> jobRemove(@PathVariable String id) {
         xunjianScheduleService.removeSchedule(id);
+        return ResultVoUtil.success();
+    }
+
+    @PostMapping("/job/update")
+    @ApiOperation("修改巡检任务")
+    public ResultVo<Object> jobUpdate(@RequestBody @Validated XunjianJobDto dto) {
+        String id = dto.getId();
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        String username = ShiroUtil.getSubject().getUsername();
+        dto.setOperator(username);
+        xunjianScheduleService.updateSchedule(dto);
         return ResultVoUtil.success();
     }
 
