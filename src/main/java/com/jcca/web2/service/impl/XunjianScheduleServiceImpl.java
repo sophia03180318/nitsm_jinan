@@ -279,6 +279,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getEventTypeId(), asset.getEventTypeName(), 1);
             this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetIp1(), asset.getAssetName(), 0);
             this.sendMsg(operator, XunjianWSDto.XUNJIAN_PROCESS, schedule.getJobId(), "100", "进度条", count / total);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "进度条：", count / total);
 
             // 保存巡检详情
             InspectDetail inspectDetail = new InspectDetail();
