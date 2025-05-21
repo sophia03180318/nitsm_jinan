@@ -28,6 +28,6 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
     @Select("SELECT ASSET_DESK AS ID, DESK_NAME AS NAME FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY ASSET_DESK, DESK_NAME")
     List<ItemVo> getDesksByJobId(String jobId);
 
-    @Select("SELECT * FROM INSPECT_ASSET WHERE JOB_ID = #{jobId}")
+    @Select("SELECT * FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} ORDER BY ASSET_DESK, ASSET_ID")
     List<InspectAsset> getAllByJobId(String jobId);
 }

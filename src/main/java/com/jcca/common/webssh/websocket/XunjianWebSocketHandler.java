@@ -1,7 +1,10 @@
 package com.jcca.common.webssh.websocket;
 
+import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.web2.dto.XunjianWSDto;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
@@ -32,7 +35,13 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         if (message instanceof TextMessage) {
             String payload = ((TextMessage) message).getPayload();
-
+            XunjianWSDto dto = JSONUtil.toBean(payload, XunjianWSDto.class);
+            if (dto.getMsgType() == XunjianWSDto.HEART_BEAT.intValue()) {
+                XunjianWSDto sendMsg = new XunjianWSDto();
+                BeanUtils.copyProperties(dto, sendMsg);
+                sendMsg.setMessage("OK");
+                session.sendMessage(new TextMessage(JSONUtil.toJsonStr(sendMsg)));
+            }
         }
     }
 

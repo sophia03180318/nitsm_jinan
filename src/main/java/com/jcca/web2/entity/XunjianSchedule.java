@@ -82,5 +82,7 @@ public class XunjianSchedule extends Model<XunjianSchedule> {
 
     @TableField(exist = false)
     private List<String> cronList;
+    @TableField(exist = false)
+    private String inspectRecordId;
 
 }
