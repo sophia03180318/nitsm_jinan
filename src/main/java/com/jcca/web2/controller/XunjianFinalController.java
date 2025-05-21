@@ -10,7 +10,6 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.dto.XunjianJobDto;
-import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.InspectAssetService;
@@ -182,14 +181,14 @@ public class XunjianFinalController {
     @GetMapping("/asset/status")
     @ApiOperation("资产状态列表")
     public ResultVo<Object> assetStatus(String jobId) {
-        List<InspectAsset> resultList = inspectAssetService.getAssetStatus(jobId);
+        List<ItemVo> resultList = inspectAssetService.getAllCheckedAsset(jobId);
         return ResultVoUtil.success(resultList);
     }
 
     @GetMapping("/target/status")
     @ApiOperation("指标状态列表")
     public ResultVo<Object> targetStatus(String jobId) {
-        List<InspectAsset> resultList = inspectAssetService.getTargetStatus(jobId);
+        List<ItemVo> resultList = inspectAssetService.getTargetStatus(jobId);
         return ResultVoUtil.success(resultList);
     }
 

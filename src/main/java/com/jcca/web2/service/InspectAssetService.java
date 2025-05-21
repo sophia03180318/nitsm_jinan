@@ -28,7 +28,5 @@ public interface InspectAssetService extends IService<InspectAsset> {
 
     List<InspectAsset> getAllByJobId(String jobId);
 
-    List<InspectAsset> getAssetStatus(String jobId);
-
-    List<InspectAsset> getTargetStatus(String jobId);
+    List<ItemVo> getTargetStatus(String jobId);
 }

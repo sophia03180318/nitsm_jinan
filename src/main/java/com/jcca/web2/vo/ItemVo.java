@@ -15,6 +15,7 @@ public class ItemVo {
 
     private String id;
     private String name;
+    private Integer status;
 
     private String assetDesk;
     private boolean flag;
