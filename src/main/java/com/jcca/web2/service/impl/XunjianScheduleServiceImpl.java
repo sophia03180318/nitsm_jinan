@@ -21,6 +21,8 @@ import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.event.entity.AlarmEventType;
+import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
@@ -60,6 +62,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
     @Resource
     private QuartzJobManager jobManager;
+    @Resource
+    private AlarmEventTypeService alarmEventTypeService;
     @Resource
     private AlarmRepositoryService alarmRepositoryService;
     @Resource
@@ -161,6 +165,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 continue;
             }
             for (String target : targetList) {
+                AlarmEventType alarmEventType = alarmEventTypeService.getById(target);
                 List<AlarmRepository> repositoryList = alarmRepositoryService.getAllByEventId(target);
                 for (AlarmRepository repository : repositoryList) {
                     if (set.contains(repository.getAlarmCode())) {
@@ -175,7 +180,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     inspectAsset.setTargetName(repository.getDescStr());
                     inspectAsset.setInspectState(Web2Const.INSPECT);
                     inspectAsset.setInspectType(dto.getAutoFlag());
-                    inspectAsset.setTargetId(target);
+                    inspectAsset.setEventTypeId(target);
+                    inspectAsset.setEventTypeName(alarmEventType.getTypeAlias());
                     // 获取阈值设定 TODO
 //                    inspectAsset.setThresholdValue();
 
@@ -220,29 +226,34 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      * @param dto
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void beginXunjian(XunjianJobDto dto) {
-        // TODO 巡检设备
+        // 巡检资产 inspect_asset job_id == xunjian_scheduled_job_id
+        // 巡检记录 inspect_record scheduled_id == xunjian_scheduled_id
+        // 巡检明细 inspect_detail inspect_code == inspect_record_id
         String id = dto.getId();
         String operator = dto.getOperator();
+        // 设置为正在巡检
         XunjianSchedule schedule = this.getById(id);
         schedule.setJobState(2);
         schedule.setLastTime(new Date());
         this.updateById(schedule);
 
-        // 巡检资产 inspect_asset job_id == xunjian_scheduled_job_id
-
-        // 巡检记录 inspect_record scheduled_id == xunjian_scheduled_id
-
-        // 巡检明细 inspect_detail inspect_code == inspect_record_id
-
-        try {
-            TimeUnit.SECONDS.sleep(120L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        // 巡检设备
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        for (InspectAsset asset : assetList) {
+            try {
+                TimeUnit.SECONDS.sleep(3L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
+        // 设置为结束巡检
         schedule.setJobState(1);
         this.updateById(schedule);
+
+        // 推送完成消息
     }
 
     /**

@@ -12,7 +12,9 @@ import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.AssetModeService;
+import com.jcca.web2.service.InspectAssetService;
 import com.jcca.web2.service.XunjianScheduleService;
+import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,6 +43,8 @@ public class XunjianFinalController {
     private AssetModeService assetModeService;
     @Resource
     private AlarmEventTypeService alarmEventTypeService;
+    @Resource
+    private InspectAssetService inspectAssetService;
 
 
     @GetMapping("/job/list")
@@ -61,55 +65,10 @@ public class XunjianFinalController {
             return ResultVoUtil.success(list);
         }
 
-        Map<String, Integer> stateMap = new HashMap<>();
-        Map<String, Date> lastMap = new HashMap<>();
-        Map<String, List<String>> map = new HashMap<>();
-        for (XunjianSchedule schedule : list) {
-            if (schedule.getAutoFlag() == 2) {
-                if (stateMap.get(schedule.getJobId()) == null) {
-                    stateMap.put(schedule.getJobId(), schedule.getJobState());
-                } else {
-                    if (schedule.getJobState() > stateMap.get(schedule.getJobId())) {
-                        stateMap.put(schedule.getJobId(), schedule.getJobState());
-                    }
-                }
-                if (lastMap.get(schedule.getJobId()) == null) {
-                    lastMap.put(schedule.getJobId(), schedule.getLastTime());
-                } else {
-                    if (schedule.getLastTime() != null && schedule.getLastTime().after(lastMap.get(schedule.getJobId()))) {
-                        lastMap.put(schedule.getJobId(), schedule.getLastTime());
-                    }
-                }
-
-                List<String> strings = map.get(schedule.getJobId());
-                if (strings == null) {
-                    strings = new ArrayList<>();
-                }
-                strings.add(schedule.getCronTime());
-                map.put(schedule.getJobId(), strings);
-            }
-        }
-
-        Set<String> set = new HashSet<>();
-        List<XunjianSchedule> resultList = new ArrayList<>();
-        for (XunjianSchedule schedule : list) {
-            if (stateMap.get(schedule.getJobId()) != null) {
-                schedule.setJobState(stateMap.get(schedule.getJobId()));
-            }
-            if (lastMap.get(schedule.getJobId()) != null) {
-                schedule.setLastTime(lastMap.get(schedule.getJobId()));
-            }
-            if (set.contains(schedule.getJobId())) {
-                continue;
-            }
-            set.add(schedule.getJobId());
-            if (schedule.getAutoFlag() == 2 && map.containsKey(schedule.getJobId())) {
-                schedule.setCronList(map.get(schedule.getJobId()));
-            }
-            resultList.add(schedule);
-        }
+        List<XunjianSchedule> resultList = this.combine(list);
         return ResultVoUtil.success(resultList);
     }
+
 
     @PostMapping("/job/add")
     @ApiOperation("新增巡检任务")
@@ -210,5 +169,64 @@ public class XunjianFinalController {
         }
 
         return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/checked/list")
+    @ApiOperation("资产分类列表")
+    public ResultVo<Object> getCheckedAssetTarget(String jobId) {
+        InspectAssetAndTarget result = inspectAssetService.getCheckedAssetTarget(jobId);
+        return ResultVoUtil.success(result);
+    }
+
+
+    private List<XunjianSchedule> combine(List<XunjianSchedule> list) {
+        Map<String, Integer> stateMap = new HashMap<>();
+        Map<String, Date> lastMap = new HashMap<>();
+        Map<String, List<String>> map = new HashMap<>();
+        for (XunjianSchedule schedule : list) {
+            if (schedule.getAutoFlag() == 2) {
+                if (stateMap.get(schedule.getJobId()) == null) {
+                    stateMap.put(schedule.getJobId(), schedule.getJobState());
+                } else {
+                    if (schedule.getJobState() > stateMap.get(schedule.getJobId())) {
+                        stateMap.put(schedule.getJobId(), schedule.getJobState());
+                    }
+                }
+                if (lastMap.get(schedule.getJobId()) == null) {
+                    lastMap.put(schedule.getJobId(), schedule.getLastTime());
+                } else {
+                    if (schedule.getLastTime() != null && schedule.getLastTime().after(lastMap.get(schedule.getJobId()))) {
+                        lastMap.put(schedule.getJobId(), schedule.getLastTime());
+                    }
+                }
+
+                List<String> strings = map.get(schedule.getJobId());
+                if (strings == null) {
+                    strings = new ArrayList<>();
+                }
+                strings.add(schedule.getCronTime());
+                map.put(schedule.getJobId(), strings);
+            }
+        }
+
+        Set<String> set = new HashSet<>();
+        List<XunjianSchedule> resultList = new ArrayList<>();
+        for (XunjianSchedule schedule : list) {
+            if (stateMap.get(schedule.getJobId()) != null) {
+                schedule.setJobState(stateMap.get(schedule.getJobId()));
+            }
+            if (lastMap.get(schedule.getJobId()) != null) {
+                schedule.setLastTime(lastMap.get(schedule.getJobId()));
+            }
+            if (set.contains(schedule.getJobId())) {
+                continue;
+            }
+            set.add(schedule.getJobId());
+            if (schedule.getAutoFlag() == 2 && map.containsKey(schedule.getJobId())) {
+                schedule.setCronList(map.get(schedule.getJobId()));
+            }
+            resultList.add(schedule);
+        }
+        return resultList;
     }
 }

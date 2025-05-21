@@ -2,7 +2,9 @@ package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.web2.entity.InspectAsset;
+import com.jcca.web2.vo.ItemVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -16,4 +18,16 @@ import java.util.List;
 public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
 
     List<InspectAsset> getInspectAssets(@Param("assetIds") List<String> assetIds);
+
+    @Select("SELECT ASSET_ID FROM INSPECT_ASSET WHERE JOB_ID = #{jobId}")
+    List<String> getAllCheckedAsset(String jobId);
+
+    @Select("SELECT ASSET_DESK, DESK_NAME, EVENT_TYPE_ID, EVENT_TYPE_NAME FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY ASSET_DESK, DESK_NAME, EVENT_TYPE_ID, EVENT_TYPE_NAME")
+    List<InspectAsset> getAllCheckedTarget(String jobId);
+
+    @Select("SELECT ASSET_DESK AS ID, DESK_NAME AS NAME FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY ASSET_DESK, DESK_NAME")
+    List<ItemVo> getDesksByJobId(String jobId);
+
+    @Select("SELECT * FROM INSPECT_ASSET WHERE JOB_ID = #{jobId}")
+    List<InspectAsset> getAllByJobId(String jobId);
 }

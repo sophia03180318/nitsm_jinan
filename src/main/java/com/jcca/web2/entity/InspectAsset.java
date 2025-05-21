@@ -29,10 +29,9 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String jobId;
     private String assetId;
     private String assetName;
-    // 巡检设备类型
-    private String modeType;
-    // 巡检类型名称
-    private String modeName;
+    // 事件类型ID
+    private String eventTypeId;
+    private String eventTypeName;
     private String assetIp1;
     private String assetIp2;
     private String orgId;
@@ -55,8 +54,6 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private Integer inspectType;
     // 巡检命令
     private String command;
-    // 指标ID
-    private String targetId;
     private String remark;
     // 资产小类型
     private Integer assetDesk;
