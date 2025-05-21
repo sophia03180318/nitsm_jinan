@@ -14,7 +14,7 @@ public class XunjianWSDto {
     public static Integer HEART_BEAT = 1;
     public static Integer ASSET_STATUS = 2;
     public static Integer TARGET_STATUS = 3;
-    public static Integer XUNJIAN_PROCESS = 4;
+    public static Integer WHOLE_PROCESS = 4;
     public static Integer XUNJIANING_ASSET = 5;
 
     private String username;
