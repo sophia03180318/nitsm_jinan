@@ -3,10 +3,7 @@ package com.jcca.web2.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.web.asset.vo.DetailCabinetVo;
 import com.jcca.web2.entity.InspectRecord;
-import com.jcca.web2.vo.InspectOrgAssetVo;
-import com.jcca.web2.vo.InspectResultVo;
-import com.jcca.web2.vo.InspectTargetVo;
-import com.jcca.web2.vo.InspectVo;
+import com.jcca.web2.vo.*;
 
 import java.util.List;
 import java.util.Map;
@@ -198,4 +195,12 @@ public interface InspectRecordService extends IService<InspectRecord> {
      * @param inspectType 1资产巡检，2指标巡检
      */
     void updateInspect(String inspectType);
+
+    /**
+     * 按照任务ID获取巡检记录
+     *
+     * @param scheduleId 任务ID
+     * @return
+     */
+    List<ItemVo> findBySchuduleId(String scheduleId);
 }

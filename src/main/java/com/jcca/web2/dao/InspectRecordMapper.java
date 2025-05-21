@@ -3,6 +3,7 @@ package com.jcca.web2.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.vo.InspectOrgAssetVo;
+import com.jcca.web2.vo.ItemVo;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -87,4 +88,7 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
 
     @Delete("DELETE FROM INSPECT_RECORD WHERE ORG_ID = #{orgId}")
     void deleteByOrgId(String orgId);
+
+    @Select("SELECT ID, INSPECT_TIME AS NAME FROM INSPECT_RECORD WHERE INSPECT_CODE = #{scheduleId} ORDER BY INSPECT_TIME DESC")
+    List<ItemVo> findBySchuduleId(String scheduleId);
 }

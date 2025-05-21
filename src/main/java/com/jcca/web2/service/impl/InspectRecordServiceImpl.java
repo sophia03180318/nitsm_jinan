@@ -35,10 +35,7 @@ import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.InspectDetailService;
 import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.service.XunjianSupportService;
-import com.jcca.web2.vo.InspectOrgAssetVo;
-import com.jcca.web2.vo.InspectResultVo;
-import com.jcca.web2.vo.InspectTargetVo;
-import com.jcca.web2.vo.InspectVo;
+import com.jcca.web2.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -1145,6 +1142,17 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         UpdateWrapper<InspectRecord> update = Wrappers.update();
         update.set("INSPECT_TYPE", inspectType);
         this.update(update);
+    }
+
+    /**
+     * 按照任务ID获取巡检记录
+     *
+     * @param scheduleId 任务ID
+     * @return
+     */
+    @Override
+    public List<ItemVo> findBySchuduleId(String scheduleId) {
+        return inspectRecordMapper.findBySchuduleId(scheduleId);
     }
 
     private void setAssetList(InspectOrgAssetVo orgVo) {

@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
@@ -13,6 +15,7 @@ import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.InspectAssetService;
+import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
@@ -45,6 +48,9 @@ public class XunjianFinalController {
     private AlarmEventTypeService alarmEventTypeService;
     @Resource
     private InspectAssetService inspectAssetService;
+    @Resource
+    private InspectRecordService inspectRecordService;
+
 
 
     @GetMapping("/job/list")
@@ -60,12 +66,50 @@ public class XunjianFinalController {
             query.eq("AUTO_FLAG", autoFlag);
         }
         query.orderByDesc("JOB_ID");
+        query.orderByAsc("CRON_TIME");
         List<XunjianSchedule> list = xunjianScheduleService.list(query);
         if (list.isEmpty()) {
             return ResultVoUtil.success(list);
         }
 
         List<XunjianSchedule> resultList = this.combine(list);
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/record/list")
+    @ApiOperation("巡检记录列表")
+    public ResultVo<Object> recordList() {
+        String username = ShiroUtil.getSubject().getUsername();
+        QueryWrapper<XunjianSchedule> query = Wrappers.query();
+        query.select("JOB_ID", "JOB_NAME");
+        query.eq("OPERATOR", username);
+        query.groupBy("JOB_ID", "JOB_NAME");
+        query.orderByDesc("JOB_ID");
+        List<XunjianSchedule> list = xunjianScheduleService.list(query);
+        if (list.isEmpty()) {
+            return ResultVoUtil.success(list);
+        }
+
+        List<ItemVo> resultList = new ArrayList<>();
+        for (XunjianSchedule schedule : list) {
+            List<ItemVo> voList = inspectRecordService.findBySchuduleId(schedule.getJobId());
+            if (voList.isEmpty()) {
+                continue;
+            }
+            ItemVo itemVo = new ItemVo();
+            itemVo.setId(schedule.getJobId());
+            itemVo.setName(schedule.getJobName());
+            itemVo.setChildren(voList);
+            resultList.add(itemVo);
+        }
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/record/detail")
+    @ApiOperation("巡检记录详情")
+    public ResultVo<Object> recordList(String id) {
+        List<ItemVo> resultList = new ArrayList<>();
+// TODO
         return ResultVoUtil.success(resultList);
     }
 
@@ -76,6 +120,7 @@ public class XunjianFinalController {
         String username = ShiroUtil.getSubject().getUsername();
         dto.setOperator(username);
         xunjianScheduleService.addSchedule(dto);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "添加巡检任务", dto.getJobName());
         return ResultVoUtil.success();
     }
 
@@ -91,6 +136,7 @@ public class XunjianFinalController {
             return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "只能开始手动巡检");
         }
 
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务", jobId);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         executor.execute(() -> {
             XunjianJobDto dto = new XunjianJobDto();
@@ -105,6 +151,7 @@ public class XunjianFinalController {
     @ApiOperation("删除巡检任务")
     public ResultVo<Object> jobRemove(String jobId) {
         xunjianScheduleService.removeSchedule(jobId);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "删除巡检任务", jobId);
         return ResultVoUtil.success();
     }
 
@@ -124,6 +171,7 @@ public class XunjianFinalController {
         String username = ShiroUtil.getSubject().getUsername();
         dto.setOperator(username);
         xunjianScheduleService.updateSchedule(dto);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "修改巡检任务", jobId);
         return ResultVoUtil.success();
     }
 
@@ -131,6 +179,7 @@ public class XunjianFinalController {
     @ApiOperation("暂停周期巡检任务")
     public ResultVo<Object> jobPause(String jobId) {
         xunjianScheduleService.pauseJob(jobId);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "暂停巡检任务", jobId);
         return ResultVoUtil.success();
     }
 
@@ -138,6 +187,7 @@ public class XunjianFinalController {
     @ApiOperation("恢复周期巡检任务")
     public ResultVo<Object> jobRecover(String jobId) {
         xunjianScheduleService.recoverJob(jobId);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "恢复巡检任务", jobId);
         return ResultVoUtil.success();
     }
 
@@ -196,7 +246,7 @@ public class XunjianFinalController {
     private List<XunjianSchedule> combine(List<XunjianSchedule> list) {
         Map<String, Integer> stateMap = new HashMap<>();
         Map<String, Date> lastMap = new HashMap<>();
-        Map<String, List<String>> map = new HashMap<>();
+        Map<String, List<String>> map = new TreeMap<>();
         for (XunjianSchedule schedule : list) {
             if (schedule.getAutoFlag() == 2) {
                 if (stateMap.get(schedule.getJobId()) == null) {
