@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     @Override
-    public List<String> getAllCheckedAsset(String jobId) {
+    public List<ItemVo> getAllCheckedAsset(String jobId) {
         return inspectAssetMapper.getAllCheckedAsset(jobId);
     }
 
@@ -83,5 +84,15 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     @Override
     public List<InspectAsset> getAllByJobId(String jobId) {
         return inspectAssetMapper.getAllByJobId(jobId);
+    }
+
+    @Override
+    public List<InspectAsset> getAssetStatus(String jobId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<InspectAsset> getTargetStatus(String jobId) {
+        return Collections.emptyList();
     }
 }

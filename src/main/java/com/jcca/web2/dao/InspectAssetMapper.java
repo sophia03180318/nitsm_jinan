@@ -19,8 +19,8 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
 
     List<InspectAsset> getInspectAssets(@Param("assetIds") List<String> assetIds);
 
-    @Select("SELECT ASSET_ID FROM INSPECT_ASSET WHERE JOB_ID = #{jobId}")
-    List<String> getAllCheckedAsset(String jobId);
+    @Select("SELECT ASSET_ID AS ID, ASSET_NAME AS NAME FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY ASSET_ID, ASSET_NAME")
+    List<ItemVo> getAllCheckedAsset(String jobId);
 
     @Select("SELECT ASSET_DESK, DESK_NAME, EVENT_TYPE_ID, EVENT_TYPE_NAME FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY ASSET_DESK, DESK_NAME, EVENT_TYPE_ID, EVENT_TYPE_NAME")
     List<InspectAsset> getAllCheckedTarget(String jobId);

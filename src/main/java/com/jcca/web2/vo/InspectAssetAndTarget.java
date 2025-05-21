@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class InspectAssetAndTarget {
 
-    private List<String> assetList;
+    private List<ItemVo> assetList;
 
     private List<ItemVo> targetList;
 }

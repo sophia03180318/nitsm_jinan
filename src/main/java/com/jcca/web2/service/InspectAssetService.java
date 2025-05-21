@@ -22,9 +22,13 @@ public interface InspectAssetService extends IService<InspectAsset> {
 
     InspectAssetAndTarget getCheckedAssetTarget(String jobId);
 
-    List<String> getAllCheckedAsset(String jobId);
+    List<ItemVo> getAllCheckedAsset(String jobId);
 
     List<ItemVo> getAllCheckedTarget(String jobId);
 
     List<InspectAsset> getAllByJobId(String jobId);
+
+    List<InspectAsset> getAssetStatus(String jobId);
+
+    List<InspectAsset> getTargetStatus(String jobId);
 }
