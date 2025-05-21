@@ -2043,9 +2043,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         if (asset.isServer()) {
             List<CollectNetworkCard> realTimeData = netCardServ.getRealTimeData(assetId);
             if (!realTimeData.isEmpty()) {
-                List<CollectNetworkCard> collect = realTimeData.stream().filter(item -> CollectNetCardStatus.DOWN.getCode().equals(item.getStatus())).collect(Collectors.toList());
                 AssetStatusItmVo vo = new AssetStatusItmVo();
-                vo.setStatus(collect.isEmpty() ? 1 : -1);
+                QueryWrapper<AlarmInfo> query = Wrappers.query();
+                query.eq("ASSET_ID", assetId);
+                query.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
+                query.eq("ALARM_CODE", StatusInfoChangeTypeEnum.event_net_state.getCode());
+                int count = alarmInfoService.count(query);
+                vo.setStatus(count == 0 ? 1 : -1);
                 vo.setCode(AssetStatusItmVo.SERVER_NET_CARD);
                 vo.setTitle("网卡信息列表");
                 assetStatusItmVos.add(vo);
@@ -2069,8 +2073,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             query.eq("ASSET_ID", assetId);
             query.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
             query.eq("ALARM_CODE", StatusInfoChangeTypeEnum.event_port_state.getCode());
-            List<AlarmInfo> infos = alarmInfoService.list(query);
-            vo.setStatus(infos.isEmpty() ? 1 : -1);
+            int count = alarmInfoService.count(query);
+            vo.setStatus(count == 0 ? 1 : -1);
 
             vo.setCode(AssetStatusItmVo.SERVER_PORT);
             vo.setTitle("端口信息列表");
