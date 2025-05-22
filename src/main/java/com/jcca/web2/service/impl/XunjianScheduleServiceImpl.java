@@ -19,10 +19,14 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
+import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
+import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.asset.entity.ThresholdProcess;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.event.entity.AlarmEventType;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
@@ -85,6 +89,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private InspectRecordService inspectRecordService;
     @Resource
     private InspectDetailService inspectDetailService;
+    @Resource
+    private ThresholdManager thresholdManager;
+    @Resource
+    private ThresholdProcessService thresholdProcessService;
 
 
     /**
@@ -195,8 +203,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     inspectAsset.setInspectType(dto.getAutoFlag());
                     inspectAsset.setEventTypeId(target);
                     inspectAsset.setEventTypeName(alarmEventType.getTypeAlias());
-                    // 获取阈值设定 TODO
-//                    inspectAsset.setThresholdValue();
+                    String thresholdValue = this.getThreshold(inspectAsset);
+                    if (repository.getDescStr().contains("阈值") && StringUtils.isEmpty(thresholdValue)) {
+                        continue;
+                    }
+                    inspectAsset.setThresholdValue(this.getThreshold(inspectAsset));
 
                     batchList.add(inspectAsset);
                     if (batchList.size() >= 900) {
@@ -210,6 +221,45 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             inspectAssetService.saveBatch(batchList);
         }
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "结束保存巡检资产", DateUtil.formatDateTime(new Date()));
+    }
+
+    private String getThreshold(InspectAsset inspectAsset) {
+        ThresholdBaseEntity entity = null;
+        String assetDesk = inspectAsset.getAssetDesk() + "";
+        if (assetDesk.contains("183")) {
+            List<ThresholdProcess> thresholdProcessList = thresholdProcessService.selectByAssetList(Collections.singletonList(inspectAsset.getAssetId()));
+            for (ThresholdProcess thresholdProcess : thresholdProcessList) {
+                entity = thresholdManager.getThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), thresholdProcess.getProcessName());
+                break;
+            }
+        }
+        if (entity == null) {
+            entity = thresholdManager.getThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), null);
+        }
+
+        if (Objects.isNull(entity)) {
+            return "";
+        }
+        if (!entity.baseValueIsNull()) {
+            return entity.getBaseValue() + "";
+        }
+        if (!entity.sectionValueIsNull()) {
+            return entity.getMinValue() + "-" + entity.getMaxValue();
+        }
+        if (!entity.oneLevelIsNull() || !entity.twoLevelIsNull() || !entity.threeLevelIsNull()) {
+            String level = "one-two-three";
+            if (!entity.oneLevelIsNull()) {
+                level = level.replace("one", entity.getOneLevelValue() + "");
+            }
+            if (!entity.twoLevelIsNull()) {
+                level = level.replace("two", entity.getTwoLevelValue() + "");
+            }
+            if (!entity.threeLevelIsNull()) {
+                level = level.replace("three", entity.getThreeLevelValue() + "");
+            }
+            return level;
+        }
+        return "";
     }
 
     /**
@@ -338,8 +388,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             BigDecimal process = new BigDecimal(count).divide(new BigDecimal(total), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
             this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetIp1(), asset.getAssetName(), 0);
-            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", process.intValue());
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "进度条：", process.intValue());
+            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, asset.getJobId(), "100", "进度条", process.intValue());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "进度条：" + asset.getJobId(), process.intValue());
 
             // 保存巡检详情
             InspectDetail inspectDetail = new InspectDetail();
@@ -515,11 +565,17 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Integer autoFlag = schedule.getAutoFlag();
             // 删除定时任务
             if (autoFlag == 2) {
-                try {
-                    jobManager.deleteJob(schedule.getId() + "_" + schedule.getCronTime(), schedule.getOperator());
-                } catch (SchedulerException e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "删除周期巡检任务异常，jobId：" + schedule.getId(), e);
-                    throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "删除周期巡检任务异常");
+                String[] crons = schedule.getCron().split(",");
+                for (String cron : crons) {
+                    if (StringUtils.isEmpty(cron)) {
+                        continue;
+                    }
+                    try {
+                        jobManager.deleteJob(schedule.getId() + "_" + cron, schedule.getOperator());
+                    } catch (SchedulerException e) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "删除周期巡检任务异常，jobId：" + schedule.getId(), e);
+                        throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "删除周期巡检任务异常");
+                    }
                 }
             }
             // 删除巡检资产

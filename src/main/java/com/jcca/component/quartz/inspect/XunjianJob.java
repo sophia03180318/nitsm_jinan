@@ -1,5 +1,7 @@
 package com.jcca.component.quartz.inspect;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.service.XunjianScheduleService;
@@ -28,6 +30,6 @@ public class XunjianJob implements Job {
         dto.setId(name.split("_")[0]);
         dto.setOperator(operator);
         scheduleService.beginXunjian(dto);
-        log.info("定时巡检，巡检人：{}，巡检任务：{}", operator, name);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "定时巡检完成，巡检人：" + operator, "巡检任务：" + name);
     }
 }
