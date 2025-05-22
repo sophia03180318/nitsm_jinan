@@ -74,6 +74,9 @@ public class XunjianFinalController {
 
         for (XunjianSchedule schedule : list) {
             String cronTime = schedule.getCronTime();
+            if (StringUtils.isEmpty(cronTime)) {
+                continue;
+            }
             String[] split = cronTime.split(",");
             schedule.setCronList(Arrays.asList(split));
         }

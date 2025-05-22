@@ -12,7 +12,8 @@
         o.id orgId,
         o.title orgName,
         t.id cabinetId,
-        t.name cabinetName
+        case when c.cabinet_id is not null then (t.name || ' ' || c.START_POSITION || '-' || c.END_POSITION || 'U')
+        end cabinetName
         from asset a
         left join asset_mode m on a.desk = m.code
         left join asset_attach c on a.id = c.asset_id
