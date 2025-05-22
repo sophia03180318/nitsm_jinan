@@ -72,8 +72,13 @@ public class XunjianFinalController {
             return ResultVoUtil.success(list);
         }
 
-        List<XunjianSchedule> resultList = this.combine(list);
-        return ResultVoUtil.success(resultList);
+        for (XunjianSchedule schedule : list) {
+            String cronTime = schedule.getCronTime();
+            String[] split = cronTime.split(",");
+            schedule.setCronList(Arrays.asList(split));
+        }
+
+        return ResultVoUtil.success(list);
     }
 
     @GetMapping("/record/list")
@@ -240,57 +245,5 @@ public class XunjianFinalController {
     public ResultVo<Object> targetStatus(String jobId) {
         List<ItemVo> resultList = inspectAssetService.getTargetStatus(jobId);
         return ResultVoUtil.success(resultList);
-    }
-
-
-    private List<XunjianSchedule> combine(List<XunjianSchedule> list) {
-        Map<String, Integer> stateMap = new HashMap<>();
-        Map<String, Date> lastMap = new HashMap<>();
-        Map<String, List<String>> map = new TreeMap<>();
-        for (XunjianSchedule schedule : list) {
-            if (schedule.getAutoFlag() == 2) {
-                if (stateMap.get(schedule.getJobId()) == null) {
-                    stateMap.put(schedule.getJobId(), schedule.getJobState());
-                } else {
-                    if (schedule.getJobState() > stateMap.get(schedule.getJobId())) {
-                        stateMap.put(schedule.getJobId(), schedule.getJobState());
-                    }
-                }
-                if (lastMap.get(schedule.getJobId()) == null) {
-                    lastMap.put(schedule.getJobId(), schedule.getLastTime());
-                } else {
-                    if (schedule.getLastTime() != null && schedule.getLastTime().after(lastMap.get(schedule.getJobId()))) {
-                        lastMap.put(schedule.getJobId(), schedule.getLastTime());
-                    }
-                }
-
-                List<String> strings = map.get(schedule.getJobId());
-                if (strings == null) {
-                    strings = new ArrayList<>();
-                }
-                strings.add(schedule.getCronTime());
-                map.put(schedule.getJobId(), strings);
-            }
-        }
-
-        Set<String> set = new HashSet<>();
-        List<XunjianSchedule> resultList = new ArrayList<>();
-        for (XunjianSchedule schedule : list) {
-            if (stateMap.get(schedule.getJobId()) != null) {
-                schedule.setJobState(stateMap.get(schedule.getJobId()));
-            }
-            if (lastMap.get(schedule.getJobId()) != null) {
-                schedule.setLastTime(lastMap.get(schedule.getJobId()));
-            }
-            if (set.contains(schedule.getJobId())) {
-                continue;
-            }
-            set.add(schedule.getJobId());
-            if (schedule.getAutoFlag() == 2 && map.containsKey(schedule.getJobId())) {
-                schedule.setCronList(map.get(schedule.getJobId()));
-            }
-            resultList.add(schedule);
-        }
-        return resultList;
     }
 }
