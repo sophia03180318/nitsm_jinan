@@ -340,7 +340,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "正在巡检：" + asset.getAssetName(), asset.getTargetName());
             int result = 1;
             try {
-                TimeUnit.SECONDS.sleep(3L);
+                TimeUnit.SECONDS.sleep(1L);
             } catch (InterruptedException e) {
                 result = -1;
             }

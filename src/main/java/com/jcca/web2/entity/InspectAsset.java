@@ -36,6 +36,8 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String assetIp2;
     private String orgId;
     private String orgName;
+    private String roomId;
+    private String roomName;
     private String cabinetId;
     private String cabinetName;
     // 巡检指标项

@@ -10,6 +10,8 @@
         a.desk assetDesk,
         m.name deskName,
         o.id orgId,
+        r.id roomId,
+        r.name roomName,
         o.title orgName,
         t.id cabinetId,
         case when c.cabinet_id is not null then (t.name || ' ' || c.START_POSITION || '-' || c.END_POSITION || 'U')
