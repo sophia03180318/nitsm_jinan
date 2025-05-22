@@ -450,6 +450,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         inspectRecord.setInspectTime(schedule.getLastTime());
         inspectRecord.setCreator(schedule.getOperator());
         inspectRecord.setModeName(schedule.getJobName());
+        inspectRecord.setModeType(schedule.getOperator());
 
         inspectRecord.setAssetId("--");
         inspectRecord.setAssetName("--");

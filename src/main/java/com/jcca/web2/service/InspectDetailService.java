@@ -6,6 +6,7 @@ import com.jcca.web2.vo.InspectRecordListVo;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author HanHW
@@ -25,4 +26,7 @@ public interface InspectDetailService extends IService<InspectDetail> {
     void deleteRecord(String inspectCode);
 
     void exportAssetRecord(String inspectCode, String assetId, HttpServletResponse response);
+
+
+    Map<String, Object> getRecordDetail(String id);
 }

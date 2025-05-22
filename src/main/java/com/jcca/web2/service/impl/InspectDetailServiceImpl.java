@@ -1,10 +1,15 @@
 package com.jcca.web2.service.impl;
 
+import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.poi.xssf.streaming.SXSSFWorkbook;
+import com.jcca.web.alarm.entity.AlarmInfo;
+import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.utils.DispatchRecordExcelUtil;
 import com.jcca.web.asset.vo.AssetMsgVo;
@@ -14,8 +19,11 @@ import com.jcca.web.xunjian.entity.bean.XunjianServerDetailBean;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectDetailMapper;
 import com.jcca.web2.entity.InspectDetail;
+import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.InspectDetailService;
+import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.vo.InspectRecordListVo;
+import com.jcca.web2.vo.ItemVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,7 +31,9 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author HanHW
@@ -39,6 +49,10 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     private InspectDetailMapper inspectDetailMapper;
     @Resource
     private AssetService assetService;
+    @Resource
+    private InspectRecordService inspectRecordService;
+    @Resource
+    private AlarmInfoService alarmInfoService;
 
     @Override
     public List<InspectRecordListVo> recordList() {
@@ -100,6 +114,41 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         DispatchRecordExcelUtil.responseBody(createExcel, response, "智能巡检报告单");
     }
 
+    @Override
+    public Map<String, Object> getRecordDetail(String inspectCode) {
+        InspectRecord record = inspectRecordService.getById(inspectCode);
+        List<String> list = inspectDetailMapper.totalAsset(inspectCode);
+
+        QueryWrapper<AlarmInfo> query = Wrappers.query();
+        query.eq("STATUS", 1);
+        query.in("ASSET_ID", list);
+        List<AlarmInfo> infos = alarmInfoService.list(query);
+
+        Integer totalAsset = list.size();
+        Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        Integer normalAsset = totalAsset - abnormalAsset;
+        String header1 = "巡检人：%s，巡检时间：%s，巡检资产总数：%s，正常资产数：%s，异常资产数：%s，告警总数：%s";
+        String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
+        header1 = String.format(header1, record.getModeType(), inspectTime, totalAsset, normalAsset, abnormalAsset, infos.size());
+
+        StringBuilder header2 = new StringBuilder();
+        List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
+        for (ItemVo vo : deskList) {
+            Integer desk = Integer.parseInt(vo.getId());
+            Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
+            header2.append(vo.getName()).append("：").append(totalDesk).append("台，");
+            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
+            Integer normalDesk = totalDesk - abnormalDesk;
+            header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
+        }
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("header1", header1);
+        resultMap.put("header2", header2);
+
+        return resultMap;
+    }
+
     private XunjianServerDetailBean creatBean(String assetId) {
         XunjianServerDetailBean req = new XunjianServerDetailBean();
         AssetMsgVo oneMsg = assetService.findMsgById(assetId);
@@ -107,4 +156,6 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         BeanUtils.copyProperties(oneMsg, req);
         return req;
     }
+
+
 }

@@ -13,10 +13,7 @@ import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.entity.XunjianSchedule;
-import com.jcca.web2.service.AssetModeService;
-import com.jcca.web2.service.InspectAssetService;
-import com.jcca.web2.service.InspectRecordService;
-import com.jcca.web2.service.XunjianScheduleService;
+import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import io.swagger.annotations.Api;
@@ -50,6 +47,8 @@ public class XunjianFinalController {
     private InspectAssetService inspectAssetService;
     @Resource
     private InspectRecordService inspectRecordService;
+    @Resource
+    private InspectDetailService inspectDetailService;
 
 
 
@@ -116,9 +115,8 @@ public class XunjianFinalController {
     @GetMapping("/record/detail")
     @ApiOperation("巡检记录详情")
     public ResultVo<Object> recordList(String id) {
-        List<ItemVo> resultList = new ArrayList<>();
-// TODO
-        return ResultVoUtil.success(resultList);
+        Map<String, Object> recordDetail = inspectDetailService.getRecordDetail(id);
+        return ResultVoUtil.success(recordDetail);
     }
 
 

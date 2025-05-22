@@ -51,6 +51,7 @@ public class InspectRecord extends Model<InspectRecord> implements Serializable 
     // 巡检结果描述
     private String resultMsg;
     // 巡检时间
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date inspectTime;
     // 1设备巡检，2指标巡视
     private Integer inspectType;

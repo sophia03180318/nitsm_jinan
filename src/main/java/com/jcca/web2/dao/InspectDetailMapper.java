@@ -3,6 +3,7 @@ package com.jcca.web2.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
+import com.jcca.web2.vo.ItemVo;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
 
@@ -35,4 +36,19 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
 
     @Delete("DELETE FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode}")
     void deleteRecord(String inspectCode);
+
+    @Select("select asset_id from inspect_detail where inspect_code = #{inspectCode} group by asset_id")
+    List<String> totalAsset(String inspectCode);
+
+    @Select("select asset_desk as id, desk_name as name from INSPECT_DETAIL where INSPECT_CODE = #{inspectCode} group by asset_desk, desk_name order by asset_desk")
+    List<ItemVo> deskList(String inspectCode);
+
+    @Select("select count(*) from (select asset_id, asset_desk from inspect_detail where inspect_code = #{inspectCode} and asset_desk = #{assetDesk} group by asset_id, asset_desk)")
+    Integer totalDesk(String inspectCode, Integer assetDesk);
+
+    @Select("select count(*) from (select asset_id from inspect_detail where inspect_code = #{inspectCode} and asset_desk = #{assetDesk} and inspect_state = #{inspectState} group by asset_id)")
+    Integer stateDesk(String inspectCode, Integer assetDesk, int inspectState);
+
+    @Select("select count(*) from (select asset_id from inspect_detail  where inspect_code = #{inspectCode} and inspect_state = #{inspectState} group by asset_id)")
+    Integer abnormalAsset(String inspectCode, int inspectState);
 }
