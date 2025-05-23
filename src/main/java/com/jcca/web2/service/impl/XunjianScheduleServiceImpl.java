@@ -329,16 +329,16 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         Map<String, Integer> processMap = new HashMap<>();
         Map<String, Integer> targetMap = new HashMap<>();
         int total = assetList.size();
-        int count = 0, state = 1;
+        int count = 0, abnormal = 0;
         for (InspectAsset asset : assetList) {
             String assetId = asset.getAssetId();
             String targetItem = asset.getTargetItem();
             count++;
-            state = 2;
             // 设置资产指标为巡检中状态
             asset.setInspectState(Web2Const.INSPECTING);
             inspectAssetService.updateById(asset);
 
+            this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetId(), asset.getAssetName(), assetStateMap.get(assetId));
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "正在巡检：" + asset.getAssetName(), asset.getTargetName());
             int result = total % count == 0 ? 3 : 4;
             try {
@@ -349,9 +349,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 资产进度
             if (assetStateMap.get(assetId) == null) {
-                assetStateMap.put(assetId, state);
+                assetStateMap.put(assetId, result);
             } else {
-                if (assetStateMap.get(assetId) > result) {
+                if (assetStateMap.get(assetId) < result) {
                     assetStateMap.put(assetId, result);
                 }
             }
@@ -366,14 +366,15 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 指标进度
             if (targetStateMap.get(targetItem) == null) {
-                targetStateMap.put(targetItem, state);
+                targetStateMap.put(targetItem, result);
             } else {
                 if (targetStateMap.get(targetItem) < result) {
                     targetStateMap.put(targetItem, result);
                 }
             }
             if (targetStateMap.get(targetItem) == 4) {
-                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getEventTypeId(), asset.getEventTypeName(), targetStateMap.get(targetItem));
+                ++abnormal;
+                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getEventTypeId(), asset.getEventTypeName(), targetStateMap.get(targetItem), abnormal);
             }
             if (targetMap.get(targetItem) == null) {
                 targetMap.put(targetItem, 1);
@@ -389,7 +390,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             inspectAssetService.updateById(asset);
 
             BigDecimal process = new BigDecimal(count).divide(new BigDecimal(total), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-            this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetIp1(), asset.getAssetName(), 0);
             this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, asset.getJobId(), "100", "进度条", process.intValue());
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "进度条：" + asset.getJobId(), process.intValue());
 
@@ -424,7 +424,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", 100);
     }
 
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
+    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {
         WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
         if (webSocketSession == null) {
             return;
@@ -437,6 +437,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         msg.setId(id);
         msg.setName(name);
         msg.setStatus(status);
+        msg.setCount(count);
         wsDto.setMessage(msg);
         try {
             webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
@@ -444,6 +445,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
+        this.sendMsg(operator, msgType, jobId, id, name, status, 0);
     }
 
     private void saveInspectRecord(XunjianSchedule schedule) {

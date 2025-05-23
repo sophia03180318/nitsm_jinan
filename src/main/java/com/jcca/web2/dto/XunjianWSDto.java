@@ -11,10 +11,25 @@ import lombok.Data;
 @Data
 public class XunjianWSDto {
 
+    /**
+     * 心跳
+     */
     public static Integer HEART_BEAT = 1;
+    /**
+     * 资产状态
+     */
     public static Integer ASSET_STATUS = 2;
+    /**
+     * 指标状态
+     */
     public static Integer TARGET_STATUS = 3;
+    /**
+     * 进度条
+     */
     public static Integer WHOLE_PROCESS = 4;
+    /**
+     * 正在巡检设备
+     */
     public static Integer XUNJIANING_ASSET = 5;
 
     private String username;

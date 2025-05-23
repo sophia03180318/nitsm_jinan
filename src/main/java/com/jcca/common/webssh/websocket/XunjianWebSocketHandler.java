@@ -27,7 +27,7 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String path = Objects.requireNonNull(session.getUri()).getPath();
         String username = path.substring(path.lastIndexOf("/") + 1);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "智能巡检连接成功", username);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "智能巡检连接成功", username);
         XUNJIAN_WEBSOCKET_MAP.put(username, session);
     }
 
@@ -61,14 +61,14 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
         String path = Objects.requireNonNull(session.getUri()).getPath();
         String username = path.substring(path.lastIndexOf("/") + 1);
         XUNJIAN_WEBSOCKET_MAP.remove(username);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "智能巡检数据传输错误", exception.getMessage());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "智能巡检数据传输错误", exception.getMessage());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         String path = Objects.requireNonNull(session.getUri()).getPath();
         String username = path.substring(path.lastIndexOf("/") + 1);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "用户断开智能巡检连接", username);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "用户断开智能巡检连接", username);
         XUNJIAN_WEBSOCKET_MAP.remove(username);
     }
 
