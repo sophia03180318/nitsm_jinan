@@ -31,6 +31,10 @@ public class XunjianWSDto {
      * 正在巡检设备
      */
     public static Integer XUNJIANING_ASSET = 5;
+    /**
+     * 指标状态实时统计
+     */
+    public static Integer TARGET_COUNT = 6;
 
     private String username;
     private Integer msgType;
@@ -41,4 +45,6 @@ public class XunjianWSDto {
     private String name;
     private Integer status;
     private Integer count;
+    private Integer normal;
+    private Integer abnormal;
 }

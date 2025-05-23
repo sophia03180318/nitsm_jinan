@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.web2.dao.InspectAssetMapper;
+import com.jcca.web2.dto.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.service.InspectAssetService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
@@ -88,5 +89,15 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     @Override
     public List<ItemVo> getTargetStatus(String jobId) {
         return inspectAssetMapper.getTargetStatus(jobId);
+    }
+
+    @Override
+    public List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String targetItem) {
+        return inspectAssetMapper.getTargetAssetInfo(jobId, targetItem);
+    }
+
+    @Override
+    public List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId) {
+        return inspectAssetMapper.getAssetTargetInfo(jobId, assetId);
     }
 }

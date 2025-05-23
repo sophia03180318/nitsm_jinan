@@ -1,6 +1,7 @@
 package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jcca.web2.dto.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.vo.ItemVo;
 import org.apache.ibatis.annotations.Param;
@@ -31,10 +32,17 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
     @Select("SELECT * FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} ORDER BY ASSET_DESK, ASSET_ID")
     List<InspectAsset> getAllByJobId(String jobId);
 
-    @Select("SELECT EVENT_TYPE_ID AS ID, EVENT_TYPE_NAME AS NAME, MAX(INSPECT_STATE) AS STATUS, " +
-            "(SELECT COUNT(*) FROM INSPECT_ASSET WHERE JOB_ID = #{jobId}) AS TOTAL, " +
+    @Select("SELECT TARGET_ITEM AS ID, TARGET_NAME AS NAME, MAX(INSPECT_STATE) AS STATUS, COUNT(*) AS TOTAL, " +
             "SUM(CASE WHEN INSPECT_STATE = 3 THEN 1 ELSE 0 END) AS NORMAL, " +
             "SUM(CASE WHEN INSPECT_STATE = 4 THEN 1 ELSE 0 END) AS ABNORMAL " +
-            "FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY EVENT_TYPE_ID, EVENT_TYPE_NAME ORDER BY EVENT_TYPE_ID")
+            "FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY TARGET_ITEM, TARGET_NAME ORDER BY TARGET_ITEM")
     List<ItemVo> getTargetStatus(String jobId);
+
+    @Select("SELECT JOB_ID AS inspectCode, ASSET_ID, ASSET_NAME, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG " +
+            "FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} AND TARGET_ITEM = #{targetItem} AND INSPECT_STATE = 4 ORDER BY ASSET_ID")
+    List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String targetItem);
+
+    @Select("SELECT JOB_ID AS inspectCode, ASSET_ID, ASSET_NAME, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG " +
+            "FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} AND ASSET_ID = #{assetId} AND INSPECT_STATE = 4 ORDER BY TARGET_ITEM")
+    List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId);
 }

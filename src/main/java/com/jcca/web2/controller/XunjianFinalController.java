@@ -11,8 +11,11 @@ import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
+import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.dto.InspectTargetDetailInfo;
 import com.jcca.web2.dto.InspectTargetDetailInfoVo;
 import com.jcca.web2.dto.XunjianJobDto;
+import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
@@ -127,6 +130,19 @@ public class XunjianFinalController {
         return ResultVoUtil.success(result);
     }
 
+    @GetMapping("/target/asset")
+    @ApiOperation("指标下异常资产详情")
+    public ResultVo<Object> targetAsset(String jobId, String targetId) {
+        List<InspectTargetDetailInfo> resultList = inspectAssetService.getTargetAssetInfo(jobId, targetId);
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/asset/target")
+    @ApiOperation("资产下异常指标详情")
+    public ResultVo<Object> assetTarget(String jobId, String assetId) {
+        List<InspectTargetDetailInfo> resultList = inspectAssetService.getAssetTargetInfo(jobId, assetId);
+        return ResultVoUtil.success(resultList);
+    }
 
     @PostMapping("/job/add")
     @ApiOperation("新增巡检任务")
@@ -260,6 +276,27 @@ public class XunjianFinalController {
     @ApiOperation("指标状态列表")
     public ResultVo<Object> targetStatus(String jobId) {
         List<ItemVo> resultList = inspectAssetService.getTargetStatus(jobId);
-        return ResultVoUtil.success(resultList);
+        QueryWrapper<InspectAsset> query = Wrappers.query();
+        query.eq("job_id", jobId);
+        int totalCount = inspectAssetService.count(query);
+
+        query = Wrappers.query();
+        query.eq("job_id", jobId);
+        query.eq("inspect_state", Web2Const.INSPECTED);
+        int normalCount = inspectAssetService.count(query);
+
+        query = Wrappers.query();
+        query.eq("job_id", jobId);
+        query.eq("inspect_state", Web2Const.INSPECT_ERROR);
+        int abnormalCount = inspectAssetService.count(query);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("totalCount", totalCount);
+        map.put("normalCount", normalCount);
+        map.put("abnormalCount", abnormalCount);
+        map.put("resultList", resultList);
+
+        return ResultVoUtil.success(map);
     }
+
 }
