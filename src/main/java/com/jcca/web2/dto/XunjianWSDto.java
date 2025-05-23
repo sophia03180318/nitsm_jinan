@@ -19,7 +19,7 @@ public class XunjianWSDto {
 
     private String username;
     private Integer msgType;
-    private String message;
+    private XunjianWSDto message;
 
     private String jobId;
     private String id;

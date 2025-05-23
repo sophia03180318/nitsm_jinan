@@ -11,6 +11,7 @@ import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
+import com.jcca.web2.dto.InspectTargetDetailInfoVo;
 import com.jcca.web2.dto.XunjianJobDto;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.*;
@@ -114,9 +115,16 @@ public class XunjianFinalController {
 
     @GetMapping("/record/detail")
     @ApiOperation("巡检记录详情")
-    public ResultVo<Object> recordList(String id) {
+    public ResultVo<Object> recordDetail(String id) {
         Map<String, Object> recordDetail = inspectDetailService.getRecordDetail(id);
         return ResultVoUtil.success(recordDetail);
+    }
+
+    @GetMapping("/target/detail")
+    @ApiOperation("资产指标详情")
+    public ResultVo<Object> targetDetail(String inspectCode, String assetId) {
+        InspectTargetDetailInfoVo result = inspectDetailService.getTargetDetail(inspectCode, assetId);
+        return ResultVoUtil.success(result);
     }
 
 
@@ -237,6 +245,13 @@ public class XunjianFinalController {
     @GetMapping("/asset/status")
     @ApiOperation("资产状态列表")
     public ResultVo<Object> assetStatus(String jobId) {
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+        if (list.get(0).getJobState() != 2) {
+            return ResultVoUtil.success("只能查看正在巡检的任务");
+        }
         List<ItemVo> resultList = inspectAssetService.getAllCheckedAsset(jobId);
         return ResultVoUtil.success(resultList);
     }

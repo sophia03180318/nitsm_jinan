@@ -203,6 +203,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     inspectAsset.setInspectType(dto.getAutoFlag());
                     inspectAsset.setEventTypeId(target);
                     inspectAsset.setEventTypeName(alarmEventType.getTypeAlias());
+                    inspectAsset.setRemark(repository.getPlanStr());
                     String thresholdValue = this.getThreshold(inspectAsset);
                     if (repository.getDescStr().contains("阈值") && StringUtils.isEmpty(thresholdValue)) {
                         continue;
@@ -328,21 +329,22 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         Map<String, Integer> processMap = new HashMap<>();
         Map<String, Integer> targetMap = new HashMap<>();
         int total = assetList.size();
-        int count = 0, state = 0;
+        int count = 0, state = 1;
         for (InspectAsset asset : assetList) {
             String assetId = asset.getAssetId();
             String targetItem = asset.getTargetItem();
             count++;
+            state = 2;
             // 设置资产指标为巡检中状态
             asset.setInspectState(Web2Const.INSPECTING);
             inspectAssetService.updateById(asset);
 
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "正在巡检：" + asset.getAssetName(), asset.getTargetName());
-            int result = 1;
+            int result = total % count == 0 ? 3 : 4;
             try {
                 TimeUnit.SECONDS.sleep(1L);
             } catch (InterruptedException e) {
-                result = -1;
+                result = 4;
             }
 
             // 资产进度
@@ -366,7 +368,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             if (targetStateMap.get(targetItem) == null) {
                 targetStateMap.put(targetItem, state);
             } else {
-                if (targetStateMap.get(targetItem) > result) {
+                if (targetStateMap.get(targetItem) < result) {
                     targetStateMap.put(targetItem, result);
                 }
             }
@@ -378,12 +380,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             } else {
                 targetMap.put(targetItem, targetMap.get(targetItem) + 1);
                 if (targetMap.get(targetItem) == targetItemMap.get(targetItem).intValue()) {
-                    this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getEventTypeId(), asset.getEventTypeName(), targetStateMap.get(assetId));
+                    this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getEventTypeId(), asset.getEventTypeName(), targetStateMap.get(targetItem));
                 }
             }
 
             // 设置资产指标为巡检完成状态
-            asset.setInspectState(result == 1 ? Web2Const.INSPECTED : Web2Const.INSPECT_ERROR);
+            asset.setInspectState(result == 3 ? Web2Const.INSPECTED : Web2Const.INSPECT_ERROR);
             inspectAssetService.updateById(asset);
 
             BigDecimal process = new BigDecimal(count).divide(new BigDecimal(total), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
@@ -430,10 +432,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);
-        wsDto.setJobId(jobId);
-        wsDto.setId(id);
-        wsDto.setName(name);
-        wsDto.setStatus(status);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setJobId(jobId);
+        msg.setId(id);
+        msg.setName(name);
+        msg.setStatus(status);
+        wsDto.setMessage(msg);
         try {
             webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "给前端发送消息", JSONUtil.toJsonStr(wsDto));

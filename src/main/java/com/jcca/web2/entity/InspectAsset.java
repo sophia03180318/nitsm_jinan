@@ -48,10 +48,6 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String inspectState;
     // 阈值设定值
     private String thresholdValue;
-    // 巡检结果值
-    private String inspectValue;
-    // 巡检结果描述
-    private String resultMsg;
     // 1设备巡检，2指标巡视
     private Integer inspectType;
     // 巡检命令

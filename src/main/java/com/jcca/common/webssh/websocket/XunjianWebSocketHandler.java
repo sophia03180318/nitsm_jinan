@@ -36,10 +36,21 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
         if (message instanceof TextMessage) {
             String payload = ((TextMessage) message).getPayload();
             XunjianWSDto dto = JSONUtil.toBean(payload, XunjianWSDto.class);
+            if (Objects.isNull(dto) || dto.getMsgType() == null) {
+                if (session.isOpen()) {
+                    session.close();
+                }
+                return;
+            }
             if (dto.getMsgType() == XunjianWSDto.HEART_BEAT.intValue()) {
+                if (XUNJIAN_WEBSOCKET_MAP.get(dto.getUsername()) == null) {
+                    return;
+                }
                 XunjianWSDto sendMsg = new XunjianWSDto();
                 BeanUtils.copyProperties(dto, sendMsg);
-                sendMsg.setMessage("OK");
+                XunjianWSDto msg = new XunjianWSDto();
+                msg.setName("OK");
+                sendMsg.setMessage(msg);
                 session.sendMessage(new TextMessage(JSONUtil.toJsonStr(sendMsg)));
             }
         }
@@ -47,6 +58,9 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+        String path = Objects.requireNonNull(session.getUri()).getPath();
+        String username = path.substring(path.lastIndexOf("/") + 1);
+        XUNJIAN_WEBSOCKET_MAP.remove(username);
         AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "智能巡检数据传输错误", exception.getMessage());
     }
 

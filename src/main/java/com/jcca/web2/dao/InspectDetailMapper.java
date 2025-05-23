@@ -1,6 +1,8 @@
 package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jcca.web2.dto.InspectAssetDetailInfo;
+import com.jcca.web2.dto.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
 import com.jcca.web2.vo.ItemVo;
@@ -51,4 +53,13 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
 
     @Select("select count(*) from (select asset_id from inspect_detail  where inspect_code = #{inspectCode} and inspect_state = #{inspectState} group by asset_id)")
     Integer abnormalAsset(String inspectCode, int inspectState);
+
+    @Select("select inspect_code, asset_id, asset_name, asset_ip1, org_name, room_name, cabinet_name, max(inspect_state) inspectState " +
+            "from inspect_detail where inspect_code = #{inspectCode} and asset_desk in ${desks} " +
+            "group by inspect_code, asset_id, asset_name, asset_ip1, org_name, room_name, cabinet_name order by asset_id")
+    List<InspectAssetDetailInfo> getAssetDetail(String inspectCode, String desks);
+
+    @Select("SELECT INSPECT_CODE, ASSET_ID, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG, REMARK " +
+            "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY ASSET_ID")
+    List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId);
 }

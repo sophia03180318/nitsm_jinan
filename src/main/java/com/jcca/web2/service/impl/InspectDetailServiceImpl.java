@@ -18,6 +18,9 @@ import com.jcca.web.xunjian.entity.XunjianDetailV2;
 import com.jcca.web.xunjian.entity.bean.XunjianServerDetailBean;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectDetailMapper;
+import com.jcca.web2.dto.InspectAssetDetailInfo;
+import com.jcca.web2.dto.InspectTargetDetailInfo;
+import com.jcca.web2.dto.InspectTargetDetailInfoVo;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.InspectDetailService;
@@ -30,10 +33,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author HanHW
@@ -122,14 +122,14 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         QueryWrapper<AlarmInfo> query = Wrappers.query();
         query.eq("STATUS", 1);
         query.in("ASSET_ID", list);
-        List<AlarmInfo> infos = alarmInfoService.list(query);
+        int alarmCount = alarmInfoService.count(query);
 
         Integer totalAsset = list.size();
         Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
         Integer normalAsset = totalAsset - abnormalAsset;
         String header1 = "巡检人：%s，巡检时间：%s，巡检资产总数：%s，正常资产数：%s，异常资产数：%s，告警总数：%s";
         String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
-        header1 = String.format(header1, record.getModeType(), inspectTime, totalAsset, normalAsset, abnormalAsset, infos.size());
+        header1 = String.format(header1, record.getModeType(), inspectTime, totalAsset, normalAsset, abnormalAsset, alarmCount);
 
         StringBuilder header2 = new StringBuilder();
         List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
@@ -142,11 +142,36 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
         }
 
+        // 网络设备
+        String desks = " (42, 201) ";
+        List<InspectAssetDetailInfo> netDetailInfoList = inspectDetailMapper.getAssetDetail(inspectCode, desks);
+        // 主机设备
+        desks = " (183, 1831, 1832, 1833) ";
+        List<InspectAssetDetailInfo> hostDetailInfoList = inspectDetailMapper.getAssetDetail(inspectCode, desks);
+
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("header1", header1);
         resultMap.put("header2", header2);
+        resultMap.put("netInfoList", netDetailInfoList);
+        resultMap.put("hostInfoList", hostDetailInfoList);
 
         return resultMap;
+    }
+
+    @Override
+    public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId) {
+        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId);
+        QueryWrapper<AlarmInfo> query = Wrappers.query();
+        query.select("TITLE", "OCCUR_TIME");
+        query.eq("STATUS", 1);
+        query.in("ASSET_ID", Collections.singletonList(assetId));
+        List<AlarmInfo> infos = alarmInfoService.list(query);
+
+        InspectTargetDetailInfoVo vo = new InspectTargetDetailInfoVo();
+        vo.setTargetDetailList(targetDetailInfoList);
+        vo.setAlarmInfoList(infos);
+
+        return vo;
     }
 
     private XunjianServerDetailBean creatBean(String assetId) {
