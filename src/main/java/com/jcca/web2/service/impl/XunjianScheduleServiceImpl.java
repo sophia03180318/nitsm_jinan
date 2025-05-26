@@ -59,7 +59,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -339,19 +338,24 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             inspectAssetService.updateById(asset);
 
             this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetId(), asset.getAssetName(), assetStateMap.get(assetId));
-            int result = 3;
+            String result = Web2Const.INSPECT_ERROR;
+            InspectDetail detail = null;
             try {
-                // TODO 去采集 并放入队列
-                TimeUnit.SECONDS.sleep(1L);
-            } catch (InterruptedException e) {
-                result = 4;
+                detail = inspectAssetService.xunjianCollect(assetId, asset.getThresholdValue());
+                result = detail.getInspectState();
+            } catch (Exception e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集异常", asset);
+                detail = new InspectDetail();
+                detail.setInspectState(Web2Const.INSPECT_ERROR);
+                detail.setInspectValue("--");
+                detail.setResultMsg("巡检采集异常");
             }
 
             // 指标实时统计
-            if (result == Integer.parseInt(Web2Const.INSPECTED)) {
+            if (result.equals(Web2Const.INSPECTED)) {
                 normal++;
             }
-            if (result == Integer.parseInt(Web2Const.INSPECT_ERROR)) {
+            if (result.equals(Web2Const.INSPECT_ERROR)) {
                 abnormal++;
             }
             this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, asset.getJobId(), normal, abnormal);
@@ -360,9 +364,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     targetAbnormalMap, targetItemMap, result);
 
             // 设置资产指标为巡检完成状态
-            asset.setInspectState(result == Integer.parseInt(Web2Const.INSPECTED) ? Web2Const.INSPECTED : Web2Const.INSPECT_ERROR);
-            asset.setInspectValue("-");
-            asset.setResultMsg(result == Integer.parseInt(Web2Const.INSPECTED) ? "正常" : "异常");
+            asset.setInspectState(detail.getInspectState());
+            asset.setInspectValue(detail.getInspectValue());
+            asset.setResultMsg(detail.getResultMsg());
             inspectAssetService.updateById(asset);
 
             BigDecimal process = new BigDecimal(count).divide(new BigDecimal(total), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
@@ -401,16 +405,17 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
     private void inspectProcess(String operator, InspectAsset asset, Map<String, Integer> assetStateMap, Map<String, Integer> targetStateMap,
                                 Map<String, Integer> assetTargetMap, Map<String, Integer> processMap, Map<String, Integer> targetMap,
-                                Map<String, Integer> targetAbnormalMap, Map<String, Long> targetItemMap, Integer result) {
+                                Map<String, Integer> targetAbnormalMap, Map<String, Long> targetItemMap, String result) {
         String assetId = asset.getAssetId();
         String targetItem = asset.getTargetItem();
+        int state = Integer.parseInt(result);
 
         // 资产进度
         if (assetStateMap.get(assetId) == null) {
-            assetStateMap.put(assetId, result);
+            assetStateMap.put(assetId, state);
         } else {
-            if (assetStateMap.get(assetId) < result) {
-                assetStateMap.put(assetId, result);
+            if (assetStateMap.get(assetId) < state) {
+                assetStateMap.put(assetId, state);
             }
         }
         if (processMap.get(assetId) == null) {
@@ -424,10 +429,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
         // 指标进度
         if (targetStateMap.get(targetItem) == null) {
-            targetStateMap.put(targetItem, result);
+            targetStateMap.put(targetItem, state);
         } else {
-            if (targetStateMap.get(targetItem) < result) {
-                targetStateMap.put(targetItem, result);
+            if (targetStateMap.get(targetItem) < state) {
+                targetStateMap.put(targetItem, state);
             }
         }
         if (targetStateMap.get(targetItem) == 4) {

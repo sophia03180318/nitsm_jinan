@@ -38,4 +38,9 @@ public interface RedisQueueConst {
      * 事件添加队列
      */
     String EVENT_GROUP_ALARM_ADD = "_event_alarm_group_add:";
+
+    /**
+     * 智能巡检数据队列
+     */
+    String XUNJIAN_QUEUE = "_xunjian_queue";
 }
