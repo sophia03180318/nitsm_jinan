@@ -266,7 +266,7 @@ public class XunjianFinalController {
             return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
         }
         if (list.get(0).getJobState() != 2) {
-            return ResultVoUtil.success("只能查看正在巡检的任务");
+            return ResultVoUtil.warning("只能查看正在巡检的任务");
         }
         List<ItemVo> resultList = inspectAssetService.getAllCheckedAsset(jobId);
         return ResultVoUtil.success(resultList);

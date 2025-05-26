@@ -304,7 +304,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         String operator = dto.getOperator();
         // 设置为正在巡检
         XunjianSchedule schedule = this.getById(id);
-        schedule.setJobState(2);
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
         schedule.setLastTime(new Date());
         this.updateById(schedule);
 
@@ -333,78 +333,40 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         int count = 0, normal = 0, abnormal = 0;
         for (InspectAsset asset : assetList) {
             String assetId = asset.getAssetId();
-            String targetItem = asset.getTargetItem();
             count++;
             // 设置资产指标为巡检中状态
             asset.setInspectState(Web2Const.INSPECTING);
             inspectAssetService.updateById(asset);
 
             this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetId(), asset.getAssetName(), assetStateMap.get(assetId));
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "正在巡检：" + asset.getAssetName(), asset.getTargetName());
             int result = 3;
             try {
+                // TODO 去采集 并放入队列
                 TimeUnit.SECONDS.sleep(1L);
             } catch (InterruptedException e) {
                 result = 4;
             }
+
             // 指标实时统计
-            if (result == 3) {
+            if (result == Integer.parseInt(Web2Const.INSPECTED)) {
                 normal++;
             }
-            if (result == 4) {
+            if (result == Integer.parseInt(Web2Const.INSPECT_ERROR)) {
                 abnormal++;
             }
             this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, asset.getJobId(), normal, abnormal);
 
-            // 资产进度
-            if (assetStateMap.get(assetId) == null) {
-                assetStateMap.put(assetId, result);
-            } else {
-                if (assetStateMap.get(assetId) < result) {
-                    assetStateMap.put(assetId, result);
-                }
-            }
-            if (processMap.get(assetId) == null) {
-                processMap.put(assetId, 1);
-            } else {
-                processMap.put(assetId, processMap.get(assetId) + 1);
-                if (processMap.get(assetId).intValue() == assetTargetMap.get(assetId).intValue()) {
-                    this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, asset.getJobId(), assetId, asset.getAssetName(), assetStateMap.get(assetId));
-                }
-            }
-
-            // 指标进度
-            if (targetStateMap.get(targetItem) == null) {
-                targetStateMap.put(targetItem, result);
-            } else {
-                if (targetStateMap.get(targetItem) < result) {
-                    targetStateMap.put(targetItem, result);
-                }
-            }
-            if (targetStateMap.get(targetItem) == 4) {
-                targetAbnormalMap.merge(targetItem, 1, Integer::sum);
-                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getTargetItem(),
-                        asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
-            }
-            if (targetMap.get(targetItem) == null) {
-                targetMap.put(targetItem, 1);
-            } else {
-                targetMap.put(targetItem, targetMap.get(targetItem) + 1);
-                if (targetMap.get(targetItem) == targetItemMap.get(targetItem).intValue()) {
-                    this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), asset.getTargetItem(),
-                            asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
-                }
-            }
+            this.inspectProcess(operator, asset, assetStateMap, targetStateMap, assetTargetMap, processMap, targetMap,
+                    targetAbnormalMap, targetItemMap, result);
 
             // 设置资产指标为巡检完成状态
-            asset.setInspectState(result == 3 ? Web2Const.INSPECTED : Web2Const.INSPECT_ERROR);
+            asset.setInspectState(result == Integer.parseInt(Web2Const.INSPECTED) ? Web2Const.INSPECTED : Web2Const.INSPECT_ERROR);
             asset.setInspectValue("-");
-            asset.setResultMsg(result == 3 ? "正常" : "异常");
+            asset.setResultMsg(result == Integer.parseInt(Web2Const.INSPECTED) ? "正常" : "异常");
             inspectAssetService.updateById(asset);
 
             BigDecimal process = new BigDecimal(count).divide(new BigDecimal(total), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
             this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, asset.getJobId(), "100", "进度条", process.intValue());
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "进度条：" + asset.getJobId(), process.intValue());
 
             // 保存巡检详情
             InspectDetail inspectDetail = new InspectDetail();
@@ -424,7 +386,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
 
         // 设置为结束巡检
-        schedule.setJobState(1);
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
         this.updateById(schedule);
 
         // 设置资产指标为初始状态
@@ -435,6 +397,57 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
         // 推送完成消息
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", 100);
+    }
+
+    private void inspectProcess(String operator, InspectAsset asset, Map<String, Integer> assetStateMap, Map<String, Integer> targetStateMap,
+                                Map<String, Integer> assetTargetMap, Map<String, Integer> processMap, Map<String, Integer> targetMap,
+                                Map<String, Integer> targetAbnormalMap, Map<String, Long> targetItemMap, Integer result) {
+        String assetId = asset.getAssetId();
+        String targetItem = asset.getTargetItem();
+
+        // 资产进度
+        if (assetStateMap.get(assetId) == null) {
+            assetStateMap.put(assetId, result);
+        } else {
+            if (assetStateMap.get(assetId) < result) {
+                assetStateMap.put(assetId, result);
+            }
+        }
+        if (processMap.get(assetId) == null) {
+            processMap.put(assetId, 1);
+        } else {
+            processMap.put(assetId, processMap.get(assetId) + 1);
+            if (processMap.get(assetId).intValue() == assetTargetMap.get(assetId).intValue()) {
+                this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, asset.getJobId(), assetId, asset.getAssetName(), assetStateMap.get(assetId));
+            }
+        }
+
+        // 指标进度
+        if (targetStateMap.get(targetItem) == null) {
+            targetStateMap.put(targetItem, result);
+        } else {
+            if (targetStateMap.get(targetItem) < result) {
+                targetStateMap.put(targetItem, result);
+            }
+        }
+        if (targetStateMap.get(targetItem) == 4) {
+            targetAbnormalMap.merge(targetItem, 1, Integer::sum);
+            this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), targetItem,
+                    asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
+        }
+        if (targetMap.get(targetItem) == null) {
+            targetMap.put(targetItem, 1);
+            if (targetItemMap.get(targetItem).intValue() == 1) {
+                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), targetItem,
+                        asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
+            }
+        } else {
+            targetMap.put(targetItem, targetMap.get(targetItem) + 1);
+            if (targetMap.get(targetItem) == targetItemMap.get(targetItem).intValue()) {
+                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), targetItem,
+                        asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
+            }
+        }
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, int normal, int abnormal) {
@@ -461,7 +474,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
         try {
             webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "给前端发送消息", JSONUtil.toJsonStr(wsDto));
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "给前端发送巡检消息", JSONUtil.toJsonStr(wsDto));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
