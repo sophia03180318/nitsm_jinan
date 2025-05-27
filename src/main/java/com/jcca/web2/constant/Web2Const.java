@@ -1,6 +1,6 @@
 package com.jcca.web2.constant;
 
-import com.jcca.web2.entity.InspectDetail;
+import com.jcca.web2.dto.xunjian.XunjianDataDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,5 +61,5 @@ public interface Web2Const {
     String TARGET_INTERVAL = "INTERVAL";
 
     // 巡检实时采集队列
-    LinkedBlockingQueue<InspectDetail> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
+    LinkedBlockingQueue<XunjianDataDto> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
 }

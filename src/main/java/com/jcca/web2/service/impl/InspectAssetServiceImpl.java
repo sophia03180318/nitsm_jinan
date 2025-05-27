@@ -139,6 +139,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         String respBody = "";
         try {
             CollectExecReq req = new CollectExecReq();
+            req.setJobId(asset.getJobId());
             req.setAssetId(assetId);
             respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 15000);
         } catch (CollectAgencyException e) {
@@ -172,11 +173,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 String content = dto.getContent();
                 IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
                 JSONArray jsonArray = JSONUtil.parseArray(content);
-                for (Object obj : jsonArray) {
-                    JSONObject obj1 = JSONUtil.parseObj(obj.toString());
-                    obj1.put("jobId", asset.getJobId());
-                }
-
                 adapter.dispose(jsonArray);
             }
         }

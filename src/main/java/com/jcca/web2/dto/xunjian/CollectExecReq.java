@@ -10,5 +10,12 @@ import lombok.Data;
  */
 @Data
 public class CollectExecReq {
+    /**
+     * 资产ID
+     */
     private String assetId;
+    /**
+     * 巡检任务ID
+     */
+    private String jobId;
 }

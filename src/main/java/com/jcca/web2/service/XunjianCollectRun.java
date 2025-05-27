@@ -7,6 +7,7 @@ import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
 import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
@@ -47,7 +48,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
         while (true) {
-            InspectDetail detail = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            XunjianDataDto asset = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
 
         }
     }
