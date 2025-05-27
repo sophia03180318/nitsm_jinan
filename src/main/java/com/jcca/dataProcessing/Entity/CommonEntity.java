@@ -54,5 +54,9 @@ public class CommonEntity implements Serializable {
      * 采集批次码
      */
     private String collectCode;
+    /**
+     * 巡检采集任务ID
+     */
+    private String jobId;
 
 }
