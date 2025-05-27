@@ -1,8 +1,8 @@
 package com.jcca.web2.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.system.entity.SysOrg;
@@ -16,7 +16,6 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
-import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -32,8 +31,7 @@ import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
-import com.jcca.web2.dto.XunjianJobDto;
-import com.jcca.web2.dto.XunjianWSDto;
+import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
@@ -50,16 +48,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 /**
  * @author: hhw
@@ -295,231 +287,42 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      */
     @Override
     public void beginXunjian(XunjianJobDto dto) {
-        // 巡检任务 xunjian_schedule id == inspect_record_schedule_id  job_id == inspect_record_inspect_code
-        // 巡检资产 inspect_asset job_id == xunjian_schedule_job_id
-        // 巡检记录 inspect_record scheduled_id == xunjian_schedule_id  inspect_code == xunjian_schedule_job_id
-        // 巡检明细 inspect_detail inspect_code == inspect_record_id
-        String id = dto.getId();
-        String operator = dto.getOperator();
-        // 设置为正在巡检
-        XunjianSchedule schedule = this.getById(id);
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-        schedule.setLastTime(new Date());
-        this.updateById(schedule);
 
-        // 保存巡检记录
-        String inspectRecordId = MyIdUtil.getId();
-        schedule.setInspectRecordId(inspectRecordId);
-        this.saveInspectRecord(schedule);
-
-        // 巡检设备
-        Map<String, Integer> assetStateMap = new HashMap<>();
-        Map<String, Integer> targetStateMap = new HashMap<>();
-        List<InspectDetail> detailList = new ArrayList<>();
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
-        Map<String, Integer> assetTargetMap = new HashMap<>();
-        assetCollect.keySet().forEach(key -> {
-            assetTargetMap.put(key, assetCollect.get(key).size());
-        });
-
-        Map<String, Long> targetItemMap = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getTargetItem, Collectors.counting()));
-
-        Map<String, Integer> processMap = new HashMap<>();
-        Map<String, Integer> targetMap = new HashMap<>();
-        Map<String, Integer> targetAbnormalMap = new HashMap<>();
-        int total = assetList.size();
-        int count = 0, normal = 0, abnormal = 0;
-        for (InspectAsset asset : assetList) {
-            String assetId = asset.getAssetId();
-            count++;
-            // 设置资产指标为巡检中状态
-            asset.setInspectState(Web2Const.INSPECTING);
-            inspectAssetService.updateById(asset);
-
-            this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, asset.getJobId(), asset.getAssetId(), asset.getAssetName(), assetStateMap.get(assetId));
-            String result = Web2Const.INSPECT_ERROR;
-            InspectDetail detail = null;
-            try {
-                detail = inspectAssetService.xunjianCollect(assetId, asset.getThresholdValue());
-                result = detail.getInspectState();
-            } catch (Exception e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集异常", asset);
-                detail = new InspectDetail();
-                detail.setInspectState(Web2Const.INSPECT_ERROR);
-                detail.setInspectValue("--");
-                detail.setResultMsg("巡检采集异常");
-            }
-
-            // 指标实时统计
-            if (result.equals(Web2Const.INSPECTED)) {
-                normal++;
-            }
-            if (result.equals(Web2Const.INSPECT_ERROR)) {
-                abnormal++;
-            }
-            this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, asset.getJobId(), normal, abnormal);
-
-            this.inspectProcess(operator, asset, assetStateMap, targetStateMap, assetTargetMap, processMap, targetMap,
-                    targetAbnormalMap, targetItemMap, result);
-
-            // 设置资产指标为巡检完成状态
-            asset.setInspectState(detail.getInspectState());
-            asset.setInspectValue(detail.getInspectValue());
-            asset.setResultMsg(detail.getResultMsg());
-            inspectAssetService.updateById(asset);
-
-            BigDecimal process = new BigDecimal(count).divide(new BigDecimal(total), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, asset.getJobId(), "100", "进度条", process.intValue());
-
-            // 保存巡检详情
-            InspectDetail inspectDetail = new InspectDetail();
-            BeanUtils.copyProperties(asset, inspectDetail);
-            inspectDetail.setId(MyIdUtil.getId());
-            inspectDetail.setInspectCode(inspectRecordId);
-            inspectDetail.setInspectTime(new Date());
-            detailList.add(inspectDetail);
-
-            if (detailList.size() >= 900) {
-                inspectDetailService.saveBatch(detailList);
-                detailList.clear();
-            }
-        }
-        if (!detailList.isEmpty()) {
-            inspectDetailService.saveBatch(detailList);
-        }
-
-        // 设置为结束巡检
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-        this.updateById(schedule);
-
-        // 设置资产指标为初始状态
-        for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
-        }
-        inspectAssetService.updateBatchById(assetList, 900);
-
-        // 推送完成消息
-        this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", 100);
-    }
-
-    private void inspectProcess(String operator, InspectAsset asset, Map<String, Integer> assetStateMap, Map<String, Integer> targetStateMap,
-                                Map<String, Integer> assetTargetMap, Map<String, Integer> processMap, Map<String, Integer> targetMap,
-                                Map<String, Integer> targetAbnormalMap, Map<String, Long> targetItemMap, String result) {
-        String assetId = asset.getAssetId();
-        String targetItem = asset.getTargetItem();
-        int state = Integer.parseInt(result);
-
-        // 资产进度
-        if (assetStateMap.get(assetId) == null) {
-            assetStateMap.put(assetId, state);
-        } else {
-            if (assetStateMap.get(assetId) < state) {
-                assetStateMap.put(assetId, state);
-            }
-        }
-        if (processMap.get(assetId) == null) {
-            processMap.put(assetId, 1);
-        } else {
-            processMap.put(assetId, processMap.get(assetId) + 1);
-            if (processMap.get(assetId).intValue() == assetTargetMap.get(assetId).intValue()) {
-                this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, asset.getJobId(), assetId, asset.getAssetName(), assetStateMap.get(assetId));
-            }
-        }
-
-        // 指标进度
-        if (targetStateMap.get(targetItem) == null) {
-            targetStateMap.put(targetItem, state);
-        } else {
-            if (targetStateMap.get(targetItem) < state) {
-                targetStateMap.put(targetItem, state);
-            }
-        }
-        if (targetStateMap.get(targetItem) == 4) {
-            targetAbnormalMap.merge(targetItem, 1, Integer::sum);
-            this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), targetItem,
-                    asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
-        }
-        if (targetMap.get(targetItem) == null) {
-            targetMap.put(targetItem, 1);
-            if (targetItemMap.get(targetItem).intValue() == 1) {
-                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), targetItem,
-                        asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
-            }
-        } else {
-            targetMap.put(targetItem, targetMap.get(targetItem) + 1);
-            if (targetMap.get(targetItem) == targetItemMap.get(targetItem).intValue()) {
-                this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, asset.getJobId(), targetItem,
-                        asset.getTargetName(), targetStateMap.get(targetItem), targetAbnormalMap.get(targetItem));
-            }
-        }
-    }
-
-    private void sendMsg(String operator, Integer msgType, String jobId, int normal, int abnormal) {
-        WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
-        if (webSocketSession == null) {
-            return;
-        }
-        XunjianWSDto wsDto = new XunjianWSDto();
-        wsDto.setUsername(operator);
-        wsDto.setMsgType(msgType);
-        XunjianWSDto msg = new XunjianWSDto();
-        msg.setJobId(jobId);
-        msg.setAbnormal(abnormal);
-        msg.setNormal(normal);
-        wsDto.setMessage(msg);
-        this.send(wsDto);
-    }
-
-    private void send(XunjianWSDto wsDto) {
-        String operator = wsDto.getUsername();
-        WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
-        if (webSocketSession == null) {
-            return;
-        }
         try {
-            webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "给前端发送巡检消息", JSONUtil.toJsonStr(wsDto));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            String id = dto.getId();
+            // 设置为正在巡检
+            XunjianSchedule schedule = this.getById(id);
+            schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+            schedule.setLastTime(new Date());
+            this.updateById(schedule);
+
+            Set<String> assetIdSet = new HashSet<>();
+            List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+            for (InspectAsset inspectAsset : assetList) {
+                if (assetIdSet.contains(inspectAsset.getAssetId())) {
+                    continue;
+                }
+                assetIdSet.add(inspectAsset.getAssetId());
+                InspectDetail inspectDetail = inspectAssetService.xunjianCollect(inspectAsset);
+                if (!StringUtils.isEmpty(inspectDetail.getInspectState())) {
+                    UpdateWrapper<InspectAsset> update = Wrappers.update();
+                    update.eq("JOB_ID", schedule.getJobId());
+                    update.eq("ASSET_ID", inspectAsset.getAssetId());
+                    update.set("INSPECT_STATE", inspectDetail.getInspectState());
+                    update.set("RESULT_MSG", inspectDetail.getResultMsg());
+                    update.set("INSPECT_VALUE", inspectDetail.getInspectValue());
+                    inspectAssetService.update(update);
+                }
+            }
+        } catch (Exception e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);
+        } finally {
+            // 设置为结束巡检
+            String id = dto.getId();
+            XunjianSchedule schedule = this.getById(id);
+            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+            this.updateById(schedule);
         }
-    }
-
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {
-        XunjianWSDto wsDto = new XunjianWSDto();
-        wsDto.setUsername(operator);
-        wsDto.setMsgType(msgType);
-        XunjianWSDto msg = new XunjianWSDto();
-        msg.setJobId(jobId);
-        msg.setId(id);
-        msg.setName(name);
-        msg.setStatus(status);
-        msg.setCount(count);
-        wsDto.setMessage(msg);
-        this.send(wsDto);
-    }
-
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
-        this.sendMsg(operator, msgType, jobId, id, name, status, 0);
-    }
-
-    private void saveInspectRecord(XunjianSchedule schedule) {
-        InspectRecord inspectRecord = new InspectRecord();
-        inspectRecord.setId(schedule.getInspectRecordId());
-        inspectRecord.setScheduleId(schedule.getId());
-        inspectRecord.setInspectCode(schedule.getJobId());
-        inspectRecord.setInspectTime(schedule.getLastTime());
-        inspectRecord.setCreator(schedule.getOperator());
-        inspectRecord.setModeName(schedule.getJobName());
-        inspectRecord.setModeType(schedule.getOperator());
-
-        inspectRecord.setAssetId("--");
-        inspectRecord.setAssetName("--");
-        inspectRecord.setAssetIp1("--");
-        inspectRecord.setOrgId("--");
-        inspectRecord.setOrgName("--");
-
-        inspectRecordService.save(inspectRecord);
     }
 
     /**

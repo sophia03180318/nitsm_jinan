@@ -1,4 +1,4 @@
-package com.jcca.web2.dto;
+package com.jcca.web2.dto.xunjian;
 
 import lombok.Data;
 
@@ -13,6 +13,7 @@ public class InspectTargetDetailInfo {
 
     private String inspectCode;
     private String assetId;
+    private String assetName;
 
     private String targetItem;
     private String targetName;

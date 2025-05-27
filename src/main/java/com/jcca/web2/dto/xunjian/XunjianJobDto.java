@@ -1,4 +1,4 @@
-package com.jcca.web2.dto;
+package com.jcca.web2.dto.xunjian;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;

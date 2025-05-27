@@ -1,4 +1,4 @@
-package com.jcca.web2.dto;
+package com.jcca.web2.dto.xunjian;
 
 import com.jcca.web.alarm.entity.AlarmInfo;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package com.jcca.web2.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jcca.web2.dto.XunjianJobDto;
+import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.vo.ItemVo;
 

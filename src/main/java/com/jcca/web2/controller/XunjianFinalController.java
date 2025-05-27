@@ -1,8 +1,10 @@
 package com.jcca.web2.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
@@ -12,9 +14,9 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
-import com.jcca.web2.dto.InspectTargetDetailInfo;
-import com.jcca.web2.dto.InspectTargetDetailInfoVo;
-import com.jcca.web2.dto.XunjianJobDto;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
+import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.*;
@@ -58,7 +60,7 @@ public class XunjianFinalController {
 
     @GetMapping("/job/list")
     @ApiOperation("巡检任务列表")
-    public ResultVo<Object> jobList(Integer autoFlag, Integer jobState) {
+    public ResultVo<Object> jobList(Integer autoFlag, Integer jobState, Integer page, Integer size) {
         String username = ShiroUtil.getSubject().getUsername();
         QueryWrapper<XunjianSchedule> query = Wrappers.query();
         query.eq("OPERATOR", username);
@@ -70,7 +72,9 @@ public class XunjianFinalController {
         }
         query.orderByDesc("JOB_ID");
         query.orderByAsc("CRON_TIME");
-        List<XunjianSchedule> list = xunjianScheduleService.list(query);
+        IPage<XunjianSchedule> iPage = PagePlugin.startPageT(page, size, XunjianSchedule.class);
+        IPage<XunjianSchedule> resultPage = xunjianScheduleService.page(iPage, query);
+        List<XunjianSchedule> list = resultPage.getRecords();
         if (list.isEmpty()) {
             return ResultVoUtil.success(list);
         }
@@ -83,8 +87,11 @@ public class XunjianFinalController {
             String[] split = cronTime.split(",");
             schedule.setCronList(Arrays.asList(split));
         }
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", list);
+        result.put("total", resultPage.getTotal());
 
-        return ResultVoUtil.success(list);
+        return ResultVoUtil.success(result);
     }
 
     @GetMapping("/record/list")
@@ -158,19 +165,22 @@ public class XunjianFinalController {
     @ApiOperation("开始巡检")
     public ResultVo<Object> jobBegin(String jobId) {
         List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
-        if (list.size() > 1) {
-            return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "周期巡检不需要手动开始");
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
         }
         XunjianSchedule schedule = list.get(0);
         if (schedule.getAutoFlag() != 1) {
             return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "只能开始手动巡检");
+        }
+        if (schedule.getJobState() != 1) {
+            return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "任务已开始或已暂停");
         }
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务", jobId);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         executor.execute(() -> {
             XunjianJobDto dto = new XunjianJobDto();
-            dto.setId(list.get(0).getId());
+            dto.setId(schedule.getId());
             dto.setOperator(schedule.getOperator());
             xunjianScheduleService.beginXunjian(dto);
         });

@@ -1,24 +1,32 @@
 package com.jcca.web2.service.impl;
 
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.redis.service.RedisService;
+import com.jcca.component.client.CollectAgent;
+import com.jcca.component.client.exception.CollectAgencyException;
+import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
-import com.jcca.web2.dto.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.CollectExecReq;
+import com.jcca.web2.dto.xunjian.CollectExecResp;
+import com.jcca.web2.dto.xunjian.CollectExecResult;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.service.InspectAssetService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -31,8 +39,15 @@ import java.util.stream.Collectors;
 @Service
 public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, InspectAsset> implements InspectAssetService {
 
+    private static final String XUNJIAN_CENTER_URI = "/business/exeCollect";
+
+
     @Resource
     private InspectAssetMapper inspectAssetMapper;
+    @Resource
+    private CollectAgent collectAgent;
+    @Resource
+    private RedisService redisService;
 
     @Override
     public List<InspectAsset> getInspectAssets(List<String> assetIds) {
@@ -108,31 +123,53 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     /**
      * 巡检实时采集
      *
-     * @param assetId        资产ID
-     * @param thresholdValue 设置的阈值，为空表示是非阈值指标
      * @return
      */
     @Override
-    public InspectDetail xunjianCollect(String assetId, String thresholdValue) {
+    public InspectDetail xunjianCollect(InspectAsset asset) {
+        String assetId = asset.getAssetId();
+        String thresholdValue = asset.getThresholdValue();
         InspectDetail detail = new InspectDetail();
         detail.setAssetId(assetId);
-        detail.setInspectState(Web2Const.INSPECTED);
-        detail.setResultMsg("正常");
-        if (StringUtils.isEmpty(thresholdValue)) {
-            detail.setInspectValue(thresholdValue);
-        }
-        long l = Long.parseLong(assetId);
-        if (l % 2 == 0) {
-            detail.setInspectState(Web2Const.INSPECTED);
-        } else {
-            detail.setInspectState(Web2Const.INSPECT_ERROR);
-        }
+        detail.setInspectValue(thresholdValue);
+        String respBody = "";
         try {
-            TimeUnit.SECONDS.sleep(1L);
-        } catch (InterruptedException e) {
+            CollectExecReq req = new CollectExecReq();
+            req.setAssetId(assetId);
+            respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 15000);
+        } catch (CollectAgencyException e) {
             detail.setInspectState(Web2Const.INSPECT_ERROR);
             detail.setInspectValue("--");
-            detail.setResultMsg("巡检异常");
+            detail.setResultMsg("实时巡检异常：" + e.getMsg());
+            return detail;
+        }
+        if (!JSONUtil.isJson(respBody)) {
+            detail.setInspectState(Web2Const.INSPECT_ERROR);
+            detail.setInspectValue("--");
+            detail.setResultMsg("实时巡检数据格式不正确：" + respBody);
+            return detail;
+        }
+        JSONObject jsonObject = JSONUtil.parseObj(respBody);
+        Object o = jsonObject.get("code");
+        if (!"success".equals(o)) {
+            detail.setInspectState(Web2Const.INSPECT_ERROR);
+            detail.setInspectValue("--");
+            detail.setResultMsg("实时巡检失败：" + jsonObject.get("msg"));
+            return detail;
+        }
+
+        o = jsonObject.get("body");
+        JSONArray objects = JSONUtil.parseArray(o.toString());
+        for (Object object : objects) {
+            CollectExecResp collectExecResp = JSONUtil.toBean(object.toString(), CollectExecResp.class);
+            List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
+            for (CollectExecResult execResult : execRespList) {
+                ReceiveCollectDto result = execResult.getResult();
+                String content = result.getContent();
+                JSONObject obj = JSONUtil.parseObj(content);
+                obj.put("jobId", asset.getJobId());
+                redisService.convertAndSend(execResult.getRedisQueue(), JSONUtil.toJsonStr(obj));
+            }
         }
         return detail;
     }

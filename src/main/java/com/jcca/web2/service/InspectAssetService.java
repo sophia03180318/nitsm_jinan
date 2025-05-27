@@ -1,7 +1,7 @@
 package com.jcca.web2.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jcca.web2.dto.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectAssetAndTarget;
@@ -36,5 +36,5 @@ public interface InspectAssetService extends IService<InspectAsset> {
 
     List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId);
 
-    InspectDetail xunjianCollect(String assetId, String thresholdValue);
+    InspectDetail xunjianCollect(InspectAsset asset);
 }

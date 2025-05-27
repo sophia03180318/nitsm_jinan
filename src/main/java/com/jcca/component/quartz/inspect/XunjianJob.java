@@ -3,7 +3,7 @@ package com.jcca.component.quartz.inspect;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.SpringContextUtil;
-import com.jcca.web2.dto.XunjianJobDto;
+import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.service.XunjianScheduleService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;

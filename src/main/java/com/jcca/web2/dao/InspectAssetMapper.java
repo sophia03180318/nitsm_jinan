@@ -1,7 +1,7 @@
 package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jcca.web2.dto.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.vo.ItemVo;
 import org.apache.ibatis.annotations.Param;

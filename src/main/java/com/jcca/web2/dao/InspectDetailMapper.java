@@ -1,8 +1,8 @@
 package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jcca.web2.dto.InspectAssetDetailInfo;
-import com.jcca.web2.dto.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
 import com.jcca.web2.vo.ItemVo;

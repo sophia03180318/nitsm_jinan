@@ -1,7 +1,10 @@
 package com.jcca.web2.constant;
 
+import com.jcca.web2.entity.InspectDetail;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author HanHW
@@ -57,4 +60,6 @@ public interface Web2Const {
     // 采集指标表达式 时间间隔
     String TARGET_INTERVAL = "INTERVAL";
 
+    // 巡检实时采集队列
+    LinkedBlockingQueue<InspectDetail> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
 }

@@ -3,8 +3,7 @@ package com.jcca.common.webssh.websocket;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
-import com.jcca.web2.dto.XunjianWSDto;
-import org.springframework.beans.BeanUtils;
+import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
@@ -33,27 +32,15 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        if (message instanceof TextMessage) {
-            String payload = ((TextMessage) message).getPayload();
-            XunjianWSDto dto = JSONUtil.toBean(payload, XunjianWSDto.class);
-            if (Objects.isNull(dto) || dto.getMsgType() == null) {
-                if (session.isOpen()) {
-                    session.close();
-                }
-                return;
-            }
-            if (dto.getMsgType() == XunjianWSDto.HEART_BEAT.intValue()) {
-                if (XUNJIAN_WEBSOCKET_MAP.get(dto.getUsername()) == null) {
-                    return;
-                }
-                XunjianWSDto sendMsg = new XunjianWSDto();
-                BeanUtils.copyProperties(dto, sendMsg);
-                XunjianWSDto msg = new XunjianWSDto();
-                msg.setName("OK");
-                sendMsg.setMessage(msg);
-                session.sendMessage(new TextMessage(JSONUtil.toJsonStr(sendMsg)));
-            }
-        }
+        String path = Objects.requireNonNull(session.getUri()).getPath();
+        String username = path.substring(path.lastIndexOf("/") + 1);
+        XunjianWSDto sendMsg = new XunjianWSDto();
+        sendMsg.setUsername(username);
+        sendMsg.setMsgType(XunjianWSDto.HEART_BEAT);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setName("OK");
+        sendMsg.setMessage(msg);
+        session.sendMessage(new TextMessage(JSONUtil.toJsonStr(sendMsg)));
     }
 
     @Override
@@ -62,6 +49,9 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
         String username = path.substring(path.lastIndexOf("/") + 1);
         XUNJIAN_WEBSOCKET_MAP.remove(username);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "智能巡检数据传输错误", exception.getMessage());
+        if (session.isOpen()) {
+            session.close();
+        }
     }
 
     @Override
@@ -70,6 +60,9 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
         String username = path.substring(path.lastIndexOf("/") + 1);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "用户断开智能巡检连接", username);
         XUNJIAN_WEBSOCKET_MAP.remove(username);
+        if (session.isOpen()) {
+            session.close();
+        }
     }
 
     @Override
