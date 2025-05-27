@@ -10,6 +10,8 @@ import com.jcca.common.redis.service.RedisService;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.dto.ReceiveCollectDto;
+import com.jcca.dataProcessing.manager.DataProcessManager;
+import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.CollectExecReq;
@@ -48,6 +50,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     private CollectAgent collectAgent;
     @Resource
     private RedisService redisService;
+    @Resource(name = "dataProcessManager")
+    private DataProcessManager dataProcessManager;
 
     @Override
     public List<InspectAsset> getInspectAssets(List<String> assetIds) {
@@ -164,11 +168,16 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             CollectExecResp collectExecResp = JSONUtil.toBean(object.toString(), CollectExecResp.class);
             List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
             for (CollectExecResult execResult : execRespList) {
-                ReceiveCollectDto result = execResult.getResult();
-                String content = result.getContent();
-                JSONObject obj = JSONUtil.parseObj(content);
-                obj.put("jobId", asset.getJobId());
-                redisService.convertAndSend(execResult.getRedisQueue(), JSONUtil.toJsonStr(obj));
+                ReceiveCollectDto dto = execResult.getResult();
+                String content = dto.getContent();
+                IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
+                JSONArray jsonArray = JSONUtil.parseArray(content);
+                for (Object obj : jsonArray) {
+                    JSONObject obj1 = JSONUtil.parseObj(obj.toString());
+                    obj1.put("jobId", asset.getJobId());
+                }
+
+                adapter.dispose(jsonArray);
             }
         }
         return detail;
