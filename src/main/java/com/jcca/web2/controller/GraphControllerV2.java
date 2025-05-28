@@ -875,7 +875,7 @@ public class GraphControllerV2 {
         ArrayList<TopoPortVo> topoPortVos = new ArrayList<>();
         for (Asset asset : assets) {
             String id = asset.getId();
-            if (asset.getAssetMode() == AssetModeConst.ROUTER || asset.getAssetMode() == AssetModeConst.SWITCH) {
+            if (AssetModeConst.ROUTER.equals(asset.getAssetMode()) || AssetModeConst.SWITCH.equals(asset.getAssetMode())) {
                 intefacesServ.getRealTimeData(id).stream().forEach(i -> {
                     TopoPortVo topoPortVo = new TopoPortVo();
                     topoPortVo.setAssetId(id);
