@@ -2,7 +2,6 @@ package com.jcca.web2.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.system.entity.SysOrg;
@@ -290,12 +289,18 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
         try {
             String id = dto.getId();
-            // 设置为正在巡检
+            // 将任务设置为正在巡检
             XunjianSchedule schedule = this.getById(id);
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
             schedule.setLastTime(new Date());
             this.updateById(schedule);
 
+            // 保存巡检记录
+            String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+            schedule.setInspectRecordId(inspectRecordId);
+            this.saveInspectRecord(schedule);
+
+            // 开始巡检采集
             Set<String> assetIdSet = new HashSet<>();
             List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
             for (InspectAsset inspectAsset : assetList) {
@@ -303,26 +308,36 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-                InspectDetail inspectDetail = inspectAssetService.xunjianCollect(inspectAsset);
-                if (!StringUtils.isEmpty(inspectDetail.getInspectState())) {
-                    UpdateWrapper<InspectAsset> update = Wrappers.update();
-                    update.eq("JOB_ID", schedule.getJobId());
-                    update.eq("ASSET_ID", inspectAsset.getAssetId());
-                    update.set("INSPECT_STATE", inspectDetail.getInspectState());
-                    update.set("RESULT_MSG", inspectDetail.getResultMsg());
-                    update.set("INSPECT_VALUE", inspectDetail.getInspectValue());
-                    inspectAssetService.update(update);
-                }
+                inspectAsset.setInspectRecordId(inspectRecordId);
+                inspectAssetService.xunjianCollect(inspectAsset);
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);
-        } finally {
             // 设置为结束巡检
             String id = dto.getId();
             XunjianSchedule schedule = this.getById(id);
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
             this.updateById(schedule);
         }
+    }
+
+    private void saveInspectRecord(XunjianSchedule schedule) {
+        InspectRecord inspectRecord = new InspectRecord();
+        inspectRecord.setId(schedule.getInspectRecordId());
+        inspectRecord.setScheduleId(schedule.getId());
+        inspectRecord.setInspectCode(schedule.getJobId());
+        inspectRecord.setInspectTime(schedule.getLastTime());
+        inspectRecord.setCreator(schedule.getOperator());
+        inspectRecord.setModeName(schedule.getJobName());
+        inspectRecord.setModeType(schedule.getOperator());
+
+        inspectRecord.setAssetId("--");
+        inspectRecord.setAssetName("--");
+        inspectRecord.setAssetIp1("--");
+        inspectRecord.setOrgId("--");
+        inspectRecord.setOrgName("--");
+
+        inspectRecordService.save(inspectRecord);
     }
 
     /**

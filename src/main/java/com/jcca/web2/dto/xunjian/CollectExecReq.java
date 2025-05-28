@@ -17,5 +17,5 @@ public class CollectExecReq {
     /**
      * 巡检任务ID
      */
-    private String jobId;
+    private String inspectRecordId;
 }

@@ -11,14 +11,12 @@ import lombok.Data;
 @Data
 public class XunjianDataDto {
 
-    private String jobId;
+    private String inspectRecordId;
     private String assetId;
     // 巡检指标项 StatusInfoChangeTypeEnum 类中code值
     private String targetItem;
-    // 3正常，4异常  Web2Const
+    // 巡检结果状态 3正常，4异常  Web2Const
     private String inspectState;
-    // 阈值设定值
-    private String thresholdValue;
     // 巡检结果值
     private String inspectValue;
     // 巡检结果描述 相应告警信息

@@ -74,6 +74,8 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
 
     @TableField(value = "CREATOR", fill = FieldFill.INSERT)
     private String creator;
+    @TableField(exist = false)
+    private String inspectRecordId;
 
 
 }

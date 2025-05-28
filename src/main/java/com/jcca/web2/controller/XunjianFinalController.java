@@ -99,9 +99,9 @@ public class XunjianFinalController {
     public ResultVo<Object> recordList() {
         String username = ShiroUtil.getSubject().getUsername();
         QueryWrapper<XunjianSchedule> query = Wrappers.query();
-        query.select("JOB_ID", "JOB_NAME");
+        query.select("JOB_ID", "JOB_NAME", "AUTO_FLAG");
         query.eq("OPERATOR", username);
-        query.groupBy("JOB_ID", "JOB_NAME");
+        query.groupBy("JOB_ID", "JOB_NAME", "AUTO_FLAG");
         query.orderByDesc("JOB_ID");
         List<XunjianSchedule> list = xunjianScheduleService.list(query);
         if (list.isEmpty()) {
@@ -117,6 +117,7 @@ public class XunjianFinalController {
             ItemVo itemVo = new ItemVo();
             itemVo.setId(schedule.getJobId());
             itemVo.setName(schedule.getJobName());
+            itemVo.setFlag(schedule.getAutoFlag() == 1);
             itemVo.setChildren(voList);
             resultList.add(itemVo);
         }

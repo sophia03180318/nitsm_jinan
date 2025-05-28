@@ -8,12 +8,9 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
-import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
-import com.jcca.web2.entity.InspectRecord;
-import com.jcca.web2.entity.XunjianSchedule;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -48,30 +45,24 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
         while (true) {
-            XunjianDataDto asset = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
-
+            XunjianDataDto dto = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            this.send2Web(dto);
         }
     }
 
-    private void begin(XunjianJobDto dto) {
+    private void send2Web(XunjianDataDto dto) {
         // 巡检任务 xunjian_schedule id == inspect_record_schedule_id  job_id == inspect_record_inspect_code
         // 巡检资产 inspect_asset job_id == xunjian_schedule_job_id
         // 巡检记录 inspect_record scheduled_id == xunjian_schedule_id  inspect_code == xunjian_schedule_job_id
         // 巡检明细 inspect_detail inspect_code == inspect_record_id
-        String id = dto.getId();
+        String inspectRecordId = dto.getInspectRecordId();
         String operator = dto.getOperator();
-        String inspectRecordId = MyIdUtil.getId();
-        // 设置为正在巡检
-        XunjianSchedule schedule = xunjianScheduleService.getById(id);
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-        schedule.setLastTime(new Date());
-        xunjianScheduleService.updateById(schedule);
 
         // 巡检设备
         Map<String, Integer> assetStateMap = new HashMap<>();
         Map<String, Integer> targetStateMap = new HashMap<>();
         List<InspectDetail> detailList = new ArrayList<>();
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(dto.getJobId());
         Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
         Map<String, Integer> assetTargetMap = new HashMap<>();
         assetCollect.keySet().forEach(key -> {
@@ -145,9 +136,6 @@ public class XunjianCollectRun implements ApplicationRunner {
             inspectDetailService.saveBatch(detailList);
         }
 
-        // 保存巡检记录
-        schedule.setInspectRecordId(inspectRecordId);
-        this.saveInspectRecord(schedule);
 
         // 设置资产指标为初始状态
         for (InspectAsset asset : assetList) {
@@ -258,24 +246,5 @@ public class XunjianCollectRun implements ApplicationRunner {
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
         this.sendMsg(operator, msgType, jobId, id, name, status, 0);
-    }
-
-    private void saveInspectRecord(XunjianSchedule schedule) {
-        InspectRecord inspectRecord = new InspectRecord();
-        inspectRecord.setId(schedule.getInspectRecordId());
-        inspectRecord.setScheduleId(schedule.getId());
-        inspectRecord.setInspectCode(schedule.getJobId());
-        inspectRecord.setInspectTime(schedule.getLastTime());
-        inspectRecord.setCreator(schedule.getOperator());
-        inspectRecord.setModeName(schedule.getJobName());
-        inspectRecord.setModeType(schedule.getOperator());
-
-        inspectRecord.setAssetId("--");
-        inspectRecord.setAssetName("--");
-        inspectRecord.setAssetIp1("--");
-        inspectRecord.setOrgId("--");
-        inspectRecord.setOrgName("--");
-
-        inspectRecordService.save(inspectRecord);
     }
 }
