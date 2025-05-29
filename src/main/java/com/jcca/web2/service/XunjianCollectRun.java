@@ -8,6 +8,7 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
+import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
@@ -58,7 +59,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
         while (true) {
-            XunjianDataDto dto = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            XunjianDataDto dto = event.getXunjianDataDto();
+            if (dto == null) {
+                TimeUnit.MILLISECONDS.sleep(1000L);
+                continue;
+            }
             InspectRecord record;
             String inspectRecordId = dto.getInspectRecordId();
             if (!inspectRecordMap.containsKey(inspectRecordId)) {
@@ -114,7 +120,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 该指标已巡检数量 <inspectRecordId, <targetItem, 该指标已巡检数量>>
     private final Map<String, Map<String, Integer>> currentCountTargetMap = new ConcurrentHashMap<>();
     // 该指标异常数量 <inspectRecordId, <targetItem, 该指标异常数量>>
-    private final Map<String, Map<String, Integer>> currentTargetMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Integer>> currentAbnormalTargetMap = new ConcurrentHashMap<>();
+    // 该指标正常数量 <inspectRecordId, <targetItem, 该指标正常数量>>
+    private final Map<String, Map<String, Integer>> currentNormalTargetMap = new ConcurrentHashMap<>();
     // 资产状态 <inspectRecordId, <assetId, 资产状态>>
     private final Map<String, Map<String, Integer>> assetStateMap = new ConcurrentHashMap<>();
     // 指标状态 <inspectRecordId, <assetId, 指标状态>>
@@ -174,11 +182,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         // 已巡检指标数量
         targetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
         Map<String, Integer> tstateMap = targetStateMap.get(inspectRecordId);
-        tstateMap.put(targetItem, Integer.parseInt(Web2Const.INSPECTED));
-        Set<String> keySet2 = tstateMap.keySet();
-        for (String key : keySet2) {
-            if (targetItem.equals(key) && Integer.parseInt(targetState) > tstateMap.get(key)) {
-                tstateMap.put(key, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        if (tstateMap.get(targetItem) == null) {
+            tstateMap.put(targetItem, Integer.parseInt(targetState));
+            targetStateMap.put(inspectRecordId, tstateMap);
+        } else {
+            if (Integer.parseInt(targetState) > tstateMap.get(targetItem)) {
+                tstateMap.put(targetItem, Integer.parseInt(targetState));
                 targetStateMap.put(inspectRecordId, tstateMap);
             }
         }
@@ -190,12 +199,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             abnormal++;
             targetAbnormalMap.put(inspectRecordId, abnormal);
-            if (currentTargetMap.get(inspectRecordId) == null) {
+            if (currentAbnormalTargetMap.get(inspectRecordId) == null) {
                 Map<String, Integer> hashMap = new HashMap<>();
                 hashMap.put(targetItem, 1);
-                currentTargetMap.put(inspectRecordId, hashMap);
+                currentAbnormalTargetMap.put(inspectRecordId, hashMap);
             } else {
-                Map<String, Integer> map = currentTargetMap.get(inspectRecordId);
+                Map<String, Integer> map = currentAbnormalTargetMap.get(inspectRecordId);
                 Integer i = map.get(targetItem);
                 if (i == null) {
                     i = 1;
@@ -203,14 +212,34 @@ public class XunjianCollectRun implements ApplicationRunner {
                     i++;
                 }
                 map.put(targetItem, i);
-                currentTargetMap.put(inspectRecordId, map);
+                currentAbnormalTargetMap.put(inspectRecordId, map);
+            }
+            Integer ab = 0, a = 0;
+            if (currentAbnormalTargetMap.get(inspectRecordId) != null && currentAbnormalTargetMap.get(inspectRecordId).get(targetItem) != null) {
+                ab = currentAbnormalTargetMap.get(inspectRecordId).get(targetItem);
+            }
+            if (currentNormalTargetMap.get(inspectRecordId) != null && currentNormalTargetMap.get(inspectRecordId).get(targetItem) != null) {
+                a = currentNormalTargetMap.get(inspectRecordId).get(targetItem);
             }
 
-            this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, targetNameMap.get(inspectRecordId).get(targetItem),
-                    targetStateMap.get(inspectRecordId).get(targetItem), currentTargetMap.get(inspectRecordId).get(targetItem)); // 指标状态
+            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, a, ab); // 某类指标状态
         } else {
             normal++;
             targetNormalMap.put(inspectRecordId, normal);
+            Map<String, Integer> map = currentNormalTargetMap.get(inspectRecordId);
+            if (map == null) {
+                map = new HashMap<>();
+                map.put(targetItem, 1);
+                currentNormalTargetMap.put(inspectRecordId, map);
+            }
+            Integer i = map.get(targetItem);
+            if (i == null) {
+                i = 1;
+            } else {
+                i++;
+            }
+            map.put(targetItem, i);
+            currentNormalTargetMap.put(inspectRecordId, map);
         }
 
         // 某类指标巡检完成
@@ -231,8 +260,15 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         if (totalTargetMap.get(inspectRecordId).get(targetItem).intValue() == currentCountTargetMap.get(inspectRecordId).get(targetItem)) {
-            this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, targetNameMap.get(inspectRecordId).get(targetItem),
-                    Integer.parseInt(targetState), targetMap.get(targetItem));
+            Integer ab = 0, a = 0;
+            if (currentAbnormalTargetMap.get(inspectRecordId) != null && currentAbnormalTargetMap.get(inspectRecordId).get(targetItem) != null) {
+                ab = currentAbnormalTargetMap.get(inspectRecordId).get(targetItem);
+            }
+            if (currentNormalTargetMap.get(inspectRecordId) != null && currentNormalTargetMap.get(inspectRecordId).get(targetItem) != null) {
+                a = currentNormalTargetMap.get(inspectRecordId).get(targetItem);
+            }
+
+            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, a, ab); // 某类指标巡检完成
         }
 
         // 设备指标数量和已巡检设备指标数量相同则该设备巡检结束
@@ -302,6 +338,19 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
     }
 
+    private void sendTargetMsg(String operator, Integer msgType, String jobId, String targetItem, int normal, int abnormal) {
+        XunjianWSDto wsDto = new XunjianWSDto();
+        wsDto.setUsername(operator);
+        wsDto.setMsgType(msgType);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setJobId(jobId);
+        msg.setId(targetItem);
+        msg.setNormal(normal);
+        msg.setAbnormal(abnormal);
+        wsDto.setMessage(msg);
+        this.send(wsDto);
+    }
+
     private void clearMap(String inspectRecordId) {
         inspectAssetMap.clear();
         inspectRecordMap.clear();
@@ -315,7 +364,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         totalTargetMap.remove(inspectRecordId);
         assetTargetCountMap.remove(inspectRecordId);
         targetNormalMap.remove(inspectRecordId);
-        currentTargetMap.remove(inspectRecordId);
+        currentAbnormalTargetMap.remove(inspectRecordId);
         assetStateMap.remove(inspectRecordId);
         targetStateMap.remove(inspectRecordId);
     }
