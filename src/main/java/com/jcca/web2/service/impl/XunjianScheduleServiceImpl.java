@@ -309,7 +309,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
                 inspectAsset.setInspectRecordId(inspectRecordId);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检资产开始：" + inspectAsset.getAssetIp1(), DateUtil.formatDateTime(new Date()));
                 inspectAssetService.xunjianCollect(inspectAsset);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检资产结束：" + inspectAsset.getAssetIp1(), DateUtil.formatDateTime(new Date()));
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);

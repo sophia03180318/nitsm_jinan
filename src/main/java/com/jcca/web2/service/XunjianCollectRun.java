@@ -87,7 +87,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检向前端发送数据异常", dto);
             }
 
-            TimeUnit.SECONDS.sleep(1L);
+            TimeUnit.MILLISECONDS.sleep(500L);
         }
     }
 
@@ -186,9 +186,24 @@ public class XunjianCollectRun implements ApplicationRunner {
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             abnormal++;
             targetAbnormalMap.put(inspectRecordId, abnormal);
+            if (currentTargetMap.get(inspectRecordId) == null) {
+                Map<String, Integer> hashMap = new HashMap<>();
+                hashMap.put(targetItem, 1);
+                currentTargetMap.put(inspectRecordId, hashMap);
+            } else {
+                Map<String, Integer> map = currentTargetMap.get(inspectRecordId);
+                Integer i = map.get(targetItem);
+                if (i == null) {
+                    i = 1;
+                } else {
+                    i++;
+                }
+                map.put(targetItem, i);
+                currentTargetMap.put(inspectRecordId, map);
+            }
 
             this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, targetNameMap.get(inspectRecordId).get(targetItem),
-                    targetStateMap.get(inspectRecordId).get(targetItem), targetAbnormalMap.get(targetItem)); // 指标状态
+                    targetStateMap.get(inspectRecordId).get(targetItem), currentTargetMap.get(inspectRecordId).get(targetItem)); // 指标状态
         } else {
             normal++;
             targetNormalMap.put(inspectRecordId, normal);
