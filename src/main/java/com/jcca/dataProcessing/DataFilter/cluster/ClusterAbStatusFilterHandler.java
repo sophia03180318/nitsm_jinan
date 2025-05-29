@@ -33,7 +33,7 @@ public class ClusterAbStatusFilterHandler extends IFilterHandler<CollectClusterE
         String mapKey1 = StatusInfoChangeTypeEnum.status_clusterABState.getCode();
 
 
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getServerName());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getServerName());
         if(flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getServerName());

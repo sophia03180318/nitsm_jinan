@@ -42,9 +42,9 @@ public class RaidStorageBaseInfoFilterHandler extends IFilterHandler<DiskEntity>
                 freeCapacity = AppMathUtil.sub(totalCapacity, usedCapacity);
             }
 
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, totalCapacity);
-            boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, usedCapacity);
-            boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, freeCapacity);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, totalCapacity);
+            boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, usedCapacity);
+            boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, freeCapacity);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(totalCapacity);

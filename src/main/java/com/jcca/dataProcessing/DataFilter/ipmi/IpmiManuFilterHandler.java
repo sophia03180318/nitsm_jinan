@@ -34,7 +34,7 @@ public class IpmiManuFilterHandler extends IFilterHandler<CollectSensorEntity> {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "ipmiManuFilterHandler", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_ipmi_manu.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_ipmi_manuName.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getValue());

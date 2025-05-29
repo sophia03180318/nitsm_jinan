@@ -31,7 +31,7 @@ public class CommonVersionFilterHandler extends IFilterHandler<ItsmQueueEntity> 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softVersion.getCode();
         String mapKey = info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag();
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getNowVersion());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getNowVersion());
         if (flag == null || flag == true) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getNowVersion());

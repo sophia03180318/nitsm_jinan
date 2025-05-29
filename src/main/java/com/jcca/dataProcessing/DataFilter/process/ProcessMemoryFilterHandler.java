@@ -43,7 +43,7 @@ public class ProcessMemoryFilterHandler extends IFilterHandler<CollectProcessEnt
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode()+":"+info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_process_mem.getCode();
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getMemoryRate());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getMemoryRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getMemoryRate());
         changeInfo.setRedisKey(redisKey);
@@ -66,7 +66,7 @@ public class ProcessMemoryFilterHandler extends IFilterHandler<CollectProcessEnt
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
         }

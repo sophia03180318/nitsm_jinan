@@ -31,7 +31,7 @@ public class CommonWorkStateFilterHandler extends IFilterHandler<ItsmQueueEntity
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_soft.getCode();
         String mapKey = info.getIdStr();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getAlarmState());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getAlarmState());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getAlarmState());

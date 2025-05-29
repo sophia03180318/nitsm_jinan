@@ -50,7 +50,7 @@ public class DiskStageSectionFilterHandler extends IFilterHandler<CollectDiskEnt
         }
 
         String thresholdValue = threshold.getMaxValue() + "_" + threshold.getMinValue();
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, thresholdValue);
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, thresholdValue);
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, thresholdValue, info);
         }

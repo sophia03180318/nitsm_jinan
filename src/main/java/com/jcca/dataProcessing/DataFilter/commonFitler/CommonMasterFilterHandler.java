@@ -39,7 +39,7 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
             return false;
         }
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getHostType());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getHostType());
         if (flag == null || flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getHostType());

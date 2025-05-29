@@ -43,7 +43,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         if (StrUtil.isEmpty(info.getLinkStatus())) {
             return false;
         }
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getLinkStatus());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getLinkStatus());
 
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getLinkStatus());

@@ -49,7 +49,7 @@ public class DiskStageThreeFilterHandler extends IFilterHandler<CollectDiskEntit
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getThreeLevelValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getThreeLevelValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
         }

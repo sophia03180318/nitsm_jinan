@@ -48,7 +48,7 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
             boolean compare = info.getProcessStatus();
             String mapKey = info.getProcessName();
 
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, compare);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, compare);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(compare);

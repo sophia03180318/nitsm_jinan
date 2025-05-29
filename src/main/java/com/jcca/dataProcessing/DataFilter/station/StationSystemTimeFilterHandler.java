@@ -40,7 +40,7 @@ public class StationSystemTimeFilterHandler extends IFilterHandler<CollectStatio
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_time_deviation.getCode();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getTimeSpan());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getTimeSpan());
         Long timeSpan = info.getTimeSpan();
         Long timeLong = new BigDecimal(timeSpan).divide(new BigDecimal(1000), 0, BigDecimal.ROUND_HALF_UP).abs().longValue();
         ChangeInfo changeInfo = new ChangeInfo();
@@ -64,7 +64,7 @@ public class StationSystemTimeFilterHandler extends IFilterHandler<CollectStatio
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
         }

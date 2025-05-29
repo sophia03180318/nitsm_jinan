@@ -38,7 +38,7 @@ public class IpmiTemperatureStatusFilterHandler extends IFilterHandler<CollectSe
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口温度状态过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_temp.getCode() + ":" + info.getName();
         String mapKey1 = StatusInfoChangeTypeEnum.status_tempStatus.getCode();
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getStatus());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getStatus());
         if (flag1) {
             List<String> normalList = Arrays.asList("normal", "1", "0");
             Integer status = normalList.contains(info.getStatus().toLowerCase()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();

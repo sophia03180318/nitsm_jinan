@@ -34,7 +34,7 @@ public class DBAlarmConnectFilterHandler extends IFilterHandler<CollectDBEntity>
         changeInfo.setCollectTime(new Date());
         info.getMaps().put(mapKey, changeInfo);
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
         if (flag) {
             Integer status = Integer.parseInt(changeInfo.getValue().toString()) == 1 ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String eventRedisKey = StatusInfoChangeTypeEnum.event_db_connect.getCode();

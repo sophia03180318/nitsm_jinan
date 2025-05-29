@@ -35,7 +35,7 @@ public class SoftLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softLinkState.getCode();
         String mapKey = info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getIdStr();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getLinkStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getLinkStatus());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getLinkStatus());

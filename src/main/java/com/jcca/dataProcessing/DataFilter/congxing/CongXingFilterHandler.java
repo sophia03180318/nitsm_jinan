@@ -33,7 +33,7 @@ public class CongXingFilterHandler extends IFilterHandler<ItsmQueueEntity> {
         String redisKey = StatusInfoChangeTypeEnum.status_congxing.getCode();
         String mapKey = info.getIdStr();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getCollectValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getCollectValue());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getNowVersion());

@@ -61,7 +61,7 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
             return true;
         }
         String mapKey = StatusInfoChangeTypeEnum.status_time_deviation.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, timeLong);
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, timeLong);
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(timeLong);
         changeInfo.setRedisKey(redisKey);
@@ -84,7 +84,7 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);;
         }

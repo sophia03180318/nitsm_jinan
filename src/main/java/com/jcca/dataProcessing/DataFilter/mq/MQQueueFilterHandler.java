@@ -37,7 +37,7 @@ public class MQQueueFilterHandler extends IFilterHandler<MQMonitorEntity> {
 
         //判断数据是否有变化
         ChangeInfo changeInfo = null;
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getStatus());
         if (flag) {
             changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getStatus());

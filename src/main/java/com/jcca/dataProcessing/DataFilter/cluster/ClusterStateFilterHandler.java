@@ -33,7 +33,7 @@ public class ClusterStateFilterHandler extends IFilterHandler<CollectClusterEnti
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode() + ":" + info.getServerIp();
         String mapKey1 = StatusInfoChangeTypeEnum.status_clusterState.getCode();
 
-        boolean flag1= eventInfoChangeManagerService.infoIschange(redisKey, mapKey1,info.getStatus());
+        boolean flag1= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1,info.getStatus());
         if(flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getStatus());

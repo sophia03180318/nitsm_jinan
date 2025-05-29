@@ -42,7 +42,7 @@ public class StationSystemRunTimeFilterHandler extends IFilterHandler<CollectSta
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_run_time.getCode();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getTimeduration());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getTimeduration());
         BigDecimal collectDay = new BigDecimal(info.getTimeduration()).divide(new BigDecimal(86400), 0, BigDecimal.ROUND_DOWN);
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getTimeduration());
@@ -53,7 +53,7 @@ public class StationSystemRunTimeFilterHandler extends IFilterHandler<CollectSta
         info.getMaps().put(mapKey, changeInfo);
 
         String mapKeyRestart = StatusInfoChangeTypeEnum.status_run_time_restart.getCode();
-        boolean flagRestart = eventInfoChangeManagerService.infoIschange(redisKey, mapKeyRestart, info.getTimeduration());
+        boolean flagRestart = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKeyRestart, info.getTimeduration());
         ChangeInfo changeInfo2 = new ChangeInfo();
         changeInfo2.setValue(info.getTimeduration());
         changeInfo2.setRedisKey(redisKey);
@@ -77,7 +77,7 @@ public class StationSystemRunTimeFilterHandler extends IFilterHandler<CollectSta
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
         }

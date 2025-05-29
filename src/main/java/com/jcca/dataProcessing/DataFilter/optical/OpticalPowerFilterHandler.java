@@ -40,7 +40,7 @@ public class OpticalPowerFilterHandler extends IFilterHandler<OpticalSwitchEntit
         Set<String> fanIndex = pwrStateMap.keySet();
         for (String power : fanIndex) {
             String mapKey = "power" + power;
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, pwrStateMap.get(power));
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, pwrStateMap.get(power));
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(pwrStateMap.get(power));

@@ -39,7 +39,7 @@ public class IpmiFanFilterHandler extends IFilterHandler<CollectSensorEntity> {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口风扇信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_fan.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_fanvalue.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getValue());
@@ -50,7 +50,7 @@ public class IpmiFanFilterHandler extends IFilterHandler<CollectSensorEntity> {
         }
 
         String mapKey1 = StatusInfoChangeTypeEnum.status_fanStatus.getCode();
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getValue());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getValue());
         if (flag1) {
             List<String> normalList = Arrays.asList("normal", "1", "0");
             Integer status = normalList.contains(info.getStatus().toLowerCase()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();

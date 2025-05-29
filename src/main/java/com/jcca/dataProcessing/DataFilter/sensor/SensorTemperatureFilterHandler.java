@@ -41,7 +41,7 @@ public class SensorTemperatureFilterHandler extends IFilterHandler<CollectSensor
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_temp.getCode() + ":" + info.getSerialNumberName();
 
         String mapKey1 = StatusInfoChangeTypeEnum.status_tempStatus.getCode();
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getStatus());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getStatus());
         if (flag1) {
             ChangeInfo changeInfo1 = new ChangeInfo();
             changeInfo1.setValue(info.getStatus());
@@ -93,7 +93,7 @@ public class SensorTemperatureFilterHandler extends IFilterHandler<CollectSensor
             }
             return true;
         }
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
         }

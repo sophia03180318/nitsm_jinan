@@ -29,7 +29,7 @@ public class DBConnectFilterHandler extends IFilterHandler<CollectDBEntity> {
     public boolean handler(CollectDBEntity info) {
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_db_state.getCode());
 
-        boolean flag= eventInfoChangeManagerService.infoIschange(changeInfo.getRedisKey(), changeInfo.getMapKey(),changeInfo.getValue());
+        boolean flag= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),changeInfo.getRedisKey(), changeInfo.getMapKey(),changeInfo.getValue());
         if(flag){
             Integer status = changeInfo.getValue().toString().toLowerCase().equals("open") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String eventRedisKey = StatusInfoChangeTypeEnum.event_db_connect.getCode();

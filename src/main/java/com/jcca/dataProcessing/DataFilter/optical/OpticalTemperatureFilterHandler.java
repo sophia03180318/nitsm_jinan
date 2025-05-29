@@ -47,7 +47,7 @@ public class OpticalTemperatureFilterHandler extends IFilterHandler<OpticalSwitc
         for (String key : keyList) {
             String value = temperatureMap.get(key);
             String mapKey = "temperature" + key;
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, value);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, value);
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(value);
             changeInfo.setRedisKey(redisKey);
@@ -69,7 +69,7 @@ public class OpticalTemperatureFilterHandler extends IFilterHandler<OpticalSwitc
                 continue;
             }
 
-            boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+            boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
             if (thresholdFlag) {
                 this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
             }

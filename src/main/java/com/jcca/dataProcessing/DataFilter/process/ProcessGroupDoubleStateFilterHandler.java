@@ -54,7 +54,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
             String mapKey = info.getProcessName() + "_all_down";
             Boolean processStatus = info.getProcessStatus();
             //组进程全部掉线事件Flag 全部掉线则value为true 否则为false
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, normalAsset.isEmpty());
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, normalAsset.isEmpty());
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(normalAsset.isEmpty());
@@ -83,7 +83,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
             String mapKey2 = info.getProcessName() + "_other_down_" + info.getProcessName();
             //组进程部分掉线事件 Flag errorAsset 有值则是异常 无值则是正常 部分掉线则value为true 否则为false
-            boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, info.getProcessStatus());
+            boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, info.getProcessStatus());
             if (flag1 && !normalAsset.isEmpty()) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(info.getProcessStatus());

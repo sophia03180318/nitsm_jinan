@@ -23,6 +23,9 @@ public class SaveFilterHandler extends IFilterHandler<CommonEntity> {
     @Override
     public boolean handler(CommonEntity info) {
         dataChangeMangerService.saveInfo(info.getMaps());
+//        if(){
+//            this.dispatureEvent();
+//        }
         return true;
     }
 

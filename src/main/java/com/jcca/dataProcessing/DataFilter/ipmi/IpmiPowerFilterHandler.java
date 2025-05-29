@@ -40,7 +40,7 @@ public class IpmiPowerFilterHandler extends IFilterHandler<CollectSensorEntity> 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_power.getCode();
         String mapKey = info.getName();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue());
         if (flag) {
             List<String> normalList = Arrays.asList("normal", "1", "0");
             Integer status = normalList.contains(info.getStatus().toLowerCase()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();

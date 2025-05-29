@@ -22,7 +22,7 @@ public interface IEventInfoManagerService {
      * @param changeValue
      * @return
      */
-    public boolean infoIschange(String redisKey, String mapKey, Object changeValue);
+    public boolean infoIschange(String inspectRecordId,String redisKey, String mapKey, Object changeValue);
 
     /**
      * 判断信息是否有变动(此方法返回3中状态：null代表第一次，有变动，无变动)
@@ -32,7 +32,7 @@ public interface IEventInfoManagerService {
      * @param changeValue
      * @return
      */
-    public Boolean infoIschangeFirst(String redisKey, String mapKey, Object changeValue);
+    public Boolean infoIschangeFirst(String inspectRecordId,String redisKey, String mapKey, Object changeValue);
 
     /**
      * 通过rediskey的信息，清除缓存

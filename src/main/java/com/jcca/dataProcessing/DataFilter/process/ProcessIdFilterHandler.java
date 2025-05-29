@@ -35,7 +35,7 @@ public class ProcessIdFilterHandler extends IFilterHandler<CollectProcessEntity>
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_process_id.getCode();
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getProcessId());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getProcessId());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getProcessId());

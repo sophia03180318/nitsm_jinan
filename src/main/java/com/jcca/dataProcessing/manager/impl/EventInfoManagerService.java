@@ -33,7 +33,11 @@ public class EventInfoManagerService implements IEventInfoManagerService {
 
 
     @Override
-    public boolean infoIschange(String redisKey, String mapKey, Object changeValue) {
+    public boolean infoIschange(String inspectRecordId,String redisKey, String mapKey, Object changeValue) {
+        //判断是否是巡检过来的数据
+        if(inspectRecordId!=null&&!"".equals(inspectRecordId)){
+            return true;
+        }
         Object obj = redisService.hmGet(redisKey, mapKey);
         if (obj == null) {
             return true;
@@ -43,7 +47,11 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public synchronized Boolean infoIschangeFirst(String redisKey, String mapKey, Object changeValue) {
+    public synchronized Boolean infoIschangeFirst(String inspectRecordId,String redisKey, String mapKey, Object changeValue) {
+        //判断是否是巡检过来的数据
+        if(inspectRecordId!=null&&!"".equals(inspectRecordId)){
+            return true;
+        }
         Object obj = redisService.hmGet(redisKey, mapKey);
         if (obj == null) {
             return null;

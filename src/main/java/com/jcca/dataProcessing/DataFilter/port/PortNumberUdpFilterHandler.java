@@ -49,7 +49,7 @@ public class PortNumberUdpFilterHandler extends IFilterHandler<CollectPortUsedNu
         String maxPort=udpPortList.get(0);
 
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, portNum);
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, portNum);
         if(flag){
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(portNum);
@@ -59,7 +59,7 @@ public class PortNumberUdpFilterHandler extends IFilterHandler<CollectPortUsedNu
             info.getMaps().put(mapKey1, changeInfo);
         }
 
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, maxPort);
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, maxPort);
         if (flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(maxPort);

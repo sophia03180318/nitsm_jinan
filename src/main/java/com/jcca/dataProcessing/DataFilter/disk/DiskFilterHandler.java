@@ -45,7 +45,7 @@ public class DiskFilterHandler extends IFilterHandler<CollectDiskEntity> {
         }
 
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getUsedRate());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getUsedRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getUsedRate());
         changeInfo.setIsChange(flag);
@@ -69,7 +69,7 @@ public class DiskFilterHandler extends IFilterHandler<CollectDiskEntity> {
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             ChangeInfo changeThresholdInfo = new ChangeInfo();
             changeThresholdInfo.setValue(threshold.getBaseValue());

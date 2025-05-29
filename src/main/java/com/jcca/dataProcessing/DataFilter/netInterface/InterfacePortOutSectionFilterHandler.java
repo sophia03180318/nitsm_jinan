@@ -50,7 +50,7 @@ public class InterfacePortOutSectionFilterHandler extends IFilterHandler<Collect
         }
 
         String sectionValue = threshold.getMaxValue() + "_" + threshold.getMinValue();
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, sectionValue);
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, sectionValue);
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, sectionValue, info);
         }

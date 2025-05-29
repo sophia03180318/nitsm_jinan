@@ -35,7 +35,7 @@ public class ClusterNodeStatusFilterHandler extends IFilterHandler<CollectCluste
         String mapKey=StatusInfoChangeTypeEnum.status_clusterMasterState.getCode();
 
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getServerRole());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getServerRole());
         if(flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getServerRole());

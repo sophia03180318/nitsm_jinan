@@ -66,7 +66,7 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
             }
         }
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getStatus());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getStatus());
 
         if (Objects.isNull(flag) && status.equals(EventLevelEnum.ABNORMAL.getCode())) {
             return true;

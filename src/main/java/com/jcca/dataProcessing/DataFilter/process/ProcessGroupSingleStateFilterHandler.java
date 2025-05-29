@@ -55,7 +55,7 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_process_status.getCode();
             String mapKey = info.getProcessName();
 
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, status);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, status);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(status);

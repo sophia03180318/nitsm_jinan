@@ -66,7 +66,7 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_process_status.getCode();
             String mapKey = info.getProcessName() + "_processChange";
             Boolean processStatus = info.getProcessStatus();
-            Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, processStatus);
+            Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, processStatus);
             AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_CHANGE, info.getProcessName()+info.getAssetIp() + "进程切换告警处理判定", flag);
             if (flag == null || flag) {
                 ChangeInfo changeInfo = new ChangeInfo();

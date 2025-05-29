@@ -40,7 +40,7 @@ public class OpticalFanFilterHandler extends IFilterHandler<OpticalSwitchEntity>
         Set<String> fanIndex = fanStateMap.keySet();
         for (String fan : fanIndex) {
             String mapKey = "FAN" + fan;
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, fanStateMap.get(fan));
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, fanStateMap.get(fan));
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(fanStateMap.get(fan));

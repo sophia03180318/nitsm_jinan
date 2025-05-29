@@ -39,7 +39,7 @@ public class CpuFilterHandler extends IFilterHandler<CollectCpuEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_CPUState.getCode();
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getCpuUsedRate());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getCpuUsedRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getCpuUsedRate());
         changeInfo.setRedisKey(redisKey);
@@ -64,7 +64,7 @@ public class CpuFilterHandler extends IFilterHandler<CollectCpuEntity> {
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
         }

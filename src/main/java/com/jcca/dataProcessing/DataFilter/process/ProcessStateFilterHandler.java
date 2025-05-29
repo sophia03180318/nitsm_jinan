@@ -37,7 +37,7 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
         }
         //只走车站的进程状态判断
         String mapKey = StatusInfoChangeTypeEnum.status_process_status.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, entity.getStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(entity.getInspectRecordId(),redisKey, mapKey, entity.getStatus());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(entity.getStatus());

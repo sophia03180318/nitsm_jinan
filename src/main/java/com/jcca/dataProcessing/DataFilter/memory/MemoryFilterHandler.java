@@ -45,7 +45,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
             info.setMemRate(usedRate.doubleValue());
         }
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getMemRate());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getMemRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getMemRate());
         changeInfo.setIsChange(flag);
@@ -70,7 +70,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
         }
 
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             ChangeInfo changeThresholdInfo = new ChangeInfo();
             changeThresholdInfo.setValue(threshold.getBaseValue());
