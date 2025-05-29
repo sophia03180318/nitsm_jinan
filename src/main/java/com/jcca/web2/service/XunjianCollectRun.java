@@ -317,6 +317,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         targetNormalMap.remove(inspectRecordId);
         currentTargetMap.remove(inspectRecordId);
         assetStateMap.remove(inspectRecordId);
+        targetStateMap.remove(inspectRecordId);
     }
 
     private synchronized void send(XunjianWSDto wsDto) {
