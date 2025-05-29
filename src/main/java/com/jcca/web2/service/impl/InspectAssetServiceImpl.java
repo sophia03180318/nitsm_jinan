@@ -134,7 +134,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             CollectExecReq req = new CollectExecReq();
             req.setInspectRecordId(asset.getInspectRecordId());
             req.setAssetId(assetId);
-            respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 15000);
+            respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 60000);
         } catch (CollectAgencyException e) {
             this.send2Queue(asset, "实时巡检异常：" + e.getMsg());
             return;

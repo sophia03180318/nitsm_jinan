@@ -216,13 +216,8 @@ public class XunjianCollectRun implements ApplicationRunner {
                     Integer.parseInt(targetState), targetMap.get(targetItem));
         }
 
-        // 巡检总进度
-        Integer totalTarget = targetTotalMap.get(inspectRecordId);
-        Integer countTarget = currentTargetCountMap.get(inspectRecordId);
-        BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-        this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
-
         // 设备指标数量和已巡检设备指标数量相同则该设备巡检结束
+        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, Integer.parseInt(targetState)); // 当前巡检设备
         currentAssetTargetMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
         Integer currentSize = currentAssetTargetMap.get(inspectRecordId).get(assetId);
         if (currentSize == null) {
@@ -235,10 +230,15 @@ public class XunjianCollectRun implements ApplicationRunner {
             this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, astateMap.get(assetId)); // 资产巡检完成
         }
 
-        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, Integer.parseInt(targetState)); // 当前巡检设备
         int i1 = targetNormalMap.get(inspectRecordId) == null ? 0 : targetNormalMap.get(inspectRecordId);
         int i2 = targetAbnormalMap.get(inspectRecordId) == null ? 0 : targetAbnormalMap.get(inspectRecordId);
         this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, jobId, i1, i2); // 指标统计
+
+        // 巡检总进度
+        Integer totalTarget = targetTotalMap.get(inspectRecordId);
+        Integer countTarget = currentTargetCountMap.get(inspectRecordId);
+        BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+        this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
 
         // 已巡检指标数量和指标总数量相同则全部巡检结束
         if (targetTotalMap.get(inspectRecordId).intValue() == currentTargetCountMap.get(inspectRecordId)) {
@@ -255,6 +255,9 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             // 清空内存
             this.clearMap(inspectRecordId);
+
+            normal = 0;
+            abnormal = 0;
         }
 
         // 设置资产指标为巡检完成状态

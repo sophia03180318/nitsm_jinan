@@ -35,7 +35,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
     @Override
     public boolean handler(ItsmQueueEntity info) {
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "casco软件连接过滤处理类", info.getAssetIp());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "casco软件连接过滤处理类", info);
 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softLinkState.getCode();
         String mapKey = info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
