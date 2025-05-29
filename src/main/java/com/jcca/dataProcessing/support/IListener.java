@@ -1,5 +1,5 @@
 package com.jcca.dataProcessing.support;
 
 public interface IListener<T> {
-    void onEvent(T event);
+    void onEvent(T event) throws Exception;
 }

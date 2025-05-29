@@ -41,6 +41,8 @@ public class DataProcessManager {
     private IListener eventInfoListener;
     private IListener alarmListener;
 
+    private IListener xunjianEventInfoListener;
+
     private Map<String, IAdapter> adapters;
     private IFilterHandler aixSystemMsgHandler;
     private IFilterHandler collectCluster;
@@ -104,6 +106,8 @@ public class DataProcessManager {
     private IFilterHandler mqHandler;
     private IFilterHandler eventInfoHandler;
     private IFilterHandler alarmInfoHandler;
+
+    private IFilterHandler eventXunjianHandler;
     private IFilterHandler customHandler;
 
 
@@ -210,6 +214,10 @@ public class DataProcessManager {
         //初始化监听事件
         eventInfoListener = this.getListener("eventInfoListener");
         alarmListener = this.getListener("alarmListener");
+        xunjianEventInfoListener=this.getListener("xunjianEventInfoListener");
+        //将监听添加到saveFilterHandler中
+        IFilterHandler xunjian = this.getIFilterHandler("saveFilterHandler");
+        xunjian.addDataSourceListener(xunjianEventInfoListener);
 
         List<String> cpuHandlerList = Arrays.asList(
                 //数据库保存filterHandler
@@ -878,7 +886,10 @@ public class DataProcessManager {
         alarmFilterHandler.setNextFilter(alarmEventHandler);
         alarmInfoHandler=alarmFilterHandler;
 
+        //---------------以下为巡检处理程序--------------------------------------------------------------------
 
+        IFilterHandler xunjianFilterHandler = this.getIFilterHandler("eventXunjianHandler");
+        eventXunjianHandler=xunjianFilterHandler;
     }
 
 
@@ -1188,6 +1199,11 @@ public class DataProcessManager {
 
     public void alarmInfoHandlerRequest(IEvent info) throws Exception {
         alarmInfoHandler.handleRequest(info, true);
+
+    }
+
+    public void xunjianInfoHandlerRequest(XunjianEvent info) throws Exception {
+        eventXunjianHandler.handleRequest(info, true);
 
     }
 
