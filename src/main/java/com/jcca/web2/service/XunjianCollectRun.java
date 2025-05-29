@@ -8,6 +8,7 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
+import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
@@ -58,7 +59,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
         while (true) {
-            XunjianDataDto dto = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            XunjianDataDto dto = event.getXunjianDataDto();
+            if (dto == null) {
+                TimeUnit.MILLISECONDS.sleep(1000L);
+                continue;
+            }
             InspectRecord record;
             String inspectRecordId = dto.getInspectRecordId();
             if (!inspectRecordMap.containsKey(inspectRecordId)) {
@@ -174,11 +180,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         // 已巡检指标数量
         targetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
         Map<String, Integer> tstateMap = targetStateMap.get(inspectRecordId);
-        tstateMap.put(targetItem, Integer.parseInt(Web2Const.INSPECTED));
-        Set<String> keySet2 = tstateMap.keySet();
-        for (String key : keySet2) {
-            if (targetItem.equals(key) && Integer.parseInt(targetState) > tstateMap.get(key)) {
-                tstateMap.put(key, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        if (tstateMap.get(targetItem) == null) {
+            tstateMap.put(targetItem, Integer.parseInt(targetState));
+            targetStateMap.put(inspectRecordId, tstateMap);
+        } else {
+            if (Integer.parseInt(targetState) > tstateMap.get(targetItem)) {
+                tstateMap.put(targetItem, Integer.parseInt(targetState));
                 targetStateMap.put(inspectRecordId, tstateMap);
             }
         }
@@ -205,9 +212,12 @@ public class XunjianCollectRun implements ApplicationRunner {
                 map.put(targetItem, i);
                 currentTargetMap.put(inspectRecordId, map);
             }
-
-            this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, targetNameMap.get(inspectRecordId).get(targetItem),
-                    targetStateMap.get(inspectRecordId).get(targetItem), currentTargetMap.get(inspectRecordId).get(targetItem)); // 指标状态
+            Integer l = totalTargetMap.get(inspectRecordId).get(targetItem).intValue();
+            Integer ab = 0;
+            if (currentTargetMap.get(inspectRecordId) != null && currentTargetMap.get(inspectRecordId).get(targetItem) != null) {
+                ab = currentTargetMap.get(inspectRecordId).get(targetItem);
+            }
+            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, (l - ab), ab); // 某类指标状态
         } else {
             normal++;
             targetNormalMap.put(inspectRecordId, normal);
@@ -231,8 +241,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         if (totalTargetMap.get(inspectRecordId).get(targetItem).intValue() == currentCountTargetMap.get(inspectRecordId).get(targetItem)) {
-            this.sendMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, targetNameMap.get(inspectRecordId).get(targetItem),
-                    Integer.parseInt(targetState), targetMap.get(targetItem));
+            Integer l = totalTargetMap.get(inspectRecordId).get(targetItem).intValue();
+            Integer ab = 0;
+            if (currentTargetMap.get(inspectRecordId) != null && currentTargetMap.get(inspectRecordId).get(targetItem) != null) {
+                ab = currentTargetMap.get(inspectRecordId).get(targetItem);
+            }
+            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, (l - ab), ab);// 某类指标巡检完成
         }
 
         // 设备指标数量和已巡检设备指标数量相同则该设备巡检结束
@@ -300,6 +314,19 @@ public class XunjianCollectRun implements ApplicationRunner {
             inspectDetail.setResultMsg(dto.getResultMsg());
             inspectDetailService.save(inspectDetail);
         }
+    }
+
+    private void sendTargetMsg(String operator, Integer msgType, String jobId, String targetItem, int normal, int abnormal) {
+        XunjianWSDto wsDto = new XunjianWSDto();
+        wsDto.setUsername(operator);
+        wsDto.setMsgType(msgType);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setJobId(jobId);
+        msg.setId(targetItem);
+        msg.setNormal(normal);
+        msg.setAbnormal(abnormal);
+        wsDto.setMessage(msg);
+        this.send(wsDto);
     }
 
     private void clearMap(String inspectRecordId) {

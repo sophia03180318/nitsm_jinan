@@ -4,6 +4,7 @@ import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.EventAlarmLevelBaseEntity;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.web.event.enums.EventLevelEnum;
+import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import lombok.Data;
 
 import java.util.Date;
@@ -48,7 +49,13 @@ public class IEvent {
      * 模板参数
      */
     private AlarmTempReq alarmTempReq;
+    /**
+     * 巡检数据
+     */
+    private XunjianDataDto xunjianDataDto;
 
+    public IEvent() {
+    }
 
     public IEvent(String assetId, ChangeInfo info, String redisKey, String mapKey, Integer status) {
         this.info = info;
