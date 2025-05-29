@@ -138,6 +138,15 @@ public class XunjianCollectRun implements ApplicationRunner {
             List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
             inspectAssetMap.put(inspectRecordId, assetList);
 
+            targetNameMap.put(inspectRecordId, new HashMap<>());
+            for (InspectAsset asset : assetList) {
+                targetNameMap.get(inspectRecordId).putIfAbsent(asset.getTargetItem(), asset.getTargetName());
+            }
+            Set<String> set = targetNameMap.get(inspectRecordId).keySet();
+            if (!set.contains(targetItem)) {
+                return;
+            }
+
             Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
             assetTotalMap.put(inspectRecordId, assetCollect.size());
             targetTotalMap.put(inspectRecordId, assetList.size());
@@ -147,11 +156,6 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getTargetItem, Collectors.counting()));
             totalTargetMap.put(inspectRecordId, collect);
-
-            targetNameMap.put(inspectRecordId, new HashMap<>());
-            for (InspectAsset asset : assetList) {
-                targetNameMap.get(inspectRecordId).putIfAbsent(asset.getTargetItem(), asset.getTargetName());
-            }
         }
 
         // 资产状态
