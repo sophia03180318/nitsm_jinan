@@ -152,17 +152,19 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         }
 
         o = jsonObject.get("body");
-        JSONArray objects = JSONUtil.parseArray(o.toString());
-        for (Object object : objects) {
-            CollectExecResp collectExecResp = JSONUtil.toBean(object.toString(), CollectExecResp.class);
-            List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
-            for (CollectExecResult execResult : execRespList) {
-                ReceiveCollectDto dto = execResult.getResult();
-                String content = dto.getContent();
-                IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
-                JSONArray jsonArray = JSONUtil.parseArray(content);
-                adapter.dispose(jsonArray);
+        JSONObject body = JSONUtil.parseObj(o.toString());
+        CollectExecResp collectExecResp = JSONUtil.toBean(body.toString(), CollectExecResp.class);
+        List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
+        for (CollectExecResult execResult : execRespList) {
+            Integer code = execResult.getCode();
+            if (code != 1) {
+                continue;
             }
+            ReceiveCollectDto dto = execResult.getResult();
+            String content = dto.getContent();
+            IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
+            JSONArray jsonArray = JSONUtil.parseArray(content);
+            adapter.dispose(jsonArray);
         }
     }
 

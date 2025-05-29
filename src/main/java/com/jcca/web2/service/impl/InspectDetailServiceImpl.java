@@ -168,7 +168,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId) {
         List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId);
         QueryWrapper<AlarmInfo> query = Wrappers.query();
-        query.select("TITLE", "OCCUR_TIME");
+        query.select("ID", "TITLE", "OCCUR_TIME");
         query.eq("STATUS", 1);
         query.eq("INSPECT_RECORD_ID", inspectCode);
         query.eq("ASSET_ID", assetId);
