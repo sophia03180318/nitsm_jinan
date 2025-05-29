@@ -117,7 +117,13 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     @Override
     public Map<String, Object> getRecordDetail(String inspectCode) {
         InspectRecord record = inspectRecordService.getById(inspectCode);
+        if (Objects.isNull(record)) {
+            throw new ResultException(ResultEnum.CANNOT_FIND);
+        }
         List<String> list = inspectDetailMapper.totalAsset(inspectCode);
+        if (list.isEmpty()) {
+            throw new ResultException(ResultEnum.PARAM_ERROR);
+        }
 
         QueryWrapper<AlarmInfo> query = Wrappers.query();
         query.eq("STATUS", 1);

@@ -117,7 +117,7 @@ public class XunjianFinalController {
             ItemVo itemVo = new ItemVo();
             itemVo.setId(schedule.getJobId());
             itemVo.setName(schedule.getJobName());
-            itemVo.setFlag(schedule.getAutoFlag() == 1);
+            itemVo.setAutoFlag(schedule.getAutoFlag());
             itemVo.setChildren(voList);
             resultList.add(itemVo);
         }

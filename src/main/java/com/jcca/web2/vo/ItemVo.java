@@ -20,6 +20,7 @@ public class ItemVo {
     private Integer total;
     private Integer normal;
     private Integer abnormal;
+    private Integer autoFlag;
 
     private String assetDesk;
     private boolean flag;

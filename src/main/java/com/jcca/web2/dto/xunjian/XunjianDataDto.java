@@ -13,6 +13,7 @@ public class XunjianDataDto {
 
     private String inspectRecordId;
     private String assetId;
+    private String assetName;
     // 巡检指标项 StatusInfoChangeTypeEnum 类中code值
     private String targetItem;
     // 巡检结果状态 3正常，4异常  Web2Const

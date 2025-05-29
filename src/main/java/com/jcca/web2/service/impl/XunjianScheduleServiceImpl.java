@@ -313,11 +313,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);
-            // 设置为结束巡检
-            String id = dto.getId();
-            XunjianSchedule schedule = this.getById(id);
-            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-            this.updateById(schedule);
         }
     }
 

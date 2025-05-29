@@ -137,14 +137,17 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 15000);
         } catch (CollectAgencyException e) {
             this.send2Queue(asset, "实时巡检异常：" + e.getMsg());
+            return;
         }
         if (!JSONUtil.isJson(respBody)) {
             this.send2Queue(asset, "实时巡检数据格式不正确：" + respBody);
+            return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
             this.send2Queue(asset, "实时巡检失败：" + jsonObject.get("msg"));
+            return;
         }
 
         o = jsonObject.get("body");
@@ -170,8 +173,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         for (InspectAsset inspectAsset : list) {
             XunjianDataDto dto = new XunjianDataDto();
             dto.setInspectRecordId(asset.getInspectRecordId());
-            dto.setJobId(asset.getJobId());
             dto.setAssetId(asset.getAssetId());
+            dto.setAssetName(asset.getAssetName());
             dto.setTargetItem(inspectAsset.getTargetItem());
             dto.setInspectValue("--");
             dto.setInspectState(Web2Const.INSPECT_ERROR);
