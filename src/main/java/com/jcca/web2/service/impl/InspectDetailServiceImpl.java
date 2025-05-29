@@ -148,19 +148,19 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
         }
 
-        // 网络设备
-        String desks = " (42, 201) ";
-        List<InspectAssetDetailInfo> netDetailInfoList = inspectDetailMapper.getAssetDetail(inspectCode, desks);
-        // 主机设备
-        desks = " (183, 1831, 1832, 1833) ";
-        List<InspectAssetDetailInfo> hostDetailInfoList = inspectDetailMapper.getAssetDetail(inspectCode, desks);
-
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("header1", header1);
         resultMap.put("header2", header2);
-        resultMap.put("netInfoList", netDetailInfoList);
-        resultMap.put("hostInfoList", hostDetailInfoList);
-
+        List<Map<String, Object>> lllist = new ArrayList<>();
+        for (ItemVo itemVo : deskList) {
+            Map<String, Object> map = new HashMap<>();
+            List<InspectAssetDetailInfo> details = inspectDetailMapper.getAssetDetail(inspectCode, itemVo.getId());
+            map.put("id", itemVo.getId());
+            map.put("name", itemVo.getName());
+            map.put("details", details);
+            lllist.add(map);
+        }
+        resultMap.put("list", lllist);
         return resultMap;
     }
 

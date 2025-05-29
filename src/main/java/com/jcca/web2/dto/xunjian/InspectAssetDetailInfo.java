@@ -16,6 +16,7 @@ public class InspectAssetDetailInfo {
     private String assetId;
     private String assetName;
     private String assetIp1;
+    private Integer assetDesk;
     private String inspectState;
     private String orgName;
     private String roomName;
