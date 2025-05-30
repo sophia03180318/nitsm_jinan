@@ -11,8 +11,11 @@ import lombok.Data;
 @Data
 public class XunjianDataDto {
 
+    // 巡检记录ID
     private String inspectRecordId;
+    // 资产ID
     private String assetId;
+    // 资产名称
     private String assetName;
     // 巡检指标项 StatusInfoChangeTypeEnum 类中code值
     private String targetItem;
