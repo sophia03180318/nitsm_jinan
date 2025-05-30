@@ -61,7 +61,7 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
     List<InspectAssetDetailInfo> getAssetDetail(String inspectCode, String desks);
 
     @Select("SELECT INSPECT_CODE, ASSET_ID, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG, REMARK " +
-            "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY ASSET_ID")
+            "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY ASSET_ID, TARGET_ITEM")
     List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId);
 
     @Select("select i.inspect_record_id as id, i.asset_id, i.title alarmTitle, i.alarm_level, i.alarm_code, a.ip assetIp1, a.name assetName, a.desk assetDesk " +

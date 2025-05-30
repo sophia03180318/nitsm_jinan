@@ -1,7 +1,6 @@
 package com.jcca.dataProcessing.support;
 
 import com.jcca.dataProcessing.Entity.CommonEntity;
-import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import lombok.Data;
 
 
@@ -11,7 +10,4 @@ import lombok.Data;
 @Data
 public class XunjianEvent {
     CommonEntity info;
-
-    XunjianDataDto dto;
-
 }

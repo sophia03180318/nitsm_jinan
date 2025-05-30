@@ -127,7 +127,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         }
 
         QueryWrapper<AlarmInfo> query = Wrappers.query();
-        query.eq("STATUS", 1);
+        query.eq("INSPECT_RECORD_ID", inspectCode);
         query.in("ASSET_ID", list);
         int alarmCount = alarmInfoService.count(query);
 
@@ -169,10 +169,10 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId) {
         List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId);
         QueryWrapper<AlarmInfo> query = Wrappers.query();
-        query.select("ID", "TITLE", "OCCUR_TIME", "REMARK");
+        query.select("ID", "TITLE", "OCCUR_TIME", "REMARK", "ALARM_CODE");
         query.eq("INSPECT_RECORD_ID", inspectCode);
         query.eq("ASSET_ID", assetId);
-        query.orderByDesc("CREATE_TIME");
+        query.orderByDesc("CREATE_TIME", "ALARM_CODE");
         List<AlarmInfo> infos = alarmInfoService.list(query);
 
         InspectTargetDetailInfoVo vo = new InspectTargetDetailInfoVo();

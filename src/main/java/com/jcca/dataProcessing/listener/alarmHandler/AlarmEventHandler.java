@@ -2,7 +2,6 @@ package com.jcca.dataProcessing.listener.alarmHandler;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.enums.AlarmStateEnum;
-import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
 import com.jcca.dataProcessing.manager.bean.SaveAlarmResp;
@@ -16,14 +15,11 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.enums.EventLevelEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -69,7 +65,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
         synchronized (obj){
             try {
-                log.error("------------------------------当前线程名称: " + Thread.currentThread().getName()+"eventInfo:"+info.getEventRedisKey()+"|@|"+info.getMapKey());
+//                log.error("------------------------------当前线程名称: " + Thread.currentThread().getName()+"eventInfo:"+info.getEventRedisKey()+"|@|"+info.getMapKey());
                 redisTransactionTemplate.multi();
                 SaveAlarmResp resp = new SaveAlarmResp();
                 resp.setNeedSendToWeb(false);
