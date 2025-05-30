@@ -70,7 +70,7 @@ public class StationSystemRunTimeFilterHandler extends IFilterHandler<CollectSta
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_run_time_state.getCode(), info.getAssetId(), null);
         if (threshold.baseValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -92,7 +92,7 @@ public class StationSystemRunTimeFilterHandler extends IFilterHandler<CollectSta
             alarmTempReq.setCollectValue(changeInfo.getValue()+"天");
             alarmTempReq.setThresholdValue(threshold.getBaseValue()+"天");
             this.addEventStatus(StatusInfoChangeTypeEnum.event_run_time_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), "", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -55,7 +55,7 @@ public class SyslogOtherFilterHandler extends IFilterHandler<SyslogEventInfoEnti
         tempReq.setAssetIp(info.getAssetIp());
         tempReq.setOrgMsg(info.getMessage());
 
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, redisKey, eventMapKey, status,tempReq);
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, redisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
         if (event != null) {
             //被事件信息截取
             changeInfo.setIsEvent(true);

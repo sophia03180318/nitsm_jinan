@@ -18,13 +18,13 @@ public class IEvent {
     /**
      * 变动信息
      */
-    private ChangeInfo info;
-    private String redisKey;
+    private ChangeInfo info;//具体性能信息
+    private String eventRedisKey;//事件Code码
     private String mapKey;
     /**
      * 事件状态
      */
-    private Integer status;
+    private Integer status;//事件状态
     /**
      * 资产ID
      */
@@ -52,28 +52,30 @@ public class IEvent {
     /**
      * 巡检数据
      */
-    private XunjianDataDto xunjianDataDto;
+    private String inspectRecordId;
 
     public IEvent() {
     }
 
-    public IEvent(String assetId, ChangeInfo info, String redisKey, String mapKey, Integer status) {
+    public IEvent(String assetId, ChangeInfo info, String eventRedisKey, String mapKey, Integer status,String inspectRecordId) {
         this.info = info;
-        this.redisKey = redisKey;
+        this.eventRedisKey = eventRedisKey;
         this.mapKey = mapKey;
         this.status = status;
         this.assetId = assetId;
         this.collectTime = info.getCollectTime();
+        this.inspectRecordId=inspectRecordId;
     }
 
-    public IEvent(String assetId, ChangeInfo info, String redisKey, String mapKey, Integer status,AlarmTempReq alarmTempReq) {
+    public IEvent(String assetId, ChangeInfo info, String eventRedisKey, String mapKey, Integer status,AlarmTempReq alarmTempReq,String inspectRecordId) {
         this.info = info;
-        this.redisKey = redisKey;
+        this.eventRedisKey = eventRedisKey;
         this.mapKey = mapKey;
         this.status = status;
         this.assetId = assetId;
         this.collectTime = info.getCollectTime();
         this.alarmTempReq = alarmTempReq;
+        this.inspectRecordId=inspectRecordId;
     }
 
 

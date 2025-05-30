@@ -143,7 +143,7 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
 
                 alarmTempReq.setOrgMsg(originalMsg);
 
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_jcca_center.getCode(), eventMapKey, status, alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_jcca_center.getCode(), eventMapKey, status, alarmTempReq,null);
                 event.setDescStr(originalMsg);
                 listenerManager.dispatureEvent(event);
             } else {
@@ -158,7 +158,7 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
                 }
 
                 alarmTempReq.setOrgMsg(originalMsg);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_jcca_station.getCode(), eventMapKey, status, alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_jcca_station.getCode(), eventMapKey, status, alarmTempReq,null);
                 event.setDescStr(originalMsg);
                 listenerManager.dispatureEvent(event);
             }

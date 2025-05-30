@@ -42,7 +42,7 @@ public class DiskStageThreeFilterHandler extends IFilterHandler<CollectDiskEntit
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_disk_normal.getCode(), info.getAssetId(), info.getName());
         if (threshold.threeLevelIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -65,7 +65,7 @@ public class DiskStageThreeFilterHandler extends IFilterHandler<CollectDiskEntit
             alarmTempReq.setCollectValue(changeInfo.getValue()+"%");
             alarmTempReq.setThresholdValue(threshold.getThreeLevelValue()+"%");
             alarmTempReq.setFlag(info.getName());
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_disk_sectionThree.getCode(),StatusInfoChangeTypeEnum.SECTION_THREE_VAL.getCode(),info.getName(), status, info, changeInfo);
             if (event != null) {

@@ -28,7 +28,7 @@ public class AlarmListener implements IListener<IEvent> {
         try {
             dataProcessManager.alarmInfoHandlerRequest(event);
         } catch (Exception e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "rediskey~" + event.getRedisKey() + " mapkey~" + event.getMapKey() + " alarmInfoHandlerRequest 抛出异常", e);
+            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "rediskey~" + event.getEventRedisKey() + " mapkey~" + event.getMapKey() + " alarmInfoHandlerRequest 抛出异常", e);
         }
 
     }

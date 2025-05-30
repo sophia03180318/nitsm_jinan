@@ -62,7 +62,7 @@ public class OpticalTemperatureFilterHandler extends IFilterHandler<OpticalSwitc
             String thresholdMapKey = thresholdManager.getThresholdMapKey(StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),StatusInfoChangeTypeEnum.NORMAL.getCode(),"temperature" + key);
 
             if (threshold.baseValueIsNull()) {
-                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
                 if (event != null) {
                     this.dispatureEvent(event);
                 }
@@ -85,7 +85,7 @@ public class OpticalTemperatureFilterHandler extends IFilterHandler<OpticalSwitc
                 alarmTempReq.setThresholdValue(threshold.getBaseValue()+"度");
                 alarmTempReq.setFlag(mapKey);
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(),"temperature" + key, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

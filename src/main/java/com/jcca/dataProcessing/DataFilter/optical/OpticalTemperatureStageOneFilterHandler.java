@@ -53,7 +53,7 @@ public class OpticalTemperatureStageOneFilterHandler extends IFilterHandler<Opti
 
             ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_temp_state.getCode(), info.getAssetId(), mapKey);
             if (threshold.oneLevelIsNull()) {
-                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
                 if (event != null) {
                     this.dispatureEvent(event);
                 }
@@ -78,7 +78,7 @@ public class OpticalTemperatureStageOneFilterHandler extends IFilterHandler<Opti
                 alarmTempReq.setThresholdValue(threshold.getOneLevelValue()+"度");
                 alarmTempReq.setFlag(mapKey);
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_sectionOne.getCode(),StatusInfoChangeTypeEnum.SECTION_ONE_VAL.getCode(),"temperature" + key, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
 
 
                 if (event != null) {

@@ -63,5 +63,5 @@ public interface Web2Const {
     String TARGET_INTERVAL = "INTERVAL";
 
     // 巡检实时采集队列
-    LinkedBlockingQueue<XunjianEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
+    LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
 }

@@ -69,19 +69,19 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
         synchronized (obj){
             try {
-                log.error("------------------------------当前线程名称: " + Thread.currentThread().getName()+"eventInfo:"+info.getRedisKey()+"|@|"+info.getMapKey());
+                log.error("------------------------------当前线程名称: " + Thread.currentThread().getName()+"eventInfo:"+info.getEventRedisKey()+"|@|"+info.getMapKey());
                 redisTransactionTemplate.multi();
                 SaveAlarmResp resp = new SaveAlarmResp();
                 resp.setNeedSendToWeb(false);
 
                 //查看是否有历史告警
-                AlarmInfo alarmInfo = alarmInfoService.getAssetAlarm(info.getRedisKey(), info.getAssetId(), info.getMapKey());
+                AlarmInfo alarmInfo = alarmInfoService.getAssetAlarm(info.getEventRedisKey(), info.getAssetId(), info.getMapKey());
 
                 //修改性能信息缓存
                 ChangeInfo changeInfo = (ChangeInfo) info.getInfo();
 
                 //这个变量是为了全局状态存储用的
-                eventInfoManagerService.getStateValue(info.getRedisKey(), info.getMapKey());
+                eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
 
                 if (changeInfo.getRedisKey() != null) {
                     //这里是保存change中的变量数据……

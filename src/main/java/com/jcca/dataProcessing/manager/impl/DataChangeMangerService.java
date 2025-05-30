@@ -149,7 +149,7 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         alarmInfo.setStatus(AlarmStatusEnum.UNCONFIRM.getCode());
         alarmInfo.setAlarmState(AlarmStateEnum.ALARM.getCode());
         alarmInfo.setAssetId(event.getAssetId());
-        alarmInfo.setAlarmCode(event.getRedisKey());
+        alarmInfo.setAlarmCode(event.getEventRedisKey());
         alarmInfo.setType(AlarmTypeEnum.HARDWARE.getCode());
 
         alarmInfo.setContent(content);
@@ -157,11 +157,11 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         alarmInfo.setAlarmFlag(event.getMapKey());
         alarmInfo.setOpinion(eventAlarmLevelBaseEntity.getOpinion());
 
-        String[] split = event.getRedisKey().split(":");
+        String[] split = event.getEventRedisKey().split(":");
         if (split.length > 1) {
             alarmInfo.setEventCategory(split[0] + ":" + split[1]);
         } else {
-            alarmInfo.setEventCategory(event.getRedisKey());
+            alarmInfo.setEventCategory(event.getEventRedisKey());
         }
         alarmInfo.setAssetIp(asset.getIp());
         alarmInfo.setAssetName(asset.getName());
@@ -176,6 +176,7 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         alarmInfo.setCreator("root");
         alarmInfo.setModifyTime(new Date());
         alarmInfo.setModifier("root");
+        alarmInfo.setInspectRecordId(event.getInspectRecordId());
 
         alarmInfoService.save(alarmInfo);
 
@@ -211,7 +212,7 @@ public class DataChangeMangerService implements IDataChangeManagerService {
             alarmEvent.setRepoMsg(event.getDescStr());
         }
 
-        alarmEvent.setUniqueCode(event.getRedisKey());
+        alarmEvent.setUniqueCode(event.getEventRedisKey());
         alarmEvent.setFlag(event.getMapKey());
         alarmEvent.setCreateTime(event.getCollectTime());
         alarmEvent.setUpdateTime(new Date());

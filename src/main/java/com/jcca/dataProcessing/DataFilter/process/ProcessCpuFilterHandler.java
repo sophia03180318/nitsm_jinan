@@ -61,7 +61,7 @@ public class ProcessCpuFilterHandler extends IFilterHandler<CollectProcessEntity
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_process_cpu.getCode(), info.getAssetId(), info.getName());
         if (threshold.baseValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -81,7 +81,7 @@ public class ProcessCpuFilterHandler extends IFilterHandler<CollectProcessEntity
             alarmTempReq.setThresholdValue(threshold.getBaseValue()+"%");
             alarmTempReq.setFlag( info.getName());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_process_cpu.getCode(),StatusInfoChangeTypeEnum.CPU_VAL.getCode(), info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

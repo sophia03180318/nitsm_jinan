@@ -72,7 +72,7 @@ public class OpticalInterfaceUpDownFilterHandler extends IFilterHandler<OpticalS
                 alarmTempReq.setCollectValue(value);
                 alarmTempReq.setFlag(item);
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(), item, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

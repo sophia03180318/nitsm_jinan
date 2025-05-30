@@ -24,11 +24,6 @@ public class SaveFilterHandler extends IFilterHandler<CommonEntity> {
     @Override
     public boolean handler(CommonEntity info) {
         dataChangeMangerService.saveInfo(info.getMaps());
-        if(info.getInspectRecordId()!=null&&!"".equals(info.getInspectRecordId())){
-            XunjianEvent xunjianEvent=new XunjianEvent();
-            xunjianEvent.setInfo(info);
-            this.dispatureEvent(xunjianEvent);
-        }
         return true;
     }
 

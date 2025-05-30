@@ -77,7 +77,7 @@ public interface IEventInfoManagerService {
      * @param status
      * @return
      */
-    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq);
+    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq,String inspectRecordId);
 
     /**
      * 创建恢复事件
@@ -90,7 +90,7 @@ public interface IEventInfoManagerService {
      * @param thresholdMapKey
      * @return
      */
-    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String EventMapKey, String redisThresholdKey, String thresholdMapKey);
+    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String EventMapKey, String redisThresholdKey, String thresholdMapKey,String inspectRecordId);
 
     /**
      * 获取缓存信息

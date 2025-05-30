@@ -50,7 +50,7 @@ public class PingGeneralFilterHandler extends IFilterHandler<ReceiveAlarmEntity>
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_ping_no_group.getDescr()));
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

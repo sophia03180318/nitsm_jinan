@@ -60,7 +60,7 @@ public class SoftLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
             alarmTempReq.setCollectValue(status.toString());
             alarmTempReq.setFlag(mapKey);
             this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_link.getCode(), StatusInfoChangeTypeEnum.LINK_STATUS.getCode(), mapKey, status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
 
             if (event != null) {
                 changeInfo.setIsEvent(true);
