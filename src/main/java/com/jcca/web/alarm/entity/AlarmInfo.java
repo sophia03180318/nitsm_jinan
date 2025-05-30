@@ -154,6 +154,12 @@ public class AlarmInfo extends Model<AlarmInfo> implements Serializable {
      */
     @TableField("CORRELATION_ID")
     private String correlationId;
+
+    /**
+     * 巡检记录ID
+     */
+    @TableField("INSPECT_RECORD_ID")
+    private String inspectRecordId;
     /**
      * 是否显示'[已恢复]'字样
      * -1不显示  1显示

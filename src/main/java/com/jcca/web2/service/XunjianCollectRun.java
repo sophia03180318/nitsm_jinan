@@ -8,7 +8,9 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
-import com.jcca.dataProcessing.support.IEvent;
+import com.jcca.dataProcessing.Entity.ChangeInfo;
+import com.jcca.dataProcessing.Entity.CommonEntity;
+import com.jcca.dataProcessing.support.XunjianEvent;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
@@ -59,14 +61,23 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
         while (true) {
-            IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
-            XunjianDataDto dto = event.getXunjianDataDto();
-            if (dto == null) {
-                TimeUnit.MILLISECONDS.sleep(1000L);
-                continue;
+            XunjianEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            CommonEntity info = event.getInfo();
+            String inspectRecordId;
+            XunjianDataDto dto;
+            if (info == null) {
+                dto = event.getDto();
+                inspectRecordId = dto.getInspectRecordId();
+            } else {
+                inspectRecordId = info.getInspectRecordId();
+                if (inspectRecordId == null) {
+                    continue;
+                }
+                Map<String, ChangeInfo> maps = info.getMaps();
+                System.out.println(JSONUtil.toJsonStr(info));
             }
             InspectRecord record;
-            String inspectRecordId = dto.getInspectRecordId();
+
             if (!inspectRecordMap.containsKey(inspectRecordId)) {
                 record = inspectRecordService.getById(inspectRecordId);
                 inspectRecordMap.put(inspectRecordId, record);
@@ -88,9 +99,9 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
 
             try {
-                this.send2Web(dto);
+//                this.send2Web(dto);
             } catch (Exception e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检向前端发送数据异常", dto);
+                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检向前端发送数据异常", info);
             }
 
             TimeUnit.MILLISECONDS.sleep(500L);
@@ -367,6 +378,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         currentAbnormalTargetMap.remove(inspectRecordId);
         assetStateMap.remove(inspectRecordId);
         targetStateMap.remove(inspectRecordId);
+        currentNormalTargetMap.remove(inspectRecordId);
     }
 
     private synchronized void send(XunjianWSDto wsDto) {

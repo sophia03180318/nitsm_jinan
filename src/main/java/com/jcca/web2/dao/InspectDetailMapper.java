@@ -2,6 +2,7 @@ package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
@@ -63,7 +64,7 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
             "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY ASSET_ID")
     List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId);
 
-    @Select("SELECT INSPECT_CODE, ASSET_ID, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG, REMARK " +
-            "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY ASSET_ID")
-    List<InspectTargetDetailInfo> getTargetAssetDetail(String jobId, String targetItem);
+    @Select("select i.inspect_record_id as id, i.asset_id, i.title alarmTitle, i.alarm_level, i.alarm_code, a.ip assetIp1, a.name assetName, a.desk assetDesk " +
+            "from alarm_info i left join asset a on i.asset_id = a.id where i.inspect_record_id = #{inspectCode}")
+    List<InspectReport1> getReport1(String inspectCode);
 }

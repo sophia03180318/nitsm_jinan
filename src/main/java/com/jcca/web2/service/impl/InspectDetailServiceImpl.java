@@ -19,6 +19,7 @@ import com.jcca.web.xunjian.entity.bean.XunjianServerDetailBean;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectDetailMapper;
 import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.entity.InspectDetail;
@@ -179,6 +180,27 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         vo.setAlarmInfoList(infos);
 
         return vo;
+    }
+
+    @Override
+    public List<InspectReport1> getReport1(String inspectCode) {
+        List<InspectReport1> list = inspectDetailMapper.getReport1(inspectCode);
+        Map<String, List<String>> map = new HashMap<>();
+        for (InspectReport1 report1 : list) {
+            List<String> infos = map.get(report1.getAlarmCode());
+            if (infos == null) {
+                infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
+                map.put(report1.getAlarmCode(), infos);
+            }
+            report1.setRemarks(infos);
+        }
+        return list;
+    }
+
+    @Override
+    public void report1Down(String inspectCode) {
+        List<InspectReport1> list = this.getReport1(inspectCode);
+
     }
 
     private XunjianServerDetailBean creatBean(String assetId) {

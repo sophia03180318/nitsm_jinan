@@ -1,13 +1,8 @@
 package com.jcca.dataProcessing.support;
 
-import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CommonEntity;
-import com.jcca.dataProcessing.Entity.EventAlarmLevelBaseEntity;
-import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
-import com.jcca.web.event.enums.EventLevelEnum;
+import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import lombok.Data;
-
-import java.util.Date;
 
 
 /**
@@ -17,5 +12,6 @@ import java.util.Date;
 public class XunjianEvent {
     CommonEntity info;
 
+    XunjianDataDto dto;
 
 }

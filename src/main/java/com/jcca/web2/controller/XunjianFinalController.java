@@ -14,6 +14,7 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
@@ -310,4 +311,16 @@ public class XunjianFinalController {
         return ResultVoUtil.success(map);
     }
 
+    @GetMapping("/detail/report1View")
+    @ApiOperation("巡检报告单1")
+    public ResultVo<Object> report1(String id) {
+        List<InspectReport1> list = inspectDetailService.getReport1(id);
+        return ResultVoUtil.success(list);
+    }
+
+    @GetMapping("/detail/report1Down")
+    @ApiOperation("巡检报告单1下载")
+    public void report1Down(String id) {
+        inspectDetailService.report1Down(id);
+    }
 }

@@ -12,7 +12,7 @@ import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
-import com.jcca.dataProcessing.support.IEvent;
+import com.jcca.dataProcessing.support.XunjianEvent;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.*;
@@ -182,8 +182,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             dto.setInspectValue("--");
             dto.setInspectState(Web2Const.INSPECT_ERROR);
             dto.setResultMsg(msg);
-            IEvent event = new IEvent();
-            event.setXunjianDataDto(dto);
+            XunjianEvent event = new XunjianEvent();
+            event.setDto(dto);
             Web2Const.XUNJIAN_COLLECT_QUEUE.add(event);
         }
     }
