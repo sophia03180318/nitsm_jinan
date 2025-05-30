@@ -184,7 +184,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             dto.setResultMsg(msg);
             XunjianEvent event = new XunjianEvent();
             event.setDto(dto);
-            Web2Const.XUNJIAN_COLLECT_QUEUE.add(event);
+            try {
+                Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

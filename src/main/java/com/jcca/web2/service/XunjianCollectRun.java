@@ -346,7 +346,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
-                asset.setInspectState(dto.getInspectState());
+                asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getTargetItem()) + "");
                 asset.setInspectValue(dto.getInspectValue());
                 asset.setResultMsg(dto.getResultMsg());
                 inspectAssetService.updateById(asset);
@@ -356,6 +356,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 BeanUtils.copyProperties(asset, inspectDetail);
                 inspectDetail.setId(MyIdUtil.getId());
                 inspectDetail.setInspectCode(dto.getInspectRecordId());
+                inspectDetail.setInspectState(dto.getInspectState());
                 inspectDetail.setInspectTime(new Date());
                 inspectDetail.setResultMsg(dto.getResultMsg());
                 inspectDetailService.save(inspectDetail);
