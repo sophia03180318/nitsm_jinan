@@ -1,8 +1,6 @@
 package com.jcca.web2.service;
 
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
@@ -30,6 +28,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -56,6 +56,17 @@ public class XunjianCollectRun implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            try {
+                go();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private void go() throws InterruptedException {
         this.inspectAssetService = SpringContextUtil.getBean(InspectAssetService.class);
         this.inspectDetailService = SpringContextUtil.getBean(InspectDetailService.class);
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
@@ -64,7 +75,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             XunjianEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
             CommonEntity info = event.getInfo();
             String inspectRecordId;
-            XunjianDataDto dto;
+            XunjianDataDto dto = null;
             if (info == null) {
                 dto = event.getDto();
                 inspectRecordId = dto.getInspectRecordId();
@@ -99,7 +110,8 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
 
             try {
-//                this.send2Web(dto);
+                assert dto != null;
+                this.send2Web(dto);
             } catch (Exception e) {
                 AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检向前端发送数据异常", info);
             }
@@ -136,7 +148,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Map<String, Integer>> currentNormalTargetMap = new ConcurrentHashMap<>();
     // 资产状态 <inspectRecordId, <assetId, 资产状态>>
     private final Map<String, Map<String, Integer>> assetStateMap = new ConcurrentHashMap<>();
-    // 指标状态 <inspectRecordId, <assetId, 指标状态>>
+    // 指标状态 <inspectRecordId, <targetItem, 指标状态>>
     private final Map<String, Map<String, Integer>> targetStateMap = new ConcurrentHashMap<>();
 
     private int abnormal = 0, normal = 0;
@@ -306,6 +318,9 @@ public class XunjianCollectRun implements ApplicationRunner {
         BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
 
+        // 保存巡检详情
+        this.saveDetail(dto);
+
         // 已巡检指标数量和指标总数量相同则全部巡检结束
         if (targetTotalMap.get(inspectRecordId).intValue() == currentTargetCountMap.get(inspectRecordId)) {
             // 设置资产指标为初始状态
@@ -325,27 +340,26 @@ public class XunjianCollectRun implements ApplicationRunner {
             normal = 0;
             abnormal = 0;
         }
+    }
 
-        // 设置资产指标为巡检完成状态
-        QueryWrapper<InspectAsset> query = Wrappers.query();
-        query.eq("JOB_ID", jobId);
-        query.eq("ASSET_ID", assetId);
-        query.eq("TARGET_ITEM", targetItem);
-        List<InspectAsset> list = inspectAssetService.list(query);
-        for (InspectAsset asset : list) {
-            asset.setInspectState(targetState);
-            asset.setInspectValue(dto.getInspectValue());
-            asset.setResultMsg(dto.getResultMsg());
-            inspectAssetService.updateById(asset);
+    private void saveDetail(XunjianDataDto dto) {
+        List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
+        for (InspectAsset asset : inspectAssets) {
+            if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
+                asset.setInspectState(dto.getInspectState());
+                asset.setInspectValue(dto.getInspectValue());
+                asset.setResultMsg(dto.getResultMsg());
+                inspectAssetService.updateById(asset);
 
-            // 保存巡检详情
-            InspectDetail inspectDetail = new InspectDetail();
-            BeanUtils.copyProperties(asset, inspectDetail);
-            inspectDetail.setId(MyIdUtil.getId());
-            inspectDetail.setInspectCode(inspectRecordId);
-            inspectDetail.setInspectTime(new Date());
-            inspectDetail.setResultMsg(dto.getResultMsg());
-            inspectDetailService.save(inspectDetail);
+                // 保存巡检详情
+                InspectDetail inspectDetail = new InspectDetail();
+                BeanUtils.copyProperties(asset, inspectDetail);
+                inspectDetail.setId(MyIdUtil.getId());
+                inspectDetail.setInspectCode(dto.getInspectRecordId());
+                inspectDetail.setInspectTime(new Date());
+                inspectDetail.setResultMsg(dto.getResultMsg());
+                inspectDetailService.save(inspectDetail);
+            }
         }
     }
 
