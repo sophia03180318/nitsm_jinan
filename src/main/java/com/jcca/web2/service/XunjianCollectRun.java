@@ -203,7 +203,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             targets = new HashSet<>();
         }
         String idItem = assetId + targetItem;
-        System.out.println(idItem);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "接收到指标数据", idItem);
         if (targets.contains(idItem)) {
             Map<String, Integer> map1 = assetStateMap.get(inspectRecordId);
             Integer i1 = map1.get(targetItem);
