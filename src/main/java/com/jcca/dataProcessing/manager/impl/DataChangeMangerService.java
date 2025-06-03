@@ -176,8 +176,6 @@ public class DataChangeMangerService implements IDataChangeManagerService {
         alarmInfo.setCreator("root");
         alarmInfo.setModifyTime(new Date());
         alarmInfo.setModifier("root");
-        alarmInfo.setInspectRecordId(event.getInspectRecordId());
-
         alarmInfoService.save(alarmInfo);
 
         return alarmInfo;

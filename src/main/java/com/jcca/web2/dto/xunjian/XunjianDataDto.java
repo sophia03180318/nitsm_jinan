@@ -23,4 +23,6 @@ public class XunjianDataDto {
     private String inspectValue;
     // 巡检结果描述 相应告警信息
     private String resultMsg;
+    // 告警ID
+    private String alarmId;
 }

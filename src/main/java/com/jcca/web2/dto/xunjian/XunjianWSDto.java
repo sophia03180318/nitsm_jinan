@@ -40,7 +40,6 @@ public class XunjianWSDto {
     private Integer msgType;
     private XunjianWSDto message;
 
-    private String inspectRecordId;
     private String jobId;
     private String id;
     private String name;
