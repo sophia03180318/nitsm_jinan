@@ -30,11 +30,13 @@ import com.jcca.web2.vo.InspectRecordListVo;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author HanHW
@@ -126,10 +128,10 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             throw new ResultException(ResultEnum.PARAM_ERROR);
         }
 
-        QueryWrapper<AlarmInfo> query = Wrappers.query();
-        query.eq("INSPECT_RECORD_ID", inspectCode);
-        query.in("ASSET_ID", list);
-        int alarmCount = alarmInfoService.count(query);
+        QueryWrapper<InspectDetail> query = Wrappers.query();
+        query.eq("INSPECT_CODE", inspectCode);
+        query.isNotNull("ALARM_ID");
+        int alarmCount = this.count(query);
 
         Integer totalAsset = list.size();
         Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
@@ -168,17 +170,22 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     @Override
     public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId) {
         List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId);
-        QueryWrapper<AlarmInfo> query = Wrappers.query();
-        query.select("ID", "TITLE", "OCCUR_TIME", "REMARK", "ALARM_CODE");
-        query.eq("INSPECT_RECORD_ID", inspectCode);
-        query.eq("ASSET_ID", assetId);
-        query.orderByDesc("CREATE_TIME", "ALARM_CODE");
-        List<AlarmInfo> infos = alarmInfoService.list(query);
-
         InspectTargetDetailInfoVo vo = new InspectTargetDetailInfoVo();
         vo.setTargetDetailList(targetDetailInfoList);
-        vo.setAlarmInfoList(infos);
+        vo.setAlarmInfoList(new ArrayList<>());
 
+        QueryWrapper<InspectDetail> query1 = Wrappers.query();
+        query1.eq("INSPECT_CODE", inspectCode);
+        query1.isNotNull("ALARM_ID");
+        List<InspectDetail> list = this.list(query1);
+        if (!CollectionUtils.isEmpty(list)) {
+            QueryWrapper<AlarmInfo> query = Wrappers.query();
+            query.select("ID", "TITLE", "OCCUR_TIME", "REMARK", "ALARM_CODE");
+            query.in("ID", list.stream().map(InspectDetail::getAlarmId).collect(Collectors.toSet()));
+            query.orderByDesc("CREATE_TIME", "ALARM_CODE");
+            List<AlarmInfo> infos = alarmInfoService.list(query);
+            vo.setAlarmInfoList(infos);
+        }
         return vo;
     }
 
