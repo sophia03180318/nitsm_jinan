@@ -883,6 +883,9 @@ public class DataProcessManager {
         IFilterHandler alarmFilterHandler = this.getIFilterHandler("alarmFilterHandler");
           IFilterHandler alarmEventHandler= this.getIFilterHandler("alarmEventHandler");
         alarmFilterHandler.setNextFilter(alarmEventHandler);
+        //巡检（告警处理流程中）
+        IFilterHandler eventXunjianAlarmHandler = this.getIFilterHandler("eventXunjianHandler");
+        alarmEventHandler.setNextFilter(eventXunjianAlarmHandler);
         alarmInfoHandler=alarmFilterHandler;
 
     }

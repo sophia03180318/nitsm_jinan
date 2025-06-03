@@ -54,6 +54,11 @@ public class IEvent {
      */
     private String inspectRecordId;
 
+    /**
+     * 告警ID
+     */
+    private String alarmId;
+
     private XunjianDataDto xunjianDataDto;
 
     public IEvent() {

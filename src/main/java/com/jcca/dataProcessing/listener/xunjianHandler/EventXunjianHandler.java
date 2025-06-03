@@ -24,6 +24,6 @@ public class EventXunjianHandler extends IFilterHandler<IEvent> {
 
     @Override
     public boolean isNeedNexthandle(Boolean flag) {
-        return flag;
+        return false;
     }
 }

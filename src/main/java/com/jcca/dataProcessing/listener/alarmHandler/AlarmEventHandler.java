@@ -131,6 +131,10 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 if (resp.getNeedSendToWeb()) {
                     dataChangeManagerService.popup(resp.getAsset(), resp.getNewAlarm());
                 }
+
+                //将alarmid赋值
+                info.setAlarmId(alarmInfo.getId());
+
                 //保存事件缓存 使用带事务的 redisTransactionTemplate
                 eventInfoManagerService.saveRedisChange(info, redisTransactionTemplate);
                 redisTransactionTemplate.exec();
@@ -148,7 +152,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
     @Override
     public boolean isNeedNexthandle(Boolean flag) {
-        return false;
+        return flag;
     }
 
 }
