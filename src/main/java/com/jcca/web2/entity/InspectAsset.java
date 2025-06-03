@@ -78,5 +78,7 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String inspectRecordId;
     @TableField(exist = false)
     private String alarmId;
+    @TableField(exist = false)
+    private String eventCategory;
 
 }

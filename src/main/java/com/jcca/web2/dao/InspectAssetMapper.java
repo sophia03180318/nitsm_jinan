@@ -29,7 +29,7 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
     @Select("SELECT ASSET_DESK AS ID, DESK_NAME AS NAME FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} GROUP BY ASSET_DESK, DESK_NAME ORDER BY ASSET_DESK")
     List<ItemVo> getDesksByJobId(String jobId);
 
-    @Select("SELECT * FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} ORDER BY ASSET_DESK, ASSET_ID")
+    @Select("SELECT i.*, t.EVENT_CATEGORY FROM INSPECT_ASSET i LEFT JOIN ALARM_EVENT_TYPE t ON i.EVENT_TYPE_ID = t.ID WHERE JOB_ID = #{jobId} ORDER BY i.ASSET_DESK, i.ASSET_ID")
     List<InspectAsset> getAllByJobId(String jobId);
 
     @Select("SELECT t.EVENT_CATEGORY AS ID, t.TYPE_ALIAS AS NAME, MAX(INSPECT_STATE) AS STATUS, COUNT(*) AS TOTAL, " +

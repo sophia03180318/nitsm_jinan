@@ -361,11 +361,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         dto.setAssetId(asset.getAssetId());
         dto.setTargetItem(asset.getTargetItem());
         dto.setInspectValue(asset.getInspectValue());
-        dto.setInspectState(Web2Const.INSPECT_ERROR);
+        dto.setInspectState(asset.getInspectState());
         dto.setResultMsg(asset.getResultMsg());
         dto.setAlarmId(asset.getAlarmId());
         IEvent event = new IEvent();
         event.setInspectRecordId(asset.getInspectRecordId());
+        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
         event.setXunjianDataDto(dto);
         try {
             Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
