@@ -202,14 +202,18 @@ public class XunjianCollectRun implements ApplicationRunner {
         if (targets == null) {
             targets = new HashSet<>();
         }
-        if (targets.contains(targetItem)) {
+        String idItem = assetId + targetItem;
+        System.out.println(idItem);
+        if (targets.contains(idItem)) {
             Map<String, Integer> map1 = assetStateMap.get(inspectRecordId);
-            if (Integer.parseInt(targetState) > map1.get(targetItem)) {
+            Integer i1 = map1.get(targetItem);
+            if (Integer.parseInt(targetState) > (i1 == null ? 3 : i1)) {
                 map1.put(targetItem, Integer.parseInt(targetState));
                 assetStateMap.put(inspectRecordId, map1);
             }
             Map<String, Integer> map2 = targetStateMap.get(inspectRecordId);
-            if (Integer.parseInt(targetState) > map2.get(targetItem)) {
+            Integer i2 = map2.get(targetItem);
+            if (Integer.parseInt(targetState) > (i2 == null ? 3 : i2)) {
                 map2.put(targetItem, Integer.parseInt(targetState));
                 targetStateMap.put(inspectRecordId, map2);
             }
@@ -217,7 +221,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             this.saveDetail(dto);
             return;
         }
-        targets.add(targetItem);
+        targets.add(idItem);
         repeatTargetMap.put(inspectRecordId, targets);
 
         String assetName = assetIdName.get(assetId);
