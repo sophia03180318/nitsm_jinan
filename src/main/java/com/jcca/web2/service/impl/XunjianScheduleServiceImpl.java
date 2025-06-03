@@ -19,7 +19,10 @@ import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
+import com.jcca.dataProcessing.support.IEvent;
+import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.entity.AlarmRepository;
+import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdProcess;
@@ -30,6 +33,7 @@ import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
+import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
@@ -69,6 +73,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private AlarmEventTypeService alarmEventTypeService;
     @Resource
     private AlarmRepositoryService alarmRepositoryService;
+    @Resource
+    private AlarmInfoService alarmInfoService;
     @Resource
     private AssetService assetService;
     @Resource
@@ -279,6 +285,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
     }
 
+    private final String[] STATUS_TARGET_ARR = {"PING", "event:event_CPU:status", "event:event_process:status",
+            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state"};
+
     /**
      * 真正巡检开始
      *
@@ -295,24 +304,73 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             schedule.setLastTime(new Date());
             this.updateById(schedule);
 
+            // 将指标设置为最初状态
+            List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+            for (InspectAsset asset : assetList) {
+                asset.setInspectState(Web2Const.INSPECT);
+            }
+            inspectAssetService.updateBatchById(assetList);
+
             // 保存巡检记录
             String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
             schedule.setInspectRecordId(inspectRecordId);
             this.saveInspectRecord(schedule);
 
             // 开始巡检采集
+            List<String> list = Arrays.asList(STATUS_TARGET_ARR);
+            QueryWrapper<AlarmInfo> query = Wrappers.query();
             Set<String> assetIdSet = new HashSet<>();
-            List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
             for (InspectAsset inspectAsset : assetList) {
+                inspectAsset.setInspectRecordId(inspectRecordId);
+                // 状态类单独处理
+                if (list.contains(inspectAsset.getTargetItem())) {
+                    query.eq("asset_id", inspectAsset.getAssetId());
+                    query.eq("alarm_code", inspectAsset.getTargetItem());
+                    query.eq("ALARM_STATE", 1);
+                    query.eq("BLANK", 1);
+                    List<AlarmInfo> infos = alarmInfoService.list(query);
+                    if (infos.isEmpty()) {
+                        inspectAsset.setInspectValue("1");
+                        inspectAsset.setInspectState(Web2Const.INSPECTED);
+                        inspectAsset.setResultMsg("状态正常");
+                        this.send2Queue(inspectAsset);
+                    } else {
+                        for (AlarmInfo info : infos) {
+                            inspectAsset.setInspectValue("-1");
+                            inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+                            inspectAsset.setResultMsg(info.getDescription());
+                            inspectAsset.setAlarmId(info.getId());
+                            this.send2Queue(inspectAsset);
+                        }
+                    }
+                }
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-                inspectAsset.setInspectRecordId(inspectRecordId);
                 inspectAssetService.xunjianCollect(inspectAsset);
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);
+        }
+    }
+
+    private void send2Queue(InspectAsset asset) {
+        XunjianDataDto dto = new XunjianDataDto();
+        dto.setInspectRecordId(asset.getInspectRecordId());
+        dto.setAssetId(asset.getAssetId());
+        dto.setTargetItem(asset.getTargetItem());
+        dto.setInspectValue(asset.getInspectValue());
+        dto.setInspectState(Web2Const.INSPECT_ERROR);
+        dto.setResultMsg(asset.getResultMsg());
+        dto.setAlarmId(asset.getAlarmId());
+        IEvent event = new IEvent();
+        event.setInspectRecordId(asset.getInspectRecordId());
+        event.setXunjianDataDto(dto);
+        try {
+            Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

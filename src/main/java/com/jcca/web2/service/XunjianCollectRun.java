@@ -114,7 +114,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             this.send2Web(dto);
 
-            TimeUnit.MILLISECONDS.sleep(500L);
+            TimeUnit.MILLISECONDS.sleep(50L);
         }
     }
 
@@ -203,15 +203,21 @@ public class XunjianCollectRun implements ApplicationRunner {
             targets = new HashSet<>();
         }
         String idItem = assetId + targetItem;
-        AppLogUtils.buildLogInfo(LogFunctionEnum.REMOTE_CONNECT, "接收到指标数据", idItem);
         if (targets.contains(idItem)) {
             Map<String, Integer> map1 = assetStateMap.get(inspectRecordId);
-            Integer i1 = map1.get(targetItem);
-            if (Integer.parseInt(targetState) > (i1 == null ? 3 : i1)) {
-                map1.put(targetItem, Integer.parseInt(targetState));
-                assetStateMap.put(inspectRecordId, map1);
+            if (map1 != null) {
+                Integer i1 = map1.get(targetItem);
+                if (Integer.parseInt(targetState) > (i1 == null ? 3 : i1)) {
+                    map1.put(assetId, Integer.parseInt(targetState));
+                    assetStateMap.put(inspectRecordId, map1);
+                }
             }
             Map<String, Integer> map2 = targetStateMap.get(inspectRecordId);
+            if (map2 == null) {
+                map2 = new HashMap<>();
+                map2.put(targetItem, Integer.parseInt(targetState));
+                targetStateMap.put(inspectRecordId, map2);
+            }
             Integer i2 = map2.get(targetItem);
             if (Integer.parseInt(targetState) > (i2 == null ? 3 : i2)) {
                 map2.put(targetItem, Integer.parseInt(targetState));
@@ -282,7 +288,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 a = currentNormalTargetMap.get(inspectRecordId).get(targetItem);
             }
 
-            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, a, ab); // 某类指标状态
+            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem.substring(0, targetItem.lastIndexOf(":")), a, ab); // 某类指标状态
         } else {
             normal++;
             targetNormalMap.put(inspectRecordId, normal);
@@ -291,15 +297,17 @@ public class XunjianCollectRun implements ApplicationRunner {
                 map = new HashMap<>();
                 map.put(targetItem, 1);
                 currentNormalTargetMap.put(inspectRecordId, map);
-            }
-            Integer i = map.get(targetItem);
-            if (i == null) {
-                i = 1;
             } else {
-                i++;
+                map = currentNormalTargetMap.get(inspectRecordId);
+                Integer i = map.get(targetItem);
+                if (i == null) {
+                    i = 1;
+                } else {
+                    i++;
+                }
+                map.put(targetItem, i);
+                currentNormalTargetMap.put(inspectRecordId, map);
             }
-            map.put(targetItem, i);
-            currentNormalTargetMap.put(inspectRecordId, map);
         }
 
         // 某类指标巡检完成
@@ -319,6 +327,9 @@ public class XunjianCollectRun implements ApplicationRunner {
             currentCountTargetMap.put(inspectRecordId, targetMap);
         }
 
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "当前巡检记录ID：" + inspectRecordId,
+                "当前巡检指标：" + idItem + "，当前指标总数量：" + totalTargetMap.get(inspectRecordId).get(targetItem).intValue()
+                        + "，当前指标已巡检数量：" + currentCountTargetMap.get(inspectRecordId).get(targetItem));
         if (totalTargetMap.get(inspectRecordId).get(targetItem).intValue() == currentCountTargetMap.get(inspectRecordId).get(targetItem)) {
             Integer ab = 0, a = 0;
             if (currentAbnormalTargetMap.get(inspectRecordId) != null && currentAbnormalTargetMap.get(inspectRecordId).get(targetItem) != null) {
@@ -328,7 +339,8 @@ public class XunjianCollectRun implements ApplicationRunner {
                 a = currentNormalTargetMap.get(inspectRecordId).get(targetItem);
             }
 
-            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem, a, ab); // 某类指标巡检完成
+            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, targetItem.substring(0, targetItem.lastIndexOf(":")), a, ab); // 某类指标巡检完成
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检指标完成", targetItem);
         }
 
         // 设备指标数量和已巡检设备指标数量相同则该设备巡检结束
@@ -359,7 +371,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.saveDetail(dto);
 
         // 已巡检指标数量和指标总数量相同则全部巡检结束
-        if (targetTotalMap.get(inspectRecordId).intValue() == currentTargetCountMap.get(inspectRecordId)) {
+        if (totalTarget.intValue() == countTarget) {
             // 设置资产指标为初始状态
             List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
             for (InspectAsset asset : assetList) {
@@ -432,7 +444,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         assetStateMap.clear();
         targetStateMap.clear();
         currentNormalTargetMap.clear();
-        repeatTargetMap.clear();
+//        repeatTargetMap.clear();
     }
 
     private synchronized void send(XunjianWSDto wsDto) {
@@ -443,7 +455,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
         try {
             webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "给前端发送巡检消息", wsDto);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集给前端发送消", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集给前端发送消息异常", wsDto);
         }

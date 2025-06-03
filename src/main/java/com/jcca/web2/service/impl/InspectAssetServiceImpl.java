@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,7 +73,18 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<ItemVo> getAllCheckedAsset(String jobId) {
-        return inspectAssetMapper.getAllCheckedAsset(jobId);
+        List<ItemVo> list = inspectAssetMapper.getAllCheckedAsset(jobId);
+        QueryWrapper<InspectAsset> query = Wrappers.query();
+        for (ItemVo itemVo : list) {
+            query.eq("asset_id", itemVo.getId());
+            query.eq("JOB_ID", jobId);
+            query.in("INSPECT_STATE", Arrays.asList(1, 2));
+            int count = this.count(query);
+            if (count > 0) {
+                itemVo.setStatus(2);
+            }
+        }
+        return list;
     }
 
     @Override
