@@ -26,7 +26,8 @@ public class InspectReport1 {
     private Integer assetDesk;
     private String assetDeskStr;
     // 告警级别
-    private Integer alarmLevel;
+    private Byte alarmLevel;
+    private String alarmLevelStr;
     // 告警标题
     private String alarmTitle;
     private String description;

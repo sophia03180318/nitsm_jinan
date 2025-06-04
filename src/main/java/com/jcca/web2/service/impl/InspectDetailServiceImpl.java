@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.enums.AlarmLevelEnum;
 import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
@@ -199,6 +200,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             i++;
             report1.setIndex(i);
             report1.setAssetDeskStr(AssetModeEnum.getName(report1.getAssetDesk()));
+            report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel()));
             List<String> infos = map.get(report1.getAlarmCode());
             if (infos == null) {
                 infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());

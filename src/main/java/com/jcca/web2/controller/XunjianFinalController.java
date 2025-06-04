@@ -340,13 +340,15 @@ public class XunjianFinalController {
         writer.addHeaderAlias("index", "序号");
         writer.addHeaderAlias("assetDeskStr", "设备类型");
         writer.addHeaderAlias("assetName", "设备名称");
-        writer.addHeaderAlias("alarmLevel", "告警级别");
+        writer.addHeaderAlias("alarmLevelStr", "告警级别");
         writer.addHeaderAlias("description", "告警描述");
         writer.addHeaderAlias("remarkStr", "历史备注");
         writer.setOnlyAlias(true);
 
-        writer.setColumnWidth(2, 40);
-        writer.setColumnWidth(4, 200);
+        writer.setRowHeight(0, 18);
+        writer.setColumnWidth(2, 20);
+        writer.setColumnWidth(4, 100);
+        writer.setColumnWidth(5, 30);
 
         writer.write(list, true);
 
