@@ -15,6 +15,8 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.component.client.CollectAgent;
+import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -98,7 +100,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addSchedule(XunjianJobDto dto) {
+    public String addSchedule(XunjianJobDto dto) {
 
         Integer autoFlag = dto.getAutoFlag();
         String cronTimes = dto.getCronTimes();
@@ -135,7 +137,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     this.beginXunjian(dto);
                 });
             }
-            return;
+            return jobId;
         }
 
         XunjianSchedule schedule = this.setJob(dto);
@@ -162,6 +164,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
         // 保存资产和指标
         this.saveInspectAsset(dto);
+        return jobId;
     }
 
 
@@ -285,8 +288,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
     }
 
+    @Resource
+    private CollectAgent collectAgent;
+    private static final String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
     private final String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
-            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state"};
+            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
+            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state"};
 
     /**
      * 真正巡检开始
@@ -295,8 +302,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      */
     @Override
     public void beginXunjian(XunjianJobDto dto) {
-
         try {
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
             String id = dto.getId();
             // 将任务设置为正在巡检
             XunjianSchedule schedule = this.getById(id);
@@ -316,6 +323,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             schedule.setInspectRecordId(inspectRecordId);
             this.saveInspectRecord(schedule);
 
+            // 巡检前让采集器推送一次进程状态数据
+            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
+
             // 开始巡检采集
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
@@ -324,7 +334,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-                inspectAssetService.xunjianCollect(inspectAsset);
+                executor.execute(() -> {
+                    inspectAssetService.xunjianCollect(inspectAsset);
+                });
             }
 
             // 状态类单独处理
@@ -340,12 +352,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 query.eq("ALARM_STATE", 1);
                 query.eq("BLANK", 1);
                 List<AlarmInfo> infos = alarmInfoService.list(query);
-                if (infos.isEmpty()) {
-                    inspectAsset.setInspectValue("1");
-                    inspectAsset.setInspectState(Web2Const.INSPECTED);
-                    inspectAsset.setResultMsg("状态正常");
-                    this.send2Queue(inspectAsset);
-                } else {
+                if (!infos.isEmpty()) {
                     for (AlarmInfo info : infos) {
                         inspectAsset.setInspectValue("-1");
                         inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
@@ -357,6 +364,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);
+        } catch (CollectAgencyException e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取进程状态异常", dto);
         }
     }
 

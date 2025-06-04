@@ -88,6 +88,10 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     redisTransactionTemplate.exec();
                     return true;
                 }
+
+                //将alarmid赋值
+                info.setAlarmId(alarmInfo.getId());
+
                 //过滤掉 未确认的已恢复告警
                 if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && Objects.nonNull(alarmInfo) && AlarmStateEnum.RECOVER.getCode().equals(alarmInfo.getAlarmState())) {
                     redisTransactionTemplate.exec();
@@ -131,9 +135,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 if (resp.getNeedSendToWeb()) {
                     dataChangeManagerService.popup(resp.getAsset(), resp.getNewAlarm());
                 }
-
-                //将alarmid赋值
-                info.setAlarmId(alarmInfo.getId());
 
                 //保存事件缓存 使用带事务的 redisTransactionTemplate
                 eventInfoManagerService.saveRedisChange(info, redisTransactionTemplate);

@@ -36,5 +36,5 @@ public interface InspectDetailService extends IService<InspectDetail> {
 
     List<InspectReport1> getReport1(String inspectCode);
 
-    void report1Down(String inspectCode);
+    List<InspectReport1> report1Down(String inspectCode);
 }

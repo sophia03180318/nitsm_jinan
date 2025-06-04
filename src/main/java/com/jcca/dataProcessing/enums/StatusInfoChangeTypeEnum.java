@@ -483,7 +483,7 @@ public enum StatusInfoChangeTypeEnum {
     event_log("event:log", "事件信息", "系统收到SNMP消息：%s", "", ""),
     event_snmp("event:log:snmp", "snmp事件信息", "系统收到SNMP消息：%s (请确认是否为异常信息)", "", ""),
     event_syslog("event:log:syslog", "syslog事件信息", "系统收到syslog消息：%s", "", ""),
-    event_syslog_power("event:log:power", "syslog电源事件信息", "系统收到syslog冗余电源消息：%s", "", ""),
+    event_syslog_power("event:event_power:syslog", "syslog电源事件信息", "系统收到syslog冗余电源消息：%s", "", ""),
     event_aix_log("event:log:aixlog", "小机log事件信息", "", "", ""),
     event_raid_log("event:log:raidlog", "存储log事件信息", "", "", ""),
 

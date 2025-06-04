@@ -1,11 +1,14 @@
 package com.jcca.web2.controller;
 
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
@@ -30,6 +33,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -56,7 +63,6 @@ public class XunjianFinalController {
     private InspectRecordService inspectRecordService;
     @Resource
     private InspectDetailService inspectDetailService;
-
 
 
     @GetMapping("/job/list")
@@ -158,9 +164,11 @@ public class XunjianFinalController {
     public ResultVo<Object> jobAdd(@RequestBody @Validated XunjianJobDto dto) {
         String username = ShiroUtil.getSubject().getUsername();
         dto.setOperator(username);
-        xunjianScheduleService.addSchedule(dto);
+        String jobId = xunjianScheduleService.addSchedule(dto);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "添加巡检任务", dto.getJobName());
-        return ResultVoUtil.success();
+        Map<String, String> map = new HashMap<>();
+        map.put("jobId", jobId);
+        return ResultVoUtil.success(map);
     }
 
     @GetMapping("/job/begin")
@@ -320,7 +328,35 @@ public class XunjianFinalController {
 
     @GetMapping("/detail/report1Down")
     @ApiOperation("巡检报告单1下载")
-    public void report1Down(String id) {
-        inspectDetailService.report1Down(id);
+    public void report1Down(String id, HttpServletResponse response) throws IOException {
+        if (StringUtils.isEmpty(id)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR);
+        }
+        List<InspectReport1> list = inspectDetailService.report1Down(id);
+
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+        writer.merge(5, "综合维护平台巡检报告");
+
+        writer.addHeaderAlias("index", "序号");
+        writer.addHeaderAlias("assetDeskStr", "设备类型");
+        writer.addHeaderAlias("assetName", "设备名称");
+        writer.addHeaderAlias("alarmLevel", "告警级别");
+        writer.addHeaderAlias("description", "告警描述");
+        writer.addHeaderAlias("remarkStr", "历史备注");
+        writer.setOnlyAlias(true);
+
+        writer.setColumnWidth(2, 40);
+        writer.setColumnWidth(4, 200);
+
+        writer.write(list, true);
+
+        String fileName = URLEncoder.encode("综合维护平台告警验收.xlsx", "UTF-8");
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+        ServletOutputStream out = response.getOutputStream();
+
+        writer.flush(out);
+        writer.close();
+
     }
 }

@@ -60,11 +60,11 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
             "group by inspect_code, asset_id, asset_name, asset_ip1, org_name, room_name, cabinet_name, asset_desk order by asset_desk, asset_id")
     List<InspectAssetDetailInfo> getAssetDetail(String inspectCode, String desks);
 
-    @Select("SELECT INSPECT_CODE, ASSET_ID, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG, REMARK " +
+    @Select("SELECT ID, INSPECT_CODE, ASSET_ID, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG, REMARK " +
             "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode} AND ASSET_ID = #{assetId} ORDER BY ASSET_ID, TARGET_ITEM")
     List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId);
 
-    @Select("select i.inspect_record_id as id, i.asset_id, i.title alarmTitle, i.alarm_level, i.alarm_code, a.ip assetIp1, a.name assetName, a.desk assetDesk " +
-            "from alarm_info i left join asset a on i.asset_id = a.id where i.inspect_record_id = #{inspectCode}")
+    @Select("select d.inspect_code as id, i.asset_id, i.DESCRIPTION, i.title alarmTitle, i.alarm_level, i.alarm_code, d.asset_ip1 assetIp1, d.asset_name, d.asset_desk " +
+            "from alarm_info i left join inspect_detail d on i.id = d.alarm_id where d.inspect_code = #{inspectCode} order by d.asset_ip1")
     List<InspectReport1> getReport1(String inspectCode);
 }

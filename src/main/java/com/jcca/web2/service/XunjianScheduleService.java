@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface XunjianScheduleService extends IService<XunjianSchedule> {
 
-    void addSchedule(XunjianJobDto dto);
+    String addSchedule(XunjianJobDto dto);
 
     void joinScheduleJob();
 

@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
+import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
@@ -40,7 +41,6 @@ import java.util.stream.Collectors;
 public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, InspectAsset> implements InspectAssetService {
 
     private static final String XUNJIAN_CENTER_URI = "/business/exeCollect";
-
 
     @Resource
     private InspectAssetMapper inspectAssetMapper;
@@ -141,7 +141,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
      */
     @Override
     public void xunjianCollect(InspectAsset asset) {
-
         String assetId = asset.getAssetId();
         String respBody = "";
         try {
@@ -171,6 +170,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         for (CollectExecResult execResult : execRespList) {
             Integer code = execResult.getCode();
             if (code != 1) {
+                this.send2Queue(asset, "实时巡检失败：" + execResult.getMsg());
                 continue;
             }
             ReceiveCollectDto dto = execResult.getResult();
@@ -180,10 +180,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             adapter1.dispose(jsonArray1);
 
             SendPingAlarmReq statusResult = execResult.getStatusResult();
-            String content2 = statusResult.getContent();
-            IAdapter adapter2 = dataProcessManager.getAdapter(statusResult.getCategory());
-            JSONArray jsonArray2 = JSONUtil.parseArray(content2);
-            adapter2.dispose(jsonArray2);
+            redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
         }
     }
 

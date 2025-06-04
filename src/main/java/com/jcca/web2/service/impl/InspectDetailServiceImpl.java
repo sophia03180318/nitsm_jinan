@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.MyIdUtil;
@@ -193,21 +194,31 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     public List<InspectReport1> getReport1(String inspectCode) {
         List<InspectReport1> list = inspectDetailMapper.getReport1(inspectCode);
         Map<String, List<String>> map = new HashMap<>();
+        int i = 0;
         for (InspectReport1 report1 : list) {
+            i++;
+            report1.setIndex(i);
+            report1.setAssetDeskStr(AssetModeEnum.getName(report1.getAssetDesk()));
             List<String> infos = map.get(report1.getAlarmCode());
             if (infos == null) {
                 infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
                 map.put(report1.getAlarmCode(), infos);
             }
             report1.setRemarks(infos);
+            if (!infos.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (String info : infos) {
+                    sb.append(info).append("\r\n");
+                }
+                report1.setRemarkStr(sb.toString());
+            }
         }
         return list;
     }
 
     @Override
-    public void report1Down(String inspectCode) {
-        List<InspectReport1> list = this.getReport1(inspectCode);
-
+    public List<InspectReport1> report1Down(String inspectCode) {
+        return this.getReport1(inspectCode);
     }
 
     private XunjianServerDetailBean creatBean(String assetId) {

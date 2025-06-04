@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class InspectTargetDetailInfo {
 
+    private String id;
     private String inspectCode;
     private String assetId;
     private String assetName;
