@@ -77,6 +77,9 @@ public class XunjianCollectRun implements ApplicationRunner {
             XunjianDataDto dto;
             if (event.getXunjianDataDto() == null) {
                 inspectRecordId = event.getInspectRecordId();
+                if (inspectRecordId == null) {
+                    continue;
+                }
                 dto = new XunjianDataDto();
                 dto.setInspectRecordId(inspectRecordId);
                 dto.setAssetId(event.getAssetId());
@@ -223,7 +226,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 targetStateMap.put(inspectRecordId, map2);
             }
 
-            this.saveDetail(dto);
+            this.saveDetail(dto, 1);
             return;
         }
         targets.add(idItem);
@@ -329,16 +332,6 @@ public class XunjianCollectRun implements ApplicationRunner {
 
         Integer i = currentCountTargetMap.get(inspectRecordId).get(curTarget);
         Long l = totalTargetMap.get(inspectRecordId).get(curTarget);
-
-        Integer i3 = 0, i4 = 0;
-        if (currentAbnormalTargetMap.get(inspectRecordId) != null && currentAbnormalTargetMap.get(inspectRecordId).get(curTarget) != null) {
-            i3 = currentAbnormalTargetMap.get(inspectRecordId).get(curTarget);
-        }
-        if (currentNormalTargetMap.get(inspectRecordId) != null && currentNormalTargetMap.get(inspectRecordId).get(curTarget) != null) {
-            i4 = currentNormalTargetMap.get(inspectRecordId).get(curTarget);
-        }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检指标计数", "当前指标：" + curTarget + "，总数：" + l + "，异常数：" + i3 + "，正常数：" + i4);
-
         if (l.intValue() == i) {
             Integer ab = 0, a = 0;
             if (currentAbnormalTargetMap.get(inspectRecordId) != null && currentAbnormalTargetMap.get(inspectRecordId).get(curTarget) != null) {
@@ -376,7 +369,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
 
         // 保存巡检详情
-        this.saveDetail(dto);
+        this.saveDetail(dto, 2);
 
         // 已巡检指标数量和指标总数量相同则全部巡检结束
         if (totalTarget.intValue() == countTarget) {
@@ -399,7 +392,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
     }
 
-    private void saveDetail(XunjianDataDto dto) {
+    private void saveDetail(XunjianDataDto dto, Integer a) {
         List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
@@ -465,7 +458,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消", wsDto);
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
         }

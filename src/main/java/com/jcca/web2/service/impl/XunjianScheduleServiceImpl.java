@@ -183,6 +183,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             if (targetList == null) {
                 continue;
             }
+            List<ThresholdProcess> thresholdProcessList = thresholdProcessService.selectByAssetList(Collections.singletonList(asset.getAssetId()));
             for (String target : targetList) {
                 Set<String> set = new HashSet<>();
                 AlarmEventType alarmEventType = alarmEventTypeService.getById(target);
@@ -203,11 +204,14 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     inspectAsset.setEventTypeId(target);
                     inspectAsset.setEventTypeName(alarmEventType.getTypeAlias());
                     inspectAsset.setRemark(repository.getPlanStr());
-                    String thresholdValue = this.getThreshold(inspectAsset);
+                    String thresholdValue = this.getThreshold(inspectAsset, thresholdProcessList);
                     if (repository.getDescStr().contains("阈值") && StringUtils.isEmpty(thresholdValue)) {
                         continue;
                     }
-                    inspectAsset.setThresholdValue(this.getThreshold(inspectAsset));
+                    inspectAsset.setThresholdValue(thresholdValue);
+                    if (repository.getAlarmCode().startsWith("event:event_process") && thresholdProcessList.isEmpty()) {
+                        continue;
+                    }
 
                     batchList.add(inspectAsset);
                     if (batchList.size() >= 900) {
@@ -223,11 +227,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "结束保存巡检资产", DateUtil.formatDateTime(new Date()));
     }
 
-    private String getThreshold(InspectAsset inspectAsset) {
+    private String getThreshold(InspectAsset inspectAsset, List<ThresholdProcess> thresholdProcessList) {
         ThresholdBaseEntity entity = null;
         String assetDesk = inspectAsset.getAssetDesk() + "";
         if (assetDesk.contains("183")) {
-            List<ThresholdProcess> thresholdProcessList = thresholdProcessService.selectByAssetList(Collections.singletonList(inspectAsset.getAssetId()));
             for (ThresholdProcess thresholdProcess : thresholdProcessList) {
                 entity = thresholdManager.getThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), thresholdProcess.getProcessName());
                 break;
@@ -303,7 +306,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     @Override
     public void beginXunjian(XunjianJobDto dto) {
         try {
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
             String id = dto.getId();
             // 将任务设置为正在巡检
             XunjianSchedule schedule = this.getById(id);
@@ -334,9 +336,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-                executor.execute(() -> {
-                    inspectAssetService.xunjianCollect(inspectAsset);
-                });
+                inspectAssetService.xunjianCollect(inspectAsset);
             }
 
             // 状态类单独处理
