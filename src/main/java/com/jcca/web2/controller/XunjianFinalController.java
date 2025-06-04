@@ -352,7 +352,7 @@ public class XunjianFinalController {
 
         writer.write(list, true);
 
-        String fileName = URLEncoder.encode("综合维护平台告警验收.xlsx", "UTF-8");
+        String fileName = URLEncoder.encode("综合维护平台巡检报告.xlsx", "UTF-8");
         response.setContentType("application/vnd.ms-excel;charset=utf-8");
         response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         ServletOutputStream out = response.getOutputStream();
