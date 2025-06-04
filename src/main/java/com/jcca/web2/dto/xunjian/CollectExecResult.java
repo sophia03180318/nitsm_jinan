@@ -17,5 +17,9 @@ public class CollectExecResult {
     private String targetHandle;
     private String redisQueue;
     private ReceiveCollectDto result;
+    /**
+     * 状态推送数据
+     */
+    private SendPingAlarmReq statusResult;
 
 }

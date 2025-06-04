@@ -285,7 +285,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
     }
 
-    private final String[] STATUS_TARGET_ARR = {"PING", "event:event_CPU:status", "event:event_process:status",
+    private final String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
             "event:event_port:optical_state", "event:event_port:state", "event:event_net:state"};
 
     /**
@@ -317,38 +317,43 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             this.saveInspectRecord(schedule);
 
             // 开始巡检采集
-            List<String> list = Arrays.asList(STATUS_TARGET_ARR);
-            QueryWrapper<AlarmInfo> query = Wrappers.query();
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 inspectAsset.setInspectRecordId(inspectRecordId);
-                // 状态类单独处理
-                if (list.contains(inspectAsset.getTargetItem())) {
-                    query.eq("asset_id", inspectAsset.getAssetId());
-                    query.eq("alarm_code", inspectAsset.getTargetItem());
-                    query.eq("ALARM_STATE", 1);
-                    query.eq("BLANK", 1);
-                    List<AlarmInfo> infos = alarmInfoService.list(query);
-                    if (infos.isEmpty()) {
-                        inspectAsset.setInspectValue("1");
-                        inspectAsset.setInspectState(Web2Const.INSPECTED);
-                        inspectAsset.setResultMsg("状态正常");
-                        this.send2Queue(inspectAsset);
-                    } else {
-                        for (AlarmInfo info : infos) {
-                            inspectAsset.setInspectValue("-1");
-                            inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
-                            inspectAsset.setResultMsg(info.getDescription());
-                            inspectAsset.setAlarmId(info.getId());
-                            this.send2Queue(inspectAsset);
-                        }
-                    }
-                }
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
                 inspectAssetService.xunjianCollect(inspectAsset);
+            }
+
+            // 状态类单独处理
+            List<String> list = Arrays.asList(STATUS_TARGET_ARR);
+            QueryWrapper<AlarmInfo> query = Wrappers.query();
+            for (InspectAsset inspectAsset : assetList) {
+                if (!list.contains(inspectAsset.getTargetItem())) {
+                    continue;
+                }
+                inspectAsset.setInspectRecordId(inspectRecordId);
+                query.eq("asset_id", inspectAsset.getAssetId());
+                query.eq("alarm_code", inspectAsset.getTargetItem());
+                query.eq("ALARM_STATE", 1);
+                query.eq("BLANK", 1);
+                List<AlarmInfo> infos = alarmInfoService.list(query);
+                if (infos.isEmpty()) {
+                    inspectAsset.setInspectValue("1");
+                    inspectAsset.setInspectState(Web2Const.INSPECTED);
+                    inspectAsset.setResultMsg("状态正常");
+                    this.send2Queue(inspectAsset);
+                } else {
+                    for (AlarmInfo info : infos) {
+                        inspectAsset.setInspectValue("-1");
+                        inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+                        inspectAsset.setResultMsg(info.getDescription());
+                        inspectAsset.setAlarmId(info.getId());
+                        this.send2Queue(inspectAsset);
+                    }
+                }
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);

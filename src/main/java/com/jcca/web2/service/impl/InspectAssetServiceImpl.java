@@ -125,6 +125,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String targetItem) {
+        targetItem = targetItem + "%";
         return inspectAssetMapper.getTargetAssetInfo(jobId, targetItem);
     }
 
@@ -173,10 +174,16 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 continue;
             }
             ReceiveCollectDto dto = execResult.getResult();
-            String content = dto.getContent();
-            IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
-            JSONArray jsonArray = JSONUtil.parseArray(content);
-            adapter.dispose(jsonArray);
+            String content1 = dto.getContent();
+            IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
+            JSONArray jsonArray1 = JSONUtil.parseArray(content1);
+            adapter1.dispose(jsonArray1);
+
+            SendPingAlarmReq statusResult = execResult.getStatusResult();
+            String content2 = statusResult.getContent();
+            IAdapter adapter2 = dataProcessManager.getAdapter(statusResult.getCategory());
+            JSONArray jsonArray2 = JSONUtil.parseArray(content2);
+            adapter2.dispose(jsonArray2);
         }
     }
 
