@@ -73,6 +73,7 @@ public interface Web2Const {
     // 巡检需要查询的指标
     String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
             "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
-            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect"};
+            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect",
+            "event:event_temp:state"};
 
 }

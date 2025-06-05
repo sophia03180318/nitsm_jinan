@@ -127,7 +127,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         }
         List<String> list = inspectDetailMapper.totalAsset(inspectCode);
         if (list.isEmpty()) {
-            throw new ResultException(ResultEnum.PARAM_ERROR);
+            throw new ResultException(ResultEnum.CANNOT_FIND, "没有生成巡检明细");
         }
 
         QueryWrapper<InspectDetail> query = Wrappers.query();
