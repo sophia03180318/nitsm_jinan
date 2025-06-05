@@ -178,6 +178,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
 
         QueryWrapper<InspectDetail> query1 = Wrappers.query();
         query1.eq("INSPECT_CODE", inspectCode);
+        query1.eq("ASSET_ID", assetId);
         query1.isNotNull("ALARM_ID");
         List<InspectDetail> list = this.list(query1);
         if (!CollectionUtils.isEmpty(list)) {
