@@ -154,8 +154,6 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 重复指标 <inspectRecordId, <targetItem>>
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
 
-    private int abnormal = 0, normal = 0;
-
     private synchronized void send2Web(XunjianDataDto dto) {
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
@@ -266,8 +264,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         currentTargetCountMap.merge(inspectRecordId, 1, Integer::sum);
         String curTarget = targetItem.substring(0, targetItem.lastIndexOf(":"));
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
-            abnormal++;
-            targetAbnormalMap.put(inspectRecordId, abnormal);
+            targetAbnormalMap.merge(inspectRecordId, 1, Integer::sum);
             if (currentAbnormalTargetMap.get(inspectRecordId) == null) {
                 Map<String, Integer> hashMap = new HashMap<>();
                 hashMap.put(curTarget, 1);
@@ -293,8 +290,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, curTarget, a, ab); // 某类指标状态
         } else {
-            normal++;
-            targetNormalMap.put(inspectRecordId, normal);
+            targetNormalMap.merge(inspectRecordId, 1, Integer::sum);
             Map<String, Integer> map = currentNormalTargetMap.get(inspectRecordId);
             if (map == null) {
                 map = new HashMap<>();
@@ -386,9 +382,6 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             // 清空内存
             this.clearMap(inspectRecordId);
-
-            normal = 0;
-            abnormal = 0;
         }
     }
 
