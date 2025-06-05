@@ -1,0 +1,395 @@
+package com.jcca.web2.controller;
+
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.jcca.common.bean.ResultVo;
+import com.jcca.common.config.mybatisplus.PagePlugin;
+import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.shiro.util.ShiroUtil;
+import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.component.client.CollectAgent;
+import com.jcca.component.client.exception.CollectAgencyException;
+import com.jcca.component.enums.ThreadPoolEnum;
+import com.jcca.web.event.service.AlarmEventTypeService;
+import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.dto.xunjian.InspectReport1;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
+import com.jcca.web2.dto.xunjian.XunjianJobDto;
+import com.jcca.web2.entity.InspectAsset;
+import com.jcca.web2.entity.XunjianSchedule;
+import com.jcca.web2.service.*;
+import com.jcca.web2.vo.InspectAssetAndTarget;
+import com.jcca.web2.vo.ItemVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
+
+/**
+ * @author: hhw
+ * @description: XunjianFinalController 主要是用来处理终版智能巡检
+ * @date: 2025-05-18  15:38
+ * @since: 2.1.6.0
+ */
+@RestController
+@RequestMapping("/api/v2/xfinal")
+@Api(tags = "终版巡检")
+public class XunjianFinalController {
+
+    @Resource
+    private XunjianScheduleService xunjianScheduleService;
+    @Resource
+    private AssetModeService assetModeService;
+    @Resource
+    private AlarmEventTypeService alarmEventTypeService;
+    @Resource
+    private InspectAssetService inspectAssetService;
+    @Resource
+    private InspectRecordService inspectRecordService;
+    @Resource
+    private InspectDetailService inspectDetailService;
+    @Resource
+    private CollectAgent collectAgent;
+
+
+    @GetMapping("/job/list")
+    @ApiOperation("巡检任务列表")
+    public ResultVo<Object> jobList(Integer autoFlag, Integer jobState, Integer page, Integer size) {
+        String username = ShiroUtil.getSubject().getUsername();
+        QueryWrapper<XunjianSchedule> query = Wrappers.query();
+        query.eq("OPERATOR", username);
+        if (jobState != null) {
+            query.eq("JOB_STATE", jobState);
+        }
+        if (autoFlag != null) {
+            query.eq("AUTO_FLAG", autoFlag);
+        }
+        query.orderByDesc("JOB_ID");
+        query.orderByAsc("CRON_TIME");
+        IPage<XunjianSchedule> iPage = PagePlugin.startPageT(page, size, XunjianSchedule.class);
+        IPage<XunjianSchedule> resultPage = xunjianScheduleService.page(iPage, query);
+        List<XunjianSchedule> list = resultPage.getRecords();
+        if (list.isEmpty()) {
+            return ResultVoUtil.success(list);
+        }
+
+        for (XunjianSchedule schedule : list) {
+            String cronTime = schedule.getCronTime();
+            if (StringUtils.isEmpty(cronTime)) {
+                continue;
+            }
+            String[] split = cronTime.split(",");
+            schedule.setCronList(Arrays.asList(split));
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", list);
+        result.put("total", resultPage.getTotal());
+
+        return ResultVoUtil.success(result);
+    }
+
+    @GetMapping("/record/list")
+    @ApiOperation("巡检记录列表")
+    public ResultVo<Object> recordList() {
+        String username = ShiroUtil.getSubject().getUsername();
+        QueryWrapper<XunjianSchedule> query = Wrappers.query();
+        query.select("JOB_ID", "JOB_NAME", "AUTO_FLAG");
+        query.eq("OPERATOR", username);
+        query.groupBy("JOB_ID", "JOB_NAME", "AUTO_FLAG");
+        query.orderByDesc("JOB_ID");
+        List<XunjianSchedule> list = xunjianScheduleService.list(query);
+        if (list.isEmpty()) {
+            return ResultVoUtil.success(list);
+        }
+
+        List<ItemVo> resultList = new ArrayList<>();
+        for (XunjianSchedule schedule : list) {
+            List<ItemVo> voList = inspectRecordService.findBySchuduleId(schedule.getJobId());
+            if (voList.isEmpty()) {
+                continue;
+            }
+            ItemVo itemVo = new ItemVo();
+            itemVo.setId(schedule.getJobId());
+            itemVo.setName(schedule.getJobName());
+            itemVo.setAutoFlag(schedule.getAutoFlag());
+            itemVo.setChildren(voList);
+            resultList.add(itemVo);
+        }
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/record/detail")
+    @ApiOperation("巡检记录详情")
+    public ResultVo<Object> recordDetail(String id) {
+        Map<String, Object> recordDetail = inspectDetailService.getRecordDetail(id);
+        return ResultVoUtil.success(recordDetail);
+    }
+
+    @GetMapping("/target/detail")
+    @ApiOperation("资产指标详情")
+    public ResultVo<Object> targetDetail(String inspectCode, String assetId) {
+        InspectTargetDetailInfoVo result = inspectDetailService.getTargetDetail(inspectCode, assetId);
+        return ResultVoUtil.success(result);
+    }
+
+    @GetMapping("/target/asset")
+    @ApiOperation("指标下异常资产详情")
+    public ResultVo<Object> targetAsset(String jobId, String targetId) {
+        List<InspectTargetDetailInfo> resultList = inspectAssetService.getTargetAssetInfo(jobId, targetId);
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/asset/target")
+    @ApiOperation("资产下异常指标详情")
+    public ResultVo<Object> assetTarget(String jobId, String assetId) {
+        List<InspectTargetDetailInfo> resultList = inspectAssetService.getAssetTargetInfo(jobId, assetId);
+        return ResultVoUtil.success(resultList);
+    }
+
+    @PostMapping("/job/add")
+    @ApiOperation("新增巡检任务")
+    public ResultVo<Object> jobAdd(@RequestBody @Validated XunjianJobDto dto) {
+        String username = ShiroUtil.getSubject().getUsername();
+        dto.setOperator(username);
+        String jobId = xunjianScheduleService.addSchedule(dto);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "添加巡检任务", dto.getJobName());
+        Map<String, String> map = new HashMap<>();
+        map.put("jobId", jobId);
+        return ResultVoUtil.success(map);
+    }
+
+    @GetMapping("/job/begin")
+    @ApiOperation("开始巡检")
+    public ResultVo<Object> jobBegin(String jobId) {
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+        XunjianSchedule schedule = list.get(0);
+        if (schedule.getAutoFlag() != 1) {
+            return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "只能开始手动巡检");
+        }
+        if (schedule.getJobState() != 1) {
+            return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "任务已开始或已暂停");
+        }
+
+        // 巡检前让采集器推送一次进程状态数据
+        try {
+            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
+        } catch (CollectAgencyException e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", jobId);
+            throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
+        }
+
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务", jobId);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
+        executor.execute(() -> {
+            XunjianJobDto dto = new XunjianJobDto();
+            dto.setAutoFlag(1);
+            dto.setId(schedule.getId());
+            dto.setOperator(schedule.getOperator());
+            xunjianScheduleService.beginXunjian(dto);
+        });
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/job/remove")
+    @ApiOperation("删除巡检任务")
+    public ResultVo<Object> jobRemove(String jobId) {
+        xunjianScheduleService.removeSchedule(jobId);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "删除巡检任务", jobId);
+        return ResultVoUtil.success();
+    }
+
+    @PostMapping("/job/update")
+    @ApiOperation("修改巡检任务")
+    public ResultVo<Object> jobUpdate(@RequestBody @Validated XunjianJobDto dto) {
+        String jobId = dto.getJobId();
+        if (StringUtils.isEmpty(jobId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+
+        String username = ShiroUtil.getSubject().getUsername();
+        dto.setOperator(username);
+        xunjianScheduleService.updateSchedule(dto);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "修改巡检任务", jobId);
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/job/reset")
+    @ApiOperation("重置任务状态")
+    public ResultVo<Object> resetJob(String jobId) {
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+        XunjianSchedule schedule = list.get(0);
+        if (schedule.getJobState() != 2) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能停止正在进行中的任务");
+        }
+        xunjianScheduleService.resetJob(schedule);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/job/pause")
+    @ApiOperation("暂停周期巡检任务")
+    public ResultVo<Object> jobPause(String jobId) {
+        xunjianScheduleService.pauseJob(jobId);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "暂停巡检任务", jobId);
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/job/recover")
+    @ApiOperation("恢复周期巡检任务")
+    public ResultVo<Object> jobRecover(String jobId) {
+        xunjianScheduleService.recoverJob(jobId);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "恢复巡检任务", jobId);
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/asset/list")
+    @ApiOperation("资产分类列表")
+    public ResultVo<Object> assetList() {
+        List<ItemVo> list = xunjianScheduleService.getOrgModeAssetList();
+        return ResultVoUtil.success(list);
+    }
+
+    @PostMapping("/target/list")
+    @ApiOperation("指标分类列表")
+    public ResultVo<Object> targetList(@RequestBody List<String> assetDesks) {
+        List<ItemVo> resultList = new ArrayList<>();
+        Map<Integer, String> modeMap = assetModeService.getModeMap();
+        Set<String> keySet = new HashSet<>(assetDesks);
+        for (String key : keySet) {
+            String id = key + ",";
+            String mode = modeMap.get(Integer.parseInt(key));
+            ItemVo vo = new ItemVo();
+            vo.setId(id);
+            vo.setName(mode);
+
+            List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
+            if (!list.isEmpty()) {
+                vo.setChildren(list);
+                resultList.add(vo);
+            }
+        }
+
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/checked/list")
+    @ApiOperation("资产分类列表")
+    public ResultVo<Object> getCheckedAssetTarget(String jobId) {
+        InspectAssetAndTarget result = inspectAssetService.getCheckedAssetTarget(jobId);
+        return ResultVoUtil.success(result);
+    }
+
+    @GetMapping("/asset/status")
+    @ApiOperation("资产状态列表")
+    public ResultVo<Object> assetStatus(String jobId) {
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+        if (list.get(0).getJobState() != 2) {
+            return ResultVoUtil.warning("只能查看正在巡检的任务");
+        }
+        List<ItemVo> resultList = inspectAssetService.getAllCheckedAsset(jobId);
+        return ResultVoUtil.success(resultList);
+    }
+
+    @GetMapping("/target/status")
+    @ApiOperation("指标状态列表")
+    public ResultVo<Object> targetStatus(String jobId) {
+        List<ItemVo> resultList = inspectAssetService.getTargetStatus(jobId);
+        QueryWrapper<InspectAsset> query = Wrappers.query();
+        query.eq("job_id", jobId);
+        int totalCount = inspectAssetService.count(query);
+
+        query = Wrappers.query();
+        query.eq("job_id", jobId);
+        query.eq("inspect_state", Web2Const.INSPECTED);
+        int normalCount = inspectAssetService.count(query);
+
+        query = Wrappers.query();
+        query.eq("job_id", jobId);
+        query.eq("inspect_state", Web2Const.INSPECT_ERROR);
+        int abnormalCount = inspectAssetService.count(query);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("totalCount", totalCount);
+        map.put("normalCount", normalCount);
+        map.put("abnormalCount", abnormalCount);
+        map.put("resultList", resultList);
+
+        return ResultVoUtil.success(map);
+    }
+
+    @GetMapping("/detail/report1View")
+    @ApiOperation("巡检报告单1")
+    public ResultVo<Object> report1(String id) {
+        List<InspectReport1> list = inspectDetailService.getReport1(id);
+        return ResultVoUtil.success(list);
+    }
+
+    @GetMapping("/detail/report1Down")
+    @ApiOperation("巡检报告单1下载")
+    public void report1Down(String id, HttpServletResponse response) throws IOException {
+        if (StringUtils.isEmpty(id)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR);
+        }
+        List<InspectReport1> list = inspectDetailService.report1Down(id);
+
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+        writer.merge(5, "综合维护平台巡检报告");
+
+        writer.addHeaderAlias("index", "序号");
+        writer.addHeaderAlias("assetDeskStr", "设备类型");
+        writer.addHeaderAlias("assetName", "设备名称");
+        writer.addHeaderAlias("alarmLevelStr", "告警级别");
+        writer.addHeaderAlias("description", "告警描述");
+        writer.addHeaderAlias("remarkStr", "历史备注");
+        writer.setOnlyAlias(true);
+
+        writer.setRowHeight(0, 18);
+        writer.setColumnWidth(2, 20);
+        writer.setColumnWidth(4, 100);
+        writer.setColumnWidth(5, 30);
+
+        writer.write(list, true);
+
+        String fileName = URLEncoder.encode("综合维护平台巡检报告.xlsx", "UTF-8");
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+        ServletOutputStream out = response.getOutputStream();
+
+        writer.flush(out);
+        writer.close();
+
+    }
+}

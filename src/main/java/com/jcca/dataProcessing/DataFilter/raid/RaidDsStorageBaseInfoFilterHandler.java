@@ -35,9 +35,9 @@ public class RaidDsStorageBaseInfoFilterHandler extends IFilterHandler<DsSystemF
         String mapKey2 = StatusInfoChangeTypeEnum.status_raid_freeCapacity.getCode();
         String mapKey3 = StatusInfoChangeTypeEnum.status_raid_usedCapacity.getCode();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, totalCapacity);
-        boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, freeCapacity);
-        boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, usedCapacity);
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, totalCapacity);
+        boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, freeCapacity);
+        boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, usedCapacity);
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(totalCapacity);

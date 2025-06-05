@@ -22,7 +22,7 @@ public interface IEventInfoManagerService {
      * @param changeValue
      * @return
      */
-    public boolean infoIschange(String redisKey, String mapKey, Object changeValue);
+    public boolean infoIschange(String inspectRecordId,String redisKey, String mapKey, Object changeValue);
 
     /**
      * 判断信息是否有变动(此方法返回3中状态：null代表第一次，有变动，无变动)
@@ -32,7 +32,7 @@ public interface IEventInfoManagerService {
      * @param changeValue
      * @return
      */
-    public Boolean infoIschangeFirst(String redisKey, String mapKey, Object changeValue);
+    public Boolean infoIschangeFirst(String inspectRecordId,String redisKey, String mapKey, Object changeValue);
 
     /**
      * 通过rediskey的信息，清除缓存
@@ -77,7 +77,7 @@ public interface IEventInfoManagerService {
      * @param status
      * @return
      */
-    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq);
+    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq,String inspectRecordId);
 
     /**
      * 创建恢复事件
@@ -90,7 +90,7 @@ public interface IEventInfoManagerService {
      * @param thresholdMapKey
      * @return
      */
-    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String EventMapKey, String redisThresholdKey, String thresholdMapKey);
+    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String EventMapKey, String redisThresholdKey, String thresholdMapKey,String inspectRecordId);
 
     /**
      * 获取缓存信息

@@ -51,7 +51,7 @@ public class AlarmFilterHandler extends IFilterHandler<IEvent> {
             //未设定告警级别的告警不上报，只存事件
             return true;
         }
-        String alarmCoded = info.getRedisKey();
+        String alarmCoded = info.getEventRedisKey();
         String flag = info.getMapKey();
 
         QueryWrapper<AlarmWhitelist> queryWrapper = new QueryWrapper<>();

@@ -9,11 +9,11 @@ import com.jcca.component.event.bean.AddEventItem;
 import com.jcca.component.event.constant.EventUniqueCode;
 import com.jcca.web.alarm.dao.AlarmRepositoryMapper;
 import com.jcca.web.alarm.entity.AlarmRepository;
-import com.jcca.web.event.dao.AlarmEventMapper;
 import com.jcca.web.event.dao.AlarmEventTypeMapper;
 import com.jcca.web.event.entity.AlarmEventType;
 import com.jcca.web.event.enums.EventTypeStatusEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
+import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -33,8 +33,6 @@ public class AlarmEventTypeServiceImpl extends ServiceImpl<AlarmEventTypeMapper,
 
     @Resource
     private AlarmRepositoryMapper alarmRepoMapper;
-    @Resource
-    private AlarmEventMapper eventMapper;
     @Resource
     private RedisService redisServ;
 
@@ -94,6 +92,11 @@ public class AlarmEventTypeServiceImpl extends ServiceImpl<AlarmEventTypeMapper,
         redisServ.set(CacheConstant.BUSSESS_CACHE_UNKNOW_EVENT_TYPE_OBJ, eventType);
 
         return eventType;
+    }
+
+    @Override
+    public List<ItemVo> listTypeByAssetDesk(String assetDesk) {
+        return alarmRepoMapper.listTypeByAssetDesk("%" + assetDesk + "%");
     }
 
 

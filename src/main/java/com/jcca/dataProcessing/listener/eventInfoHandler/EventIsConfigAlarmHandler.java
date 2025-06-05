@@ -1,7 +1,6 @@
 package com.jcca.dataProcessing.listener.eventInfoHandler;
 
 import com.jcca.dataProcessing.Entity.EventAlarmLevelBaseEntity;
-import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.impl.AlarmRepoManagerService;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -34,7 +33,7 @@ public class EventIsConfigAlarmHandler extends IFilterHandler<IEvent> {
         /**
          * 如果事件配置过告警
          */
-        List<EventAlarmLevelBaseEntity> list = alarmRepoManagerService.queryRepo(info.getRedisKey());
+        List<EventAlarmLevelBaseEntity> list = alarmRepoManagerService.queryRepo(info.getEventRedisKey());
         if (list != null && list.size() > 0) {
             List<EventAlarmLevelBaseEntity> collect = list.stream().filter(item ->
                     info.getDescStr().contains(item.getStatusFlag().trim()) //事件描述信息中包含关键字信息
@@ -53,8 +52,6 @@ public class EventIsConfigAlarmHandler extends IFilterHandler<IEvent> {
                 return false;
             }
         }
-
-
         return true;
     }
 

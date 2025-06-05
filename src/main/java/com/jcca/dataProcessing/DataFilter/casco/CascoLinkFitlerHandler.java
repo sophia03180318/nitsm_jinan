@@ -35,7 +35,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
     @Override
     public boolean handler(ItsmQueueEntity info) {
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "casco软件连接过滤处理类", info.getAssetIp());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "casco软件连接过滤处理类", info);
 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softLinkState.getCode();
         String mapKey = info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
@@ -43,7 +43,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         if (StrUtil.isEmpty(info.getLinkStatus())) {
             return false;
         }
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getLinkStatus());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getLinkStatus());
 
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getLinkStatus());
@@ -69,7 +69,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getCascoSoftName(), str + "实体号:" + info.getEntityId() + "，属性索引：" + info.getAttrIndex() + "，属性名称：" + info.getProcessName()));
             alarmTempReq.setCollectValue(info.getLinkStatus());
             alarmTempReq.setFlag(mapKey);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

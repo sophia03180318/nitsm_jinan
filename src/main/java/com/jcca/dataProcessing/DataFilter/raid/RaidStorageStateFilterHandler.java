@@ -64,7 +64,7 @@ public class RaidStorageStateFilterHandler extends IFilterHandler<DiskEntity> {
         alarmTempReq.setCollectValue(changeInfo.getValue().toString());
         alarmTempReq.setFlag(keystr);
         String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + keystr;
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
         if (event != null) {
             //被事件信息截取
             event.setDescStr(message);

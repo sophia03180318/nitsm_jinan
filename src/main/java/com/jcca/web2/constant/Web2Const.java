@@ -1,7 +1,11 @@
 package com.jcca.web2.constant;
 
+import com.jcca.dataProcessing.support.IEvent;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author HanHW
@@ -56,5 +60,20 @@ public interface Web2Const {
     String MAINTENANCE_FIX = "maintenance:";
     // 采集指标表达式 时间间隔
     String TARGET_INTERVAL = "INTERVAL";
+
+    // 巡检实时采集队列
+    LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
+
+    // 巡检数据采集接口
+    String XUNJIAN_CENTER_URI = "/business/exeCollect";
+    // 巡检状态数据接口
+    String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
+    // 用于重置任务状态 <jobId, recordId>
+    Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
+    // 巡检需要查询的指标
+    String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
+            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
+            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect",
+            "event:event_temp:state"};
 
 }

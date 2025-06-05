@@ -18,9 +18,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 初始化开始调度任务
@@ -50,7 +47,6 @@ public class QuartzStartJobListener implements ApplicationListener<ContextRefres
     @Resource
     private NoThresholdInfoReceiver noThresholdInfoReceiver;
 
-
     /**
      * 项目启动后操作
      */
@@ -74,9 +70,6 @@ public class QuartzStartJobListener implements ApplicationListener<ContextRefres
         AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "业务启动完成");
         noThresholdInfoReceiver.run();
         AppLogUtils.buildLogInfo(LogFunctionEnum.DEFAULT_CONFIG, "", "非阈值启动完成");
-
-
-
     }
 
 }

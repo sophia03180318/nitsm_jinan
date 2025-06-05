@@ -41,7 +41,7 @@ public class IpmiTemperatureFilterHandler extends IFilterHandler<CollectSensorEn
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口温度信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_temp.getCode() + ":" + info.getSerialNumberName();
         String mapKey = StatusInfoChangeTypeEnum.status_tempValue.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getValue());
         changeInfo.setRedisKey(redisKey);
@@ -59,7 +59,7 @@ public class IpmiTemperatureFilterHandler extends IFilterHandler<CollectSensorEn
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(), info.getAssetId(), null);
         if (threshold.baseValueIsNull()) {
             if(Objects.nonNull(changeInfo)){
-                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
                 if (event != null) {
                     this.dispatureEvent(event);
                 }
@@ -67,7 +67,7 @@ public class IpmiTemperatureFilterHandler extends IFilterHandler<CollectSensorEn
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
         }
@@ -85,7 +85,7 @@ public class IpmiTemperatureFilterHandler extends IFilterHandler<CollectSensorEn
         alarmTempReq.setFlag(info.getName());
 
         this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(), StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(), info.getName(), status, info, changeInfo);
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
         if (event != null) {
             //被事件信息截取
             changeInfo.setIsEvent(true);

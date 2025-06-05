@@ -51,18 +51,18 @@ public class AixSystemMsgIFilterHandlerHandler extends IFilterHandler<CollectAix
         String mapKey11=StatusInfoChangeTypeEnum.status_diskCapacityCount.getCode();
         String mapKey12=StatusInfoChangeTypeEnum.status_totalCapacity.getCode();
 
-        boolean flag1= eventInfoChangeManagerService.infoIschange(redisKey, mapKey1,info.getSerial());
-        boolean flag2= eventInfoChangeManagerService.infoIschange(redisKey, mapKey2,info.getPowerModel());
-        boolean flag3= eventInfoChangeManagerService.infoIschange(redisKey, mapKey3,info.getFrequency());
-        boolean flag4= eventInfoChangeManagerService.infoIschange(redisKey, mapKey4,info.getCpuCoreNum());
-        boolean flag5= eventInfoChangeManagerService.infoIschange(redisKey, mapKey5,info.getPowerNum());
-        boolean flag6= eventInfoChangeManagerService.infoIschange(redisKey, mapKey6,info.getDiskNum());
-        boolean flag7= eventInfoChangeManagerService.infoIschange(redisKey, mapKey7,info.getCpuNum());
-        boolean flag8= eventInfoChangeManagerService.infoIschange(redisKey, mapKey8,info.getCpuMode());
-        boolean flag9= eventInfoChangeManagerService.infoIschange(redisKey, mapKey9,info.getSystemVersion());
-        boolean flag10= eventInfoChangeManagerService.infoIschange(redisKey, mapKey10,info.getMemory());
-        boolean flag11= eventInfoChangeManagerService.infoIschange(redisKey, mapKey11,info.getDiskCapacityCount());
-        boolean flag12= eventInfoChangeManagerService.infoIschange(redisKey, mapKey12,info.getDiskCapacity());
+        boolean flag1= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1,info.getSerial());
+        boolean flag2= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2,info.getPowerModel());
+        boolean flag3= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3,info.getFrequency());
+        boolean flag4= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey4,info.getCpuCoreNum());
+        boolean flag5= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey5,info.getPowerNum());
+        boolean flag6= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey6,info.getDiskNum());
+        boolean flag7= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey7,info.getCpuNum());
+        boolean flag8= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey8,info.getCpuMode());
+        boolean flag9= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey9,info.getSystemVersion());
+        boolean flag10= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey10,info.getMemory());
+        boolean flag11= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey11,info.getDiskCapacityCount());
+        boolean flag12= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey12,info.getDiskCapacity());
 
 
         if(flag1){

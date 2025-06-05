@@ -34,7 +34,7 @@ public class DBAlarmConnectFilterHandler extends IFilterHandler<CollectDBEntity>
         changeInfo.setCollectTime(new Date());
         info.getMaps().put(mapKey, changeInfo);
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
         if (flag) {
             Integer status = Integer.parseInt(changeInfo.getValue().toString()) == 1 ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String eventRedisKey = StatusInfoChangeTypeEnum.event_db_connect.getCode();
@@ -46,7 +46,7 @@ public class DBAlarmConnectFilterHandler extends IFilterHandler<CollectDBEntity>
             alarmTempReq.setFlag("DB");
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.status_db_state.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(),"", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

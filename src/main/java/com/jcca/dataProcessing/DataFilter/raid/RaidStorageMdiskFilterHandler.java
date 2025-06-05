@@ -28,85 +28,85 @@ public class RaidStorageMdiskFilterHandler extends IFilterHandler<DiskEntity> {
         if (info.getDiskType() == 1) {
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_raid_mdisk.getCode() + ":" + info.getName();
             String mapKey1 = StatusInfoChangeTypeEnum.status_raid_name.getCode();
-            boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getName());
+            boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getName());
             if (flag1) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getName(), redisKey, mapKey1);
                 info.getMaps().put(mapKey1, changeInfo);
             }
             String mapKey2 = StatusInfoChangeTypeEnum.status_raid_realid.getCode();
-            boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, info.getRealId());
+            boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, info.getRealId());
             if (flag2) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getRealId(), redisKey, mapKey2);
                 info.getMaps().put(mapKey2, changeInfo);
             }
             String mapKey3 = StatusInfoChangeTypeEnum.status_raid_diskType.getCode();
-            boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, info.getDiskType());
+            boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, info.getDiskType());
             if (flag3) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getDiskType(), redisKey, mapKey3);
                 info.getMaps().put(mapKey3, changeInfo);
             }
             String mapKey4 = StatusInfoChangeTypeEnum.status_raid_status.getCode();
-            boolean flag4 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey4, info.getStatus());
+            boolean flag4 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey4, info.getStatus());
             if (flag4) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getStatus(), redisKey, mapKey4);
                 info.getMaps().put(mapKey4, changeInfo);
             }
             String mapKey5 = StatusInfoChangeTypeEnum.status_raid_grpid.getCode();
-            boolean flag5 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey5, info.getGrpId());
+            boolean flag5 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey5, info.getGrpId());
             if (flag5) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getGrpId(), redisKey, mapKey5);
                 info.getMaps().put(mapKey5, changeInfo);
             }
             String mapKey6 = StatusInfoChangeTypeEnum.status_raid_raidLevel.getCode();
-            boolean flag6 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey6, info.getRaidLevel());
+            boolean flag6 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey6, info.getRaidLevel());
             if (flag6) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getRaidLevel(), redisKey, mapKey6);
                 info.getMaps().put(mapKey6, changeInfo);
             }
             String mapKey7 = StatusInfoChangeTypeEnum.status_raid_capacity.getCode();
-            boolean flag7 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey7, info.getCapacity());
+            boolean flag7 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey7, info.getCapacity());
             if (flag7) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getCapacity(), redisKey, mapKey7);
                 info.getMaps().put(mapKey7, changeInfo);
             }
             String mapKey8 = StatusInfoChangeTypeEnum.status_raid_usedCapacity.getCode();
-            boolean flag8 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey8, info.getUsedCapacity());
+            boolean flag8 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey8, info.getUsedCapacity());
             if (flag8) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getUsedCapacity(), redisKey, mapKey8);
                 info.getMaps().put(mapKey8, changeInfo);
             }
             String mapKey9 = StatusInfoChangeTypeEnum.status_raid_parentOrgName.getCode();
-            boolean flag9 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey9, info.getParentOrgName());
+            boolean flag9 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey9, info.getParentOrgName());
             if (flag9) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getParentOrgName(), redisKey, mapKey9);
                 info.getMaps().put(mapKey9, changeInfo);
             }
             String mapKey10 = StatusInfoChangeTypeEnum.status_raid_parentOrgId.getCode();
-            boolean flag10 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey10, info.getParentOrgId());
+            boolean flag10 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey10, info.getParentOrgId());
             if (flag10) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getParentOrgId(), redisKey, mapKey10);
                 info.getMaps().put(mapKey10, changeInfo);
             }
             String mapKey11 = StatusInfoChangeTypeEnum.status_raid_xindx.getCode();
-            boolean flag11 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey11, info.getXindex());
+            boolean flag11 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey11, info.getXindex());
             if (flag11) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getXindex(), redisKey, mapKey11);
                 info.getMaps().put(mapKey11, changeInfo);
             }
             String mapKey12 = StatusInfoChangeTypeEnum.status_raid_yindx.getCode();
-            boolean flag12 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey12, info.getYindex());
+            boolean flag12 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey12, info.getYindex());
             if (flag12) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getYindex(), redisKey, mapKey12);
                 info.getMaps().put(mapKey12, changeInfo);
             }
             String mapKey13 = StatusInfoChangeTypeEnum.status_raid_capacityStr.getCode();
-            boolean flag13 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey13, info.getCapacityStr());
+            boolean flag13 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey13, info.getCapacityStr());
             if (flag13) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getCapacityStr(), redisKey, mapKey13);
                 info.getMaps().put(mapKey13, changeInfo);
             }
             String mapKey14 = StatusInfoChangeTypeEnum.status_raid_usedCapacityStr.getCode();
-            boolean flag14 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey14, info.getUsedCapacityStr());
+            boolean flag14 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey14, info.getUsedCapacityStr());
             if (flag14) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getUsedCapacityStr(), redisKey, mapKey14);
                 info.getMaps().put(mapKey13, changeInfo);

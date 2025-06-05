@@ -31,7 +31,7 @@ public class MemoryTop5FilterHandler  extends IFilterHandler<CollectMemoryEntity
         boolean flag=false;
         if(list!=null&&list.size()>0){
             for(CollectProcessEntity collectProcessEntity:list){
-                if( eventInfoChangeManagerService.infoIschange(redisKey,collectProcessEntity.getName()+"_"+collectProcessEntity.getProcessId(),collectProcessEntity.getMemoryRate())){
+                if( eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey,collectProcessEntity.getName()+"_"+collectProcessEntity.getProcessId(),collectProcessEntity.getMemoryRate())){
                     flag=true;
                     break;
                 }

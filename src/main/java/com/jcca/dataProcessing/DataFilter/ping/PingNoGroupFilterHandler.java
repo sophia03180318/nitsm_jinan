@@ -56,7 +56,7 @@ public class PingNoGroupFilterHandler extends IFilterHandler<ReceiveAlarmEntity>
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_ping.getCode();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getFlag());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getFlag());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getFlag());
@@ -72,7 +72,7 @@ public class PingNoGroupFilterHandler extends IFilterHandler<ReceiveAlarmEntity>
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_ping_no_group.getDescr()));
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_ping_no_group.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(),"", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

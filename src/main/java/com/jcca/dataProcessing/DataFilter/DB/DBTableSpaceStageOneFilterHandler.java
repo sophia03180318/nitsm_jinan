@@ -38,14 +38,14 @@ public class DBTableSpaceStageOneFilterHandler extends IFilterHandler<CollectTab
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_db_tableSpace.getCode(), info.getAssetId(),"");
         if (threshold.oneLevelIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getOneLevelValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getOneLevelValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
         }
@@ -63,7 +63,7 @@ public class DBTableSpaceStageOneFilterHandler extends IFilterHandler<CollectTab
             alarmTempReq.setFlag(info.getName());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_tableSpace_sectionOne.getCode(),StatusInfoChangeTypeEnum.SECTION_ONE_VAL.getCode(),info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

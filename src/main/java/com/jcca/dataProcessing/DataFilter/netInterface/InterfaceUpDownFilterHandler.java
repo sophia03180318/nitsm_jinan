@@ -66,7 +66,7 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
             }
         }
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getStatus());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getStatus());
 
         if (Objects.isNull(flag) && status.equals(EventLevelEnum.ABNORMAL.getCode())) {
             return true;
@@ -120,7 +120,7 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
 
             tempReq.setOrgMsg(descStr);
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq,info.getInspectRecordId());
 
             if (Objects.nonNull(event)) {
                 //被事件信息截取

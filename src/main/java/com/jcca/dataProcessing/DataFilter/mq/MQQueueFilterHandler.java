@@ -37,7 +37,7 @@ public class MQQueueFilterHandler extends IFilterHandler<MQMonitorEntity> {
 
         //判断数据是否有变化
         ChangeInfo changeInfo = null;
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getStatus());
         if (flag) {
             changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getStatus());
@@ -62,7 +62,7 @@ public class MQQueueFilterHandler extends IFilterHandler<MQMonitorEntity> {
             tempReq.setFlag(info.getName());
 
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

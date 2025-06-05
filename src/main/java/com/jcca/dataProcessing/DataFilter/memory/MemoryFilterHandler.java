@@ -45,7 +45,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
             info.setMemRate(usedRate.doubleValue());
         }
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getMemRate());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getMemRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getMemRate());
         changeInfo.setIsChange(flag);
@@ -62,7 +62,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_memory_normal.getCode(), info.getAssetId(), null);
         if (threshold.baseValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -70,7 +70,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
         }
 
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             ChangeInfo changeThresholdInfo = new ChangeInfo();
             changeThresholdInfo.setValue(threshold.getBaseValue());
@@ -96,7 +96,7 @@ public class MemoryFilterHandler extends IFilterHandler<CollectMemoryEntity> {
 
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_memory_normal.getCode(),StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(),null, status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

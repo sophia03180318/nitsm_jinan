@@ -47,7 +47,7 @@ public class CenterSystemRunTimeFilterHandler extends IFilterHandler<CollectSyst
         String mapKey = StatusInfoChangeTypeEnum.status_run_time.getCode();
 
         String mapKeyRestart = StatusInfoChangeTypeEnum.status_run_time_restart.getCode();
-        boolean flagRestart = eventInfoChangeManagerService.infoIschange(redisKey, mapKeyRestart, info.getTimeduration());
+        boolean flagRestart = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKeyRestart, info.getTimeduration());
         ChangeInfo changeInfo2 = new ChangeInfo();
         changeInfo2.setValue(info.getTimeduration());
         changeInfo2.setRedisKey(redisKey);
@@ -58,7 +58,7 @@ public class CenterSystemRunTimeFilterHandler extends IFilterHandler<CollectSyst
 
 
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getTimeduration());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getTimeduration());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getTimeduration());
         changeInfo.setRedisKey(redisKey);
@@ -76,14 +76,14 @@ public class CenterSystemRunTimeFilterHandler extends IFilterHandler<CollectSyst
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_run_time_state.getCode(), info.getAssetId(), null);
         if (threshold.baseValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
         }
@@ -99,7 +99,7 @@ public class CenterSystemRunTimeFilterHandler extends IFilterHandler<CollectSyst
             alarmTempReq.setCollectValue(collectDay + "天");
             alarmTempReq.setThresholdValue(threshold.getBaseValue() + "天");
             this.addEventStatus(StatusInfoChangeTypeEnum.event_run_time_state.getCode(), StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(), null, status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

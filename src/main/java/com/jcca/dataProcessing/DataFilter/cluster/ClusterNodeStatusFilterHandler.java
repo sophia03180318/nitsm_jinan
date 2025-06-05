@@ -35,7 +35,7 @@ public class ClusterNodeStatusFilterHandler extends IFilterHandler<CollectCluste
         String mapKey=StatusInfoChangeTypeEnum.status_clusterMasterState.getCode();
 
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getServerRole());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getServerRole());
         if(flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getServerRole());
@@ -52,7 +52,7 @@ public class ClusterNodeStatusFilterHandler extends IFilterHandler<CollectCluste
             alarmTempReq.setOrgMsg(keyWord);
             alarmTempReq.setCollectValue(info.getServerRole());
             alarmTempReq.setFlag(info.getServerName());
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -58,7 +58,8 @@ public class ApiStatisticsController {
         }
 
         // 按类型统计设备数量
-        List<StatisticsAlarmVo> assetModeList = assetService.getModeAsset();
+        List<String> orgIds = ShiroUtil.getSubjectOrgIds();
+        List<StatisticsAlarmVo> assetModeList = assetService.getModeAsset(orgIds);
 
         // 按组织统计设备数量
         List<StatisticsAlarmVo> orgAssetList = assetService.getOrgAsset();
