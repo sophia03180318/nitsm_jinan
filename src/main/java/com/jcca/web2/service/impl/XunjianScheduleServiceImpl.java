@@ -361,7 +361,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         try {
             // 开始巡检采集
             Set<String> assetIdSet = new HashSet<>();
@@ -371,9 +370,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-                executor.execute(() -> {
-                    inspectAssetService.xunjianCollect(inspectAsset);
-                });
+                inspectAssetService.xunjianCollect(inspectAsset);
             }
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常", dto);
