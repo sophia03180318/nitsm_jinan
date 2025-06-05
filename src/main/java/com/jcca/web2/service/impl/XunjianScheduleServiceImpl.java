@@ -143,6 +143,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 是否立即执行
             if (dto.getStartNow() == 2) {
+                try {
+                    TimeUnit.SECONDS.sleep(3L);
+                } catch (InterruptedException ignored) {
+
+                }
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
                 executor.execute(() -> {
                     dto.setId(schedule.getId());
@@ -702,7 +707,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
         }
