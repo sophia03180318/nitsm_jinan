@@ -93,7 +93,11 @@ public class OracleDbSourceAdapterImpl implements DbSourceAdapter {
             Object value = map.get("value");
             DateTime date = DateUtil.parse(key.toString(), "yyyy-MM-dd HH:mm:ss");
             linkList.add(date.getTime() / 1000 + "");
-            linkList.add(value.toString());
+            if(Objects.isNull(value)){
+                linkList.add("");
+            }else{
+                linkList.add(value.toString());
+            }
             resultList.add(linkList);
         }
 

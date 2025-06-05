@@ -346,7 +346,7 @@
             </if>
             <if test="query.alarmCodeList != null">
                 and (a.ALARM_CODE IN
-                <trim suffixOverrides=" a.ALARM_CODE IN()">
+                <trim suffixOverrides=" a.ALARM_CODE NOT IN()">
                     <!-- 表示删除最后一个条件 -->
                     <foreach collection="query.alarmCodeList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
