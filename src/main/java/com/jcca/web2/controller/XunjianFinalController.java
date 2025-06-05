@@ -14,6 +14,8 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.component.client.CollectAgent;
+import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
@@ -63,6 +65,9 @@ public class XunjianFinalController {
     private InspectRecordService inspectRecordService;
     @Resource
     private InspectDetailService inspectDetailService;
+    @Resource
+    private CollectAgent collectAgent;
+    private static final String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
 
 
     @GetMapping("/job/list")
@@ -184,6 +189,14 @@ public class XunjianFinalController {
         }
         if (schedule.getJobState() != 1) {
             return ResultVoUtil.error(ResultEnum.ERROR.getCode(), "任务已开始或已暂停");
+        }
+
+        // 巡检前让采集器推送一次进程状态数据
+        try {
+            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
+        } catch (CollectAgencyException e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", jobId);
+            throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
         }
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务", jobId);

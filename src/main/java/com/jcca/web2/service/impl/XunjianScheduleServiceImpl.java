@@ -15,8 +15,6 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
-import com.jcca.component.client.CollectAgent;
-import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -291,9 +289,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
     }
 
-    @Resource
-    private CollectAgent collectAgent;
-    private static final String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
     private final String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
             "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
             "event:event_fan:state", "event:event_power:syslog", "event:event_power:state"};
@@ -305,15 +300,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      */
     @Override
     public void beginXunjian(XunjianJobDto dto) {
-
-        // 巡检前让采集器推送一次进程状态数据
-        try {
-            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
-        } catch (CollectAgencyException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto);
-            throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "巡检采集获取状态数据异常");
-        }
-
         String id = dto.getId();
         // 将任务设置为正在巡检
         XunjianSchedule schedule = this.getById(id);
