@@ -190,20 +190,17 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             adapter1.dispose(jsonArray1);
 
             SendPingAlarmReq statusResult = execResult.getStatusResult();
+            statusResult.setInspectRecordId(asset.getInspectRecordId());
             redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
         }
     }
 
     private void send2Queue(InspectAsset asset, String msg) {
-        List<String> targets = Arrays.asList(Web2Const.STATUS_TARGET_ARR);
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
-            if (!targets.contains(inspectAsset.getTargetItem())) {
-                continue;
-            }
             XunjianDataDto dto = new XunjianDataDto();
             dto.setInspectRecordId(asset.getInspectRecordId());
             dto.setAssetId(asset.getAssetId());

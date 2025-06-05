@@ -5,9 +5,7 @@ import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.event.enums.EventLevelEnum;
-import com.jcca.web.event.service.AlarmEventTypeService;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -33,9 +31,9 @@ public class EventInfoManagerService implements IEventInfoManagerService {
 
 
     @Override
-    public boolean infoIschange(String inspectRecordId,String redisKey, String mapKey, Object changeValue) {
+    public boolean infoIschange(String inspectRecordId, String redisKey, String mapKey, Object changeValue) {
         //判断是否是巡检过来的数据
-        if(inspectRecordId!=null&&!"".equals(inspectRecordId)){
+        if (inspectRecordId != null && !inspectRecordId.isEmpty()) {
             return true;
         }
         Object obj = redisService.hmGet(redisKey, mapKey);
@@ -47,9 +45,9 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public synchronized Boolean infoIschangeFirst(String inspectRecordId,String redisKey, String mapKey, Object changeValue) {
+    public synchronized Boolean infoIschangeFirst(String inspectRecordId, String redisKey, String mapKey, Object changeValue) {
         //判断是否是巡检过来的数据
-        if(inspectRecordId!=null&&!"".equals(inspectRecordId)){
+        if (inspectRecordId != null && !"".equals(inspectRecordId)) {
             return true;
         }
         Object obj = redisService.hmGet(redisKey, mapKey);
@@ -112,13 +110,13 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq,String inspectRecordId) {
-        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq,inspectRecordId);
+    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq, String inspectRecordId) {
+        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq, inspectRecordId);
         return event;
     }
 
     @Override
-    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String eventMapKey, String redisThresholdKey, String thresholdMapKey,String inspectRecordId) {
+    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String eventMapKey, String redisThresholdKey, String thresholdMapKey, String inspectRecordId) {
         Map<String, Object> map = redisService.getHashMap(redisThresholdKey);
         boolean redisThreshold = map.containsKey(thresholdMapKey);
         if (redisThreshold) {//如果存储阈值配置信息
@@ -128,7 +126,7 @@ public class EventInfoManagerService implements IEventInfoManagerService {
                     this.delStateValue(redisThresholdKey, key);//删除阈值配置
                 }
             }
-            IEvent event = new IEvent(assetId, changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.NORMAL.getCode(),inspectRecordId);
+            IEvent event = new IEvent(assetId, changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.NORMAL.getCode(), inspectRecordId);
             event.setDescStr("阈值设置被清除,恢复阈值事件。");//恢复阈值告警
             changeInfo.setIsEvent(true);
             return event;

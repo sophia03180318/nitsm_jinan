@@ -1,6 +1,7 @@
 package com.jcca.web2.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -16,6 +17,7 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
@@ -39,6 +41,7 @@ import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
+import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
@@ -55,8 +58,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -191,10 +197,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
             List<ThresholdProcess> thresholdProcessList = thresholdProcessService.selectByAssetList(Collections.singletonList(asset.getAssetId()));
             for (String target : targetList) {
-                if (StatusInfoChangeTypeEnum.event_ping_group_all.getCode().equals(target)
-                        || StatusInfoChangeTypeEnum.event_ping_group_other.getCode().equals(target)) {
-                    continue;
-                }
                 Set<String> set = new HashSet<>();
                 AlarmEventType alarmEventType = alarmEventTypeService.getById(target);
                 List<AlarmRepository> repositoryList = alarmRepositoryService.getAllByEventId(target);
@@ -203,6 +205,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                         continue;
                     }
                     set.add(repository.getAlarmCode());
+                    if (StatusInfoChangeTypeEnum.event_ping_group_all.getCode().equals(repository.getAlarmCode())
+                            || StatusInfoChangeTypeEnum.event_ping_group_other.getCode().equals(repository.getAlarmCode())) {
+                        continue;
+                    }
+
                     InspectAsset inspectAsset = new InspectAsset();
                     BeanUtils.copyProperties(asset, inspectAsset);
                     inspectAsset.setId(MyIdUtil.getId());
@@ -689,6 +696,23 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             asset.setInspectState(Web2Const.INSPECT);
         }
         inspectAssetService.updateBatchById(assetList);
+    }
+
+    @Override
+    public void sendWsMsg(XunjianWSDto wsDto) {
+        String operator = wsDto.getUsername();
+        WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
+        if (webSocketSession == null || !webSocketSession.isOpen()) {
+            return;
+        }
+        try {
+            synchronized (webSocketSession) {
+                webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
+            }
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+        } catch (IOException e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
+        }
     }
 
     private void getModeAssetList(List<ItemVo> resultList, SysOrg org, ItemVo vo1,

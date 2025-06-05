@@ -1,11 +1,9 @@
 package com.jcca.web2.service;
 
-import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
-import com.jcca.common.webssh.websocket.XunjianWebSocketHandler;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web2.constant.Web2Const;
@@ -19,10 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -422,7 +417,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         msg.setNormal(normal);
         msg.setAbnormal(abnormal);
         wsDto.setMessage(msg);
-        this.send(wsDto);
+        xunjianScheduleService.sendWsMsg(wsDto);
     }
 
     private void clearMap(String inspectRecordId) {
@@ -453,22 +448,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
     }
 
-    private void send(XunjianWSDto wsDto) {
-        String operator = wsDto.getUsername();
-        WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
-        if (webSocketSession == null || !webSocketSession.isOpen()) {
-            return;
-        }
-        try {
-            synchronized (webSocketSession) {
-                webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
-            }
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
-        } catch (IOException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
-        }
-    }
-
     private void sendMsg(String operator, Integer msgType, String jobId, int normal, int abnormal) {
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
@@ -478,7 +457,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         msg.setAbnormal(abnormal);
         msg.setNormal(normal);
         wsDto.setMessage(msg);
-        this.send(wsDto);
+        xunjianScheduleService.sendWsMsg(wsDto);
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {
@@ -492,7 +471,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         msg.setStatus(status);
         msg.setCount(count);
         wsDto.setMessage(msg);
-        this.send(wsDto);
+        xunjianScheduleService.sendWsMsg(wsDto);
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {

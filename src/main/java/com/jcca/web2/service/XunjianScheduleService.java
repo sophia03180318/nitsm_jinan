@@ -2,6 +2,7 @@ package com.jcca.web2.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
+import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.vo.ItemVo;
 
@@ -33,4 +34,6 @@ public interface XunjianScheduleService extends IService<XunjianSchedule> {
     List<XunjianSchedule> findByJobId(String jobId);
 
     void resetJob(XunjianSchedule schedule);
+
+    void sendWsMsg(XunjianWSDto wsDto);
 }

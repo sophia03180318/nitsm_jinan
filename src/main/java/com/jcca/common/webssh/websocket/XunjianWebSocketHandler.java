@@ -1,12 +1,16 @@
 package com.jcca.common.webssh.websocket;
 
-import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
+import com.jcca.web2.service.XunjianScheduleService;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
 
+import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class XunjianWebSocketHandler implements WebSocketHandler {
 
     public static Map<String, WebSocketSession> XUNJIAN_WEBSOCKET_MAP = new ConcurrentHashMap<>();
+
+    @Resource
+    private XunjianScheduleService xunjianScheduleService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -40,7 +47,7 @@ public class XunjianWebSocketHandler implements WebSocketHandler {
         XunjianWSDto msg = new XunjianWSDto();
         msg.setName("OK");
         sendMsg.setMessage(msg);
-        session.sendMessage(new TextMessage(JSONUtil.toJsonStr(sendMsg)));
+        xunjianScheduleService.sendWsMsg(sendMsg);
     }
 
     @Override

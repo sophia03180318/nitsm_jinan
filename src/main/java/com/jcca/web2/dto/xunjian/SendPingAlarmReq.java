@@ -38,6 +38,10 @@ public class SendPingAlarmReq implements Serializable {
      * 通断标志,无组ping需要传此参数
      */
     private Boolean flag;
+    /**
+     * 巡检采集任务ID
+     */
+    private String inspectRecordId;
 
 
 }
