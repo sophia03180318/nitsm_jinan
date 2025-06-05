@@ -405,7 +405,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 inspectDetail.setResultMsg(dto.getResultMsg());
                 inspectDetail.setAlarmId(dto.getAlarmId());
                 inspectDetailService.save(inspectDetail);
-                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集保存指标详情", inspectDetail);
             }
         }
     }

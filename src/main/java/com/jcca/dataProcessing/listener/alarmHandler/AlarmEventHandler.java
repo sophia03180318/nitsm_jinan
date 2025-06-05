@@ -90,10 +90,12 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 }
 
                 //将alarmid赋值
-                info.setAlarmId(alarmInfo.getId());
+                if (Objects.nonNull(alarmInfo)) {
+                    info.setAlarmId(alarmInfo.getId());
+                }
 
                 //过滤掉 未确认的已恢复告警
-                if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && Objects.nonNull(alarmInfo) && AlarmStateEnum.RECOVER.getCode().equals(alarmInfo.getAlarmState())) {
+                if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && AlarmStateEnum.RECOVER.getCode().equals(alarmInfo.getAlarmState())) {
                     redisTransactionTemplate.exec();
                     return true;
                 }
