@@ -21,6 +21,7 @@ import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web.alarm.entity.AlarmInfo;
@@ -59,6 +60,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
 
 /**
@@ -189,6 +191,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
             List<ThresholdProcess> thresholdProcessList = thresholdProcessService.selectByAssetList(Collections.singletonList(asset.getAssetId()));
             for (String target : targetList) {
+                if (StatusInfoChangeTypeEnum.event_ping_group_all.getCode().equals(target)
+                        || StatusInfoChangeTypeEnum.event_ping_group_other.getCode().equals(target)) {
+                    continue;
+                }
                 Set<String> set = new HashSet<>();
                 AlarmEventType alarmEventType = alarmEventTypeService.getById(target);
                 List<AlarmRepository> repositoryList = alarmRepositoryService.getAllByEventId(target);
@@ -297,9 +303,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
     @Resource
     private CollectAgent collectAgent;
-    private final String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
-            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
-            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect"};
 
     /**
      * 真正巡检开始
@@ -368,19 +371,26 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             query.eq("ALARM_STATE", 1);
             query.eq("BLANK", 1);
             List<AlarmInfo> infos = alarmInfoService.list(query);
-            if (infos.isEmpty()) {
-                inspectAsset.setInspectValue("1");
-                inspectAsset.setInspectState(Web2Const.INSPECTED);
-                inspectAsset.setResultMsg("正常");
+//            if (infos.isEmpty()) {
+//                inspectAsset.setInspectValue("1");
+//                inspectAsset.setInspectState(Web2Const.INSPECTED);
+//                inspectAsset.setResultMsg("正常");
+//                this.send2Queue(inspectAsset);
+//            } else {
+//                for (AlarmInfo info : infos) {
+//                    inspectAsset.setInspectValue("-1");
+//                    inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+//                    inspectAsset.setResultMsg(info.getDescription());
+//                    inspectAsset.setAlarmId(info.getId());
+//                    this.send2Queue(inspectAsset);
+//                }
+//            }
+            for (AlarmInfo info : infos) {
+                inspectAsset.setInspectValue("-1");
+                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+                inspectAsset.setResultMsg(info.getDescription());
+                inspectAsset.setAlarmId(info.getId());
                 this.send2Queue(inspectAsset);
-            } else {
-                for (AlarmInfo info : infos) {
-                    inspectAsset.setInspectValue("-1");
-                    inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
-                    inspectAsset.setResultMsg(info.getDescription());
-                    inspectAsset.setAlarmId(info.getId());
-                    this.send2Queue(inspectAsset);
-                }
             }
         }
 

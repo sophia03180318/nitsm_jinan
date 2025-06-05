@@ -97,6 +97,9 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             if (!inspectRecordMap.containsKey(inspectRecordId)) {
                 record = inspectRecordService.getById(inspectRecordId);
+                if (record == null) {
+                    continue;
+                }
                 inspectRecordMap.put(inspectRecordId, record);
             }
             record = inspectRecordMap.get(inspectRecordId);
@@ -224,7 +227,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 targetStateMap.put(inspectRecordId, map2);
             }
 
-            this.saveDetail(dto, 1);
+            this.saveDetail(dto);
             return;
         }
         targets.add(idItem);
@@ -365,7 +368,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
 
         // 保存巡检详情
-        this.saveDetail(dto, 2);
+        this.saveDetail(dto);
 
         // 已巡检指标数量和指标总数量相同则全部巡检结束
         if (totalTarget.intValue() == countTarget) {
@@ -386,7 +389,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
     }
 
-    private void saveDetail(XunjianDataDto dto, Integer a) {
+    private void saveDetail(XunjianDataDto dto) {
         List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
@@ -460,7 +463,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
         }

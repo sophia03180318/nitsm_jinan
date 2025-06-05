@@ -6,11 +6,14 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveCollectDto;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
@@ -22,6 +25,7 @@ import com.jcca.web2.service.InspectAssetService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -126,8 +130,12 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String targetItem) {
+        String inspectRecordId = Web2Const.XUNJIAN_JOB_RECORD.get(jobId);
+        if (StringUtils.isEmpty(inspectRecordId)) {
+            return new ArrayList<>();
+        }
         targetItem = targetItem + "%";
-        return inspectAssetMapper.getTargetAssetInfo(jobId, targetItem);
+        return inspectAssetMapper.getTargetAssetInfo(inspectRecordId, targetItem);
     }
 
     @Override
@@ -166,12 +174,13 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
         o = jsonObject.get("body");
         JSONObject body = JSONUtil.parseObj(o.toString());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集器返回数据", body.toString());
         CollectExecResp collectExecResp = JSONUtil.toBean(body.toString(), CollectExecResp.class);
         List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
         for (CollectExecResult execResult : execRespList) {
             Integer code = execResult.getCode();
             if (code != 1) {
-//                this.send2Queue(asset, "实时巡检失败：" + execResult.getMsg());
+                this.send2Queue(asset, execResult.getMsg());
                 continue;
             }
             ReceiveCollectDto dto = execResult.getResult();
@@ -186,24 +195,28 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     private void send2Queue(InspectAsset asset, String msg) {
+        List<String> targets = Arrays.asList(Web2Const.STATUS_TARGET_ARR);
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
+            if (!targets.contains(inspectAsset.getTargetItem())) {
+                continue;
+            }
             XunjianDataDto dto = new XunjianDataDto();
             dto.setInspectRecordId(asset.getInspectRecordId());
             dto.setAssetId(asset.getAssetId());
             dto.setTargetItem(inspectAsset.getTargetItem());
             dto.setInspectValue("--");
             dto.setInspectState(Web2Const.INSPECT_ERROR);
-            dto.setResultMsg(msg);
+            dto.setResultMsg(StatusInfoChangeTypeEnum.getName(inspectAsset.getTargetItem()) + "--" + msg);
             IEvent event = new IEvent();
             event.setXunjianDataDto(dto);
             try {
                 Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+
             }
         }
     }

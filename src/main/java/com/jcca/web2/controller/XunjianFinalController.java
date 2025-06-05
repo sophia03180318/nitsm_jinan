@@ -249,9 +249,10 @@ public class XunjianFinalController {
         }
         XunjianSchedule schedule = list.get(0);
         if (schedule.getJobState() != 2) {
-            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能重置正在进行中的任务");
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能停止正在进行中的任务");
         }
         xunjianScheduleService.resetJob(schedule);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
     }
 

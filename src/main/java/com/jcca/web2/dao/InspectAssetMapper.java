@@ -39,9 +39,9 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
             "WHERE i.JOB_ID = #{jobId} GROUP BY t.EVENT_CATEGORY, t.TYPE_ALIAS ORDER BY t.EVENT_CATEGORY")
     List<ItemVo> getTargetStatus(String jobId);
 
-    @Select("SELECT JOB_ID AS inspectCode, ASSET_ID, ASSET_NAME, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG " +
-            "FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} AND TARGET_ITEM LIKE #{targetItem} AND INSPECT_STATE = 4 ORDER BY ASSET_ID")
-    List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String targetItem);
+    @Select("SELECT INSPECT_CODE, ASSET_ID, ASSET_NAME, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG " +
+            "FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectRecordId} AND TARGET_ITEM LIKE #{targetItem} AND INSPECT_STATE = 4 ORDER BY ASSET_ID")
+    List<InspectTargetDetailInfo> getTargetAssetInfo(String inspectRecordId, String targetItem);
 
     @Select("SELECT JOB_ID AS inspectCode, ASSET_ID, ASSET_NAME, TARGET_ITEM, TARGET_NAME, INSPECT_STATE, THRESHOLD_VALUE, INSPECT_VALUE, RESULT_MSG " +
             "FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} AND ASSET_ID = #{assetId} AND INSPECT_STATE = 4 ORDER BY TARGET_ITEM")

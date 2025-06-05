@@ -70,5 +70,9 @@ public interface Web2Const {
     String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
     // 用于重置任务状态 <jobId, recordId>
     Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
+    // 巡检需要查询的指标
+    String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
+            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
+            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect"};
 
 }
