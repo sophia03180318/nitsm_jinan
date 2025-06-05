@@ -1,11 +1,10 @@
 package com.jcca.web2.constant;
 
 import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.dataProcessing.support.XunjianEvent;
-import com.jcca.web2.dto.xunjian.XunjianDataDto;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -64,4 +63,12 @@ public interface Web2Const {
 
     // 巡检实时采集队列
     LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
+
+    // 巡检数据采集接口
+    String XUNJIAN_CENTER_URI = "/business/exeCollect";
+    // 巡检状态数据接口
+    String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
+    // 用于重置任务状态 <jobId, recordId>
+    Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
+
 }

@@ -42,6 +42,8 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
+
 /**
  * @author: hhw
  * @description: XunjianFinalController 主要是用来处理终版智能巡检
@@ -67,7 +69,6 @@ public class XunjianFinalController {
     private InspectDetailService inspectDetailService;
     @Resource
     private CollectAgent collectAgent;
-    private static final String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
 
 
     @GetMapping("/job/list")
@@ -203,6 +204,7 @@ public class XunjianFinalController {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         executor.execute(() -> {
             XunjianJobDto dto = new XunjianJobDto();
+            dto.setAutoFlag(1);
             dto.setId(schedule.getId());
             dto.setOperator(schedule.getOperator());
             xunjianScheduleService.beginXunjian(dto);
@@ -235,6 +237,21 @@ public class XunjianFinalController {
         dto.setOperator(username);
         xunjianScheduleService.updateSchedule(dto);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "修改巡检任务", jobId);
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/job/reset")
+    @ApiOperation("重置任务状态")
+    public ResultVo<Object> resetJob(String jobId) {
+        List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
+        if (list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+        XunjianSchedule schedule = list.get(0);
+        if (schedule.getJobState() != 2) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能重置正在进行中的任务");
+        }
+        xunjianScheduleService.resetJob(schedule);
         return ResultVoUtil.success();
     }
 

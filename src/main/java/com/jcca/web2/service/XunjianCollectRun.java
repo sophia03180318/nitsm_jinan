@@ -440,6 +440,14 @@ public class XunjianCollectRun implements ApplicationRunner {
         targetStateMap.clear();
         currentNormalTargetMap.clear();
 //        repeatTargetMap.clear();
+
+        Set<String> keySet = Web2Const.XUNJIAN_JOB_RECORD.keySet();
+        for (String key : keySet) {
+            if (inspectRecordId.equals(Web2Const.XUNJIAN_JOB_RECORD.get(key))) {
+                Web2Const.XUNJIAN_JOB_RECORD.remove(key);
+                break;
+            }
+        }
     }
 
     private void send(XunjianWSDto wsDto) {

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_CENTER_URI;
+
 /**
  * @author HanHW
  * @description 巡检管理服务
@@ -40,7 +42,6 @@ import java.util.stream.Collectors;
 @Service
 public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, InspectAsset> implements InspectAssetService {
 
-    private static final String XUNJIAN_CENTER_URI = "/business/exeCollect";
 
     @Resource
     private InspectAssetMapper inspectAssetMapper;

@@ -2,6 +2,7 @@ package com.jcca.web2.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.system.entity.SysOrg;
@@ -15,6 +16,8 @@ import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.component.client.CollectAgent;
+import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -55,6 +58,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
 
 /**
  * @author: hhw
@@ -132,6 +137,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
                 executor.execute(() -> {
                     dto.setId(schedule.getId());
+                    dto.setAutoFlag(1);
                     this.beginXunjian(dto);
                 });
             }
@@ -289,9 +295,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
     }
 
+    @Resource
+    private CollectAgent collectAgent;
     private final String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
             "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
-            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state"};
+            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect"};
 
     /**
      * 真正巡检开始
@@ -300,6 +308,17 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      */
     @Override
     public void beginXunjian(XunjianJobDto dto) {
+
+        if (dto.getAutoFlag() == 2) {
+            // 巡检前让采集器推送一次进程状态数据
+            try {
+                collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
+            } catch (CollectAgencyException e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto);
+                return;
+            }
+        }
+
         String id = dto.getId();
         // 将任务设置为正在巡检
         XunjianSchedule schedule = this.getById(id);
@@ -318,6 +337,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         schedule.setInspectRecordId(inspectRecordId);
         this.saveInspectRecord(schedule);
+
+        Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
 
         try {
             // 开始巡检采集
@@ -583,6 +604,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
                 executor.execute(() -> {
                     dto.setId(schedule.getId());
+                    dto.setAutoFlag(1);
                     this.beginXunjian(dto);
                 });
             }
@@ -635,6 +657,28 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         QueryWrapper<XunjianSchedule> query = Wrappers.query();
         query.eq("JOB_ID", jobId);
         return this.list(query);
+    }
+
+    @Override
+    public void resetJob(XunjianSchedule schedule) {
+        String inspectRecordId = Web2Const.XUNJIAN_JOB_RECORD.get(schedule.getJobId());
+        // 删除巡检记录
+        inspectRecordService.removeById(inspectRecordId);
+        // 删除巡检详情
+        UpdateWrapper<InspectDetail> update = Wrappers.update();
+        update.eq("INSPECT_CODE", inspectRecordId);
+        inspectDetailService.remove(update);
+
+        // 将任务设置为最初状态
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+        this.updateById(schedule);
+
+        // 将指标设置为最初状态
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        for (InspectAsset asset : assetList) {
+            asset.setInspectState(Web2Const.INSPECT);
+        }
+        inspectAssetService.updateBatchById(assetList);
     }
 
     private void getModeAssetList(List<ItemVo> resultList, SysOrg org, ItemVo vo1,
