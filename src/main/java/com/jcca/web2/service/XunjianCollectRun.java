@@ -382,6 +382,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             // 清空内存
             this.clearMap(inspectRecordId);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
         }
     }
 
@@ -404,6 +405,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 inspectDetail.setResultMsg(dto.getResultMsg());
                 inspectDetail.setAlarmId(dto.getAlarmId());
                 inspectDetailService.save(inspectDetail);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集保存指标详情", inspectDetail);
             }
         }
     }
@@ -451,17 +453,13 @@ public class XunjianCollectRun implements ApplicationRunner {
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
         }
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, int normal, int abnormal) {
-        WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
-        if (webSocketSession == null) {
-            return;
-        }
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);

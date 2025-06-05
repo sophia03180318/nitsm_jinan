@@ -170,7 +170,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         for (CollectExecResult execResult : execRespList) {
             Integer code = execResult.getCode();
             if (code != 1) {
-                this.send2Queue(asset, "实时巡检失败：" + execResult.getMsg());
+//                this.send2Queue(asset, "实时巡检失败：" + execResult.getMsg());
                 continue;
             }
             ReceiveCollectDto dto = execResult.getResult();

@@ -352,7 +352,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 query.eq("ALARM_STATE", 1);
                 query.eq("BLANK", 1);
                 List<AlarmInfo> infos = alarmInfoService.list(query);
-                if (!infos.isEmpty()) {
+                if (infos.isEmpty()) {
+                    inspectAsset.setInspectValue("1");
+                    inspectAsset.setInspectState(Web2Const.INSPECTED);
+                    inspectAsset.setResultMsg("正常");
+                    this.send2Queue(inspectAsset);
+                } else {
                     for (AlarmInfo info : infos) {
                         inspectAsset.setInspectValue("-1");
                         inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);

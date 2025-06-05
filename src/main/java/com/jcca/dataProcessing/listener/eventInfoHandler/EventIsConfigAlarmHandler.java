@@ -1,7 +1,6 @@
 package com.jcca.dataProcessing.listener.eventInfoHandler;
 
 import com.jcca.dataProcessing.Entity.EventAlarmLevelBaseEntity;
-import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.impl.AlarmRepoManagerService;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -50,10 +49,9 @@ public class EventIsConfigAlarmHandler extends IFilterHandler<IEvent> {
                 info.setStatus(eventAlarmLevelBaseEntity.getFlagType());
                 info.setEventAlarmLevelBaseEntity(eventAlarmLevelBaseEntity);
                 this.dispatureEvent(info);
+                return false;
             }
         }
-
-
         return true;
     }
 
