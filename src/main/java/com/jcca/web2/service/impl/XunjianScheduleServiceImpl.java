@@ -65,6 +65,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
@@ -348,6 +349,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         schedule.setInspectRecordId(inspectRecordId);
         this.saveInspectRecord(schedule);
 
+        try {
+            TimeUnit.SECONDS.sleep(2L);
+        } catch (InterruptedException ignored) {
+
+        }
+
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
 
         try {
@@ -378,20 +385,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             query.eq("ALARM_STATE", 1);
             query.eq("BLANK", 1);
             List<AlarmInfo> infos = alarmInfoService.list(query);
-//            if (infos.isEmpty()) {
-//                inspectAsset.setInspectValue("1");
-//                inspectAsset.setInspectState(Web2Const.INSPECTED);
-//                inspectAsset.setResultMsg("正常");
-//                this.send2Queue(inspectAsset);
-//            } else {
-//                for (AlarmInfo info : infos) {
-//                    inspectAsset.setInspectValue("-1");
-//                    inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
-//                    inspectAsset.setResultMsg(info.getDescription());
-//                    inspectAsset.setAlarmId(info.getId());
-//                    this.send2Queue(inspectAsset);
-//                }
-//            }
             for (AlarmInfo info : infos) {
                 inspectAsset.setInspectValue("-1");
                 inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
