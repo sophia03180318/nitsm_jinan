@@ -28,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_CENTER_URI;
@@ -177,6 +174,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集器返回数据", body.toString());
         CollectExecResp collectExecResp = JSONUtil.toBean(body.toString(), CollectExecResp.class);
         List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
+        Set<String> ipSet = new HashSet<>();
         for (CollectExecResult execResult : execRespList) {
             Integer code = execResult.getCode();
             if (code != 1) {
@@ -190,6 +188,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             adapter1.dispose(jsonArray1);
 
             SendPingAlarmReq statusResult = execResult.getStatusResult();
+            if (ipSet.contains(statusResult.getAssetIp())) {
+                continue;
+            }
+            ipSet.add(statusResult.getAssetIp());
             statusResult.setInspectRecordId(asset.getInspectRecordId());
             redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
         }
