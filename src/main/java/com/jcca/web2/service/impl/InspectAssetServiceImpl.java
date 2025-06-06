@@ -6,7 +6,9 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.constants.RedisQueueConst;
@@ -174,6 +176,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         execRespList.sort(Comparator.comparing(CollectExecResult::getCode));
         Set<String> ipSet = new HashSet<>();
         for (CollectExecResult execResult : execRespList) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
             Integer code = execResult.getCode();
             if (code != 1) {
                 try {

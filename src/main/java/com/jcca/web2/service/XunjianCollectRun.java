@@ -420,24 +420,24 @@ public class XunjianCollectRun implements ApplicationRunner {
         xunjianScheduleService.sendWsMsg(wsDto);
     }
 
-    private void clearMap(String inspectRecordId) {
-        inspectAssetMap.clear();
-        inspectRecordMap.clear();
-        assetTotalMap.clear();
-        targetTotalMap.clear();
-        currentTargetCountMap.clear();
-        targetAbnormalMap.clear();
-        targetNameMap.clear();
-        currentAssetTargetMap.clear();
-        currentCountTargetMap.clear();
-        totalTargetMap.clear();
-        assetTargetCountMap.clear();
-        targetNormalMap.clear();
-        currentAbnormalTargetMap.clear();
-        assetStateMap.clear();
-        targetStateMap.clear();
-        currentNormalTargetMap.clear();
-//        repeatTargetMap.clear();
+    public void clearMap(String inspectRecordId) {
+        assetTotalMap.remove(inspectRecordId);
+        inspectRecordMap.remove(inspectRecordId);
+        inspectAssetMap.remove(inspectRecordId);
+        targetTotalMap.remove(inspectRecordId);
+        currentTargetCountMap.remove(inspectRecordId);
+        targetAbnormalMap.remove(inspectRecordId);
+        targetNameMap.remove(inspectRecordId);
+        currentAssetTargetMap.remove(inspectRecordId);
+        currentCountTargetMap.remove(inspectRecordId);
+        totalTargetMap.remove(inspectRecordId);
+        assetTargetCountMap.remove(inspectRecordId);
+        targetNormalMap.remove(inspectRecordId);
+        currentAbnormalTargetMap.remove(inspectRecordId);
+        assetStateMap.remove(inspectRecordId);
+        targetStateMap.remove(inspectRecordId);
+        currentNormalTargetMap.remove(inspectRecordId);
+        repeatTargetMap.remove(inspectRecordId);
 
         Set<String> keySet = Web2Const.XUNJIAN_JOB_RECORD.keySet();
         for (String key : keySet) {
