@@ -13,10 +13,8 @@ import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.ResultVoUtil;
-import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
-import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
@@ -39,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executors;
 
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_JOB_RECORD;
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
@@ -203,8 +201,7 @@ public class XunjianFinalController {
         }
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务", jobId);
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
-        executor.execute(() -> {
+        Executors.newSingleThreadExecutor().execute(() -> {
             XunjianJobDto dto = new XunjianJobDto();
             dto.setAutoFlag(1);
             dto.setId(schedule.getId());
