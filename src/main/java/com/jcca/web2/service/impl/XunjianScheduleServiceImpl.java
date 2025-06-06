@@ -507,7 +507,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         List<ItemVo> resultList = new ArrayList<>();
         for (SysOrg org : orgs) {
             Integer type = org.getType();
-            if (type == OrgTypeConst.GROUP) {
+            if (type == OrgTypeConst.GROUP || type == OrgTypeConst.STATION) {
                 continue;
             }
 
