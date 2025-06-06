@@ -133,9 +133,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 已巡检指标数量 <inspectRecordId, 已巡检指标数量>
     private final Map<String, Integer> currentTargetCountMap = new ConcurrentHashMap<>();
     // 已巡检异常指标数量 <inspectRecordId, 已巡检异常指标数量>
-    private final Map<String, Integer> targetAbnormalMap = new ConcurrentHashMap<>();
+    public static final Map<String, Integer> targetAbnormalMap = new ConcurrentHashMap<>();
     // 已巡检正常指标数量 <inspectRecordId, 已巡检正常指标数量>
-    private final Map<String, Integer> targetNormalMap = new ConcurrentHashMap<>();
+    public static final Map<String, Integer> targetNormalMap = new ConcurrentHashMap<>();
 
     // 指标分类总数量 <inspectRecordId, <targetItem, 该指标总数量>>
     private final Map<String, Map<String, Long>> totalTargetMap = new ConcurrentHashMap<>();

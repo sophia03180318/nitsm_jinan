@@ -18,7 +18,6 @@ import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
-import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
@@ -42,7 +41,10 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_JOB_RECORD;
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
+import static com.jcca.web2.service.XunjianCollectRun.targetAbnormalMap;
+import static com.jcca.web2.service.XunjianCollectRun.targetNormalMap;
 
 /**
  * @author: hhw
@@ -331,15 +333,12 @@ public class XunjianFinalController {
         query.eq("job_id", jobId);
         int totalCount = inspectAssetService.count(query);
 
-        query = Wrappers.query();
-        query.eq("job_id", jobId);
-        query.eq("inspect_state", Web2Const.INSPECTED);
-        int normalCount = inspectAssetService.count(query);
-
-        query = Wrappers.query();
-        query.eq("job_id", jobId);
-        query.eq("inspect_state", Web2Const.INSPECT_ERROR);
-        int abnormalCount = inspectAssetService.count(query);
+        int normalCount = 0, abnormalCount = 0;
+        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        if (inspectRecordId != null) {
+            normalCount = targetNormalMap.get(inspectRecordId) == null ? 0 : targetNormalMap.get(inspectRecordId);
+            abnormalCount = targetAbnormalMap.get(inspectRecordId) == null ? 0 : targetAbnormalMap.get(inspectRecordId);
+        }
 
         Map<String, Object> map = new HashMap<>();
         map.put("totalCount", totalCount);
