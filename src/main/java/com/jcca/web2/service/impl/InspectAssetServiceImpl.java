@@ -156,17 +156,17 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             req.setAssetId(assetId);
             respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 60000);
         } catch (CollectAgencyException e) {
-            this.send2Queue(asset, "实时巡检异常：" + e.getMsg());
+            this.send2Queue(asset, "实时巡检异常：" + e.getMsg(), Web2Const.INSPECT_ERROR);
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-            this.send2Queue(asset, "实时巡检数据格式不正确：" + respBody);
+            this.send2Queue(asset, "实时巡检数据格式不正确：" + respBody, Web2Const.INSPECT_ERROR);
             return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
-            this.send2Queue(asset, "实时巡检失败：" + jsonObject.get("msg"));
+            this.send2Queue(asset, "实时巡检失败：" + jsonObject.get("msg"), Web2Const.INSPECT_ERROR);
             return;
         }
 
@@ -179,13 +179,22 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         for (CollectExecResult execResult : execRespList) {
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
             Integer code = execResult.getCode();
-            if (code != 1) {
+            if (code == 4) {
                 try {
-                    TimeUnit.SECONDS.sleep(10L);
+                    TimeUnit.SECONDS.sleep(3L);
                 } catch (InterruptedException ignored) {
 
                 }
-                this.send2Queue(asset, execResult.getMsg());
+                this.send2Queue(asset, "正常", Web2Const.INSPECTED);
+                continue;
+            }
+            if (code == 2 || code == 3) {
+                try {
+                    TimeUnit.SECONDS.sleep(3L);
+                } catch (InterruptedException ignored) {
+
+                }
+                this.send2Queue(asset, execResult.getMsg(), Web2Const.INSPECT_ERROR);
                 continue;
             }
             ReceiveCollectDto dto = execResult.getResult();
@@ -205,7 +214,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     private final List<String> targets = Arrays.asList(STATUS_TARGET_ARR);
-    private void send2Queue(InspectAsset asset, String msg) {
+
+    private void send2Queue(InspectAsset asset, String msg, String inspectState) {
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
@@ -220,8 +230,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             dto.setAssetId(asset.getAssetId());
             dto.setTargetItem(inspectAsset.getTargetItem());
             dto.setInspectValue("--");
-            dto.setInspectState(Web2Const.INSPECT_ERROR);
-            dto.setResultMsg(inspectAsset.getEventTypeName() + "--" + msg);
+            dto.setInspectState(inspectState);
+            dto.setResultMsg(msg);
             IEvent event = new IEvent();
             event.setXunjianDataDto(dto);
             try {
