@@ -518,7 +518,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
                 List<ItemVo> modelist = new ArrayList<>();
                 List<StatisticsAlarmVo> mlist = assetService.getModeAsset(Collections.singletonList(org.getId()));
-                getModeAssetList(resultList, org, vo1, modelist, mlist);
+                getModeAssetList(resultList, Collections.singletonList(org.getId()), vo1, modelist, mlist);
             }
 
             if (type == OrgTypeConst.LINE) {
@@ -531,7 +531,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 stationIds.retainAll(ShiroUtil.getSubjectOrgIds());
 
                 List<StatisticsAlarmVo> mlist = assetService.getModeAsset(stationIds);
-                getModeAssetList(resultList, org, vo1, modelist, mlist);
+                getModeAssetList(resultList, stationIds, vo1, modelist, mlist);
             }
         }
         return resultList;
@@ -712,7 +712,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
     }
 
-    private void getModeAssetList(List<ItemVo> resultList, SysOrg org, ItemVo vo1,
+    private void getModeAssetList(List<ItemVo> resultList, List<String> orgIds, ItemVo vo1,
                                   List<ItemVo> modelist, List<StatisticsAlarmVo> mlist) {
         QueryWrapper<Asset> query;
         for (StatisticsAlarmVo mode : mlist) {
@@ -727,7 +727,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             query = Wrappers.query();
             query.select("id", "name", "desk");
             query.eq("DESK", mode.getId());
-            query.eq("ORG_ID", org.getId());
+            query.in("ORG_ID", orgIds);
             query.eq("WATCH", 1);
             query.eq("IS_DEL", 1);
             query.orderByAsc("id", "name");
