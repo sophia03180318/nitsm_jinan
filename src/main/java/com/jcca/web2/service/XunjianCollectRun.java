@@ -153,6 +153,10 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
 
     private synchronized void send2Web(XunjianDataDto dto) {
+        // 保存巡检详情
+        this.saveDetail(dto);
+
+
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
@@ -361,9 +365,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         Integer countTarget = currentTargetCountMap.get(inspectRecordId);
         BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
-
-        // 保存巡检详情
-        this.saveDetail(dto);
 
         // 已巡检指标数量和指标总数量相同则全部巡检结束
         if (totalTarget.intValue() == countTarget) {
