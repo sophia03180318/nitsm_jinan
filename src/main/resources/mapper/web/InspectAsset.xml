@@ -8,6 +8,7 @@
         a.ip assetIp1,
         a.ip2 assetIp2,
         a.desk assetDesk,
+        a.NTP_FLAG,
         m.name deskName,
         o.id orgId,
         r.id roomId,

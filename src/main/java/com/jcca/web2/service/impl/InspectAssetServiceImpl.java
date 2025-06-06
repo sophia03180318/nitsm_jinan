@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_CENTER_URI;
 
 /**
@@ -180,7 +181,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             Integer code = execResult.getCode();
             if (code != 1) {
                 try {
-                    TimeUnit.SECONDS.sleep(5L);
+                    TimeUnit.SECONDS.sleep(10L);
                 } catch (InterruptedException ignored) {
 
                 }
@@ -203,6 +204,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         }
     }
 
+    private final List<String> targets = Arrays.asList(STATUS_TARGET_ARR);
     private void send2Queue(InspectAsset asset, String msg) {
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
@@ -210,6 +212,9 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         query.in("INSPECT_STATE", Arrays.asList("1", "2"));
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
+            if (targets.contains(inspectAsset.getTargetItem())) {
+                continue;
+            }
             XunjianDataDto dto = new XunjianDataDto();
             dto.setInspectRecordId(asset.getInspectRecordId());
             dto.setAssetId(asset.getAssetId());

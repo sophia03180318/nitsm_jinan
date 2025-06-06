@@ -25,6 +25,7 @@ public class XunjianJobDto {
      */
     private String cronTimes;
     private String jobId;
+    @NotEmpty(message = "任务名称不能为空")
     @Length(min = 1, max = 100)
     private String jobName;
     /**

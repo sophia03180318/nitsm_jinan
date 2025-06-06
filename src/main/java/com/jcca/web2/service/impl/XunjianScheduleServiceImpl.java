@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
 import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
@@ -187,6 +188,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private void saveInspectAsset(XunjianJobDto dto) {
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "开始保存巡检资产", DateUtil.formatDateTime(new Date()));
 
+        List<AlarmEventType> typeList = alarmEventTypeService.list();
+        Map<String, List<AlarmEventType>> typeMap = typeList.stream().collect(Collectors.groupingBy(AlarmEventType::getId));
+
+        List<AlarmRepository> repositorList = alarmRepositoryService.list();
+        Map<String, List<AlarmRepository>> repositorMap = repositorList.stream().collect(Collectors.groupingBy(AlarmRepository::getEventTypeId));
+
         String jobId = dto.getJobId();
         List<String> assetIds = dto.getAssetList();
         Map<String, List<String>> targetMap = dto.getTargetList();
@@ -199,10 +206,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 continue;
             }
             List<ThresholdProcess> thresholdProcessList = thresholdProcessService.selectByAssetList(Collections.singletonList(asset.getAssetId()));
-            for (String target : targetList) {
+            for (String eventTypeId : targetList) {
                 Set<String> set = new HashSet<>();
-                AlarmEventType alarmEventType = alarmEventTypeService.getById(target);
-                List<AlarmRepository> repositoryList = alarmRepositoryService.getAllByEventId(target);
+                AlarmEventType alarmEventType = typeMap.get(eventTypeId).get(0);
+                List<AlarmRepository> repositoryList = repositorMap.get(eventTypeId);
                 for (AlarmRepository repository : repositoryList) {
                     if (set.contains(repository.getAlarmCode())) {
                         continue;
@@ -210,6 +217,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     set.add(repository.getAlarmCode());
                     if (StatusInfoChangeTypeEnum.event_ping_group_all.getCode().equals(repository.getAlarmCode())
                             || StatusInfoChangeTypeEnum.event_ping_group_other.getCode().equals(repository.getAlarmCode())) {
+                        continue;
+                    }
+                    if (asset.getNtpFlag() == 0
+                            && repository.getAlarmCode().startsWith(StatusInfoChangeTypeEnum.event_time.getCode())) {
                         continue;
                     }
 
@@ -221,7 +232,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     inspectAsset.setTargetName(repository.getDescStr());
                     inspectAsset.setInspectState(Web2Const.INSPECT);
                     inspectAsset.setInspectType(dto.getAutoFlag());
-                    inspectAsset.setEventTypeId(target);
+                    inspectAsset.setEventTypeId(eventTypeId);
                     inspectAsset.setEventTypeName(alarmEventType.getTypeAlias());
                     inspectAsset.setRemark(repository.getPlanStr());
                     String thresholdValue = this.getThreshold(inspectAsset, thresholdProcessList);
@@ -229,7 +240,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                         continue;
                     }
                     inspectAsset.setThresholdValue(thresholdValue);
-                    if (repository.getAlarmCode().startsWith("event:event_process") && thresholdProcessList.isEmpty()) {
+                    if (repository.getAlarmCode().startsWith(StatusInfoChangeTypeEnum.event_process.getCode())
+                            && thresholdProcessList.isEmpty()) {
                         continue;
                     }
 
@@ -386,6 +398,13 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             query.eq("ALARM_STATE", 1);
             query.eq("BLANK", 1);
             List<AlarmInfo> infos = alarmInfoService.list(query);
+            if (infos.isEmpty()) {
+                inspectAsset.setInspectValue("1");
+                inspectAsset.setInspectState(Web2Const.INSPECTED);
+                inspectAsset.setResultMsg("无告警信息");
+                this.send2Queue(inspectAsset);
+                continue;
+            }
             for (AlarmInfo info : infos) {
                 inspectAsset.setInspectValue("-1");
                 inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
@@ -518,18 +537,19 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 getModeAssetList(resultList, Collections.singletonList(org.getId()), vo1, modelist, mlist);
             }
 
-            if (type == OrgTypeConst.LINE) {
-                ItemVo vo1 = new ItemVo();
-                vo1.setId(org.getId());
-                vo1.setName(org.getTitle());
-
-                List<ItemVo> modelist = new ArrayList<>();
-                List<String> stationIds = sysOrgService.getStationOrgIdByLineId(org.getId());
-                stationIds.retainAll(ShiroUtil.getSubjectOrgIds());
-
-                List<StatisticsAlarmVo> mlist = assetService.getModeAsset(stationIds);
-                getModeAssetList(resultList, stationIds, vo1, modelist, mlist);
-            }
+            // 车站暂时不做 20250606
+//            if (type == OrgTypeConst.LINE) {
+//                ItemVo vo1 = new ItemVo();
+//                vo1.setId(org.getId());
+//                vo1.setName(org.getTitle());
+//
+//                List<ItemVo> modelist = new ArrayList<>();
+//                List<String> stationIds = sysOrgService.getStationOrgIdByLineId(org.getId());
+//                stationIds.retainAll(ShiroUtil.getSubjectOrgIds());
+//
+//                List<StatisticsAlarmVo> mlist = assetService.getModeAsset(stationIds);
+//                getModeAssetList(resultList, stationIds, vo1, modelist, mlist);
+//            }
         }
         return resultList;
     }
@@ -673,6 +693,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     @Override
     public void resetJob(XunjianSchedule schedule) {
         String inspectRecordId = Web2Const.XUNJIAN_JOB_RECORD.get(schedule.getJobId());
+        if (StringUtils.isEmpty(inspectRecordId)) {
+            return;
+        }
         // 删除巡检记录
         inspectRecordService.removeById(inspectRecordId);
         // 删除巡检详情
@@ -706,7 +729,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息异常", wsDto);
         }

@@ -1,5 +1,7 @@
 package com.jcca.web2.service.notify;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.constant.OrgTypeConst;
@@ -49,6 +51,13 @@ public class NotifyThresholdImpl implements AssetNotifyService {
     public void assetChange(Asset asset, Integer state) {
         if (OutConst.ADD_ASSET.intValue() == state) {
             this.addThreshold(asset);
+        }
+        if (OutConst.ALL_ASSET_UPDATE.intValue() == state) {
+            UpdateWrapper<ThresholdManage> update = Wrappers.update();
+            update.set("ORG_ID", asset.getOrgId());
+            update.set("ASSET_DESK", asset.getDesk());
+            update.eq("ASSET_ID", asset.getId());
+            thresholdManageService.update(update);
         }
 
     }

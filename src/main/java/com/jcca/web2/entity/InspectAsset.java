@@ -80,5 +80,7 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String alarmId;
     @TableField(exist = false)
     private String eventCategory;
+    @TableField(exist = false)
+    private Byte ntpFlag;
 
 }

@@ -72,8 +72,8 @@ public interface Web2Const {
     Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
     // 巡检需要查询的指标
     String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
-            "event:event_port:optical_state", "event:event_port:state", "event:event_net:state", "event:event_process:once",
-            "event:event_fan:state", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect",
-            "event:event_temp:state", "event:event_led:state", "event:event_time:run_restart"};
+            "event:event_port:optical_state", "event:event_port:state", "event:event_process:once",
+            "event:event_fan:state", "event:event_fan:unknown", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect",
+            "event:event_temp:state", "event:event_temp:normal", "event:event_led:state", "event:event_time:run_restart", "event:event_time:clock_state"};
 
 }
