@@ -83,6 +83,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 dto.setInspectValue(event.getInfo().getValue() + "");
                 dto.setResultMsg(event.getDescStr());
                 dto.setAlarmId(event.getAlarmId());
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
             } else {
                 dto = event.getXunjianDataDto();
                 inspectRecordId = dto.getInspectRecordId();
@@ -153,9 +154,6 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
 
     private synchronized void send2Web(XunjianDataDto dto) {
-        // 保存巡检详情
-        this.saveDetail(dto);
-
 
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
@@ -259,6 +257,9 @@ public class XunjianCollectRun implements ApplicationRunner {
                 targetStateMap.put(inspectRecordId, tstateMap);
             }
         }
+
+        // 保存巡检详情
+        this.saveDetail(dto);
 
         if (Integer.parseInt(targetState) > tstateMap.get(targetItem)) {
             tstateMap.put(targetItem, Integer.parseInt(Web2Const.INSPECT_ERROR));
