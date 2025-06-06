@@ -222,7 +222,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         query.in("INSPECT_STATE", Arrays.asList("1", "2"));
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
-            if (targets.contains(inspectAsset.getTargetItem())) {
+            if (!targets.contains(inspectAsset.getTargetItem())) {
                 continue;
             }
             XunjianDataDto dto = new XunjianDataDto();
