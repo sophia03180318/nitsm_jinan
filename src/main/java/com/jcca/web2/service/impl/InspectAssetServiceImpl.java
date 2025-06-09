@@ -30,8 +30,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
-import static com.jcca.web2.constant.Web2Const.XUNJIAN_CENTER_URI;
+import static com.jcca.web2.constant.Web2Const.*;
 
 /**
  * @author HanHW
@@ -153,7 +152,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             CollectExecReq req = new CollectExecReq();
             req.setInspectRecordId(asset.getInspectRecordId());
             req.setAssetId(assetId);
-            respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), 60000);
+            respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             this.send2Queue(asset, e.getMsg(), Web2Const.INSPECT_ERROR);
             return;

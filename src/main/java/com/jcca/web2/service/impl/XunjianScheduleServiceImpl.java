@@ -65,8 +65,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
-import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
+import static com.jcca.web2.constant.Web2Const.*;
 
 /**
  * @author: hhw
@@ -337,7 +336,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         if (dto.getAutoFlag() == 2) {
             // 巡检前让采集器推送一次进程状态数据
             try {
-                collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
+                collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
             } catch (CollectAgencyException e) {
                 AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto);
                 return;

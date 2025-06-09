@@ -43,9 +43,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import static com.jcca.web2.constant.Web2Const.XUNJIAN_JOB_RECORD;
-import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
+import static com.jcca.web2.constant.Web2Const.*;
 import static com.jcca.web2.service.XunjianCollectRun.targetAbnormalMap;
 import static com.jcca.web2.service.XunjianCollectRun.targetNormalMap;
 
@@ -186,7 +186,7 @@ public class XunjianFinalController {
 
     @GetMapping("/job/begin")
     @ApiOperation("开始巡检")
-    public ResultVo<Object> jobBegin(String jobId) {
+    public ResultVo<Object> jobBegin(String jobId) throws InterruptedException {
         List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
         if (list.isEmpty()) {
             return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
@@ -201,7 +201,7 @@ public class XunjianFinalController {
 
         // 巡检前让采集器推送一次进程状态数据
         try {
-            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", 60000);
+            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", jobId);
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
@@ -216,6 +216,8 @@ public class XunjianFinalController {
             dto.setOperator(schedule.getOperator());
             xunjianScheduleService.beginXunjian(dto);
         });
+
+        TimeUnit.SECONDS.sleep(3L);
         return ResultVoUtil.success();
     }
 

@@ -64,6 +64,8 @@ public interface Web2Const {
     // 巡检实时采集队列
     LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
 
+    // 巡检超时时间 5分钟
+    int XUNJIAN_TIME_OUT = 300 * 1000;
     // 巡检数据采集接口
     String XUNJIAN_CENTER_URI = "/business/exeCollect";
     // 巡检状态数据接口
