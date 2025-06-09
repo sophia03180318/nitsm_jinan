@@ -374,7 +374,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             // 开始巡检采集
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
-                inspectAsset.setInspectRecordId(inspectRecordId);
+                Collection<String> values = Web2Const.XUNJIAN_JOB_RECORD.values();
+                if (!values.contains(schedule.getInspectRecordId())) {
+                    return;
+                }
+                inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
@@ -392,7 +396,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             if (!list.contains(inspectAsset.getTargetItem())) {
                 continue;
             }
-            inspectAsset.setInspectRecordId(inspectRecordId);
+            inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
             query.eq("asset_id", inspectAsset.getAssetId());
             query.eq("alarm_code", inspectAsset.getTargetItem());
             query.eq("ALARM_STATE", 1);

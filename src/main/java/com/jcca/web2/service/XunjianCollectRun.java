@@ -116,7 +116,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             this.send2Web(dto);
 
-            TimeUnit.MILLISECONDS.sleep(100L);
+            TimeUnit.MILLISECONDS.sleep(200L);
         }
     }
 
