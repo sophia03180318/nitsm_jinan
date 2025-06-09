@@ -46,4 +46,12 @@ public interface AlarmRepositoryMapper extends BaseMapper<AlarmRepository> {
      * @return
      */
     IPage<AlarmRepository> pageListV2(Page page, @Param("query") EventRpoPageDto query);
+
+
+    /**
+     * 查询告警对应的知识库名称
+     * @param alarmId
+     * @return
+     */
+    List<String> selectNameByAlarmId(@Param("alarmId") String alarmId);
 }

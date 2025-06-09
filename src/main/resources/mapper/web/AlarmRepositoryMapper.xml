@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jcca.web.alarm.dao.AlarmRepositoryMapper">
 
+
+    <select id="selectNameByAlarmId" resultType="java.util.List" >
+        select a.NAME from ALARM_REPOSITORY a where a.id in  (
+            select c.REPOSITORY_ID from ALARM_EVENT c where c.ID in (select b.EVENT_ID from ALARM_EVENT_REL b where b.ALARM_ID=#{alarmId})
+        ) GROUP BY a.NAME
+    </select>
+
     <select id="pageListV2" resultType="com.jcca.web.alarm.entity.AlarmRepository">
         select a.id,a.name,a.ALARM_LEVEL as alarmLevel,a.ALARM_CODE as alarmCode,a.STATUS_FLAG as statusFlag,a.FLAG_TYPE
         as flagType,a.EVENT_TYPE_ID as eventTypeId,a.DESC_STR as descStr,a.PLAN_STR as planStr,

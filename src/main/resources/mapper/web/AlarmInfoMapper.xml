@@ -169,9 +169,26 @@
             <if test="query.assetIp !=null and query.assetIp!='' ">
                 and (b.ip = #{query.assetIp} or b.ip2 = #{query.assetIp})
             </if>
-            <if test="query.orgId !=null and query.orgId!=''">
-                and c.id = #{query.orgId}
+
+            <if test="query.orgIdList != null">
+                and (c.id IN
+                <trim suffixOverrides=" c.id  IN()">
+                    <!-- 表示删除最后一个条件 -->
+                    <foreach collection="query.orgIdList" item="Id" index="index" open="(" close=")">
+                        <if test="index != 0">
+                            <choose>
+                                <when test="index % 1000 == 600">
+                                    ) OR c.id IN (
+                                </when>
+                                <otherwise>,</otherwise>
+                            </choose>
+                        </if>
+                        #{Id}
+                    </foreach>
+                </trim>
+                )
             </if>
+
             <if test="query.content != null and query.content!='' ">
                 and a.CONTENT like concat(concat('%',#{query.content}),'%')
             </if>
@@ -239,17 +256,15 @@
     </select>
 
     <select id="pageV2" resultType="com.jcca.web2.vo.AlarmPageVo">
-        select c.TYPE as orgType,c.TITLE as orgName,
+        select DISTINCT c.TYPE as orgType,c.TITLE as orgName,
         b.ID as assetId,b.NAME as assetName,b.IP as assetIp1,b.IP2 as assetIp2,b.ASSET_MODE as assetMode,
         a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel,
         a.content ,a.description,a.ALARM_CODE as alarmCode,a.OCCUR_TIME as occurTime,
         a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
-        a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState,
-        d.name as repoName
+        a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState
         from ALARM_INFO a
         left join ASSET b on a.ASSET_ID = b.ID
         left join sys_org c on b.ORG_ID = c.ID
-        left join ALARM_REPOSITORY d on a.ALARM_CODE = d.ALARM_CODE AND d.FLAG_TYPE = -1
         <where>
             <if test="query.assetName !=null and query.assetName!='' ">
                 and b.NAME like concat(concat('%',#{query.assetName}),'%')
@@ -345,14 +360,14 @@
                 )
             </if>
             <if test="query.alarmCodeList != null">
-                and (a.ALARM_CODE IN
+                and (a.ALARM_CODE  NOT IN
                 <trim suffixOverrides=" a.ALARM_CODE NOT IN()">
                     <!-- 表示删除最后一个条件 -->
                     <foreach collection="query.alarmCodeList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
                                 <when test="index % 1000 == 600">
-                                    ) OR a.ALARM_LEVEL IN (
+                                    ) OR a.ALARM_CODE  NOT IN (
                                 </when>
                                 <otherwise>,</otherwise>
                             </choose>
