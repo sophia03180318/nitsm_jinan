@@ -28,7 +28,6 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.STATUS_TARGET_ARR;
@@ -160,13 +159,13 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-            this.send2Queue(asset, respBody, Web2Const.INSPECT_ERROR);
+//            this.send2Queue(asset, respBody, Web2Const.INSPECT_ERROR);
             return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
-            this.send2Queue(asset, jsonObject.get("msg").toString(), Web2Const.INSPECT_ERROR);
+//            this.send2Queue(asset, jsonObject.get("msg").toString(), Web2Const.INSPECT_ERROR);
             return;
         }
 
@@ -178,21 +177,29 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         Set<String> ipSet = new HashSet<>();
         for (CollectExecResult execResult : execRespList) {
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
-            Integer code = execResult.getCode();
-            if (code == 4) {
-                this.send2Queue(asset, execResult.getMsg(), Web2Const.INSPECTED);
-                continue;
-            }
-            if (code == 2 || code == 3) {
-                try {
-                    TimeUnit.SECONDS.sleep(3L);
-                } catch (InterruptedException ignored) {
-
-                }
-                this.send2Queue(asset, execResult.getMsg(), Web2Const.INSPECT_ERROR);
-                continue;
-            }
+//            Integer code = execResult.getCode();
+//            if (code == 4) {
+//                try {
+//                    TimeUnit.SECONDS.sleep(5L);
+//                } catch (InterruptedException ignored) {
+//
+//                }
+//                this.send2Queue(asset, execResult.getMsg(), Web2Const.INSPECTED);
+//                continue;
+//            }
+//            if (code == 2 || code == 3) {
+//                try {
+//                    TimeUnit.SECONDS.sleep(5L);
+//                } catch (InterruptedException ignored) {
+//
+//                }
+//                this.send2Queue(asset, execResult.getMsg(), Web2Const.INSPECT_ERROR);
+//                continue;
+//            }
             ReceiveCollectDto dto = execResult.getResult();
+            if (dto == null) {
+                continue;
+            }
             String content1 = dto.getContent();
             IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
             JSONArray jsonArray1 = JSONUtil.parseArray(content1);
@@ -231,7 +238,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             event.setXunjianDataDto(dto);
             try {
                 Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
 
             }
         }
