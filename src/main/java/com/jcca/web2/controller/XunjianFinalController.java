@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
@@ -23,12 +24,14 @@ import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.entity.InspectAsset;
+import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.entity.XunjianSchedule;
 import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -71,6 +74,8 @@ public class XunjianFinalController {
     private InspectDetailService inspectDetailService;
     @Resource
     private CollectAgent collectAgent;
+    @Resource
+    private ThresholdManageService thresholdManageService;
 
 
     @GetMapping("/job/list")
@@ -283,7 +288,13 @@ public class XunjianFinalController {
 
     @PostMapping("/target/list")
     @ApiOperation("指标分类列表")
-    public ResultVo<Object> targetList(@RequestBody List<String> assetDesks) {
+    public ResultVo<Object> targetList(@RequestBody Map<String, List<String>> map) {
+        List<String> assetDesks = map.get("assetDesks");
+        List<String> assetIds = map.get("assetIds");
+        if (CollectionUtils.isEmpty(assetDesks) || CollectionUtils.isEmpty(assetIds)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+
         List<ItemVo> resultList = new ArrayList<>();
         Map<Integer, String> modeMap = assetModeService.getModeMap();
         Set<String> keySet = new HashSet<>(assetDesks);
@@ -293,6 +304,11 @@ public class XunjianFinalController {
             ItemVo vo = new ItemVo();
             vo.setId(id);
             vo.setName(mode);
+            // 查看阈值配置
+            int count = this.checkThreshold(key, assetIds);
+            if (count == 0) {
+                continue;
+            }
 
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
             if (!list.isEmpty()) {
@@ -302,6 +318,23 @@ public class XunjianFinalController {
         }
 
         return ResultVoUtil.success(resultList);
+    }
+
+    private int checkThreshold(String key, List<String> assetIds) {
+        int count = 0;
+        if (key.startsWith("183")) {
+            QueryWrapper<ThresholdManage> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            query.eq("CATEGORY", "DISK");
+            count = thresholdManageService.count();
+        }
+        if (key.startsWith("183") || Integer.parseInt(key) == AssetModeConst.SWITCH) {
+            QueryWrapper<ThresholdManage> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            query.eq("CATEGORY", "MEMORY");
+            count = thresholdManageService.count();
+        }
+        return count;
     }
 
     @GetMapping("/checked/list")
