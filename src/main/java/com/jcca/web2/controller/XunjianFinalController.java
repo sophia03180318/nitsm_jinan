@@ -321,20 +321,19 @@ public class XunjianFinalController {
     }
 
     private int checkThreshold(String key, List<String> assetIds) {
-        int count = 0;
         if (key.startsWith("183")) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", "DISK");
-            count = thresholdManageService.count();
+            return thresholdManageService.count();
         }
         if (key.startsWith("183") || Integer.parseInt(key) == AssetModeConst.SWITCH) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", "MEMORY");
-            count = thresholdManageService.count();
+            return thresholdManageService.count();
         }
-        return count;
+        return 1;
     }
 
     @GetMapping("/checked/list")
