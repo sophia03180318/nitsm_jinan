@@ -19,6 +19,7 @@ import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.web.event.service.AlarmEventTypeService;
+import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
@@ -43,11 +44,10 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.service.XunjianCollectRun.targetAbnormalMap;
-import static com.jcca.web2.service.XunjianCollectRun.targetNormalMap;
+import static com.jcca.web2.service.XunjianCollectRun.targetAbnormalSet;
+import static com.jcca.web2.service.XunjianCollectRun.targetNormalSet;
 
 /**
  * @author: hhw
@@ -175,6 +175,11 @@ public class XunjianFinalController {
     @PostMapping("/job/add")
     @ApiOperation("新增巡检任务")
     public ResultVo<Object> jobAdd(@RequestBody @Validated XunjianJobDto dto) {
+        List<String> assetList = dto.getAssetList();
+        Map<String, List<String>> targetList = dto.getTargetList();
+        if (CollectionUtils.isEmpty(assetList) || CollectionUtils.isEmpty(targetList)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
         String username = ShiroUtil.getSubject().getUsername();
         dto.setOperator(username);
         String jobId = xunjianScheduleService.addSchedule(dto);
@@ -207,6 +212,17 @@ public class XunjianFinalController {
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
         }
 
+        // 将任务设置为正在巡检
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+        schedule.setLastTime(new Date());
+        xunjianScheduleService.updateById(schedule);
+        // 将指标设置为最初状态
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        for (InspectAsset asset : assetList) {
+            asset.setInspectState(Web2Const.INSPECT);
+        }
+        inspectAssetService.updateBatchById(assetList);
+
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务", jobId);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         executor.execute(() -> {
@@ -217,7 +233,6 @@ public class XunjianFinalController {
             xunjianScheduleService.beginXunjian(dto);
         });
 
-        TimeUnit.SECONDS.sleep(3L);
         return ResultVoUtil.success();
     }
 
@@ -234,6 +249,11 @@ public class XunjianFinalController {
     public ResultVo<Object> jobUpdate(@RequestBody @Validated XunjianJobDto dto) {
         String jobId = dto.getJobId();
         if (StringUtils.isEmpty(jobId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        List<String> assetList = dto.getAssetList();
+        Map<String, List<String>> targetList = dto.getTargetList();
+        if (CollectionUtils.isEmpty(assetList) || CollectionUtils.isEmpty(targetList)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
         }
 
@@ -364,14 +384,16 @@ public class XunjianFinalController {
     public ResultVo<Object> targetStatus(String jobId) {
         List<ItemVo> resultList = inspectAssetService.getTargetStatus(jobId);
         QueryWrapper<InspectAsset> query = Wrappers.query();
-        query.eq("job_id", jobId);
-        int totalCount = inspectAssetService.count(query);
+        query.select("EVENT_TYPE_ID");
+        query.eq("JOB_ID", jobId);
+        query.groupBy("EVENT_TYPE_ID");
+        int totalCount = inspectAssetService.list(query).size();
 
         int normalCount = 0, abnormalCount = 0;
         String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
         if (inspectRecordId != null) {
-            normalCount = targetNormalMap.get(inspectRecordId) == null ? 0 : targetNormalMap.get(inspectRecordId);
-            abnormalCount = targetAbnormalMap.get(inspectRecordId) == null ? 0 : targetAbnormalMap.get(inspectRecordId);
+            normalCount = targetNormalSet.get(inspectRecordId) == null ? 0 : targetNormalSet.get(inspectRecordId).size();
+            abnormalCount = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
         }
 
         Map<String, Object> map = new HashMap<>();

@@ -213,6 +213,7 @@ public enum StatusInfoChangeTypeEnum {
     //风扇事件
     event_fan("event:event_fan", "风扇状态", "", "风扇巡检", "183_201_42"),
     event_fan_state("event:event_fan:state", "风扇状态事件", "风扇%s状态%s", "风扇状态", ""),
+    event_fan_unknown("event:event_fan:unknown", "风扇未知状态事件", "", "", ""),
     //风扇事件对应的状态信息
     status_fan("status:fan", "", "", "", ""),
     status_fanvalue("fanValue", "风扇转速", "", "", ""),

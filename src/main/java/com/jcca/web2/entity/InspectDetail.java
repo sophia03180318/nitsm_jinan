@@ -73,6 +73,9 @@ public class InspectDetail extends Model<InspectDetail> implements Serializable 
     private String resultPath;
     // 告警ID
     private String alarmId;
+    // 事件类型ID
+    private String eventTypeId;
+    private String eventTypeName;
 
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

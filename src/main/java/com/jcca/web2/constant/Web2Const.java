@@ -1,5 +1,6 @@
 package com.jcca.web2.constant;
 
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.support.IEvent;
 
 import java.util.HashMap;
@@ -73,9 +74,22 @@ public interface Web2Const {
     // 用于重置任务状态 <jobId, recordId>
     Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
     // 巡检需要查询的指标
-    String[] STATUS_TARGET_ARR = {"event:event_CPU:status", "event:event_process:status",
-            "event:event_port:optical_state", "event:event_port:state", "event:event_process:once",
-            "event:event_fan:state", "event:event_fan:unknown", "event:event_power:syslog", "event:event_power:state", "event:tableSpace", "event:event_db:connect",
-            "event:event_temp:state", "event:event_temp:normal", "event:event_led:state", "event:event_time:run_restart", "event:event_time:clock_state"};
+    String[] STATUS_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
+            StatusInfoChangeTypeEnum.event_process_status.getCode(),
+            StatusInfoChangeTypeEnum.event_process_once.getCode(),
+            StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),
+            StatusInfoChangeTypeEnum.event_port_state.getCode(),
+            StatusInfoChangeTypeEnum.event_fan_state.getCode(),
+            StatusInfoChangeTypeEnum.event_fan_unknown.getCode(),
+            StatusInfoChangeTypeEnum.event_syslog_power.getCode(),
+            StatusInfoChangeTypeEnum.event_power_state.getCode(),
+            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
+            StatusInfoChangeTypeEnum.event_led_state.getCode(),
+            StatusInfoChangeTypeEnum.event_run_restart.getCode(),
+            StatusInfoChangeTypeEnum.event_clock_state.getCode(),
+    };
 
 }

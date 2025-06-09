@@ -172,6 +172,9 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     @Override
     public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId) {
         List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId);
+        for (InspectTargetDetailInfo info : targetDetailInfoList) {
+            info.setTargetType(info.getTargetItem().substring(0, info.getTargetItem().lastIndexOf(":")));
+        }
         InspectTargetDetailInfoVo vo = new InspectTargetDetailInfoVo();
         vo.setTargetDetailList(targetDetailInfoList);
         vo.setAlarmInfoList(new ArrayList<>());

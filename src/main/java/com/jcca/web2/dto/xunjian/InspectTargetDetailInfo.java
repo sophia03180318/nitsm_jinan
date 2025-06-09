@@ -18,6 +18,8 @@ public class InspectTargetDetailInfo {
 
     private String targetItem;
     private String targetName;
+    private String targetType;
+    private String eventTypeName;
     private String inspectState;
     /**
      * 设定阈值

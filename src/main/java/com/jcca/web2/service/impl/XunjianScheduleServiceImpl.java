@@ -25,8 +25,6 @@ import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
-import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
@@ -39,7 +37,6 @@ import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
-import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
@@ -65,7 +62,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jcca.web2.constant.Web2Const.*;
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_PROCESS_URI;
+import static com.jcca.web2.constant.Web2Const.XUNJIAN_TIME_OUT;
 
 /**
  * @author: hhw
@@ -332,7 +330,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      */
     @Override
     public void beginXunjian(XunjianJobDto dto) {
-
+        String id = dto.getId();
+        XunjianSchedule schedule = this.getById(id);
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
         if (dto.getAutoFlag() == 2) {
             // 巡检前让采集器推送一次进程状态数据
             try {
@@ -341,21 +341,18 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto);
                 return;
             }
-        }
 
-        String id = dto.getId();
-        // 将任务设置为正在巡检
-        XunjianSchedule schedule = this.getById(id);
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-        schedule.setLastTime(new Date());
-        this.updateById(schedule);
+            // 将任务设置为正在巡检
+            schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+            schedule.setLastTime(new Date());
+            this.updateById(schedule);
 
-        // 将指标设置为最初状态
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
+            // 将指标设置为最初状态
+            for (InspectAsset asset : assetList) {
+                asset.setInspectState(Web2Const.INSPECT);
+            }
+            inspectAssetService.updateBatchById(assetList);
         }
-        inspectAssetService.updateBatchById(assetList);
 
         // 保存巡检记录
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
@@ -389,55 +386,55 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         }
 
         // 状态类单独处理
-        List<String> list = Arrays.asList(STATUS_TARGET_ARR);
-        QueryWrapper<AlarmInfo> query = Wrappers.query();
-        for (InspectAsset inspectAsset : assetList) {
-            if (!list.contains(inspectAsset.getTargetItem())) {
-                continue;
-            }
-            inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
-            query.eq("asset_id", inspectAsset.getAssetId());
-            query.eq("alarm_code", inspectAsset.getTargetItem());
-            query.eq("ALARM_STATE", 1);
-            query.eq("BLANK", 1);
-            List<AlarmInfo> infos = alarmInfoService.list(query);
-            if (infos.isEmpty()) {
-                inspectAsset.setInspectValue("1");
-                inspectAsset.setInspectState(Web2Const.INSPECTED);
-                inspectAsset.setResultMsg("无告警信息");
-                this.send2Queue(inspectAsset);
-                continue;
-            }
-            for (AlarmInfo info : infos) {
-                inspectAsset.setInspectValue("-1");
-                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
-                inspectAsset.setResultMsg(info.getDescription());
-                inspectAsset.setAlarmId(info.getId());
-                this.send2Queue(inspectAsset);
-            }
-        }
+//        List<String> list = Arrays.asList(STATUS_TARGET_ARR);
+//        QueryWrapper<AlarmInfo> query = Wrappers.query();
+//        for (InspectAsset inspectAsset : assetList) {
+//            if (!list.contains(inspectAsset.getTargetItem())) {
+//                continue;
+//            }
+//            inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
+//            query.eq("asset_id", inspectAsset.getAssetId());
+//            query.eq("alarm_code", inspectAsset.getTargetItem());
+//            query.eq("ALARM_STATE", 1);
+//            query.eq("BLANK", 1);
+//            List<AlarmInfo> infos = alarmInfoService.list(query);
+//            if (infos.isEmpty()) {
+//                inspectAsset.setInspectValue("1");
+//                inspectAsset.setInspectState(Web2Const.INSPECTED);
+//                inspectAsset.setResultMsg("无告警信息");
+//                this.send2Queue(inspectAsset);
+//                continue;
+//            }
+//            for (AlarmInfo info : infos) {
+//                inspectAsset.setInspectValue("-1");
+//                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+//                inspectAsset.setResultMsg(info.getDescription());
+//                inspectAsset.setAlarmId(info.getId());
+//                this.send2Queue(inspectAsset);
+//            }
+//        }
 
     }
 
-    private void send2Queue(InspectAsset asset) {
-        XunjianDataDto dto = new XunjianDataDto();
-        dto.setInspectRecordId(asset.getInspectRecordId());
-        dto.setAssetId(asset.getAssetId());
-        dto.setTargetItem(asset.getTargetItem());
-        dto.setInspectValue(asset.getInspectValue());
-        dto.setInspectState(asset.getInspectState());
-        dto.setResultMsg(asset.getResultMsg());
-        dto.setAlarmId(asset.getAlarmId());
-        IEvent event = new IEvent();
-        event.setInspectRecordId(asset.getInspectRecordId());
-        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
-        event.setXunjianDataDto(dto);
-        try {
-            Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    private void send2Queue(InspectAsset asset) {
+//        XunjianDataDto dto = new XunjianDataDto();
+//        dto.setInspectRecordId(asset.getInspectRecordId());
+//        dto.setAssetId(asset.getAssetId());
+//        dto.setTargetItem(asset.getTargetItem());
+//        dto.setInspectValue(asset.getInspectValue());
+//        dto.setInspectState(asset.getInspectState());
+//        dto.setResultMsg(asset.getResultMsg());
+//        dto.setAlarmId(asset.getAlarmId());
+//        IEvent event = new IEvent();
+//        event.setInspectRecordId(asset.getInspectRecordId());
+//        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
+//        event.setXunjianDataDto(dto);
+//        try {
+//            Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     private void saveInspectRecord(XunjianSchedule schedule) {
         InspectRecord inspectRecord = new InspectRecord();
@@ -732,7 +729,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集给前端发送消息异常", wsDto);
         }
