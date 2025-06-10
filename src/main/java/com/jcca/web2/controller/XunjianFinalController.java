@@ -30,6 +30,7 @@ import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.entity.XunjianSchedule;
+import com.jcca.web2.enums.ThresholdCategoryEnum;
 import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
@@ -372,7 +373,7 @@ public class XunjianFinalController {
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
-            query.eq("CATEGORY", "DISK");
+            query.eq("CATEGORY", ThresholdCategoryEnum.DISK.name());
             query.eq("ASSET_DESK", assetDesk);
             count = thresholdManageService.count(query);
         }
@@ -380,7 +381,7 @@ public class XunjianFinalController {
         if (StatusInfoChangeTypeEnum.event_memory.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
-            query.eq("CATEGORY", "MEMORY");
+            query.eq("CATEGORY", ThresholdCategoryEnum.MEMORY.name());
             query.eq("ASSET_DESK", assetDesk);
             count = thresholdManageService.count(query);
         }
@@ -390,6 +391,13 @@ public class XunjianFinalController {
             QueryWrapper<ManageDb> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             count = manageDbService.count(query);
+        }
+        if (StatusInfoChangeTypeEnum.event_db_tableSpace.getCode().equals(eventCategory)) {
+            QueryWrapper<ThresholdManage> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            query.eq("CATEGORY", ThresholdCategoryEnum.TABLE_SPACE.name());
+            query.eq("ASSET_DESK", assetDesk);
+            count = thresholdManageService.count(query);
         }
         // 查进程
         if (StatusInfoChangeTypeEnum.event_process.getCode().equals(eventCategory)) {
