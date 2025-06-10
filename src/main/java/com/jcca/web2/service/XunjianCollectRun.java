@@ -243,17 +243,23 @@ public class XunjianCollectRun implements ApplicationRunner {
         String assetName = assetIdName.get(assetId);
 
         // 资产状态
-        assetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
-        Map<String, Integer> astateMap = assetStateMap.get(inspectRecordId);
-        astateMap.put(assetId, Integer.parseInt(Web2Const.INSPECTED));
-        Set<String> keySet1 = astateMap.keySet();
-        for (String key : keySet1) {
-            if (assetId.equals(key) && Integer.parseInt(targetState) > astateMap.get(assetId)) {
-                astateMap.put(assetId, Integer.parseInt(Web2Const.INSPECT_ERROR));
-                assetStateMap.put(inspectRecordId, astateMap);
+        if (assetStateMap.get(inspectRecordId) == null) {
+            Map<String, Integer> hashMap = new HashMap<>();
+            hashMap.put(assetId, Integer.parseInt(targetState));
+            assetStateMap.put(inspectRecordId, hashMap);
+        } else {
+            Map<String, Integer> astateMap = assetStateMap.get(inspectRecordId);
+            Integer i = astateMap.get(assetId);
+            if (i == null) {
+                astateMap.put(assetId, Integer.parseInt(targetState));
+            } else {
+                if (Integer.parseInt(targetState) > i) {
+                    astateMap.put(assetId, Integer.parseInt(Web2Const.INSPECT_ERROR));
+                }
             }
+            assetStateMap.put(inspectRecordId, astateMap);
         }
-        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, astateMap.get(assetId)); // 资产状态
+        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
 
         // 已巡检指标数量
         targetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
@@ -375,7 +381,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
         currentAssetTargetMap.get(inspectRecordId).put(assetId, currentSize);
         if (assetTargetCountMap.get(inspectRecordId).get(assetId) == currentSize.intValue()) {
-            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, astateMap.get(assetId)); // 资产巡检完成
+            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产巡检完成
         }
 
         int i2 = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();

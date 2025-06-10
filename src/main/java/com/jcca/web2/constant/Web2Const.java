@@ -88,8 +88,11 @@ public interface Web2Const {
             StatusInfoChangeTypeEnum.event_temp_state.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
             StatusInfoChangeTypeEnum.event_led_state.getCode(),
-            StatusInfoChangeTypeEnum.event_run_restart.getCode(),
             StatusInfoChangeTypeEnum.event_clock_state.getCode(),
+    };
+
+    String[] ALARM_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_run_restart.getCode(),
             StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
     };
 

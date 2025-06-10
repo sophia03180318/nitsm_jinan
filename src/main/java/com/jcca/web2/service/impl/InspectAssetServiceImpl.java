@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -190,6 +191,13 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                     continue;
                 }
                 idSet.add(flag);
+
+                try {
+                    TimeUnit.SECONDS.sleep(5L);
+                } catch (InterruptedException ignored) {
+
+                }
+
                 this.send2Queue(asset, execResult.getMsg());
                 continue;
             }
@@ -218,6 +226,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
+        query.in("INSPECT_STATE", Arrays.asList("1", "2"));
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
             if (!targets.contains(inspectAsset.getTargetItem())) {
