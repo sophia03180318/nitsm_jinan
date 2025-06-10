@@ -22,7 +22,6 @@ import com.jcca.web.db.entity.ManageDb;
 import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
-import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
@@ -422,7 +421,7 @@ public class XunjianFinalController {
     @GetMapping("/detail/report1View")
     @ApiOperation("巡检报告单1")
     public ResultVo<Object> report1(String id) {
-        List<InspectReport1> list = inspectDetailService.getReport1(id);
+        Map<String, Object> list = inspectDetailService.getReport1(id);
         return ResultVoUtil.success(list);
     }
 
@@ -432,10 +431,11 @@ public class XunjianFinalController {
         if (StringUtils.isEmpty(id)) {
             throw new ResultException(ResultEnum.PARAM_ERROR);
         }
-        List<InspectReport1> list = inspectDetailService.report1Down(id);
+        Map<String, Object> map = inspectDetailService.report1Down(id);
 
         ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.merge(5, "综合维护平台巡检报告");
+        writer.merge(5, map.get("header1") + " " + map.get("header2"));
 
         writer.addHeaderAlias("index", "序号");
         writer.addHeaderAlias("assetDeskStr", "设备类型");
@@ -450,7 +450,7 @@ public class XunjianFinalController {
         writer.setColumnWidth(4, 100);
         writer.setColumnWidth(5, 30);
 
-        writer.write(list, true);
+        writer.write((List) map.get("list"), true);
 
         String fileName = URLEncoder.encode("综合维护平台巡检报告.xlsx", "UTF-8");
         response.setContentType("application/vnd.ms-excel;charset=utf-8");

@@ -13,6 +13,8 @@ public class XunjianDataDto {
 
     // 巡检记录ID
     private String inspectRecordId;
+    // 任务ID
+    private String jobId;
     // 资产ID
     private String assetId;
     // 巡检指标项 StatusInfoChangeTypeEnum 类中code值

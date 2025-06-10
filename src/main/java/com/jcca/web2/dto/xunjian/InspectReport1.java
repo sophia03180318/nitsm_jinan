@@ -36,4 +36,6 @@ public class InspectReport1 {
     private String remarkStr;
 
     private String alarmCode;
+    private String header1;
+    private String header2;
 }

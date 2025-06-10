@@ -163,6 +163,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
         String operator = schedule.getOperator();
         String jobId = schedule.getJobId();
+        dto.setJobId(jobId);
         String assetId = dto.getAssetId();
         String targetItem = dto.getTargetItem();
         String targetState = dto.getInspectState();
@@ -409,10 +410,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
-                asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getTargetItem()) + "");
-                asset.setInspectValue(dto.getInspectValue());
-                asset.setResultMsg(dto.getResultMsg());
-                inspectAssetService.updateById(asset);
+                if (Web2Const.XUNJIAN_JOB_RECORD.get(dto.getJobId()) != null) {
+                    asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getTargetItem()) + "");
+                    asset.setInspectValue(dto.getInspectValue());
+                    asset.setResultMsg(dto.getResultMsg());
+                    inspectAssetService.updateById(asset);
+                }
 
                 // 保存巡检详情
                 InspectDetail inspectDetail = new InspectDetail();
@@ -423,6 +426,8 @@ public class XunjianCollectRun implements ApplicationRunner {
                 inspectDetail.setInspectTime(new Date());
                 inspectDetail.setResultMsg(dto.getResultMsg());
                 inspectDetail.setAlarmId(dto.getAlarmId());
+                inspectDetail.setInspectValue(dto.getInspectValue());
+                inspectDetail.setResultMsg(dto.getResultMsg());
                 inspectDetailService.save(inspectDetail);
             }
         }

@@ -1,7 +1,6 @@
 package com.jcca.web2.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
@@ -34,7 +33,7 @@ public interface InspectDetailService extends IService<InspectDetail> {
 
     InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId);
 
-    List<InspectReport1> getReport1(String inspectCode);
+    Map<String, Object> getReport1(String inspectCode);
 
-    List<InspectReport1> report1Down(String inspectCode);
+    Map<String, Object> report1Down(String inspectCode);
 }

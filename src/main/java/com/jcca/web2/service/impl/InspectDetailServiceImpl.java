@@ -196,7 +196,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     }
 
     @Override
-    public List<InspectReport1> getReport1(String inspectCode) {
+    public Map<String, Object> getReport1(String inspectCode) {
         List<InspectReport1> list = inspectDetailMapper.getReport1(inspectCode);
         Map<String, List<String>> map = new HashMap<>();
         int i = 0;
@@ -219,11 +219,39 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
                 report1.setRemarkStr(sb.toString());
             }
         }
-        return list;
+
+        QueryWrapper<InspectDetail> query = Wrappers.query();
+        query.eq("INSPECT_CODE", inspectCode);
+        query.isNotNull("ALARM_ID");
+        int alarmCount = this.count(query);
+        Integer totalAsset = list.size();
+        Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        Integer normalAsset = totalAsset - abnormalAsset;
+        InspectRecord record = inspectRecordService.getById(inspectCode);
+        String header1 = "巡检人：%s，巡检时间：%s，巡检资产总数：%s，正常资产数：%s，异常资产数：%s，告警总数：%s";
+        String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
+        header1 = String.format(header1, record.getModeType(), inspectTime, totalAsset, normalAsset, abnormalAsset, alarmCount);
+
+        StringBuilder header2 = new StringBuilder();
+        List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
+        for (ItemVo vo : deskList) {
+            Integer desk = Integer.parseInt(vo.getId());
+            Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
+            header2.append(vo.getName()).append("：").append(totalDesk).append("台，");
+            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
+            Integer normalDesk = totalDesk - abnormalDesk;
+            header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
+        }
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("header1", header1);
+        resultMap.put("header2", header2);
+        resultMap.put("list", list);
+        return resultMap;
     }
 
     @Override
-    public List<InspectReport1> report1Down(String inspectCode) {
+    public Map<String, Object> report1Down(String inspectCode) {
         return this.getReport1(inspectCode);
     }
 
