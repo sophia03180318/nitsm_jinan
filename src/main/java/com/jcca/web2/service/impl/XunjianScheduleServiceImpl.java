@@ -140,11 +140,25 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 是否立即执行
             if (dto.getStartNow() == 2) {
+                // 巡检前让采集器推送一次进程状态数据
                 try {
-                    TimeUnit.SECONDS.sleep(3L);
-                } catch (InterruptedException ignored) {
-
+                    collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
+                } catch (CollectAgencyException e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto.getJobId());
+                    throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
                 }
+
+                // 将任务设置为正在巡检
+                schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+                schedule.setLastTime(new Date());
+                this.updateById(schedule);
+                // 将指标设置为最初状态
+                List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+                for (InspectAsset asset : assetList) {
+                    asset.setInspectState(Web2Const.INSPECT);
+                }
+                inspectAssetService.updateBatchById(assetList);
+
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
                 executor.execute(() -> {
                     dto.setId(schedule.getId());
@@ -635,6 +649,25 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 是否立即执行
             if (dto.getStartNow() == 2) {
+                // 巡检前让采集器推送一次进程状态数据
+                try {
+                    collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
+                } catch (CollectAgencyException e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto.getJobId());
+                    throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
+                }
+
+                // 将任务设置为正在巡检
+                schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+                schedule.setLastTime(new Date());
+                this.updateById(schedule);
+                // 将指标设置为最初状态
+                List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+                for (InspectAsset asset : assetList) {
+                    asset.setInspectState(Web2Const.INSPECT);
+                }
+                inspectAssetService.updateBatchById(assetList);
+
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
                 executor.execute(() -> {
                     dto.setId(schedule.getId());

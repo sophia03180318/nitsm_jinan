@@ -224,7 +224,13 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         query.eq("INSPECT_CODE", inspectCode);
         query.isNotNull("ALARM_ID");
         int alarmCount = this.count(query);
-        Integer totalAsset = list.size();
+
+        query = Wrappers.query();
+        query.select("ASSET_ID");
+        query.eq("INSPECT_CODE", inspectCode);
+        query.groupBy("ASSET_ID");
+        List<InspectDetail> list1 = this.list(query);
+        Integer totalAsset = list1.size();
         Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
         Integer normalAsset = totalAsset - abnormalAsset;
         InspectRecord record = inspectRecordService.getById(inspectCode);

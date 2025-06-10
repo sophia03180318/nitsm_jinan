@@ -405,6 +405,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             // 设置为结束巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+            schedule.setLastTime(new Date());
             xunjianScheduleService.updateById(schedule);
 
             // 清空内存
