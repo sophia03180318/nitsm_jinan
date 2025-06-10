@@ -95,6 +95,10 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     return true;
                 }
 
+                if (Objects.nonNull(alarmInfo)) {
+                    info.setAlarmId(alarmInfo.getId());
+                }
+
                 //过滤 存在告警的 异常事件
                 if (info.getStatus().equals(EventLevelEnum.ABNORMAL.getCode()) && Objects.nonNull(alarmInfo) && AlarmStateEnum.ALARM.getCode().equals(alarmInfo.getAlarmState())) {
                     redisTransactionTemplate.exec();
@@ -108,6 +112,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     resp.setNeedSendToWeb(true);
                     resp.setAsset(asset);
                     resp.setNewAlarm(alarmInfo);
+                    info.setAlarmId(alarmInfo.getId());
                 } else {
                     //更新告警
                     boolean abnormal = info.getStatus().equals(EventLevelEnum.ABNORMAL.getCode());
@@ -122,9 +127,6 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     alarmInfo.setOccurTime(info.getCollectTime());
                     alarmInfoService.updateById(alarmInfo);
                 }
-
-                //将alarmid赋值
-                info.setAlarmId(alarmInfo.getId());
 
                 //推送的是恢复事件或者是异常事件需要保存事件
                 AlarmEvent alarmEvent = dataChangeManagerService.saveEvent(info);

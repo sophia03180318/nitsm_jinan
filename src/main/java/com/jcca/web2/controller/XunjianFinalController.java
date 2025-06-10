@@ -424,8 +424,42 @@ public class XunjianFinalController {
     @GetMapping("/target/status")
     @ApiOperation("指标状态列表")
     public ResultVo<Object> targetStatus(String jobId) {
-        List<ItemVo> resultList = inspectAssetService.getTargetStatus(jobId);
+        List<ItemVo> resultList = new ArrayList<>();
         QueryWrapper<InspectAsset> query = Wrappers.query();
+        query.select("EVENT_TYPE_ID", "EVENT_TYPE_NAME", "MAX(INSPECT_STATE) AS INSPECT_STATE");
+        query.eq("JOB_ID", jobId);
+        query.groupBy("EVENT_TYPE_ID", "EVENT_TYPE_NAME");
+        query.orderByAsc("EVENT_TYPE_ID");
+        List<InspectAsset> list = inspectAssetService.list(query);
+        for (InspectAsset inspectAsset : list) {
+            ItemVo vo = new ItemVo();
+            vo.setId(inspectAsset.getEventTypeId());
+            vo.setName(inspectAsset.getEventTypeName());
+            vo.setStatus(Integer.parseInt(inspectAsset.getInspectState()));
+            query = Wrappers.query();
+            query.select("ASSET_ID");
+            query.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
+            query.eq("JOB_ID", jobId);
+            query.groupBy("ASSET_ID");
+            vo.setTotal(inspectAssetService.list(query).size());
+            query = Wrappers.query();
+            query.select("ASSET_ID");
+            query.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
+            query.eq("JOB_ID", jobId);
+            query.eq("INSPECT_STATE", INSPECTED);
+            query.groupBy("ASSET_ID");
+            vo.setNormal(inspectAssetService.list(query).size());
+            query = Wrappers.query();
+            query.select("ASSET_ID");
+            query.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
+            query.eq("JOB_ID", jobId);
+            query.eq("INSPECT_STATE", INSPECT_ERROR);
+            query.groupBy("ASSET_ID");
+            vo.setAbnormal(inspectAssetService.list(query).size());
+            resultList.add(vo);
+        }
+
+        query = Wrappers.query();
         query.select("EVENT_TYPE_ID");
         query.eq("JOB_ID", jobId);
         query.groupBy("EVENT_TYPE_ID");
@@ -471,7 +505,7 @@ public class XunjianFinalController {
         writer.addHeaderAlias("assetName", "设备名称");
         writer.addHeaderAlias("alarmLevelStr", "告警级别");
         writer.addHeaderAlias("description", "告警描述");
-        writer.addHeaderAlias("remarkStr", "历史备注");
+        writer.addHeaderAlias("remarkStr", "参考建议");
         writer.setOnlyAlias(true);
 
         writer.setRowHeight(0, 18);

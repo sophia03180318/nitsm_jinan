@@ -84,11 +84,12 @@ public class XunjianCollectRun implements ApplicationRunner {
                 dto.setInspectValue(event.getInfo().getValue() + "");
                 dto.setResultMsg(event.getDescStr());
                 dto.setAlarmId(event.getAlarmId());
-                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
             } else {
                 dto = event.getXunjianDataDto();
                 inspectRecordId = dto.getInspectRecordId();
             }
+
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
 
             InspectRecord record;
 

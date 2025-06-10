@@ -26,7 +26,6 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -177,11 +176,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 //            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
             Integer code = execResult.getCode();
             if (code == 2) {
-                try {
-                    TimeUnit.SECONDS.sleep(5L);
-                } catch (InterruptedException ignored) {
-
-                }
                 this.sendAll2Queue(asset, execResult.getMsg());
                 continue;
             }
@@ -196,11 +190,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                     continue;
                 }
                 idSet.add(flag);
-                try {
-                    TimeUnit.SECONDS.sleep(5L);
-                } catch (InterruptedException ignored) {
-
-                }
                 this.send2Queue(asset, execResult.getMsg());
                 continue;
             }
@@ -229,7 +218,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
-        query.in("INSPECT_STATE", Arrays.asList("1", "2"));
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
             if (!targets.contains(inspectAsset.getTargetItem())) {
