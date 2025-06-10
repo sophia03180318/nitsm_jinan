@@ -43,7 +43,7 @@ public class TopoTagServiceImpl extends ServiceImpl<TopoTagMapper, TopoTag> impl
         }
 
         QueryWrapper<TopoTag> otherTag = Wrappers.query();
-        otherTag.lt("TAG_SORT", topoTag.getTagSort());
+        otherTag.ge("TAG_SORT", topoTag.getTagSort());
         List<TopoTag> otherList = list(otherTag);
 
         if(!otherList.isEmpty()){
