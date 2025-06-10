@@ -3,9 +3,9 @@ package com.jcca.web2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jcca.common.enums.ResultEnum;
+
 import com.jcca.common.utils.MyIdUtil;
-import com.jcca.common.utils.ResultVoUtil;
+
 import com.jcca.web2.dao.TopoTagMapper;
 import com.jcca.web2.entity.TopoTag;
 import com.jcca.web2.service.TopoTagService;
@@ -43,13 +43,15 @@ public class TopoTagServiceImpl extends ServiceImpl<TopoTagMapper, TopoTag> impl
         }
 
         QueryWrapper<TopoTag> otherTag = Wrappers.query();
+        otherTag.eq("ORG_ID", orgId);
         otherTag.ge("TAG_SORT", topoTag.getTagSort());
         List<TopoTag> otherList = list(otherTag);
 
         if(!otherList.isEmpty()){
             int tmp = topoTag.getTagSort();
             for (TopoTag tag : otherList) {
-                tag.setTagSort(tmp++);
+                tmp++;
+                tag.setTagSort(tmp);
                 updateById(tag);
             }
         }
