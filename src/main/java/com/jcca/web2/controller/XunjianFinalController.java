@@ -18,6 +18,8 @@ import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.web.asset.entity.ThresholdProcess;
+import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.db.entity.ManageDb;
 import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.event.service.AlarmEventTypeService;
@@ -79,6 +81,8 @@ public class XunjianFinalController {
     private ThresholdManageService thresholdManageService;
     @Resource
     private ManageDbService manageDbService;
+    @Resource
+    private ThresholdProcessService thresholdProcessService;
 
 
     @GetMapping("/job/list")
@@ -190,6 +194,23 @@ public class XunjianFinalController {
         Map<String, String> map = new HashMap<>();
         map.put("jobId", jobId);
         return ResultVoUtil.success(map);
+    }
+
+    @GetMapping("/job/check")
+    @ApiOperation("校验任务名称")
+    public ResultVo<Object> checkName(String jobId, String jobName) {
+
+        QueryWrapper<XunjianSchedule> query = Wrappers.query();
+        query.eq("JOB_NAME", jobName);
+        if (!StringUtils.isEmpty(jobId)) {
+            query.ne("JOB_ID", jobId);
+        }
+        List<XunjianSchedule> list = xunjianScheduleService.list(query);
+        if (!list.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "任务名称不能重复");
+        }
+
+        return ResultVoUtil.success();
     }
 
     @GetMapping("/job/begin")
@@ -332,7 +353,7 @@ public class XunjianFinalController {
             List<ItemVo> reslist = new ArrayList<>();
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
             for (ItemVo itemVo : list) {
-                int count = this.checkTarget(itemVo.getEventCategory(), assetIds);
+                int count = this.checkTarget(itemVo.getEventCategory(), key, assetIds);
                 if (count == 0) {
                     continue;
                 }
@@ -345,13 +366,14 @@ public class XunjianFinalController {
         return ResultVoUtil.success(resultList);
     }
 
-    private int checkTarget(String eventCategory, List<String> assetIds) {
+    private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
         int count = 1;
         // 查磁盘阈值
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", "DISK");
+            query.eq("ASSET_DESK", assetDesk);
             count = thresholdManageService.count(query);
         }
         // 查内存阈值
@@ -359,6 +381,7 @@ public class XunjianFinalController {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", "MEMORY");
+            query.eq("ASSET_DESK", assetDesk);
             count = thresholdManageService.count(query);
         }
         // 查数据库
@@ -367,6 +390,12 @@ public class XunjianFinalController {
             QueryWrapper<ManageDb> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             count = manageDbService.count(query);
+        }
+        // 查进程
+        if (StatusInfoChangeTypeEnum.event_process.getCode().equals(eventCategory)) {
+            QueryWrapper<ThresholdProcess> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            count = thresholdProcessService.count(query);
         }
         return count;
     }
