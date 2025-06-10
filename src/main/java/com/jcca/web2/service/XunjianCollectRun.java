@@ -84,7 +84,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 dto.setInspectValue(event.getInfo().getValue() + "");
                 dto.setResultMsg(event.getDescStr());
                 dto.setAlarmId(event.getAlarmId());
-//                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
             } else {
                 dto = event.getXunjianDataDto();
                 inspectRecordId = dto.getInspectRecordId();
@@ -429,6 +429,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     }
 
     private void sendTargetMsg(String operator, Integer msgType, String jobId, String targetItem, int normal, int abnormal) {
+        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
+            return;
+        }
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);
@@ -469,6 +472,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, int normal, int abnormal) {
+        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
+            return;
+        }
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);
@@ -481,6 +487,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {
+        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
+            return;
+        }
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);
@@ -495,6 +504,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
-        this.sendMsg(operator, msgType, jobId, id, name, status, 0);
+        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) != null) {
+            this.sendMsg(operator, msgType, jobId, id, name, status, 0);
+        }
+
     }
 }

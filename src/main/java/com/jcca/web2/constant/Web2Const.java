@@ -90,6 +90,7 @@ public interface Web2Const {
             StatusInfoChangeTypeEnum.event_led_state.getCode(),
             StatusInfoChangeTypeEnum.event_run_restart.getCode(),
             StatusInfoChangeTypeEnum.event_clock_state.getCode(),
+            StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
     };
 
 }

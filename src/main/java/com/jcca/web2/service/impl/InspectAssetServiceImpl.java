@@ -6,7 +6,9 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.constants.RedisQueueConst;
@@ -173,7 +175,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         execRespList.sort(Comparator.comparing(CollectExecResult::getCode));
         Set<String> ipSet = new HashSet<>();
         for (CollectExecResult execResult : execRespList) {
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
             Integer code = execResult.getCode();
             if (code == 2) {
                 try {
@@ -184,6 +186,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 this.sendAll2Queue(asset, execResult.getMsg());
                 continue;
             }
+            ReceiveCollectDto dto = execResult.getResult();
+            if (dto == null) {
+                continue;
+            }
+
             if (code == 3 || code == 4) {
                 try {
                     TimeUnit.SECONDS.sleep(5L);
@@ -193,11 +200,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 this.send2Queue(asset, execResult.getMsg());
                 continue;
             }
-            ReceiveCollectDto dto = execResult.getResult();
-            if (dto == null) {
+
+            String content1 = dto.getContent();
+            if (content1 == null) {
                 continue;
             }
-            String content1 = dto.getContent();
             IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
             JSONArray jsonArray1 = JSONUtil.parseArray(content1);
             adapter1.dispose(jsonArray1);
@@ -218,7 +225,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
-        query.in("INSPECT_STATE", Arrays.asList("1", "2"));
         List<InspectAsset> list = this.list(query);
         for (InspectAsset inspectAsset : list) {
             if (!targets.contains(inspectAsset.getTargetItem())) {

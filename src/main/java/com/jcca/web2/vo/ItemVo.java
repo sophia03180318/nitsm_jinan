@@ -23,6 +23,7 @@ public class ItemVo {
     private Integer autoFlag;
 
     private String assetDesk;
+    private String eventCategory;
     private boolean flag;
 
     private List<ItemVo> children;

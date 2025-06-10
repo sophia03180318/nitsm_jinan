@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
-import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
@@ -18,6 +17,9 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.web.db.entity.ManageDb;
+import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.InspectReport1;
@@ -76,6 +78,8 @@ public class XunjianFinalController {
     private CollectAgent collectAgent;
     @Resource
     private ThresholdManageService thresholdManageService;
+    @Resource
+    private ManageDbService manageDbService;
 
 
     @GetMapping("/job/list")
@@ -191,7 +195,7 @@ public class XunjianFinalController {
 
     @GetMapping("/job/begin")
     @ApiOperation("开始巡检")
-    public ResultVo<Object> jobBegin(String jobId) throws InterruptedException {
+    public ResultVo<Object> jobBegin(String jobId) {
         List<XunjianSchedule> list = xunjianScheduleService.findByJobId(jobId);
         if (list.isEmpty()) {
             return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
@@ -326,36 +330,46 @@ public class XunjianFinalController {
             ItemVo vo = new ItemVo();
             vo.setId(id);
             vo.setName(mode);
-            // 查看阈值配置
-            int count = this.checkThreshold(key, assetIds);
-            if (count == 0) {
-                continue;
-            }
-
+            List<ItemVo> reslist = new ArrayList<>();
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
-            if (!list.isEmpty()) {
-                vo.setChildren(list);
-                resultList.add(vo);
+            for (ItemVo itemVo : list) {
+                int count = this.checkTarget(itemVo.getEventCategory(), assetIds);
+                if (count == 0) {
+                    continue;
+                }
+                reslist.add(itemVo);
             }
+            vo.setChildren(reslist);
+            resultList.add(vo);
         }
 
         return ResultVoUtil.success(resultList);
     }
 
-    private int checkThreshold(String key, List<String> assetIds) {
-        if (key.startsWith("183")) {
+    private int checkTarget(String eventCategory, List<String> assetIds) {
+        int count = 1;
+        // 查磁盘阈值
+        if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", "DISK");
-            return thresholdManageService.count();
+            count = thresholdManageService.count(query);
         }
-        if (key.startsWith("183") || Integer.parseInt(key) == AssetModeConst.SWITCH) {
+        // 查内存阈值
+        if (StatusInfoChangeTypeEnum.event_memory.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", "MEMORY");
-            return thresholdManageService.count();
+            count = thresholdManageService.count(query);
         }
-        return 1;
+        // 查数据库
+        if (StatusInfoChangeTypeEnum.event_db.getCode().equals(eventCategory)
+                || StatusInfoChangeTypeEnum.event_db_tableSpace.getCode().equals(eventCategory)) {
+            QueryWrapper<ManageDb> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            count = manageDbService.count(query);
+        }
+        return count;
     }
 
     @GetMapping("/checked/list")
