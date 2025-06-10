@@ -9,4 +9,7 @@ import com.jcca.web2.entity.TopoTag;
  * @create: 2023/10/20 09:45
  **/
 public interface TopoTagService extends IService<TopoTag> {
+
+    void saveOrUpdateTag(TopoTag topoTag) throws Exception;
+
 }

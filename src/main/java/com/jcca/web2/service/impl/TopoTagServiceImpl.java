@@ -1,10 +1,20 @@
 package com.jcca.web2.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.utils.MyIdUtil;
+import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web2.dao.TopoTagMapper;
 import com.jcca.web2.entity.TopoTag;
 import com.jcca.web2.service.TopoTagService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * @description: 拓扑图页签
@@ -13,4 +23,46 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 public class TopoTagServiceImpl extends ServiceImpl<TopoTagMapper, TopoTag> implements TopoTagService {
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveOrUpdateTag(TopoTag topoTag) throws Exception {
+        String orgId = topoTag.getOrgId();
+        String id = topoTag.getId();
+
+        QueryWrapper<TopoTag> query = Wrappers.query();
+        query.eq("ORG_ID", orgId);
+        query.eq("CATEGORY", topoTag.getCategory());
+        if (!StringUtils.isEmpty(id)) {
+            query.ne("ID", id);
+        }
+        List<TopoTag> list = list(query);
+        if (!CollectionUtils.isEmpty(list)) {
+            throw new Exception("已存在该类型拓扑图");
+        }
+
+        QueryWrapper<TopoTag> otherTag = Wrappers.query();
+        otherTag.lt("TAG_SORT", topoTag.getTagSort());
+        List<TopoTag> otherList = list(otherTag);
+
+        if(!otherList.isEmpty()){
+            int tmp = topoTag.getTagSort();
+            for (TopoTag tag : otherList) {
+                tag.setTagSort(tmp++);
+                updateById(tag);
+            }
+        }
+
+
+        if (StringUtils.isEmpty(id)) {
+            topoTag.setId(MyIdUtil.getId());
+            topoTag.setRemark("前端创建");
+            save(topoTag);
+        }else{
+            updateById(topoTag);
+        }
+
+    }
+
 }

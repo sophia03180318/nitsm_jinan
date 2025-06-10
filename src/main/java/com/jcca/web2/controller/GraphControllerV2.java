@@ -143,28 +143,12 @@ public class GraphControllerV2 {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "该组织拓扑图类型不正确");
         }
 
-        String id = topoTag.getId();
-
-        QueryWrapper<TopoTag> query = Wrappers.query();
-        query.eq("ORG_ID", orgId);
-        query.eq("CATEGORY", topoTag.getCategory());
-        if (!StringUtils.isEmpty(id)) {
-            query.ne("ID", id);
+        try {
+            topoTagService.saveOrUpdateTag(topoTag);
+        } catch (Exception e) {
+            return ResultVoUtil.error(e.getMessage());
         }
-        List<TopoTag> list = topoTagService.list(query);
-        if (!CollectionUtils.isEmpty(list)) {
-            return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), one.getTitle() + "已存在该类型拓扑图");
-        }
-
-        if (StringUtils.isEmpty(id)) {
-            topoTag.setId(MyIdUtil.getId());
-            topoTag.setRemark("前端创建");
-            topoTagService.save(topoTag);
-            return ResultVoUtil.success("保存成功");
-        }
-
-        topoTagService.updateById(topoTag);
-        return ResultVoUtil.success("编辑成功");
+        return ResultVoUtil.success("处理成功");
     }
 
     @GetMapping("/del/{id}")
@@ -198,7 +182,7 @@ public class GraphControllerV2 {
 
         QueryWrapper<TopoTag> query = Wrappers.query();
         query.eq("ORG_ID", orgId);
-        query.orderByDesc("CATEGORY");
+        query.orderByAsc("TAG_SORT");
         List<TopoTag> topoTags = topoTagService.list(query);
         if (!topoTags.isEmpty()) {
             return ResultVoUtil.success(topoTags);

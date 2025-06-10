@@ -3,10 +3,13 @@
 <mapper namespace="com.jcca.web.alarm.dao.AlarmRepositoryMapper">
 
 
-    <select id="selectNameByAlarmId" resultType="java.util.List" >
-        select a.NAME from ALARM_REPOSITORY a where a.id in  (
-            select c.REPOSITORY_ID from ALARM_EVENT c where c.ID in (select b.EVENT_ID from ALARM_EVENT_REL b where b.ALARM_ID=#{alarmId})
-        ) GROUP BY a.NAME
+    <select id="selectNameByAlarmId"  resultType="String" >
+        SELECT a.NAME
+        FROM ALARM_REPOSITORY a
+                 JOIN ALARM_EVENT c ON a.id = c.REPOSITORY_ID
+                 JOIN ALARM_EVENT_REL b ON c.ID = b.EVENT_ID
+        WHERE b.ALARM_ID = #{alarmId}
+        GROUP BY a.NAME
     </select>
 
     <select id="pageListV2" resultType="com.jcca.web.alarm.entity.AlarmRepository">

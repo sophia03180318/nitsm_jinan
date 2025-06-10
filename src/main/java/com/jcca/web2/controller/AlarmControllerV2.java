@@ -89,6 +89,17 @@ public class AlarmControllerV2 {
         if (Objects.isNull(query.getAssetDeskList()) || query.getAssetDeskList().isEmpty()) {
             query.setAssetDeskList(null);
         }
+        if (StrUtil.isNotEmpty(query.getOrgId())) {
+            List<String> orgIds = orgServ.getStationOrgIdByLineId(query.getOrgId());
+            orgIds.add(query.getOrgId());
+            query.setOrgIdList(orgIds);
+            query.setOrgId("");
+        }else{
+            List<String> orgIds = ShiroUtil.getSubjectOrgIds();
+            orgIds.add("x");
+            query.setOrgIdList(orgIds);
+            query.setOrgId("");
+        }
         query.setPage(1);
         query.setSize(Integer.MAX_VALUE);
         IPage<AlarmPageVo> page = alarmInfoServ.pageV2(query);
