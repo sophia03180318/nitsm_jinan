@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
@@ -18,7 +19,9 @@ import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdProcess;
+import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.db.entity.ManageDb;
 import com.jcca.web.db.service.ManageDbService;
@@ -84,6 +87,8 @@ public class XunjianFinalController {
     private ManageDbService manageDbService;
     @Resource
     private ThresholdProcessService thresholdProcessService;
+    @Resource
+    private AssetService assetService;
 
 
     @GetMapping("/job/list")
@@ -351,6 +356,8 @@ public class XunjianFinalController {
             ItemVo vo = new ItemVo();
             vo.setId(id);
             vo.setName(mode);
+
+
             List<ItemVo> reslist = new ArrayList<>();
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
             for (ItemVo itemVo : list) {
@@ -367,7 +374,9 @@ public class XunjianFinalController {
         return ResultVoUtil.success(resultList);
     }
 
+
     private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
+        List<String> list1 = Arrays.asList(SYSPORT_TARGET_ARR);
         int count = 1;
         // 查磁盘阈值
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
@@ -405,6 +414,19 @@ public class XunjianFinalController {
             query.in("ASSET_ID", assetIds);
             count = thresholdProcessService.count(query);
         }
+        // 查管理口
+        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk) && list1.contains(eventCategory)) {
+            QueryWrapper<Asset> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            query.eq("WATCH", 1);
+            query.eq("IS_DEL", 1);
+            query.isNotNull("IPMI_IP");
+            query.isNotNull("IPMI_USER");
+            query.isNotNull("IPMI_PWD");
+            List<Asset> list = assetService.list(query);
+            return list.size();
+        }
+
         return count;
     }
 

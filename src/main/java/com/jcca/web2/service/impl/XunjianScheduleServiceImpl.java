@@ -208,7 +208,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         List<AlarmRepository> repositorList = alarmRepositoryService.list();
         Map<String, List<AlarmRepository>> repositorMap = repositorList.stream().collect(Collectors.groupingBy(AlarmRepository::getEventTypeId));
 
-        List<String> list1 = Arrays.asList(STATUS_TARGET_ARR);
+        List<String> list1 = Arrays.asList(SYSPORT_TARGET_ARR);
 
         String jobId = dto.getJobId();
         List<String> assetIds = dto.getAssetList();

@@ -91,6 +91,18 @@ public interface Web2Const {
             StatusInfoChangeTypeEnum.event_clock_state.getCode(),
     };
 
+    // 管理口指标
+    String[] SYSPORT_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
+            StatusInfoChangeTypeEnum.event_fan_state.getCode(),
+            StatusInfoChangeTypeEnum.event_fan_unknown.getCode(),
+            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
+            StatusInfoChangeTypeEnum.event_led_state.getCode(),
+            StatusInfoChangeTypeEnum.event_clock_state.getCode(),
+    };
+
     String[] ALARM_TARGET_ARR = {
             StatusInfoChangeTypeEnum.event_run_restart.getCode(),
             StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
