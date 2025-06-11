@@ -415,16 +415,20 @@ public class XunjianFinalController {
             count = thresholdProcessService.count(query);
         }
         // 查管理口
-        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk) && list1.contains(eventCategory)) {
-            QueryWrapper<Asset> query = Wrappers.query();
-            query.in("ASSET_ID", assetIds);
-            query.eq("WATCH", 1);
-            query.eq("IS_DEL", 1);
-            query.isNotNull("IPMI_IP");
-            query.isNotNull("IPMI_USER");
-            query.isNotNull("IPMI_PWD");
-            List<Asset> list = assetService.list(query);
-            return list.size();
+        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)) {
+            for (String s : list1) {
+                if (s.startsWith(eventCategory)) {
+                    QueryWrapper<Asset> query = Wrappers.query();
+                    query.in("ID", assetIds);
+                    query.eq("WATCH", 1);
+                    query.eq("IS_DEL", 1);
+                    query.isNotNull("IPMI_IP");
+                    query.isNotNull("IPMI_USER");
+                    query.isNotNull("IPMI_PWD");
+                    List<Asset> list = assetService.list(query);
+                    return list.size();
+                }
+            }
         }
 
         return count;
