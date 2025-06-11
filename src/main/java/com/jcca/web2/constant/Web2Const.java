@@ -77,6 +77,7 @@ public interface Web2Const {
     String[] ALARM_TARGET_ARR = {
             StatusInfoChangeTypeEnum.event_clock_state.getCode(),
             StatusInfoChangeTypeEnum.event_run_restart.getCode(),
+            StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
             StatusInfoChangeTypeEnum.event_process_status.getCode(),
             StatusInfoChangeTypeEnum.event_process_once.getCode(),
             StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),
