@@ -208,6 +208,7 @@ public class XunjianFinalController {
 
         QueryWrapper<XunjianSchedule> query = Wrappers.query();
         query.eq("JOB_NAME", jobName);
+        query.eq("OPERATOR", ShiroUtil.getSubject().getUsername());
         if (!StringUtils.isEmpty(jobId)) {
             query.ne("JOB_ID", jobId);
         }
