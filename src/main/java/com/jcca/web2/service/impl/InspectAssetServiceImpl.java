@@ -221,12 +221,16 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
         execRespList.sort(Comparator.comparing(CollectExecResult::getCode));
         Set<String> ipSet = new HashSet<>();
-        Set<String> idSet = new HashSet<>();
+        Set<String> idFlagSet = new HashSet<>();
+        Set<String> assetIdSet = new HashSet<>();
         for (CollectExecResult execResult : execRespList) {
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
             Integer code = execResult.getCode();
             if (code == 2) {
-                this.sendAll2Queue(asset, execResult.getMsg());
+                if (!assetIdSet.contains(asset.getAssetId())) {
+                    this.sendAll2Queue(asset, execResult.getMsg());
+                    assetIdSet.add(asset.getAssetId());
+                }
                 continue;
             }
             ReceiveCollectDto dto = execResult.getResult();
@@ -236,10 +240,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
             if (code == 3 || code == 4) {
                 String flag = assetId + dto.getCategory();
-                if (idSet.contains(flag) || !ReceiveCollectConst.SYS_PORT.equals(dto.getCategory())) {
+                if (idFlagSet.contains(flag) || !ReceiveCollectConst.SYS_PORT.equals(dto.getCategory())) {
                     continue;
                 }
-                idSet.add(flag);
+                idFlagSet.add(flag);
 
                 try {
                     TimeUnit.SECONDS.sleep(5L);
