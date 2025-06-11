@@ -23,18 +23,25 @@ import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.InspectAsset;
+import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.InspectAssetService;
+import com.jcca.web2.service.InspectRecordService;
+import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
+import static com.jcca.web2.service.XunjianCollectRun.currentTargetCountMap;
+import static com.jcca.web2.service.XunjianCollectRun.targetTotalMap;
 
 /**
  * @author HanHW
@@ -57,6 +64,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     private DataProcessManager dataProcessManager;
     @Resource
     private AlarmInfoService alarmInfoService;
+    @Resource
+    private InspectRecordService inspectRecordService;
+    @Resource
+    private XunjianScheduleService xunjianScheduleService;
 
     @Override
     public List<InspectAsset> getInspectAssets(List<String> assetIds) {
@@ -80,6 +91,20 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<ItemVo> getAllCheckedAsset(String jobId) {
+        List<InspectRecord> records = inspectRecordService.findByJobId(jobId);
+        if (!records.isEmpty()) {
+            InspectRecord inspectRecord = records.get(0);
+            String inspectRecordId = inspectRecord.getId();
+            Integer totalTarget = targetTotalMap.get(inspectRecordId);
+            Integer countTarget = currentTargetCountMap.get(inspectRecordId);
+            if (totalTarget == null || countTarget == null) {
+                this.sendMsg(inspectRecord.getModeType(), XunjianWSDto.WHOLE_PROCESS, jobId, 0);
+            } else {
+                BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+                this.sendMsg(inspectRecord.getModeType(), XunjianWSDto.WHOLE_PROCESS, jobId, process.intValue());
+            }
+        }
+
         List<ItemVo> list = inspectAssetMapper.getAllCheckedAsset(jobId);
         QueryWrapper<InspectAsset> query = Wrappers.query();
         for (ItemVo itemVo : list) {
@@ -92,6 +117,23 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             }
         }
         return list;
+    }
+
+    private void sendMsg(String operator, Integer msgType, String jobId, Integer status) {
+        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
+            return;
+        }
+        XunjianWSDto wsDto = new XunjianWSDto();
+        wsDto.setUsername(operator);
+        wsDto.setMsgType(msgType);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setJobId(jobId);
+        msg.setId("100");
+        msg.setName("进度条");
+        msg.setStatus(status);
+        msg.setCount(0);
+        wsDto.setMessage(msg);
+        xunjianScheduleService.sendWsMsg(wsDto);
     }
 
     @Override

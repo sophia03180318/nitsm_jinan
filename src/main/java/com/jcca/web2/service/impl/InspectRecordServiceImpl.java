@@ -1155,6 +1155,17 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         return inspectRecordMapper.findBySchuduleId(scheduleId);
     }
 
+    /**
+     * 获取任务的巡检记录列表
+     *
+     * @param jobId 任务ID
+     * @return 记录
+     */
+    @Override
+    public List<InspectRecord> findByJobId(String jobId) {
+        return inspectRecordMapper.findByJobId(jobId);
+    }
+
     private void setAssetList(InspectOrgAssetVo orgVo) {
         String orgId = orgVo.getOrgId();
         List<InspectOrgAssetVo> deskList = inspectRecordMapper.findDeskListByOrgId(orgId);

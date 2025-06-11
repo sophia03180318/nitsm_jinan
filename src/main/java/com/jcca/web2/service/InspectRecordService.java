@@ -203,4 +203,12 @@ public interface InspectRecordService extends IService<InspectRecord> {
      * @return
      */
     List<ItemVo> findBySchuduleId(String scheduleId);
+
+    /**
+     * 获取任务的巡检记录列表
+     *
+     * @param jobId 任务ID
+     * @return 记录
+     */
+    List<InspectRecord> findByJobId(String jobId);
 }
