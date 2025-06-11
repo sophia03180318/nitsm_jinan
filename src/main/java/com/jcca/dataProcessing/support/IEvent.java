@@ -60,6 +60,12 @@ public class IEvent {
     private String alarmId;
 
     private XunjianDataDto xunjianDataDto;
+    /**
+     * 巡检是否结束
+     */
+    private Integer xunjianIsFinish;
+
+
 
     public IEvent() {
     }

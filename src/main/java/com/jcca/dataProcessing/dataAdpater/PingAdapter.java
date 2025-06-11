@@ -15,9 +15,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -41,9 +39,11 @@ public class PingAdapter extends AssetIpAdd implements IAdapter<ReceiveAlarmDto>
         ReceiveAlarmEntity receiveAlarmEntity = EntityBeanUtil.copy(data, ReceiveAlarmEntity.class);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_ping.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 if (receiveAlarmEntity.getContent() != null) {
                     try {
                         dataProcessManager.pingHandlerRequest(receiveAlarmEntity);
@@ -59,9 +59,19 @@ public class PingAdapter extends AssetIpAdd implements IAdapter<ReceiveAlarmDto>
 
                     }
                 }
-
+                return 1;
             }
         });
+
+        if(receiveAlarmEntity.getInspectRecordId()!=null&&!"".equals(receiveAlarmEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

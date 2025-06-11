@@ -18,9 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -57,18 +55,28 @@ public class CenterSystemTimeAdapter extends AssetIpAdd implements IAdapter<JSON
         CollectSystemTimeEntity collectSystemTimeEntity = list.get(0);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_run_time_state.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 setAssetIp(collectSystemTimeEntity);
                 try {
                     dataProcessManager.systemTimeHandlerRequest(collectSystemTimeEntity);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSystemTimeEntity.getAssetIp() + "systemTimeHandlerRequest 抛出异常", e);
                 }
+                return 1;
             }
         });
 
+        if(collectSystemTimeEntity.getInspectRecordId()!=null&&!"".equals(collectSystemTimeEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

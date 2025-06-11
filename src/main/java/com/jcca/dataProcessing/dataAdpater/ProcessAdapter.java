@@ -24,9 +24,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -101,15 +99,34 @@ public class ProcessAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_process.getCode(), "monitor", true);
         excutorService.submit(() -> {
-            for (CollectProcessEntity collectProcessEntity : disposeList) {
-                try {
-                    dataProcessManager.processHandlerRequest(collectProcessEntity);
-                } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectProcessEntity.getAssetIp() + "processHandlerRequest 抛出异常", e);
 
+        });
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                for (CollectProcessEntity collectProcessEntity : disposeList) {
+                    try {
+                        dataProcessManager.processHandlerRequest(collectProcessEntity);
+                    } catch (Exception e) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectProcessEntity.getAssetIp() + "processHandlerRequest 抛出异常", e);
+
+                    }
                 }
+                return 1;
             }
         });
+
+        if(disposeList.get(0).getInspectRecordId()!=null&&!"".equals(disposeList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
     }

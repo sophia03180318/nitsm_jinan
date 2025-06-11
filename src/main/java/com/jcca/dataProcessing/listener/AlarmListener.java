@@ -23,13 +23,10 @@ public class AlarmListener implements IListener<IEvent> {
     private DataProcessManager dataProcessManager;
     @Override
     public void onEvent(IEvent event) {
-
-
         try {
             dataProcessManager.alarmInfoHandlerRequest(event);
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "rediskey~" + event.getEventRedisKey() + " mapkey~" + event.getMapKey() + " alarmInfoHandlerRequest 抛出异常", e);
         }
-
     }
 }
