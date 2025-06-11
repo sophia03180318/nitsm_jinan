@@ -17,6 +17,8 @@ import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
+import com.jcca.web.alarm.entity.AlarmInfo;
+import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.*;
@@ -53,6 +55,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     private RedisService redisService;
     @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
+    @Resource
+    private AlarmInfoService alarmInfoService;
 
     @Override
     public List<InspectAsset> getInspectAssets(List<String> assetIds) {
@@ -209,21 +213,82 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             if (content1 == null) {
                 continue;
             }
+            SendPingAlarmReq statusResult = execResult.getStatusResult();
+            if (!ipSet.contains(statusResult.getAssetIp())) {
+                ipSet.add(statusResult.getAssetIp());
+                statusResult.setInspectRecordId(asset.getInspectRecordId());
+                redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
+            }
             IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
             JSONArray jsonArray1 = JSONUtil.parseArray(content1);
             adapter1.dispose(jsonArray1);
+        }
+        // 巡检结束
+        if (asset.getInspectTotal().intValue() == asset.getInspectNow().intValue()) {
+            this.checkStatusTarget(asset);
 
-            SendPingAlarmReq statusResult = execResult.getStatusResult();
-            if (ipSet.contains(statusResult.getAssetIp())) {
-                continue;
+            IEvent event = new IEvent();
+            event.setXunjianIsFinish(1);
+            event.setInspectRecordId(asset.getInspectRecordId());
+            try {
+                Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+            } catch (InterruptedException ignored) {
+
             }
-            ipSet.add(statusResult.getAssetIp());
-            statusResult.setInspectRecordId(asset.getInspectRecordId());
-            redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
         }
     }
 
-    private final List<String> targets = Arrays.asList(STATUS_TARGET_ARR);
+    private void checkStatusTarget(InspectAsset inspectAsset) {
+        // 状态类单独处理
+        List<String> list = Arrays.asList(ALARM_TARGET_ARR);
+        if (!list.contains(inspectAsset.getTargetItem())) {
+            return;
+        }
+        QueryWrapper<AlarmInfo> query = Wrappers.query();
+        inspectAsset.setInspectRecordId(inspectAsset.getInspectRecordId());
+        query.eq("asset_id", inspectAsset.getAssetId());
+        query.eq("alarm_code", inspectAsset.getTargetItem());
+        query.eq("ALARM_STATE", 1);
+        query.eq("BLANK", 1);
+        List<AlarmInfo> infos = alarmInfoService.list(query);
+        if (infos.isEmpty()) {
+            inspectAsset.setInspectValue("1");
+            inspectAsset.setInspectState(Web2Const.INSPECTED);
+            inspectAsset.setResultMsg("正常");
+            this.send2Queue(inspectAsset);
+            return;
+        }
+        for (AlarmInfo info : infos) {
+            inspectAsset.setInspectValue("-1");
+            inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+            inspectAsset.setResultMsg(info.getDescription());
+            inspectAsset.setAlarmId(info.getId());
+            this.send2Queue(inspectAsset);
+        }
+    }
+
+    private void send2Queue(InspectAsset asset) {
+        XunjianDataDto dto = new XunjianDataDto();
+        dto.setInspectRecordId(asset.getInspectRecordId());
+        dto.setAssetId(asset.getAssetId());
+        dto.setTargetItem(asset.getTargetItem());
+        dto.setInspectValue(asset.getInspectValue());
+        dto.setInspectState(asset.getInspectState());
+        dto.setResultMsg(asset.getResultMsg());
+        dto.setAlarmId(asset.getAlarmId());
+        dto.setEventTypeId(asset.getEventTypeId());
+        IEvent event = new IEvent();
+        event.setInspectRecordId(asset.getInspectRecordId());
+        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
+        event.setXunjianDataDto(dto);
+        try {
+            Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private final List<String> targets = Arrays.asList(SYSPORT_TARGET_ARR);
 
     private void send2Queue(InspectAsset asset, String msg) {
         QueryWrapper<InspectAsset> query = Wrappers.query();

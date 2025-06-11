@@ -29,4 +29,6 @@ public class XunjianDataDto {
     private String alarmId;
     // 事件类型ID
     private String eventTypeId;
+
+    private Integer xunjianIsFinish;
 }

@@ -376,7 +376,6 @@ public class XunjianFinalController {
 
 
     private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
-        List<String> list1 = Arrays.asList(SYSPORT_TARGET_ARR);
         int count = 1;
         // 查磁盘阈值
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
@@ -414,9 +413,20 @@ public class XunjianFinalController {
             query.in("ASSET_ID", assetIds);
             count = thresholdProcessService.count(query);
         }
+        // 查时间
+        if (StatusInfoChangeTypeEnum.event_time.getCode().equals(eventCategory)) {
+            QueryWrapper<Asset> query = Wrappers.query();
+            query.in("ID", assetIds);
+            query.eq("WATCH", 1);
+            query.eq("IS_DEL", 1);
+            query.eq("NTP_FLAG", 1);
+            List<Asset> list = assetService.list(query);
+            return list.size();
+        }
+
         // 查管理口
         if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)) {
-            for (String s : list1) {
+            for (String s : SYSPORT_TARGET_ARR) {
                 if (s.startsWith(eventCategory)) {
                     QueryWrapper<Asset> query = Wrappers.query();
                     query.in("ID", assetIds);

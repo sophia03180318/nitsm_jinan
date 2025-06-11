@@ -74,38 +74,31 @@ public interface Web2Const {
     // 用于重置任务状态 <jobId, recordId>
     Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
     // 巡检需要查询的指标
-    String[] STATUS_TARGET_ARR = {
-            StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
+    String[] ALARM_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_run_restart.getCode(),
             StatusInfoChangeTypeEnum.event_process_status.getCode(),
             StatusInfoChangeTypeEnum.event_process_once.getCode(),
             StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),
             StatusInfoChangeTypeEnum.event_port_state.getCode(),
+            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
+            StatusInfoChangeTypeEnum.event_power_state.getCode(),
+            StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
             StatusInfoChangeTypeEnum.event_fan_state.getCode(),
             StatusInfoChangeTypeEnum.event_fan_unknown.getCode(),
-            StatusInfoChangeTypeEnum.event_syslog_power.getCode(),
-            StatusInfoChangeTypeEnum.event_power_state.getCode(),
-            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
             StatusInfoChangeTypeEnum.event_led_state.getCode(),
-            StatusInfoChangeTypeEnum.event_clock_state.getCode(),
     };
 
     // 管理口指标
     String[] SYSPORT_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_power_state.getCode(),
             StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
             StatusInfoChangeTypeEnum.event_fan_state.getCode(),
             StatusInfoChangeTypeEnum.event_fan_unknown.getCode(),
-            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
             StatusInfoChangeTypeEnum.event_led_state.getCode(),
-            StatusInfoChangeTypeEnum.event_clock_state.getCode(),
-    };
-
-    String[] ALARM_TARGET_ARR = {
-            StatusInfoChangeTypeEnum.event_run_restart.getCode(),
-            StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
     };
 
 }

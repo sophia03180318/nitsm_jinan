@@ -68,6 +68,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
         while (true) {
             IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+            Integer xunjianIsFinish = event.getXunjianIsFinish();
             String inspectRecordId;
             XunjianDataDto dto;
             if (event.getXunjianDataDto() == null) {
@@ -76,18 +77,25 @@ public class XunjianCollectRun implements ApplicationRunner {
                     continue;
                 }
                 dto = new XunjianDataDto();
-                dto.setEventTypeId(event.getEventAlarmLevelBaseEntity().getEventTypeId());
+                if (event.getEventAlarmLevelBaseEntity() != null) {
+                    dto.setEventTypeId(event.getEventAlarmLevelBaseEntity().getEventTypeId());
+                }
                 dto.setInspectRecordId(inspectRecordId);
                 dto.setAssetId(event.getAssetId());
                 dto.setTargetItem(event.getEventRedisKey());
-                dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
-                dto.setInspectValue(event.getInfo().getValue() + "");
+                if (event.getStatus() != null) {
+                    dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
+                }
+                if (event.getInfo() != null) {
+                    dto.setInspectValue(event.getInfo().getValue() + "");
+                }
                 dto.setResultMsg(event.getDescStr());
                 dto.setAlarmId(event.getAlarmId());
             } else {
                 dto = event.getXunjianDataDto();
                 inspectRecordId = dto.getInspectRecordId();
             }
+            dto.setXunjianIsFinish(xunjianIsFinish);
 
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
 
@@ -154,6 +162,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Map<String, Integer>> targetStateMap = new ConcurrentHashMap<>();
     // 重复指标 <inspectRecordId, <targetItem>>
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> repeatEventTypeIdMap = new ConcurrentHashMap<>();
     // 指标大类型总数
     private final Map<String, Set<String>> totalMap = new ConcurrentHashMap<>();
 
@@ -169,6 +178,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         String targetItem = dto.getTargetItem();
         String targetState = dto.getInspectState();
         String eventTypeId = dto.getEventTypeId();
+        Integer xunjianIsFinish = dto.getXunjianIsFinish();
         // 巡检设备及指标数量
         if (!assetTotalMap.containsKey(inspectRecordId)) {
             List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
@@ -203,7 +213,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         Set<String> set = targetNameMap.get(inspectRecordId).keySet();
-        if (!set.contains(targetItem)) {
+        if (targetItem != null && !set.contains(targetItem)) {
             return;
         }
 
@@ -213,23 +223,33 @@ public class XunjianCollectRun implements ApplicationRunner {
             targets = new HashSet<>();
         }
         String idItem = assetId + targetItem;
-        if (targets.contains(idItem)) {
-            Map<String, Integer> map1 = assetStateMap.get(inspectRecordId);
-            if (map1 != null) {
-                Integer i1 = map1.get(targetItem);
-                if (Integer.parseInt(targetState) > (i1 == null ? 3 : i1)) {
-                    map1.put(assetId, Integer.parseInt(targetState));
-                    assetStateMap.put(inspectRecordId, map1);
-                }
-            }
-
-            this.saveDetail(dto);
-            return;
+        if (!targets.contains(idItem)) {
+            currentTargetCountMap.merge(inspectRecordId, 1, Integer::sum);
+            targets.add(idItem);
+            repeatTargetMap.put(inspectRecordId, targets);
         }
-        targets.add(idItem);
-        repeatTargetMap.put(inspectRecordId, targets);
 
         String assetName = assetIdName.get(assetId);
+
+        if (xunjianIsFinish != null && xunjianIsFinish == 1) {
+            // 设置资产指标为初始状态
+            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
+            for (InspectAsset asset : assetList) {
+                asset.setInspectState(Web2Const.INSPECT);
+            }
+            inspectAssetService.updateBatchById(assetList);
+
+            // 设置为结束巡检
+            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+            schedule.setLastTime(new Date());
+            xunjianScheduleService.updateById(schedule);
+
+            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
+            // 清空内存
+            this.clearMap(inspectRecordId);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
+            return;
+        }
 
         // 资产状态
         if (assetStateMap.get(inspectRecordId) == null) {
@@ -248,7 +268,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
             assetStateMap.put(inspectRecordId, astateMap);
         }
-        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
+        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
 
         // 已巡检指标数量
         targetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
@@ -269,7 +289,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         // 保存巡检详情
         this.saveDetail(dto);
 
-        currentTargetCountMap.merge(inspectRecordId, 1, Integer::sum);
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             if (targetAbnormalSet.get(inspectRecordId) == null) {
                 Set<String> sset = new HashSet<>();
@@ -295,8 +314,18 @@ public class XunjianCollectRun implements ApplicationRunner {
                 stringSetMap.put(eventTypeId, set1);
                 currentAbnormalTargetMap.put(inspectRecordId, stringSetMap);
             }
-            int ab = currentAbnormalTargetMap.get(inspectRecordId).get(eventTypeId).size();
-            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, 0, ab); // 某类指标状态
+//            int ab = currentAbnormalTargetMap.get(inspectRecordId).get(eventTypeId).size();
+//            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, 0, ab); // 某类指标状态
+
+            Set<String> setEventType = repeatEventTypeIdMap.get(inspectRecordId);
+            if (setEventType == null) {
+                setEventType = new HashSet<>();
+            }
+            if (!setEventType.contains(eventTypeId)) {
+                this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, 0, 1); // 异常指标大类型
+            }
+            setEventType.add(eventTypeId);
+
         }
         // 某类指标巡检完成
         Map<String, Integer> targetMap = currentCountTargetMap.get(inspectRecordId);
@@ -351,15 +380,15 @@ public class XunjianCollectRun implements ApplicationRunner {
                 }
             }
 
-            int a = 0;
-            if (targetNormalSet.get(inspectRecordId) != null) {
-                a = targetNormalSet.get(inspectRecordId).size();
-            }
-            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, a, ab); // 某类指标巡检完成
+//            int a = 0;
+//            if (targetNormalSet.get(inspectRecordId) != null) {
+//                a = targetNormalSet.get(inspectRecordId).size();
+//            }
+//            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, a, ab); // 某类指标巡检完成
         }
 
         // 设备指标数量和已巡检设备指标数量相同则该设备巡检结束
-        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, Integer.parseInt(targetState)); // 当前巡检设备
+//        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, Integer.parseInt(targetState)); // 当前巡检设备
         currentAssetTargetMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
         Integer currentSize = currentAssetTargetMap.get(inspectRecordId).get(assetId);
         if (currentSize == null) {
@@ -368,16 +397,20 @@ public class XunjianCollectRun implements ApplicationRunner {
             currentSize += 1;
         }
         currentAssetTargetMap.get(inspectRecordId).put(assetId, currentSize);
-        if (assetTargetCountMap.get(inspectRecordId).get(assetId) == currentSize.intValue()) {
-            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产巡检完成
+//        if (assetTargetCountMap.get(inspectRecordId).get(assetId) == currentSize.intValue()) {
+//            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
+//        }
+        if (Web2Const.INSPECT_ERROR.equals(targetState)) {
+            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
         }
 
-        int i1 = 0;
-        if (currentNormalTargetMap.get(inspectRecordId) != null) {
-            i1 = currentNormalTargetMap.get(inspectRecordId).size();
-        }
-        int i2 = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
-        this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, jobId, i1, i2); // 指标统计
+
+//        int i1 = 0;
+//        if (currentNormalTargetMap.get(inspectRecordId) != null) {
+//            i1 = currentNormalTargetMap.get(inspectRecordId).size();
+//        }
+//        int i2 = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
+//        this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, jobId, i1, i2); // 指标统计
 
         // 巡检总进度
         Integer totalTarget = targetTotalMap.get(inspectRecordId);
@@ -386,23 +419,24 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
 
         // 已巡检指标数量和指标总数量相同则全部巡检结束
-        if (totalTarget.intValue() == countTarget) {
-            // 设置资产指标为初始状态
-            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
-            for (InspectAsset asset : assetList) {
-                asset.setInspectState(Web2Const.INSPECT);
-            }
-            inspectAssetService.updateBatchById(assetList);
-
-            // 设置为结束巡检
-            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-            schedule.setLastTime(new Date());
-            xunjianScheduleService.updateById(schedule);
-
-            // 清空内存
-            this.clearMap(inspectRecordId);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
-        }
+//        if (totalTarget.intValue() == countTarget) {
+//            // 设置资产指标为初始状态
+//            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
+//            for (InspectAsset asset : assetList) {
+//                asset.setInspectState(Web2Const.INSPECT);
+//            }
+//            inspectAssetService.updateBatchById(assetList);
+//
+//            // 设置为结束巡检
+//            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+//            schedule.setLastTime(new Date());
+//            xunjianScheduleService.updateById(schedule);
+//
+//            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
+//            // 清空内存
+//            this.clearMap(inspectRecordId);
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
+//        }
     }
 
     private void saveDetail(XunjianDataDto dto) {
@@ -410,7 +444,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
                 if (Web2Const.XUNJIAN_JOB_RECORD.get(dto.getJobId()) != null) {
-                    asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getTargetItem()) + "");
+                    asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getEventTypeId()) + "");
                     asset.setInspectValue(dto.getInspectValue());
                     asset.setResultMsg(dto.getResultMsg());
                     inspectAssetService.updateById(asset);
@@ -463,7 +497,8 @@ public class XunjianCollectRun implements ApplicationRunner {
         assetStateMap.remove(inspectRecordId);
         targetStateMap.remove(inspectRecordId);
         currentNormalTargetMap.remove(inspectRecordId);
-        repeatTargetMap.remove(inspectRecordId);
+//        repeatTargetMap.remove(inspectRecordId);
+        repeatEventTypeIdMap.remove(inspectRecordId);
         totalMap.remove(inspectRecordId);
 
         Set<String> keySet = Web2Const.XUNJIAN_JOB_RECORD.keySet();
