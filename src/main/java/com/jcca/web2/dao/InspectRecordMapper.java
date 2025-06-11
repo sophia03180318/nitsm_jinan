@@ -92,6 +92,6 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
     @Select("SELECT ID, INSPECT_TIME AS NAME FROM INSPECT_RECORD WHERE INSPECT_CODE = #{scheduleId} ORDER BY INSPECT_TIME DESC")
     List<ItemVo> findBySchuduleId(String scheduleId);
 
-    @Select("SELECT * FROM INSPECT_RECORD WHERE SCHEDULE_ID IN (SELECT ID FROM XUNJIAN_SCHEDULE WHERE JOB_ID = #{jobId})")
+    @Select("SELECT * FROM INSPECT_RECORD WHERE SCHEDULE_ID IN (SELECT ID FROM XUNJIAN_SCHEDULE WHERE JOB_ID = #{jobId}) ORDER BY ID DESC")
     List<InspectRecord> findByJobId(String jobId);
 }
