@@ -314,8 +314,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 stringSetMap.put(eventTypeId, set1);
                 currentAbnormalTargetMap.put(inspectRecordId, stringSetMap);
             }
-//            int ab = currentAbnormalTargetMap.get(inspectRecordId).get(eventTypeId).size();
-//            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, 0, ab); // 某类指标状态
 
             Set<String> setEventType = repeatEventTypeIdMap.get(inspectRecordId);
             if (setEventType == null) {
@@ -379,16 +377,9 @@ public class XunjianCollectRun implements ApplicationRunner {
                     }
                 }
             }
-
-//            int a = 0;
-//            if (targetNormalSet.get(inspectRecordId) != null) {
-//                a = targetNormalSet.get(inspectRecordId).size();
-//            }
-//            this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, a, ab); // 某类指标巡检完成
         }
 
         // 设备指标数量和已巡检设备指标数量相同则该设备巡检结束
-//        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, Integer.parseInt(targetState)); // 当前巡检设备
         currentAssetTargetMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
         Integer currentSize = currentAssetTargetMap.get(inspectRecordId).get(assetId);
         if (currentSize == null) {
@@ -397,46 +388,15 @@ public class XunjianCollectRun implements ApplicationRunner {
             currentSize += 1;
         }
         currentAssetTargetMap.get(inspectRecordId).put(assetId, currentSize);
-//        if (assetTargetCountMap.get(inspectRecordId).get(assetId) == currentSize.intValue()) {
-//            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
-//        }
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
         }
-
-
-//        int i1 = 0;
-//        if (currentNormalTargetMap.get(inspectRecordId) != null) {
-//            i1 = currentNormalTargetMap.get(inspectRecordId).size();
-//        }
-//        int i2 = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
-//        this.sendMsg(operator, XunjianWSDto.TARGET_COUNT, jobId, i1, i2); // 指标统计
 
         // 巡检总进度
         Integer totalTarget = targetTotalMap.get(inspectRecordId);
         Integer countTarget = currentTargetCountMap.get(inspectRecordId);
         BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
         this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
-
-        // 已巡检指标数量和指标总数量相同则全部巡检结束
-//        if (totalTarget.intValue() == countTarget) {
-//            // 设置资产指标为初始状态
-//            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
-//            for (InspectAsset asset : assetList) {
-//                asset.setInspectState(Web2Const.INSPECT);
-//            }
-//            inspectAssetService.updateBatchById(assetList);
-//
-//            // 设置为结束巡检
-//            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-//            schedule.setLastTime(new Date());
-//            xunjianScheduleService.updateById(schedule);
-//
-//            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
-//            // 清空内存
-//            this.clearMap(inspectRecordId);
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
-//        }
     }
 
     private void saveDetail(XunjianDataDto dto) {
@@ -497,7 +457,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         assetStateMap.remove(inspectRecordId);
         targetStateMap.remove(inspectRecordId);
         currentNormalTargetMap.remove(inspectRecordId);
-//        repeatTargetMap.remove(inspectRecordId);
+        repeatTargetMap.remove(inspectRecordId);
         repeatEventTypeIdMap.remove(inspectRecordId);
         totalMap.remove(inspectRecordId);
 
