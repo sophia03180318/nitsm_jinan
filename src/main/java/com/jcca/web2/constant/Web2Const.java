@@ -75,6 +75,7 @@ public interface Web2Const {
     Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
     // 巡检需要查询的指标
     String[] ALARM_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_clock_state.getCode(),
             StatusInfoChangeTypeEnum.event_run_restart.getCode(),
             StatusInfoChangeTypeEnum.event_process_status.getCode(),
             StatusInfoChangeTypeEnum.event_process_once.getCode(),

@@ -101,7 +101,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             InspectRecord record;
 
-            if (!inspectRecordMap.containsKey(inspectRecordId)) {
+            if (inspectRecordMap.get(inspectRecordId) == null) {
                 record = inspectRecordService.getById(inspectRecordId);
                 if (record == null) {
                     continue;

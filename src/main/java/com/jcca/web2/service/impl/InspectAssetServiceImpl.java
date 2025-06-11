@@ -271,7 +271,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         }
         // 巡检结束
         if (asset.getInspectTotal().intValue() == asset.getInspectNow().intValue()) {
-            this.checkStatusTarget(asset);
+            this.checkStatusTarget(asset.getJobId());
 
             IEvent event = new IEvent();
             event.setXunjianIsFinish(1);
@@ -284,32 +284,38 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         }
     }
 
-    private void checkStatusTarget(InspectAsset inspectAsset) {
-        // 状态类单独处理
-        List<String> list = Arrays.asList(ALARM_TARGET_ARR);
-        if (!list.contains(inspectAsset.getTargetItem())) {
-            return;
-        }
-        QueryWrapper<AlarmInfo> query = Wrappers.query();
-        inspectAsset.setInspectRecordId(inspectAsset.getInspectRecordId());
-        query.eq("asset_id", inspectAsset.getAssetId());
-        query.eq("alarm_code", inspectAsset.getTargetItem());
-        query.eq("ALARM_STATE", 1);
-        query.eq("BLANK", 1);
-        List<AlarmInfo> infos = alarmInfoService.list(query);
-        if (infos.isEmpty()) {
-            inspectAsset.setInspectValue("1");
-            inspectAsset.setInspectState(Web2Const.INSPECTED);
-            inspectAsset.setResultMsg("正常");
-            this.send2Queue(inspectAsset);
-            return;
-        }
-        for (AlarmInfo info : infos) {
-            inspectAsset.setInspectValue("-1");
-            inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
-            inspectAsset.setResultMsg(info.getDescription());
-            inspectAsset.setAlarmId(info.getId());
-            this.send2Queue(inspectAsset);
+    // 状态类单独处理
+    private void checkStatusTarget(String jobId) {
+        QueryWrapper<InspectAsset> query1 = Wrappers.query();
+        query1.eq("JOB_ID", jobId);
+        query1.in("INSPECT_STATE", Arrays.asList("1", "2"));
+        List<InspectAsset> list1 = this.list(query1);
+        for (InspectAsset inspectAsset : list1) {
+            List<String> list = Arrays.asList(ALARM_TARGET_ARR);
+            if (!list.contains(inspectAsset.getTargetItem())) {
+                continue;
+            }
+            QueryWrapper<AlarmInfo> query = Wrappers.query();
+            inspectAsset.setInspectRecordId(inspectAsset.getInspectRecordId());
+            query.eq("ASSET_ID", inspectAsset.getAssetId());
+            query.eq("ALARM_CODE", inspectAsset.getTargetItem());
+            query.eq("ALARM_STATE", 1);
+            query.eq("BLANK", 1);
+            List<AlarmInfo> infos = alarmInfoService.list(query);
+            if (infos.isEmpty()) {
+                inspectAsset.setInspectValue("1");
+                inspectAsset.setInspectState(Web2Const.INSPECTED);
+                inspectAsset.setResultMsg("正常");
+                this.send2Queue(inspectAsset);
+                return;
+            }
+            for (AlarmInfo info : infos) {
+                inspectAsset.setInspectValue("-1");
+                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+                inspectAsset.setResultMsg(info.getDescription());
+                inspectAsset.setAlarmId(info.getId());
+                this.send2Queue(inspectAsset);
+            }
         }
     }
 
