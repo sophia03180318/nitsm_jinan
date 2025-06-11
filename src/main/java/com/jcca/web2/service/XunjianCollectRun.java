@@ -470,21 +470,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
     }
 
-    private void sendMsg(String operator, Integer msgType, String jobId, int normal, int abnormal) {
-        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
-            return;
-        }
-        XunjianWSDto wsDto = new XunjianWSDto();
-        wsDto.setUsername(operator);
-        wsDto.setMsgType(msgType);
-        XunjianWSDto msg = new XunjianWSDto();
-        msg.setJobId(jobId);
-        msg.setAbnormal(abnormal);
-        msg.setNormal(normal);
-        wsDto.setMessage(msg);
-        xunjianScheduleService.sendWsMsg(wsDto);
-    }
-
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {
         if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
             return;
