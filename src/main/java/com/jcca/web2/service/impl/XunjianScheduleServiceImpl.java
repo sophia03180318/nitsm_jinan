@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysOrgService;
+import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.config.quartz.QuartzJobManager;
 import com.jcca.common.enums.ResultEnum;
@@ -207,6 +208,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         List<AlarmRepository> repositorList = alarmRepositoryService.list();
         Map<String, List<AlarmRepository>> repositorMap = repositorList.stream().collect(Collectors.groupingBy(AlarmRepository::getEventTypeId));
 
+        List<String> list1 = Arrays.asList(STATUS_TARGET_ARR);
+
         String jobId = dto.getJobId();
         List<String> assetIds = dto.getAssetList();
         Map<String, List<String>> targetMap = dto.getTargetList();
@@ -235,6 +238,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     if (asset.getNtpFlag() == 0
                             && repository.getAlarmCode().startsWith(StatusInfoChangeTypeEnum.event_time.getCode())) {
                         continue;
+                    }
+                    if (AssetModeConst.SERVER.intValue() == asset.getAssetDesk() && list1.contains(repository.getAlarmCode())) {
+                        boolean hasSysport = this.getSysport(asset.getAssetId());
+                        if (!hasSysport) {
+                            continue;
+                        }
                     }
 
                     InspectAsset inspectAsset = new InspectAsset();
@@ -270,6 +279,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             inspectAssetService.saveBatch(batchList);
         }
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "结束保存巡检资产", DateUtil.formatDateTime(new Date()));
+    }
+
+    private boolean getSysport(String assetId) {
+        Asset asset = assetService.getById(assetId);
+        return !StringUtils.isEmpty(asset.getIpmiIp()) && !StringUtils.isEmpty(asset.getIpmiUser()) && !StringUtils.isEmpty(asset.getIpmiPwd());
     }
 
     private String getThreshold(InspectAsset inspectAsset, List<ThresholdProcess> thresholdProcessList) {
