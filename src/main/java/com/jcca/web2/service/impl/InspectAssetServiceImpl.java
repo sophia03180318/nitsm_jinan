@@ -30,7 +30,6 @@ import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -174,10 +173,9 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String eventTypeId) {
-        String inspectRecordId = Web2Const.XUNJIAN_JOB_RECORD.get(jobId);
-        if (StringUtils.isEmpty(inspectRecordId)) {
-            return new ArrayList<>();
-        }
+        List<InspectRecord> recordList = inspectRecordService.findByJobId(jobId);
+        InspectRecord inspectRecord = recordList.get(0);
+        String inspectRecordId = inspectRecord.getId();
         return inspectAssetMapper.getTargetAssetInfo(inspectRecordId, eventTypeId);
     }
 
