@@ -42,10 +42,7 @@ import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.entity.XunjianSchedule;
-import com.jcca.web2.service.InspectAssetService;
-import com.jcca.web2.service.InspectDetailService;
-import com.jcca.web2.service.InspectRecordService;
-import com.jcca.web2.service.XunjianScheduleService;
+import com.jcca.web2.service.*;
 import com.jcca.web2.util.TimeToCronConverter;
 import com.jcca.web2.vo.ItemVo;
 import lombok.extern.slf4j.Slf4j;
@@ -706,7 +703,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         inspectDetailService.remove(update);
 
         // 清空缓存
-        Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
+        XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
+        XunjianCollectRun collectRun = SpringContextUtil.getBean(XunjianCollectRun.class);
+        collectRun.clearMap(inspectRecordId);
     }
 
     @Override
