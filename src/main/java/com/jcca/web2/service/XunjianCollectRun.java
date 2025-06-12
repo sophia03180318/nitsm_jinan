@@ -461,14 +461,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         repeatTargetMap.remove(inspectRecordId);
         repeatEventTypeIdMap.remove(inspectRecordId);
         totalMap.remove(inspectRecordId);
-
-        Set<String> keySet = Web2Const.XUNJIAN_JOB_RECORD.keySet();
-        for (String key : keySet) {
-            if (inspectRecordId.equals(Web2Const.XUNJIAN_JOB_RECORD.get(key))) {
-                Web2Const.XUNJIAN_JOB_RECORD.remove(key);
-                break;
-            }
-        }
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {

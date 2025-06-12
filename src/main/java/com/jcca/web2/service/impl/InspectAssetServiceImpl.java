@@ -284,6 +284,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             } catch (InterruptedException ignored) {
 
             }
+            // 清空缓存
+            Web2Const.XUNJIAN_JOB_RECORD.remove(asset.getJobId());
         }
     }
 
