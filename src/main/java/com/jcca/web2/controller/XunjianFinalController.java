@@ -542,7 +542,7 @@ public class XunjianFinalController {
     @ApiOperation("巡检报告单1")
     public ResultVo<Object> report1(String id) {
         if (StringUtils.isEmpty(id)) {
-            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+            return ResultVoUtil.warning("暂无数据");
         }
         Map<String, Object> list = inspectDetailService.getReport1(id);
         return ResultVoUtil.success(list);
@@ -552,7 +552,7 @@ public class XunjianFinalController {
     @ApiOperation("巡检报告单1下载")
     public void report1Down(String id, HttpServletResponse response) throws IOException {
         if (StringUtils.isEmpty(id)) {
-            throw new ResultException(ResultEnum.PARAM_ERROR);
+            throw new ResultException(ResultEnum.PARAM_ERROR, "暂无数据");
         }
         Map<String, Object> map = inspectDetailService.report1Down(id);
 
