@@ -107,6 +107,7 @@ public interface Web2Const {
     // 管理口 存储
     String[] SYSPORT_DS_ARR = {
             ReceiveCollectConst.SYS_PORT,
+            ReceiveCollectConst.AIX_SYSTEM_MSG,
             ReceiveCollectConst.RAID_SYSTEM_MSG,
             ReceiveCollectConst.DS_SYSTEM_MSG,
     };
