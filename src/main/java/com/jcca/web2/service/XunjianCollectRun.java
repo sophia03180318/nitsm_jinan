@@ -49,6 +49,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 资产ID 名称对应，<assetId, assetName>
     private final Map<String, String> assetIdName = new HashMap<>(256);
 
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
@@ -320,7 +321,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 setEventType = new HashSet<>();
             }
             if (!setEventType.contains(eventTypeId)) {
-                this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId, 0, 1); // 异常指标大类型
+                this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
             }
             setEventType.add(eventTypeId);
 
@@ -403,12 +404,10 @@ public class XunjianCollectRun implements ApplicationRunner {
         List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
-                if (Web2Const.XUNJIAN_JOB_RECORD.get(dto.getJobId()) != null) {
-                    asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getEventTypeId()) + "");
-                    asset.setInspectValue(dto.getInspectValue());
-                    asset.setResultMsg(dto.getResultMsg());
-                    inspectAssetService.updateById(asset);
-                }
+                asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getEventTypeId()) + "");
+                asset.setInspectValue(dto.getInspectValue());
+                asset.setResultMsg(dto.getResultMsg());
+                inspectAssetService.updateById(asset);
 
                 // 保存巡检详情
                 InspectDetail inspectDetail = new InspectDetail();
@@ -426,23 +425,20 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
     }
 
-    private void sendTargetMsg(String operator, Integer msgType, String jobId, String targetItem, int normal, int abnormal) {
-        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
-            return;
-        }
+    private void sendTargetMsg(String operator, Integer msgType, String jobId, String targetItem) {
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);
         XunjianWSDto msg = new XunjianWSDto();
         msg.setJobId(jobId);
         msg.setId(targetItem);
-        msg.setNormal(normal);
-        msg.setAbnormal(abnormal);
+        msg.setNormal(0);
+        msg.setAbnormal(1);
         wsDto.setMessage(msg);
         xunjianScheduleService.sendWsMsg(wsDto);
     }
 
-    public void clearMap(String inspectRecordId) {
+    public synchronized void clearMap(String inspectRecordId) {
         assetTotalMap.remove(inspectRecordId);
         inspectRecordMap.remove(inspectRecordId);
         inspectAssetMap.remove(inspectRecordId);
@@ -460,20 +456,9 @@ public class XunjianCollectRun implements ApplicationRunner {
         repeatTargetMap.remove(inspectRecordId);
         repeatEventTypeIdMap.remove(inspectRecordId);
         totalMap.remove(inspectRecordId);
-
-        Set<String> keySet = Web2Const.XUNJIAN_JOB_RECORD.keySet();
-        for (String key : keySet) {
-            if (inspectRecordId.equals(Web2Const.XUNJIAN_JOB_RECORD.get(key))) {
-                Web2Const.XUNJIAN_JOB_RECORD.remove(key);
-                break;
-            }
-        }
     }
 
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status, Integer count) {
-        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
-            return;
-        }
+    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);
@@ -482,15 +467,8 @@ public class XunjianCollectRun implements ApplicationRunner {
         msg.setId(id);
         msg.setName(name);
         msg.setStatus(status);
-        msg.setCount(count);
+        msg.setCount(0);
         wsDto.setMessage(msg);
         xunjianScheduleService.sendWsMsg(wsDto);
-    }
-
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
-        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) != null) {
-            this.sendMsg(operator, msgType, jobId, id, name, status, 0);
-        }
-
     }
 }

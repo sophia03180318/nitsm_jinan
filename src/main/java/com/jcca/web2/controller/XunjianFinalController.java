@@ -208,6 +208,7 @@ public class XunjianFinalController {
 
         QueryWrapper<XunjianSchedule> query = Wrappers.query();
         query.eq("JOB_NAME", jobName);
+        query.eq("OPERATOR", ShiroUtil.getSubject().getUsername());
         if (!StringUtils.isEmpty(jobId)) {
             query.ne("JOB_ID", jobId);
         }
@@ -310,6 +311,18 @@ public class XunjianFinalController {
         if (schedule.getJobState() != 2) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能停止正在进行中的任务");
         }
+
+        // 将任务设置为最初状态
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+        xunjianScheduleService.updateById(schedule);
+
+        // 将指标设置为最初状态
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        for (InspectAsset asset : assetList) {
+            asset.setInspectState(Web2Const.INSPECT);
+        }
+        inspectAssetService.updateBatchById(assetList);
+
         xunjianScheduleService.resetJob(schedule);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
@@ -377,6 +390,14 @@ public class XunjianFinalController {
 
     private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
         int count = 1;
+        // 查CPU阈值
+        if (StatusInfoChangeTypeEnum.event_CPU.getCode().equals(eventCategory)) {
+            QueryWrapper<ThresholdManage> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            query.eq("CATEGORY", ThresholdCategoryEnum.CPU.name());
+            query.eq("ASSET_DESK", assetDesk);
+            count = thresholdManageService.count(query);
+        }
         // 查磁盘阈值
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
@@ -425,7 +446,8 @@ public class XunjianFinalController {
         }
 
         // 查管理口
-        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)) {
+        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)
+                && !StatusInfoChangeTypeEnum.event_CPU.getCode().equals(eventCategory)) {
             for (String s : SYSPORT_TARGET_ARR) {
                 if (s.startsWith(eventCategory)) {
                     QueryWrapper<Asset> query = Wrappers.query();
@@ -528,6 +550,9 @@ public class XunjianFinalController {
     @GetMapping("/detail/report1View")
     @ApiOperation("巡检报告单1")
     public ResultVo<Object> report1(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.warning("暂无数据");
+        }
         Map<String, Object> list = inspectDetailService.getReport1(id);
         return ResultVoUtil.success(list);
     }
@@ -536,7 +561,7 @@ public class XunjianFinalController {
     @ApiOperation("巡检报告单1下载")
     public void report1Down(String id, HttpServletResponse response) throws IOException {
         if (StringUtils.isEmpty(id)) {
-            throw new ResultException(ResultEnum.PARAM_ERROR);
+            throw new ResultException(ResultEnum.PARAM_ERROR, "暂无数据");
         }
         Map<String, Object> map = inspectDetailService.report1Down(id);
 

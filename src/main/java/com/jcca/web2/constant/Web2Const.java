@@ -1,5 +1,6 @@
 package com.jcca.web2.constant;
 
+import com.jcca.component.constants.ReceiveCollectConst;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.support.IEvent;
 
@@ -77,6 +78,7 @@ public interface Web2Const {
     String[] ALARM_TARGET_ARR = {
             StatusInfoChangeTypeEnum.event_clock_state.getCode(),
             StatusInfoChangeTypeEnum.event_run_restart.getCode(),
+            StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
             StatusInfoChangeTypeEnum.event_process_status.getCode(),
             StatusInfoChangeTypeEnum.event_process_once.getCode(),
             StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),
@@ -100,6 +102,14 @@ public interface Web2Const {
             StatusInfoChangeTypeEnum.event_temp_state.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
             StatusInfoChangeTypeEnum.event_led_state.getCode(),
+    };
+
+    // 管理口 存储
+    String[] SYSPORT_DS_ARR = {
+            ReceiveCollectConst.SYS_PORT,
+            ReceiveCollectConst.AIX_SYSTEM_MSG,
+            ReceiveCollectConst.RAID_SYSTEM_MSG,
+            ReceiveCollectConst.DS_SYSTEM_MSG,
     };
 
 }

@@ -226,6 +226,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                             || StatusInfoChangeTypeEnum.event_ping_group_other.getCode().equals(repository.getAlarmCode())) {
                         continue;
                     }
+                    if (StatusInfoChangeTypeEnum.event_clock_state.getCode().equals(repository.getAlarmCode())) {
+                        continue;
+                    }
                     if (asset.getNtpFlag() == 0
                             && repository.getAlarmCode().startsWith(StatusInfoChangeTypeEnum.event_time.getCode())) {
                         continue;
@@ -394,8 +397,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
             int size = collect.size();
             for (InspectAsset inspectAsset : assetList) {
-                Collection<String> values = Web2Const.XUNJIAN_JOB_RECORD.values();
-                if (!values.contains(schedule.getInspectRecordId())) {
+                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
                     return;
                 }
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
@@ -699,17 +702,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         update.eq("INSPECT_CODE", inspectRecordId);
         inspectDetailService.remove(update);
 
-        // 将任务设置为最初状态
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-        this.updateById(schedule);
-
-        // 将指标设置为最初状态
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
-        }
-        inspectAssetService.updateBatchById(assetList);
-
+        // 清空缓存
+        XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
         XunjianCollectRun collectRun = SpringContextUtil.getBean(XunjianCollectRun.class);
         collectRun.clearMap(inspectRecordId);
     }
