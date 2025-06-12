@@ -186,7 +186,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         List<InspectDetail> list = this.list(query1);
         if (!CollectionUtils.isEmpty(list)) {
             QueryWrapper<AlarmInfo> query = Wrappers.query();
-            query.select("ID", "TITLE", "OCCUR_TIME", "REMARK", "ALARM_CODE");
+            query.select("ID", "TITLE", "OCCUR_TIME", "REMARK", "ALARM_CODE", "DESCRIPTION", "CONTENT");
             query.in("ID", list.stream().map(InspectDetail::getAlarmId).collect(Collectors.toSet()));
             query.orderByDesc("CREATE_TIME", "ALARM_CODE");
             List<AlarmInfo> infos = alarmInfoService.list(query);

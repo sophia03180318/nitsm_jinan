@@ -245,7 +245,6 @@ public class XunjianFinalController {
 
         // 将任务设置为正在巡检
         schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-        schedule.setLastTime(new Date());
         xunjianScheduleService.updateById(schedule);
         // 将指标设置为最初状态
         List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
@@ -396,7 +395,7 @@ public class XunjianFinalController {
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", ThresholdCategoryEnum.CPU.name());
             query.eq("ASSET_DESK", assetDesk);
-            count = thresholdManageService.count(query);
+            return thresholdManageService.count(query);
         }
         // 查磁盘阈值
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
@@ -404,7 +403,7 @@ public class XunjianFinalController {
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", ThresholdCategoryEnum.DISK.name());
             query.eq("ASSET_DESK", assetDesk);
-            count = thresholdManageService.count(query);
+            return thresholdManageService.count(query);
         }
         // 查内存阈值
         if (StatusInfoChangeTypeEnum.event_memory.getCode().equals(eventCategory)) {
@@ -412,27 +411,26 @@ public class XunjianFinalController {
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", ThresholdCategoryEnum.MEMORY.name());
             query.eq("ASSET_DESK", assetDesk);
-            count = thresholdManageService.count(query);
+            return thresholdManageService.count(query);
         }
         // 查数据库
-        if (StatusInfoChangeTypeEnum.event_db.getCode().equals(eventCategory)
-                || StatusInfoChangeTypeEnum.event_db_tableSpace.getCode().equals(eventCategory)) {
+        if (StatusInfoChangeTypeEnum.event_db.getCode().equals(eventCategory)) {
             QueryWrapper<ManageDb> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
-            count = manageDbService.count(query);
+            return manageDbService.count(query);
         }
         if (StatusInfoChangeTypeEnum.event_db_tableSpace.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
             query.eq("CATEGORY", ThresholdCategoryEnum.TABLE_SPACE.name());
             query.eq("ASSET_DESK", assetDesk);
-            count = thresholdManageService.count(query);
+            return thresholdManageService.count(query);
         }
         // 查进程
         if (StatusInfoChangeTypeEnum.event_process.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdProcess> query = Wrappers.query();
             query.in("ASSET_ID", assetIds);
-            count = thresholdProcessService.count(query);
+            return thresholdProcessService.count(query);
         }
         // 查时间
         if (StatusInfoChangeTypeEnum.event_time.getCode().equals(eventCategory)) {
@@ -446,19 +444,22 @@ public class XunjianFinalController {
         }
 
         // 查管理口
-        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)
-                && !StatusInfoChangeTypeEnum.event_CPU.getCode().equals(eventCategory)) {
+        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)) {
             for (String s : SYSPORT_TARGET_ARR) {
-                if (s.startsWith(eventCategory)) {
-                    QueryWrapper<Asset> query = Wrappers.query();
-                    query.in("ID", assetIds);
-                    query.eq("WATCH", 1);
-                    query.eq("IS_DEL", 1);
-                    query.isNotNull("IPMI_IP");
-                    query.isNotNull("IPMI_USER");
-                    query.isNotNull("IPMI_PWD");
-                    List<Asset> list = assetService.list(query);
-                    return list.size();
+                if (!s.startsWith(eventCategory)) {
+                    continue;
+                }
+                QueryWrapper<Asset> query = Wrappers.query();
+                query.in("ID", assetIds);
+                query.eq("WATCH", 1);
+                query.eq("IS_DEL", 1);
+                query.isNotNull("IPMI_IP");
+                query.isNotNull("IPMI_USER");
+                query.isNotNull("IPMI_PWD");
+                List<Asset> list = assetService.list(query);
+                count = list.size();
+                if (count > 0) {
+                    break;
                 }
             }
         }

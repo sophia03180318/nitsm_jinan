@@ -142,7 +142,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
                 // 将任务设置为正在巡检
                 schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-                schedule.setLastTime(new Date());
                 this.updateById(schedule);
                 // 将指标设置为最初状态
                 List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
@@ -368,7 +367,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 将任务设置为正在巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-            schedule.setLastTime(new Date());
             this.updateById(schedule);
 
             // 将指标设置为最初状态
@@ -397,10 +395,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
             int size = collect.size();
             for (InspectAsset inspectAsset : assetList) {
-                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
-                    return;
-                }
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
@@ -409,6 +403,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 i++;
                 inspectAsset.setInspectTotal(size);
                 inspectAsset.setInspectNow(i);
+
+                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
+                    return;
+                }
+
                 inspectAssetService.xunjianCollect(inspectAsset);
             }
         } catch (Exception e) {
@@ -622,7 +622,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
                 // 将任务设置为正在巡检
                 schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-                schedule.setLastTime(new Date());
                 this.updateById(schedule);
                 // 将指标设置为最初状态
                 List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
@@ -719,7 +718,10 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             synchronized (webSocketSession) {
                 webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             }
-//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+            XunjianWSDto message = wsDto.getMessage();
+            if ("100".equals(message.getId()) && message.getStatus() == 100) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+            }
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集给前端发送消息异常", wsDto);
         }

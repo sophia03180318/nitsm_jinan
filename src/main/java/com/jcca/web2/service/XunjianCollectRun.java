@@ -23,7 +23,6 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +39,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     private InspectRecordService inspectRecordService;
     private XunjianScheduleService xunjianScheduleService;
 
-    private final Map<String, XunjianSchedule> xunjianScheduleMap = new HashMap<>();
+    private final Map<String, XunjianSchedule> xunjianScheduleMap = new ConcurrentHashMap<>();
 
     // <inspectRecordId, <targetItem, targetName>>
     private final Map<String, Map<String, String>> targetNameMap = new ConcurrentHashMap<>();
@@ -67,6 +66,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         this.inspectDetailService = SpringContextUtil.getBean(InspectDetailService.class);
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         while (true) {
             IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
             Integer xunjianIsFinish = event.getXunjianIsFinish();
@@ -98,7 +98,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
             dto.setXunjianIsFinish(xunjianIsFinish);
 
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据", dto);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据：" + Web2Const.XUNJIAN_COLLECT_QUEUE.size(), dto);
 
             InspectRecord record;
 
@@ -126,8 +126,6 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
 
             this.send2Web(dto);
-
-            TimeUnit.MILLISECONDS.sleep(100L);
         }
     }
 
@@ -136,18 +134,18 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Integer> assetTotalMap = new ConcurrentHashMap<>();
 
     // 设备指标总数量 <inspectRecordId, <assetId, 设备指标数量>>
-    private final Map<String, Map<String, Long>> assetTargetCountMap = new ConcurrentHashMap<>();
+//    private final Map<String, Map<String, Long>> assetTargetCountMap = new ConcurrentHashMap<>();
     // 已巡检设备指标 <inspectRecordId, <assetId, 已巡检设备指标数量>>
     private final Map<String, Map<String, Integer>> currentAssetTargetMap = new ConcurrentHashMap<>();
 
     // <inspectRecordId, 巡检指标总数量>
-    public static final Map<String, Integer> targetTotalMap = new ConcurrentHashMap<>();
+    public static Map<String, Integer> targetTotalMap = new ConcurrentHashMap<>();
     // 已巡检指标数量 <inspectRecordId, 已巡检指标数量>
-    public static final Map<String, Integer> currentTargetCountMap = new ConcurrentHashMap<>();
+    public static Map<String, Integer> currentTargetCountMap = new ConcurrentHashMap<>();
     // 已巡检异常指标数量 <inspectRecordId, <已巡检异常指标数量>>
-    public static final Map<String, Set<String>> targetAbnormalSet = new ConcurrentHashMap<>();
+    public static Map<String, Set<String>> targetAbnormalSet = new ConcurrentHashMap<>();
     // 已巡检正常指标数量 <inspectRecordId, <已巡检正常指标数量>>
-    public static final Map<String, Set<String>> targetNormalSet = new ConcurrentHashMap<>();
+    public static Map<String, Set<String>> targetNormalSet = new ConcurrentHashMap<>();
 
     // 指标分类总数量 <inspectRecordId, <targetItem, 该指标总数量>>
     private final Map<String, Map<String, Long>> totalTargetMap = new ConcurrentHashMap<>();
@@ -163,12 +161,12 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Map<String, Integer>> targetStateMap = new ConcurrentHashMap<>();
     // 重复指标 <inspectRecordId, <targetItem>>
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
-    private final Map<String, Set<String>> repeatEventTypeIdMap = new ConcurrentHashMap<>();
+    // 重复指标资产 <inspectRecordId, <eventTypeId, <assetId>>>
+    private final Map<String, Map<String, Set<String>>> repeatAssetIdMap = new ConcurrentHashMap<>();
     // 指标大类型总数
-    private final Map<String, Set<String>> totalMap = new ConcurrentHashMap<>();
+//    private final Map<String, Set<String>> totalMap = new ConcurrentHashMap<>();
 
     private synchronized void send2Web(XunjianDataDto dto) {
-
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
@@ -194,20 +192,20 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             inspectAssetMap.put(inspectRecordId, assetList);
 
-            Set<String> totalSet = new HashSet<>();
+//            Set<String> totalSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 assetIdName.put(inspectAsset.getAssetId(), inspectAsset.getAssetName());
 
-                totalSet.add(inspectAsset.getEventTypeId());
-                totalMap.put(inspectRecordId, totalSet);
+//                totalSet.add(inspectAsset.getEventTypeId());
+//                totalMap.put(inspectRecordId, totalSet);
             }
 
             Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
             assetTotalMap.put(inspectRecordId, assetCollect.size());
             targetTotalMap.put(inspectRecordId, assetList.size());
 
-            Map<String, Long> assetTargetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
-            assetTargetCountMap.put(inspectRecordId, assetTargetCollect);
+//            Map<String, Long> assetTargetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
+//            assetTargetCountMap.put(inspectRecordId, assetTargetCollect);
 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getEventTypeId, Collectors.counting()));
             totalTargetMap.put(inspectRecordId, collect);
@@ -316,15 +314,20 @@ public class XunjianCollectRun implements ApplicationRunner {
                 currentAbnormalTargetMap.put(inspectRecordId, stringSetMap);
             }
 
-            Set<String> setEventType = repeatEventTypeIdMap.get(inspectRecordId);
-            if (setEventType == null) {
-                setEventType = new HashSet<>();
+            Map<String, Set<String>> eventTypeMap = repeatAssetIdMap.get(inspectRecordId);
+            if (eventTypeMap == null) {
+                eventTypeMap = new HashMap<>();
             }
-            if (!setEventType.contains(eventTypeId)) {
+            Set<String> assetSet = eventTypeMap.get(eventTypeId);
+            if (assetSet == null) {
+                assetSet = new HashSet<>();
+            }
+            if (!assetSet.contains(assetId)) {
+                assetSet.add(assetId);
+                eventTypeMap.put(eventTypeId, assetSet);
+                repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
                 this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
             }
-            setEventType.add(eventTypeId);
-
         }
         // 某类指标巡检完成
         Map<String, Integer> targetMap = currentCountTargetMap.get(inspectRecordId);
@@ -397,7 +400,9 @@ public class XunjianCollectRun implements ApplicationRunner {
         Integer totalTarget = targetTotalMap.get(inspectRecordId);
         Integer countTarget = currentTargetCountMap.get(inspectRecordId);
         BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-        this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
+        if (process.intValue() <= 100) {
+            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
+        }
     }
 
     private void saveDetail(XunjianDataDto dto) {
@@ -439,6 +444,9 @@ public class XunjianCollectRun implements ApplicationRunner {
     }
 
     public synchronized void clearMap(String inspectRecordId) {
+        targetNormalSet.remove(inspectRecordId);
+        targetAbnormalSet.remove(inspectRecordId);
+        xunjianScheduleMap.remove(inspectRecordId);
         assetTotalMap.remove(inspectRecordId);
         inspectRecordMap.remove(inspectRecordId);
         inspectAssetMap.remove(inspectRecordId);
@@ -448,14 +456,14 @@ public class XunjianCollectRun implements ApplicationRunner {
         currentAssetTargetMap.remove(inspectRecordId);
         currentCountTargetMap.remove(inspectRecordId);
         totalTargetMap.remove(inspectRecordId);
-        assetTargetCountMap.remove(inspectRecordId);
+//        assetTargetCountMap.remove(inspectRecordId);
         currentAbnormalTargetMap.remove(inspectRecordId);
         assetStateMap.remove(inspectRecordId);
         targetStateMap.remove(inspectRecordId);
         currentNormalTargetMap.remove(inspectRecordId);
         repeatTargetMap.remove(inspectRecordId);
-        repeatEventTypeIdMap.remove(inspectRecordId);
-        totalMap.remove(inspectRecordId);
+        repeatAssetIdMap.remove(inspectRecordId);
+//        totalMap.remove(inspectRecordId);
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {

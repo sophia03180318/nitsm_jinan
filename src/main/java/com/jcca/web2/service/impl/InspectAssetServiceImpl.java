@@ -9,10 +9,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveCollectDto;
+import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
@@ -34,6 +36,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -212,6 +215,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             return;
         }
 
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         o = jsonObject.get("body");
         JSONObject body = JSONUtil.parseObj(o.toString());
         CollectExecResp collectExecResp = JSONUtil.toBean(body.toString(), CollectExecResp.class);
@@ -262,13 +266,15 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 statusResult.setInspectRecordId(asset.getInspectRecordId());
                 redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
             }
-            IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
-            JSONArray jsonArray1 = JSONUtil.parseArray(content1);
-            adapter1.dispose(jsonArray1);
+            executor.execute(() -> {
+                IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
+                JSONArray jsonArray1 = JSONUtil.parseArray(content1);
+                adapter1.dispose(jsonArray1);
+            });
         }
         // 巡检结束
         if (asset.getInspectTotal().intValue() == asset.getInspectNow().intValue()) {
-            this.checkStatusTarget(asset.getJobId(), asset.getInspectRecordId());
+//            this.checkStatusTarget(asset.getJobId(), asset.getInspectRecordId());
 
             IEvent event = new IEvent();
             event.setXunjianIsFinish(1);
