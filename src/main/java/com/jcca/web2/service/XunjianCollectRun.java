@@ -4,6 +4,7 @@ import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.SpringContextUtil;
+import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
@@ -21,8 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -52,12 +52,12 @@ public class XunjianCollectRun implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         executor.execute(() -> {
             try {
                 go();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
+
             }
         });
     }
@@ -443,7 +443,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         xunjianScheduleService.sendWsMsg(wsDto);
     }
 
-    public void clearMap(String inspectRecordId) {
+    public synchronized void clearMap(String inspectRecordId) {
         assetTotalMap.remove(inspectRecordId);
         inspectRecordMap.remove(inspectRecordId);
         inspectAssetMap.remove(inspectRecordId);

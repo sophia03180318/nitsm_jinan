@@ -699,17 +699,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         update.eq("INSPECT_CODE", inspectRecordId);
         inspectDetailService.remove(update);
 
-        // 将任务设置为最初状态
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-        this.updateById(schedule);
-
-        // 将指标设置为最初状态
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
-        }
-        inspectAssetService.updateBatchById(assetList);
-
         XunjianCollectRun collectRun = SpringContextUtil.getBean(XunjianCollectRun.class);
         collectRun.clearMap(inspectRecordId);
     }

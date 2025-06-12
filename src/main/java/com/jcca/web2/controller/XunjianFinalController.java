@@ -311,6 +311,18 @@ public class XunjianFinalController {
         if (schedule.getJobState() != 2) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能停止正在进行中的任务");
         }
+
+        // 将任务设置为最初状态
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+        xunjianScheduleService.updateById(schedule);
+
+        // 将指标设置为最初状态
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        for (InspectAsset asset : assetList) {
+            asset.setInspectState(Web2Const.INSPECT);
+        }
+        inspectAssetService.updateBatchById(assetList);
+
         xunjianScheduleService.resetJob(schedule);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
@@ -529,6 +541,9 @@ public class XunjianFinalController {
     @GetMapping("/detail/report1View")
     @ApiOperation("巡检报告单1")
     public ResultVo<Object> report1(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
         Map<String, Object> list = inspectDetailService.getReport1(id);
         return ResultVoUtil.success(list);
     }
