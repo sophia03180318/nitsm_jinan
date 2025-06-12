@@ -64,6 +64,10 @@ public class IEvent {
      * 巡检是否结束
      */
     private Integer xunjianIsFinish;
+    /**
+     * 巡检描述信息
+     */
+    private String xunjianDesc;
 
 
 

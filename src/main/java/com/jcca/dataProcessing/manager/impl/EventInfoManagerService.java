@@ -57,6 +57,18 @@ public class EventInfoManagerService implements IEventInfoManagerService {
         return this.judgeChange(obj, changeValue);
     }
 
+
+    public  Boolean infoChangeStatus(String redisKey, String mapKey, Object changeValue) {
+
+        Object obj = redisService.hmGet(redisKey, mapKey);
+        if (obj == null) {
+            return null;
+        }
+        return this.judgeChange(obj, changeValue);
+    }
+
+
+
     /**
      * 与缓存中的信息对比是否有变动
      *

@@ -101,4 +101,13 @@ public interface IEventInfoManagerService {
      */
     public Object getStateValue(String redisKey, String mapKey);
 
+    /**
+     * 判断数据状态
+     * @param redisKey
+     * @param mapKey
+     * @param changeValue
+     * @return
+     */
+    public  Boolean infoChangeStatus(String redisKey, String mapKey, Object changeValue);
+
 }
