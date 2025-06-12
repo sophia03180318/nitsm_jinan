@@ -379,6 +379,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         // 保存巡检记录
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         schedule.setInspectRecordId(inspectRecordId);
+        schedule.setLastTime(new Date());
         this.saveInspectRecord(schedule);
 
         try {
@@ -421,7 +422,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         inspectRecord.setId(schedule.getInspectRecordId());
         inspectRecord.setScheduleId(schedule.getId());
         inspectRecord.setInspectCode(schedule.getJobId());
-        inspectRecord.setInspectTime(schedule.getLastTime());
+        inspectRecord.setInspectTime(new Date());
         inspectRecord.setCreator(schedule.getOperator());
         inspectRecord.setModeName(schedule.getJobName());
         inspectRecord.setModeType(schedule.getOperator());
