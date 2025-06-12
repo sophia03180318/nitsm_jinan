@@ -390,6 +390,14 @@ public class XunjianFinalController {
 
     private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
         int count = 1;
+        // 查CPU阈值
+        if (StatusInfoChangeTypeEnum.event_CPU.getCode().equals(eventCategory)) {
+            QueryWrapper<ThresholdManage> query = Wrappers.query();
+            query.in("ASSET_ID", assetIds);
+            query.eq("CATEGORY", ThresholdCategoryEnum.CPU.name());
+            query.eq("ASSET_DESK", assetDesk);
+            count = thresholdManageService.count(query);
+        }
         // 查磁盘阈值
         if (StatusInfoChangeTypeEnum.event_disk.getCode().equals(eventCategory)) {
             QueryWrapper<ThresholdManage> query = Wrappers.query();
@@ -438,7 +446,8 @@ public class XunjianFinalController {
         }
 
         // 查管理口
-        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)) {
+        if (AssetModeConst.SERVER == Integer.parseInt(assetDesk)
+                && !StatusInfoChangeTypeEnum.event_CPU.getCode().equals(eventCategory)) {
             for (String s : SYSPORT_TARGET_ARR) {
                 if (s.startsWith(eventCategory)) {
                     QueryWrapper<Asset> query = Wrappers.query();

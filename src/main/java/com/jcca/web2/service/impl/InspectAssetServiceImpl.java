@@ -119,9 +119,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, Integer status) {
-        if (Web2Const.XUNJIAN_JOB_RECORD.get(jobId) == null) {
-            return;
-        }
         XunjianWSDto wsDto = new XunjianWSDto();
         wsDto.setUsername(operator);
         wsDto.setMsgType(msgType);

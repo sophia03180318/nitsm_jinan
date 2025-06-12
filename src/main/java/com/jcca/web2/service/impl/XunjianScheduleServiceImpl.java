@@ -400,8 +400,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
             int size = collect.size();
             for (InspectAsset inspectAsset : assetList) {
-                Collection<String> values = Web2Const.XUNJIAN_JOB_RECORD.values();
-                if (!values.contains(schedule.getInspectRecordId())) {
+                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
                     AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
                     return;
                 }
