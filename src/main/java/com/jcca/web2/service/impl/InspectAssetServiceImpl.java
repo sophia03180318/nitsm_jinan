@@ -11,7 +11,6 @@ import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
-import com.jcca.component.constants.ReceiveCollectConst;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -238,7 +237,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
             if (code == 3 || code == 4) {
                 String flag = assetId + dto.getCategory();
-                if (idFlagSet.contains(flag) || !ReceiveCollectConst.SYS_PORT.equals(dto.getCategory())) {
+                if (idFlagSet.contains(flag) || !Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
                     continue;
                 }
                 idFlagSet.add(flag);

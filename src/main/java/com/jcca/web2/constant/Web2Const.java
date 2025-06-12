@@ -1,5 +1,6 @@
 package com.jcca.web2.constant;
 
+import com.jcca.component.constants.ReceiveCollectConst;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.support.IEvent;
 
@@ -101,6 +102,13 @@ public interface Web2Const {
             StatusInfoChangeTypeEnum.event_temp_state.getCode(),
             StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
             StatusInfoChangeTypeEnum.event_led_state.getCode(),
+    };
+
+    // 管理口 存储
+    String[] SYSPORT_DS_ARR = {
+            ReceiveCollectConst.SYS_PORT,
+            ReceiveCollectConst.RAID_SYSTEM_MSG,
+            ReceiveCollectConst.DS_SYSTEM_MSG,
     };
 
 }
