@@ -367,13 +367,24 @@ public class RouteController {
 
         List<LinkAssetExportVo> exportList = linkAssetService.exportManualList(req);
         ExcelWriter writer = ExcelUtil.getWriter(true);
-        writer.addHeaderAlias("assetName", "资产名称");
         writer.addHeaderAlias("assetIp", "资产IP");
-        writer.addHeaderAlias("assetModeStr", "资产类型");
+        writer.addHeaderAlias("assetName", "资产名称");
         writer.addHeaderAlias("portIndex", "端口名称");
-        writer.addHeaderAlias("linkAssetName", "对端资产名称");
+        writer.addHeaderAlias("assetModeStr", "资产类型");
         writer.addHeaderAlias("linkAssetIp", "对端资产IP");
+        writer.addHeaderAlias("linkAssetName", "对端资产名称");
         writer.addHeaderAlias("linkPort", "对端端口");
+        writer.addHeaderAlias("remark", "备注信息");
+
+        LinkAssetExportVo vo = new LinkAssetExportVo();
+        vo.setAssetIp("assetIp");
+        vo.setPortIndex("portName");
+        vo.setLinkAssetIp("linkAssetIp");
+        vo.setLinkAssetName("linkAssetName");
+        vo.setLinkPort("linkPort");
+        vo.setRemark("remark");
+
+        exportList.add(0, vo);
 
         writer.write(exportList, true);
 
