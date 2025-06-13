@@ -58,7 +58,6 @@ import org.springframework.web.socket.WebSocketSession;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -378,6 +377,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             inspectAssetService.updateBatchById(assetList);
         }
 
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "进入巡检线程", dto);
+
         // 保存巡检记录
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         schedule.setInspectRecordId(inspectRecordId);
@@ -387,37 +388,22 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
         try {
             // 开始巡检采集
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
-            Map<String, List<InspectAsset>> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
-            CountDownLatch latch = new CountDownLatch(collect.size());
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-
-                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(schedule.getJobId()))) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
-                    continue;
-                }
-
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
-                executor.execute(() -> {
-                    try {
-                        inspectAssetService.xunjianCollect(inspectAsset);
-                    } finally {
-                        latch.countDown();
-                    }
-                });
+                inspectAssetService.xunjianCollect(inspectAsset);
             }
-            latch.await();
 
             IEvent event = new IEvent();
             event.setXunjianIsFinish(1);
             event.setInspectRecordId(schedule.getInspectRecordId());
             Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记", schedule.getInspectRecordId());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记，用户：" + schedule.getOperator()
+                    + "，任务名称：" + schedule.getJobName(), schedule.getInspectRecordId());
             // 清空缓存
             Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
         } catch (Exception e) {
@@ -721,6 +707,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         String operator = wsDto.getUsername();
         WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
         if (webSocketSession == null || !webSocketSession.isOpen()) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "用户WEBSOCKET连接失效", wsDto);
             return;
         }
         try {
