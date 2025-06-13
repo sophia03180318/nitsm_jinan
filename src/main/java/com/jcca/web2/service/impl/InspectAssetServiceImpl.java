@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
+import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
@@ -22,7 +23,6 @@ import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.InspectAsset;
-import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.service.InspectAssetService;
 import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.service.XunjianScheduleService;
@@ -42,8 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.service.XunjianCollectRun.currentTargetCountMap;
-import static com.jcca.web2.service.XunjianCollectRun.targetTotalMap;
+import static com.jcca.web2.service.XunjianCollectRun.*;
 
 /**
  * @author HanHW
@@ -93,18 +92,20 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<ItemVo> getAllCheckedAsset(String jobId) {
-        List<InspectRecord> records = inspectRecordService.findByJobId(jobId);
-        if (!records.isEmpty()) {
-            InspectRecord inspectRecord = records.get(0);
-            String inspectRecordId = inspectRecord.getId();
+        String username = ShiroUtil.getSubject().getUsername();
+        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        if (!StringUtils.isEmpty(inspectRecordId)) {
             Integer totalTarget = targetTotalMap.get(inspectRecordId);
             Integer countTarget = currentTargetCountMap.get(inspectRecordId);
             if (totalTarget == null || countTarget == null) {
-                this.sendMsg(inspectRecord.getModeType(), XunjianWSDto.WHOLE_PROCESS, jobId, 0);
+                this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, 0);
             } else {
                 BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-                this.sendMsg(inspectRecord.getModeType(), XunjianWSDto.WHOLE_PROCESS, jobId, process.intValue());
+                int i = process.intValue();
+                i = Math.min(i, 100);
+                this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, i);
             }
+            this.sendMsg(username, XunjianWSDto.XUNJIANING_ASSET, jobId, inspectRecordId, currentAssetIdMap.get(inspectRecordId), 2); // 当前巡检资产
         }
 
         List<ItemVo> list = inspectAssetMapper.getAllCheckedAsset(jobId);
@@ -119,6 +120,20 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             }
         }
         return list;
+    }
+
+    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
+        XunjianWSDto wsDto = new XunjianWSDto();
+        wsDto.setUsername(operator);
+        wsDto.setMsgType(msgType);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setJobId(jobId);
+        msg.setId(id);
+        msg.setName(name);
+        msg.setStatus(status);
+        msg.setCount(0);
+        wsDto.setMessage(msg);
+        xunjianScheduleService.sendWsMsg(wsDto);
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, Integer status) {
@@ -208,13 +223,13 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-//            this.send2Queue(asset, respBody, Web2Const.INSPECT_ERROR);
+            this.sendAll2Queue(asset, "巡检采集异常，需要重新检查后重新发起");
             return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
-//            this.send2Queue(asset, jsonObject.get("msg").toString(), Web2Const.INSPECT_ERROR);
+            this.sendAll2Queue(asset, "巡检采集异常，需要重新检查后重新发起");
             return;
         }
         o = jsonObject.get("body");
@@ -270,7 +285,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                         }
                         IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
                         JSONArray jsonArray1 = JSONUtil.parseArray(content1);
-                        adapter1.dispose(jsonArray1);
                         adapter1.dispose(jsonArray1);
                     } finally {
                         latch.countDown();

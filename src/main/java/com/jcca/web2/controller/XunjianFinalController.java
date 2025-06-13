@@ -13,6 +13,7 @@ import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.client.CollectAgent;
@@ -51,6 +52,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -91,6 +93,7 @@ public class XunjianFinalController {
     @Resource
     private AssetService assetService;
 
+    public static final Map<String, Thread> INSPECT_THREAD_MAP = new ConcurrentHashMap<>();
 
     @GetMapping("/job/list")
     @ApiOperation("巡检任务列表")
@@ -254,18 +257,23 @@ public class XunjianFinalController {
         }
         inspectAssetService.updateBatchById(assetList);
 
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
         int poolSize = executor.getPoolSize();
         int activeCount = executor.getActiveCount();
         long taskCount = executor.getTaskCount();
         BlockingQueue<Runnable> queue = executor.getQueue();
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务--用户：" + schedule.getOperator() + "，任务ID：" + jobId,
                 "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务数-" + taskCount + ",队列长度-" + queue.size());
+
+        XunjianJobDto dto = new XunjianJobDto();
+        dto.setAutoFlag(1);
+        dto.setId(schedule.getId());
+        dto.setOperator(schedule.getOperator());
+        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+        dto.setInspectRecordId(inspectRecordId);
         executor.execute(() -> {
-            XunjianJobDto dto = new XunjianJobDto();
-            dto.setAutoFlag(1);
-            dto.setId(schedule.getId());
-            dto.setOperator(schedule.getOperator());
+            Thread thread = Thread.currentThread();
+            INSPECT_THREAD_MAP.put(schedule.getJobId(), thread);
             xunjianScheduleService.beginXunjian(dto);
         });
 
@@ -317,18 +325,15 @@ public class XunjianFinalController {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能停止正在进行中的任务");
         }
 
-        // 将任务设置为最初状态
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-        xunjianScheduleService.updateById(schedule);
-
-        // 将指标设置为最初状态
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
-        }
-        inspectAssetService.updateBatchById(assetList);
-
         xunjianScheduleService.resetJob(schedule);
+
+        Thread thread = INSPECT_THREAD_MAP.get(jobId);
+        if (Objects.nonNull(thread)) {
+            thread.interrupt();
+            INSPECT_THREAD_MAP.remove(jobId);
+        }
+
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动结束线程", thread.getName());
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
     }
@@ -554,11 +559,23 @@ public class XunjianFinalController {
         return ResultVoUtil.success(map);
     }
 
+    @GetMapping("/job/state")
+    @ApiOperation("查看任务状态")
+    public ResultVo<Object> jobState(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.warning("参数错误");
+        }
+
+        XunjianSchedule schedule = xunjianScheduleService.getById(id);
+
+        return ResultVoUtil.success(schedule);
+    }
+
     @GetMapping("/detail/report1View")
     @ApiOperation("巡检报告单1")
     public ResultVo<Object> report1(String id) {
         if (StringUtils.isEmpty(id)) {
-            return ResultVoUtil.warning("暂无数据");
+            return ResultVoUtil.warning("参数错误");
         }
         Map<String, Object> list = inspectDetailService.getReport1(id);
         return ResultVoUtil.success(list);

@@ -17,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.jcca.web2.controller.XunjianFinalController.INSPECT_THREAD_MAP;
 
 /**
  * @author: hhw
@@ -123,6 +126,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 this.send2Web(dto);
             } catch (Exception e) {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据异常", e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -163,8 +167,10 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Map<String, Set<String>>> repeatAssetIdMap = new ConcurrentHashMap<>();
     // 指标大类型总数
 //    private final Map<String, Set<String>> totalMap = new ConcurrentHashMap<>();
+    // 当前巡检资产
+    public static final Map<String, String> currentAssetIdMap = new ConcurrentHashMap<>();
 
-    private synchronized void send2Web(XunjianDataDto dto) {
+    private void send2Web(XunjianDataDto dto) {
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
@@ -176,6 +182,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         String targetState = dto.getInspectState();
         String eventTypeId = dto.getEventTypeId();
         Integer xunjianIsFinish = dto.getXunjianIsFinish();
+
         // 巡检设备及指标数量
         if (!assetTotalMap.containsKey(inspectRecordId)) {
             List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
@@ -190,23 +197,43 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             inspectAssetMap.put(inspectRecordId, assetList);
 
-//            Set<String> totalSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 assetIdName.put(inspectAsset.getAssetId(), inspectAsset.getAssetName());
-
-//                totalSet.add(inspectAsset.getEventTypeId());
-//                totalMap.put(inspectRecordId, totalSet);
             }
 
             Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
             assetTotalMap.put(inspectRecordId, assetCollect.size());
             targetTotalMap.put(inspectRecordId, assetList.size());
 
-//            Map<String, Long> assetTargetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
-//            assetTargetCountMap.put(inspectRecordId, assetTargetCollect);
-
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getEventTypeId, Collectors.counting()));
             totalTargetMap.put(inspectRecordId, collect);
+        }
+
+        if (xunjianIsFinish != null && xunjianIsFinish == 1) {
+            // 设置资产指标为初始状态
+            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
+            for (InspectAsset asset : assetList) {
+                asset.setInspectState(Web2Const.INSPECT);
+            }
+            inspectAssetService.updateBatchById(assetList);
+
+            // 设置为结束巡检
+            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+            schedule.setLastTime(new Date());
+            xunjianScheduleService.updateById(schedule);
+
+            try {
+                TimeUnit.SECONDS.sleep(2L);
+            } catch (InterruptedException ignored) {
+            }
+
+            INSPECT_THREAD_MAP.remove(schedule.getJobId());
+            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
+            // 清空缓存
+            Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
+            this.clearMap(inspectRecordId);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
+            return;
         }
 
         Set<String> set = targetNameMap.get(inspectRecordId).keySet();
@@ -227,30 +254,8 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         String assetName = assetIdName.get(assetId);
-
-        if (xunjianIsFinish != null && xunjianIsFinish == 1) {
-            // 设置资产指标为初始状态
-            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
-            for (InspectAsset asset : assetList) {
-                asset.setInspectState(Web2Const.INSPECT);
-            }
-            inspectAssetService.updateBatchById(assetList);
-
-            // 设置为结束巡检
-            schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-            schedule.setLastTime(new Date());
-            xunjianScheduleService.updateById(schedule);
-
-            try {
-                TimeUnit.SECONDS.sleep(2L);
-            } catch (InterruptedException ignored) {
-            }
-
-            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
-            // 清空内存
-            this.clearMap(inspectRecordId);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
-            return;
+        if (!StringUtils.isEmpty(assetName)) {
+            currentAssetIdMap.put(inspectRecordId, assetName);
         }
 
         // 资产状态
@@ -470,6 +475,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         currentNormalTargetMap.remove(inspectRecordId);
         repeatTargetMap.remove(inspectRecordId);
         repeatAssetIdMap.remove(inspectRecordId);
+        currentAssetIdMap.remove(inspectRecordId);
 //        totalMap.remove(inspectRecordId);
     }
 
