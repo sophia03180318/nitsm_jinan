@@ -35,6 +35,10 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -221,45 +225,75 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         Set<String> ipSet = new HashSet<>();
         Set<String> idFlagSet = new HashSet<>();
         Set<String> assetIdSet = new HashSet<>();
-        for (CollectExecResult execResult : execRespList) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
-            Integer code = execResult.getCode();
-            if (code == 2) {
-                if (!assetIdSet.contains(asset.getAssetId())) {
-                    this.sendAll2Queue(asset, execResult.getMsg());
-                    assetIdSet.add(asset.getAssetId());
-                }
-                continue;
-            }
-            ReceiveCollectDto dto = execResult.getResult();
-            if (dto == null) {
-                continue;
-            }
 
-            if (code == 3 || code == 4) {
-                String flag = assetId + dto.getCategory();
-                if (idFlagSet.contains(flag) || !Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
-                    continue;
-                }
-                idFlagSet.add(flag);
-                this.send2Queue(asset, execResult.getMsg());
-                continue;
-            }
+        ExecutorService executor = Executors.newFixedThreadPool(execRespList.size());
 
-            String content1 = dto.getContent();
-            if (StringUtils.isEmpty(content1)) {
-                continue;
+        try {
+            CountDownLatch latch = new CountDownLatch(execRespList.size());
+
+            for (CollectExecResult execResult : execRespList) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
+                executor.execute(() -> {
+                    try {
+                        Integer code = execResult.getCode();
+                        if (code == 2) {
+                            if (!assetIdSet.contains(asset.getAssetId())) {
+                                this.sendAll2Queue(asset, execResult.getMsg());
+                                assetIdSet.add(asset.getAssetId());
+                            }
+                            return;
+                        }
+                        ReceiveCollectDto dto = execResult.getResult();
+                        if (dto == null) {
+                            return;
+                        }
+
+                        if (code == 3 || code == 4) {
+                            String flag = assetId + dto.getCategory();
+                            if (idFlagSet.contains(flag) || !Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
+                                return;
+                            }
+                            idFlagSet.add(flag);
+                            this.send2Queue(asset, execResult.getMsg());
+                            return;
+                        }
+
+                        String content1 = dto.getContent();
+                        if (StringUtils.isEmpty(content1)) {
+                            return;
+                        }
+                        SendPingAlarmReq statusResult = execResult.getStatusResult();
+                        if (!ipSet.contains(statusResult.getAssetIp())) {
+                            ipSet.add(statusResult.getAssetIp());
+                            statusResult.setInspectRecordId(asset.getInspectRecordId());
+                            redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
+                        }
+                        IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
+                        JSONArray jsonArray1 = JSONUtil.parseArray(content1);
+                        adapter1.dispose(jsonArray1);
+                        adapter1.dispose(jsonArray1);
+                    }finally {
+                        latch.countDown();
+                    }
+                });
             }
-            SendPingAlarmReq statusResult = execResult.getStatusResult();
-            if (!ipSet.contains(statusResult.getAssetIp())) {
-                ipSet.add(statusResult.getAssetIp());
-                statusResult.setInspectRecordId(asset.getInspectRecordId());
-                redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
+            latch.await();
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+        }finally {
+            if (executor != null) {
+                executor.shutdownNow();
+                try {
+                    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                        executor.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage(),e);
+                }
             }
-            IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
-            JSONArray jsonArray1 = JSONUtil.parseArray(content1);
-            adapter1.dispose(jsonArray1);
         }
+
+
     }
 
     // 状态类单独处理

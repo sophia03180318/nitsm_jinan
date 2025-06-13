@@ -386,29 +386,17 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         this.saveInspectRecord(schedule);
 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
-        Map<String, List<InspectAsset>> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
-        int size = collect.size();
-        ExecutorService executor = Executors.newFixedThreadPool(size);
         try {
             // 开始巡检采集
-            CountDownLatch latch = new CountDownLatch(size);
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
-                executor.execute(() -> {
-                    try {
-                        inspectAssetService.xunjianCollect(inspectAsset);
-                    } finally {
-                        latch.countDown();
-                    }
-                });
+                inspectAssetService.xunjianCollect(inspectAsset);
             }
-            latch.await();
 
             IEvent event = new IEvent();
             event.setXunjianIsFinish(1);
@@ -419,15 +407,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
-        } finally {
-            try {
-                executor.shutdownNow();
-                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
-                }
-            } catch (InterruptedException ignored) {
-
-            }
         }
     }
 
