@@ -82,11 +82,4 @@ public class InspectAsset extends Model<InspectAsset> implements Serializable {
     private String eventCategory;
     @TableField(exist = false)
     private Byte ntpFlag;
-
-    // 总巡检资产
-    @TableField(exist = false)
-    private Integer inspectTotal;
-    // 当前巡检资产
-    @TableField(exist = false)
-    private Integer inspectNow;
 }
