@@ -59,6 +59,8 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -387,21 +389,16 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
         try {
             // 开始巡检采集
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
             Map<String, List<InspectAsset>> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
-            CountDownLatch latch = new CountDownLatch(collect.size());
+            int size = collect.size();
+            ExecutorService executor = Executors.newFixedThreadPool(size);
+            CountDownLatch latch = new CountDownLatch(size);
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-
-                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(schedule.getJobId()))) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
-                    continue;
-                }
-
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 executor.execute(() -> {
                     try {
