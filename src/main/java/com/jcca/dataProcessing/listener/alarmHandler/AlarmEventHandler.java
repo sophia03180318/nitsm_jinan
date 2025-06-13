@@ -77,7 +77,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 ChangeInfo changeInfo = (ChangeInfo) info.getInfo();
 
                 //这个变量是为了全局状态存储用的
-                eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
+                //eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
 
                 if (changeInfo.getRedisKey() != null) {
                     //这里是保存change中的变量数据……
@@ -85,12 +85,14 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                 }
                 //过滤掉 无告警的正常事件
                 if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && Objects.isNull(alarmInfo)) {
+                    eventInfoManagerService.saveRedisChange(info, redisTransactionTemplate);
                     redisTransactionTemplate.exec();
                     return true;
                 }
 
                 //过滤掉 未确认的已恢复告警
                 if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && AlarmStateEnum.RECOVER.getCode().equals(alarmInfo.getAlarmState())) {
+                    eventInfoManagerService.saveRedisChange(info, redisTransactionTemplate);
                     redisTransactionTemplate.exec();
                     return true;
                 }
