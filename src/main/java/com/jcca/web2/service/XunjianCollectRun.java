@@ -209,28 +209,6 @@ public class XunjianCollectRun implements ApplicationRunner {
             totalTargetMap.put(inspectRecordId, collect);
         }
 
-        Set<String> set = targetNameMap.get(inspectRecordId).keySet();
-        if (targetItem != null && !set.contains(targetItem)) {
-            return;
-        }
-
-        // 过滤重复指标
-        Set<String> targets = repeatTargetMap.get(inspectRecordId);
-        if (targets == null) {
-            targets = new HashSet<>();
-        }
-        String idItem = assetId + targetItem;
-        if (!targets.contains(idItem)) {
-            currentTargetCountMap.merge(inspectRecordId, 1, Integer::sum);
-            targets.add(idItem);
-            repeatTargetMap.put(inspectRecordId, targets);
-        }
-
-        String assetName = assetIdName.get(assetId);
-        if (!StringUtils.isEmpty(assetName)) {
-            currentAssetIdMap.put(inspectRecordId, assetName);
-        }
-
         if (xunjianIsFinish != null && xunjianIsFinish == 1) {
             // 设置资产指标为初始状态
             List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
@@ -256,6 +234,28 @@ public class XunjianCollectRun implements ApplicationRunner {
             this.clearMap(inspectRecordId);
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
             return;
+        }
+
+        Set<String> set = targetNameMap.get(inspectRecordId).keySet();
+        if (targetItem != null && !set.contains(targetItem)) {
+            return;
+        }
+
+        // 过滤重复指标
+        Set<String> targets = repeatTargetMap.get(inspectRecordId);
+        if (targets == null) {
+            targets = new HashSet<>();
+        }
+        String idItem = assetId + targetItem;
+        if (!targets.contains(idItem)) {
+            currentTargetCountMap.merge(inspectRecordId, 1, Integer::sum);
+            targets.add(idItem);
+            repeatTargetMap.put(inspectRecordId, targets);
+        }
+
+        String assetName = assetIdName.get(assetId);
+        if (!StringUtils.isEmpty(assetName)) {
+            currentAssetIdMap.put(inspectRecordId, assetName);
         }
 
         // 资产状态
