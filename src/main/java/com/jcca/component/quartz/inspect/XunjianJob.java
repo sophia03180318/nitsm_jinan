@@ -26,11 +26,11 @@ public class XunjianJob implements Job {
         String name = key.getName();
         String operator = key.getGroup();
         XunjianScheduleService scheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "定时巡检任务启动，巡检人：" + operator, "巡检任务：" + name);
         XunjianJobDto dto = new XunjianJobDto();
         dto.setAutoFlag(2);
         dto.setId(name.split("_")[0]);
         dto.setOperator(operator);
         scheduleService.beginXunjian(dto);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "定时巡检完成，巡检人：" + operator, "巡检任务：" + name);
     }
 }

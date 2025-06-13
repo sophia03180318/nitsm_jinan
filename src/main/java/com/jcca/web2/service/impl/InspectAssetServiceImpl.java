@@ -280,6 +280,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             event.setXunjianIsFinish(1);
             event.setInspectRecordId(asset.getInspectRecordId());
             try {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记", asset.getInspectRecordId());
                 Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
             } catch (InterruptedException ignored) {
 

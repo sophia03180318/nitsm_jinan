@@ -58,7 +58,6 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -352,7 +351,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      * @param dto
      */
     @Override
-    public void beginXunjian(XunjianJobDto dto) {
+    public synchronized void beginXunjian(XunjianJobDto dto) {
         String id = dto.getId();
         XunjianSchedule schedule = this.getById(id);
         List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
@@ -367,6 +366,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             // 将任务设置为正在巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+            schedule.setLastTime(new Date());
             this.updateById(schedule);
 
             // 将指标设置为最初状态
@@ -382,12 +382,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         schedule.setLastTime(new Date());
         this.saveInspectRecord(schedule);
 
-        try {
-            TimeUnit.SECONDS.sleep(2L);
-        } catch (InterruptedException ignored) {
-
-        }
-
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
         try {
             // 开始巡检采集
@@ -396,20 +390,20 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId, Collectors.counting()));
             int size = collect.size();
             for (InspectAsset inspectAsset : assetList) {
-                inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
-                i++;
-                inspectAsset.setInspectTotal(size);
-                inspectAsset.setInspectNow(i);
 
                 if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
                     AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
                     return;
                 }
 
+                i++;
+                inspectAsset.setInspectTotal(size);
+                inspectAsset.setInspectNow(i);
+                inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 inspectAssetService.xunjianCollect(inspectAsset);
             }
         } catch (Exception e) {
