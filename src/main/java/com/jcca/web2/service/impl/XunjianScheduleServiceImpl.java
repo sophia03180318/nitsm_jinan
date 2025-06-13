@@ -712,9 +712,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             return;
         }
         try {
-            synchronized (webSocketSession) {
-                webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
-            }
+            webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             XunjianWSDto message = wsDto.getMessage();
             if ("100".equals(message.getId()) && message.getStatus() == 100) {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);

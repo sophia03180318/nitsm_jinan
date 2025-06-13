@@ -164,7 +164,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 指标大类型总数
 //    private final Map<String, Set<String>> totalMap = new ConcurrentHashMap<>();
 
-    private synchronized void send2Web(XunjianDataDto dto) {
+    private void send2Web(XunjianDataDto dto) {
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
