@@ -266,11 +266,9 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 statusResult.setInspectRecordId(asset.getInspectRecordId());
                 redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(statusResult));
             }
-            executor.execute(() -> {
-                IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
-                JSONArray jsonArray1 = JSONUtil.parseArray(content1);
-                adapter1.dispose(jsonArray1);
-            });
+            IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
+            JSONArray jsonArray1 = JSONUtil.parseArray(content1);
+            adapter1.dispose(jsonArray1);
         }
         // 巡检结束
         if (asset.getInspectTotal().intValue() == asset.getInspectNow().intValue()) {
