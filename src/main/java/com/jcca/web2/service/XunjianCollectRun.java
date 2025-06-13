@@ -408,7 +408,9 @@ public class XunjianCollectRun implements ApplicationRunner {
         Integer totalTarget = targetTotalMap.get(inspectRecordId);
         Integer countTarget = currentTargetCountMap.get(inspectRecordId);
         BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-        if (process.intValue() <= 100) {
+        if (process.intValue() >= 100) {
+            this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 99);
+        } else {
             this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", process.intValue());
         }
     }

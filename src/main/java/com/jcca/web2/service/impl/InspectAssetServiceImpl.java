@@ -169,17 +169,19 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String eventTypeId) {
-        List<InspectRecord> recordList = inspectRecordService.findByJobId(jobId);
-        InspectRecord inspectRecord = recordList.get(0);
-        String inspectRecordId = inspectRecord.getId();
+        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        if (StringUtils.isEmpty(inspectRecordId)) {
+            return new ArrayList<>();
+        }
         return inspectAssetMapper.getTargetAssetInfo(inspectRecordId, eventTypeId);
     }
 
     @Override
     public List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId) {
-        List<InspectRecord> recordList = inspectRecordService.findByJobId(jobId);
-        InspectRecord inspectRecord = recordList.get(0);
-        String inspectRecordId = inspectRecord.getId();
+        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        if (StringUtils.isEmpty(inspectRecordId)) {
+            return new ArrayList<>();
+        }
         return inspectAssetMapper.getAssetTargetInfo(inspectRecordId, assetId);
     }
 
