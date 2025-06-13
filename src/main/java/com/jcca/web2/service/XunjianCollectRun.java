@@ -85,7 +85,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                     if (event.getInfo() != null) {
                         dto.setInspectValue(event.getInfo().getValue() + "");
                     }
-                    dto.setResultMsg(event.getDescStr());
+                    dto.setResultMsg(event.getXunjianDesc());
                     dto.setAlarmId(event.getAlarmId());
                 } else {
                     dto = event.getXunjianDataDto();
