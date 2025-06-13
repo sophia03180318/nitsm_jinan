@@ -335,9 +335,11 @@ public class XunjianFinalController {
 
         xunjianScheduleService.resetJob(schedule);
 
-        threadMap.get(jobId).interrupt();
+        Thread thread = threadMap.get(jobId);
+        thread.interrupt();
         threadMap.remove(jobId);
 
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动结束线程", thread.getName());
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
     }
