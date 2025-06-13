@@ -53,80 +53,77 @@ public class XunjianCollectRun implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
-        executor.execute(() -> {
-            try {
-                go();
-            } catch (InterruptedException ignored) {
-
-            }
-        });
+        executor.execute(this::go);
     }
 
-    private void go() throws InterruptedException {
+    private void go() {
         this.inspectAssetService = SpringContextUtil.getBean(InspectAssetService.class);
         this.inspectDetailService = SpringContextUtil.getBean(InspectDetailService.class);
         this.inspectRecordService = SpringContextUtil.getBean(InspectRecordService.class);
         this.xunjianScheduleService = SpringContextUtil.getBean(XunjianScheduleService.class);
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         while (true) {
-            IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
-            Integer xunjianIsFinish = event.getXunjianIsFinish();
-            String inspectRecordId;
-            XunjianDataDto dto;
-            if (event.getXunjianDataDto() == null) {
-                inspectRecordId = event.getInspectRecordId();
-                if (inspectRecordId == null) {
-                    continue;
+            try {
+                IEvent event = Web2Const.XUNJIAN_COLLECT_QUEUE.take();
+                Integer xunjianIsFinish = event.getXunjianIsFinish();
+                String inspectRecordId;
+                XunjianDataDto dto;
+                if (event.getXunjianDataDto() == null) {
+                    inspectRecordId = event.getInspectRecordId();
+                    if (inspectRecordId == null) {
+                        continue;
+                    }
+                    dto = new XunjianDataDto();
+                    if (event.getEventAlarmLevelBaseEntity() != null) {
+                        dto.setEventTypeId(event.getEventAlarmLevelBaseEntity().getEventTypeId());
+                    }
+                    dto.setInspectRecordId(inspectRecordId);
+                    dto.setAssetId(event.getAssetId());
+                    dto.setTargetItem(event.getEventRedisKey());
+                    if (event.getStatus() != null) {
+                        dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
+                    }
+                    if (event.getInfo() != null) {
+                        dto.setInspectValue(event.getInfo().getValue() + "");
+                    }
+                    dto.setResultMsg(event.getDescStr());
+                    dto.setAlarmId(event.getAlarmId());
+                } else {
+                    dto = event.getXunjianDataDto();
+                    inspectRecordId = dto.getInspectRecordId();
                 }
-                dto = new XunjianDataDto();
-                if (event.getEventAlarmLevelBaseEntity() != null) {
-                    dto.setEventTypeId(event.getEventAlarmLevelBaseEntity().getEventTypeId());
-                }
-                dto.setInspectRecordId(inspectRecordId);
-                dto.setAssetId(event.getAssetId());
-                dto.setTargetItem(event.getEventRedisKey());
-                if (event.getStatus() != null) {
-                    dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
-                }
-                if (event.getInfo() != null) {
-                    dto.setInspectValue(event.getInfo().getValue() + "");
-                }
-                dto.setResultMsg(event.getDescStr());
-                dto.setAlarmId(event.getAlarmId());
-            } else {
-                dto = event.getXunjianDataDto();
-                inspectRecordId = dto.getInspectRecordId();
-            }
-            dto.setXunjianIsFinish(xunjianIsFinish);
+                dto.setXunjianIsFinish(xunjianIsFinish);
 
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据：" + Web2Const.XUNJIAN_COLLECT_QUEUE.size(), dto);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据：" + Web2Const.XUNJIAN_COLLECT_QUEUE.size(), dto);
 
-            InspectRecord record;
+                InspectRecord record;
 
-            if (inspectRecordMap.get(inspectRecordId) == null) {
-                record = inspectRecordService.getById(inspectRecordId);
+                if (inspectRecordMap.get(inspectRecordId) == null) {
+                    record = inspectRecordService.getById(inspectRecordId);
+                    if (record == null) {
+                        continue;
+                    }
+                    inspectRecordMap.put(inspectRecordId, record);
+                }
+                record = inspectRecordMap.get(inspectRecordId);
                 if (record == null) {
                     continue;
                 }
-                inspectRecordMap.put(inspectRecordId, record);
-            }
-            record = inspectRecordMap.get(inspectRecordId);
-            if (record == null) {
-                continue;
-            }
 
-            XunjianSchedule schedule;
-            String scheduleId = record.getScheduleId();
-            if (!xunjianScheduleMap.containsKey(scheduleId)) {
-                schedule = xunjianScheduleService.getById(scheduleId);
-                xunjianScheduleMap.put(scheduleId, schedule);
-            }
-            schedule = xunjianScheduleMap.get(scheduleId);
-            if (schedule == null) {
-                continue;
-            }
+                XunjianSchedule schedule;
+                String scheduleId = record.getScheduleId();
+                if (!xunjianScheduleMap.containsKey(scheduleId)) {
+                    schedule = xunjianScheduleService.getById(scheduleId);
+                    xunjianScheduleMap.put(scheduleId, schedule);
+                }
+                schedule = xunjianScheduleMap.get(scheduleId);
+                if (schedule == null) {
+                    continue;
+                }
 
-            this.send2Web(dto);
+                this.send2Web(dto);
+            } catch (Exception e) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据异常", e.getMessage());
+            }
         }
     }
 
