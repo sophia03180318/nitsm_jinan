@@ -395,6 +395,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检资产 " + inspectAsset.getAssetName(), dto);
                 inspectAssetService.xunjianCollect(inspectAsset);
             }
 

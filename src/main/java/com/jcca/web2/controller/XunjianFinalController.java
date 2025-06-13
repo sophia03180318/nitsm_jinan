@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -91,6 +92,7 @@ public class XunjianFinalController {
     @Resource
     private AssetService assetService;
 
+    private final Map<String, Thread> threadMap = new ConcurrentHashMap<>();
 
     @GetMapping("/job/list")
     @ApiOperation("巡检任务列表")
@@ -254,18 +256,21 @@ public class XunjianFinalController {
         }
         inspectAssetService.updateBatchById(assetList);
 
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
         int poolSize = executor.getPoolSize();
         int activeCount = executor.getActiveCount();
         long taskCount = executor.getTaskCount();
         BlockingQueue<Runnable> queue = executor.getQueue();
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务--用户：" + schedule.getOperator() + "，任务ID：" + jobId,
                 "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务数-" + taskCount + ",队列长度-" + queue.size());
+
+        XunjianJobDto dto = new XunjianJobDto();
+        dto.setAutoFlag(1);
+        dto.setId(schedule.getId());
+        dto.setOperator(schedule.getOperator());
         executor.execute(() -> {
-            XunjianJobDto dto = new XunjianJobDto();
-            dto.setAutoFlag(1);
-            dto.setId(schedule.getId());
-            dto.setOperator(schedule.getOperator());
+            Thread thread = Thread.currentThread();
+            threadMap.put(schedule.getJobId(), thread);
             xunjianScheduleService.beginXunjian(dto);
         });
 
@@ -329,6 +334,10 @@ public class XunjianFinalController {
         inspectAssetService.updateBatchById(assetList);
 
         xunjianScheduleService.resetJob(schedule);
+
+        threadMap.get(jobId).interrupt();
+        threadMap.remove(jobId);
+
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
     }
