@@ -271,7 +271,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                         IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
                         JSONArray jsonArray1 = JSONUtil.parseArray(content1);
                         adapter1.dispose(jsonArray1);
-                        adapter1.dispose(jsonArray1);
                     } finally {
                         latch.countDown();
                     }
