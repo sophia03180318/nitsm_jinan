@@ -325,17 +325,6 @@ public class XunjianFinalController {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "只能停止正在进行中的任务");
         }
 
-        // 将任务设置为最初状态
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
-        xunjianScheduleService.updateById(schedule);
-
-        // 将指标设置为最初状态
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
-        }
-        inspectAssetService.updateBatchById(assetList);
-
         xunjianScheduleService.resetJob(schedule);
 
         Thread thread = INSPECT_THREAD_MAP.get(jobId);

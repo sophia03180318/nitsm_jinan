@@ -692,6 +692,18 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
     @Override
     public void resetJob(XunjianSchedule schedule) {
+
+        // 将任务设置为最初状态
+        schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
+        this.updateById(schedule);
+
+        // 将指标设置为最初状态
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        for (InspectAsset asset : assetList) {
+            asset.setInspectState(Web2Const.INSPECT);
+        }
+        inspectAssetService.updateBatchById(assetList);
+
         String inspectRecordId = Web2Const.XUNJIAN_JOB_RECORD.get(schedule.getJobId());
         if (StringUtils.isEmpty(inspectRecordId)) {
             return;

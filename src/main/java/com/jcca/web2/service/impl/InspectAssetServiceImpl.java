@@ -223,13 +223,13 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-//            this.send2Queue(asset, respBody, Web2Const.INSPECT_ERROR);
+            this.sendAll2Queue(asset, "巡检采集异常，需要重新检查后重新发起");
             return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
-//            this.send2Queue(asset, jsonObject.get("msg").toString(), Web2Const.INSPECT_ERROR);
+            this.sendAll2Queue(asset, "巡检采集异常，需要重新检查后重新发起");
             return;
         }
         o = jsonObject.get("body");
