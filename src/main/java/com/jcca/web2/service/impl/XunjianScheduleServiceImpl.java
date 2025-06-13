@@ -58,10 +58,7 @@ import org.springframework.web.socket.WebSocketSession;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -380,6 +377,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             inspectAssetService.updateBatchById(assetList);
         }
 
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "进入巡检线程", dto);
+
         // 保存巡检记录
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         schedule.setInspectRecordId(inspectRecordId);
@@ -387,11 +386,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         this.saveInspectRecord(schedule);
 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
+        Map<String, List<InspectAsset>> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
+        int size = collect.size();
+        ExecutorService executor = Executors.newFixedThreadPool(size);
         try {
             // 开始巡检采集
-            Map<String, List<InspectAsset>> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
-            int size = collect.size();
-            ExecutorService executor = Executors.newFixedThreadPool(size);
             CountDownLatch latch = new CountDownLatch(size);
             Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
@@ -399,6 +398,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     continue;
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
+
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 executor.execute(() -> {
                     try {
@@ -419,6 +419,15 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
+        } finally {
+            try {
+                executor.shutdownNow();
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException ignored) {
+
+            }
         }
     }
 
