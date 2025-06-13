@@ -352,7 +352,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
      * @param dto
      */
     @Override
-    public synchronized void beginXunjian(XunjianJobDto dto) {
+    public void beginXunjian(XunjianJobDto dto) {
         String id = dto.getId();
         XunjianSchedule schedule = this.getById(id);
         List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
