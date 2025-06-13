@@ -866,26 +866,25 @@ public class DataProcessManager {
 
         //-----------------以下为事件信息处理程序----------------------------------------------------------------------
         //事件配置
-
-
-        //巡检
-        IFilterHandler eventXunjianHandler = this.getIFilterHandler("eventXunjianHandler");
-        eventXunjianHandler.addDataSourceListener(alarmListener);
         IFilterHandler eventIsConfigAlarmHandler = this.getIFilterHandler("eventIsConfigAlarmHandler");
-        eventXunjianHandler.setNextFilter(eventIsConfigAlarmHandler);
+        eventIsConfigAlarmHandler.addDataSourceListener(alarmListener);
         //事件保存
         IFilterHandler eventSaveAlarmHandler = this.getIFilterHandler("eventSaveAlarmHandler");
         eventIsConfigAlarmHandler.setNextFilter(eventSaveAlarmHandler);
-        eventInfoHandler = eventXunjianHandler;
+
+        eventInfoHandler = eventIsConfigAlarmHandler;
 
 
 
 
         //-----------------以下为告警信息处理程序----------------------------------------------------------------------
+        //巡检处理
+        IFilterHandler eventXunjianHandler = this.getIFilterHandler("eventXunjianHandler");
         IFilterHandler alarmFilterHandler = this.getIFilterHandler("alarmFilterHandler");
+        eventXunjianHandler.setNextFilter(alarmFilterHandler);
           IFilterHandler alarmEventHandler= this.getIFilterHandler("alarmEventHandler");
         alarmFilterHandler.setNextFilter(alarmEventHandler);
-        alarmInfoHandler=alarmFilterHandler;
+        alarmInfoHandler=eventXunjianHandler;
 
     }
 
