@@ -55,8 +55,8 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         if (Objects.isNull(flag)) {
             return true;
         }
-
-        if (flag) {
+        //将所有状态全部推给事件，应为正常与异常切换的特别快，存在数据不统一的问题
+       // if (flag) {
             String eventRedisKey = StatusInfoChangeTypeEnum.event_CTC_link.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
 
@@ -76,7 +76,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
                 event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getAssetIp(), str));
                 this.dispatureEvent(event);
             }
-        }
+      //  }
 
         return true;
     }
