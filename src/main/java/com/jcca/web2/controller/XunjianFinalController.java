@@ -13,6 +13,7 @@ import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.client.CollectAgent;
@@ -92,7 +93,7 @@ public class XunjianFinalController {
     @Resource
     private AssetService assetService;
 
-    private final Map<String, Thread> threadMap = new ConcurrentHashMap<>();
+    public static final Map<String, Thread> INSPECT_THREAD_MAP = new ConcurrentHashMap<>();
 
     @GetMapping("/job/list")
     @ApiOperation("巡检任务列表")
@@ -268,9 +269,11 @@ public class XunjianFinalController {
         dto.setAutoFlag(1);
         dto.setId(schedule.getId());
         dto.setOperator(schedule.getOperator());
+        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+        dto.setInspectRecordId(inspectRecordId);
         executor.execute(() -> {
             Thread thread = Thread.currentThread();
-            threadMap.put(schedule.getJobId(), thread);
+            INSPECT_THREAD_MAP.put(schedule.getJobId(), thread);
             xunjianScheduleService.beginXunjian(dto);
         });
 
@@ -335,9 +338,9 @@ public class XunjianFinalController {
 
         xunjianScheduleService.resetJob(schedule);
 
-        Thread thread = threadMap.get(jobId);
+        Thread thread = INSPECT_THREAD_MAP.get(jobId);
         thread.interrupt();
-        threadMap.remove(jobId);
+        INSPECT_THREAD_MAP.remove(jobId);
 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动结束线程", thread.getName());
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);

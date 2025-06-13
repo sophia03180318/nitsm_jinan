@@ -38,6 +38,10 @@ public class XunjianJobDto {
      */
     private Integer startNow;
     private String remark;
+    /**
+     * 巡检记录ID
+     */
+    private String inspectRecordId;
 
     @NotEmpty(message = "巡检资产不能为空")
     private List<String> assetList;
