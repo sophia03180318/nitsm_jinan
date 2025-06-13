@@ -25,6 +25,7 @@ import com.jcca.component.quartz.inspect.XunjianJob;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
+import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
@@ -395,17 +396,24 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
 
-                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
-                    return;
-                }
-
                 i++;
                 inspectAsset.setInspectTotal(size);
                 inspectAsset.setInspectNow(i);
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 inspectAssetService.xunjianCollect(inspectAsset);
             }
+
+            IEvent event = new IEvent();
+            event.setXunjianIsFinish(1);
+            event.setInspectRecordId(schedule.getInspectRecordId());
+            try {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记", schedule.getInspectRecordId());
+                Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+            } catch (InterruptedException ignored) {
+
+            }
+            // 清空缓存
+            Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
         }

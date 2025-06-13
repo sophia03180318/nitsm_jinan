@@ -9,12 +9,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
-import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveCollectDto;
-import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
@@ -31,13 +29,12 @@ import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -214,8 +211,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 //            this.send2Queue(asset, jsonObject.get("msg").toString(), Web2Const.INSPECT_ERROR);
             return;
         }
-
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         o = jsonObject.get("body");
         JSONObject body = JSONUtil.parseObj(o.toString());
         CollectExecResp collectExecResp = JSONUtil.toBean(body.toString(), CollectExecResp.class);
@@ -245,19 +240,12 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                     continue;
                 }
                 idFlagSet.add(flag);
-
-                try {
-                    TimeUnit.SECONDS.sleep(5L);
-                } catch (InterruptedException ignored) {
-
-                }
-
                 this.send2Queue(asset, execResult.getMsg());
                 continue;
             }
 
             String content1 = dto.getContent();
-            if (content1 == null) {
+            if (StringUtils.isEmpty(content1)) {
                 continue;
             }
             SendPingAlarmReq statusResult = execResult.getStatusResult();
@@ -269,22 +257,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
             JSONArray jsonArray1 = JSONUtil.parseArray(content1);
             adapter1.dispose(jsonArray1);
-        }
-        // 巡检结束
-        if (asset.getInspectTotal().intValue() == asset.getInspectNow().intValue()) {
-//            this.checkStatusTarget(asset.getJobId(), asset.getInspectRecordId());
-
-            IEvent event = new IEvent();
-            event.setXunjianIsFinish(1);
-            event.setInspectRecordId(asset.getInspectRecordId());
-            try {
-                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记", asset.getInspectRecordId());
-                Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            } catch (InterruptedException ignored) {
-
-            }
-            // 清空缓存
-            Web2Const.XUNJIAN_JOB_RECORD.remove(asset.getJobId());
         }
     }
 
