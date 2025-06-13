@@ -559,11 +559,23 @@ public class XunjianFinalController {
         return ResultVoUtil.success(map);
     }
 
+    @GetMapping("/job/state")
+    @ApiOperation("查看任务状态")
+    public ResultVo<Object> jobState(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.warning("参数错误");
+        }
+
+        XunjianSchedule schedule = xunjianScheduleService.getById(id);
+
+        return ResultVoUtil.success(schedule);
+    }
+
     @GetMapping("/detail/report1View")
     @ApiOperation("巡检报告单1")
     public ResultVo<Object> report1(String id) {
         if (StringUtils.isEmpty(id)) {
-            return ResultVoUtil.warning("暂无数据");
+            return ResultVoUtil.warning("参数错误");
         }
         Map<String, Object> list = inspectDetailService.getReport1(id);
         return ResultVoUtil.success(list);
