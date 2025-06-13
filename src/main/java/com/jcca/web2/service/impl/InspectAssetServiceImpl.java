@@ -272,15 +272,15 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                         JSONArray jsonArray1 = JSONUtil.parseArray(content1);
                         adapter1.dispose(jsonArray1);
                         adapter1.dispose(jsonArray1);
-                    }finally {
+                    } finally {
                         latch.countDown();
                     }
                 });
             }
             latch.await();
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
-        }finally {
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
             if (executor != null) {
                 executor.shutdownNow();
                 try {
@@ -288,7 +288,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                         executor.shutdownNow();
                     }
                 } catch (InterruptedException e) {
-                    log.error(e.getMessage(),e);
+                    log.error(e.getMessage(), e);
                 }
             }
         }

@@ -259,7 +259,7 @@ public class XunjianFinalController {
         int activeCount = executor.getActiveCount();
         long taskCount = executor.getTaskCount();
         BlockingQueue<Runnable> queue = executor.getQueue();
-        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务：" + jobId,
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务--用户：" + schedule.getOperator() + "，任务ID：" + jobId,
                 "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务数-" + taskCount + ",队列长度-" + queue.size());
         executor.execute(() -> {
             XunjianJobDto dto = new XunjianJobDto();

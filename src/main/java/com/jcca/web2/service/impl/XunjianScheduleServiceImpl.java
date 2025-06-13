@@ -58,7 +58,7 @@ import org.springframework.web.socket.WebSocketSession;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -402,7 +402,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             event.setXunjianIsFinish(1);
             event.setInspectRecordId(schedule.getInspectRecordId());
             Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记", schedule.getInspectRecordId());
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记，用户：" + schedule.getOperator()
+                    + "，任务名称：" + schedule.getJobName(), schedule.getInspectRecordId());
             // 清空缓存
             Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
         } catch (Exception e) {
