@@ -393,7 +393,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 }
                 assetIdSet.add(inspectAsset.getAssetId());
 
-                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(inspectAsset.getJobId()))) {
+                if (StringUtils.isEmpty(XUNJIAN_JOB_RECORD.get(schedule.getJobId()))) {
                     AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "执行巡检没有对应记录ID", dto);
                     continue;
                 }

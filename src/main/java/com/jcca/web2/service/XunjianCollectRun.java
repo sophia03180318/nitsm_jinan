@@ -23,6 +23,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -243,6 +244,11 @@ public class XunjianCollectRun implements ApplicationRunner {
             schedule.setLastTime(new Date());
             xunjianScheduleService.updateById(schedule);
 
+            try {
+                TimeUnit.SECONDS.sleep(2L);
+            } catch (InterruptedException ignored) {
+            }
+
             this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
             // 清空内存
             this.clearMap(inspectRecordId);
@@ -285,9 +291,6 @@ public class XunjianCollectRun implements ApplicationRunner {
             tstateMap.put(eventTypeId, Integer.parseInt(Web2Const.INSPECT_ERROR));
         }
 
-        // 保存巡检详情
-        this.saveDetail(dto);
-
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             if (targetAbnormalSet.get(inspectRecordId) == null) {
                 Set<String> sset = new HashSet<>();
@@ -317,7 +320,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             String idType = assetId + eventTypeId;
             Map<String, Set<String>> eventTypeMap = repeatAssetIdMap.get(inspectRecordId);
             if (eventTypeMap == null) {
-                eventTypeMap = new HashMap<>();
+                eventTypeMap = new ConcurrentHashMap<>();
             }
             Set<String> assetSet = eventTypeMap.get(eventTypeId);
             if (assetSet == null) {
@@ -330,6 +333,10 @@ public class XunjianCollectRun implements ApplicationRunner {
                 this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
             }
         }
+
+        // 保存巡检详情
+        this.saveDetail(dto);
+
         // 某类指标巡检完成
         Map<String, Integer> targetMap = currentCountTargetMap.get(inspectRecordId);
         if (targetMap == null) {
