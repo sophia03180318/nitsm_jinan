@@ -289,12 +289,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         String assetDesk = inspectAsset.getAssetDesk() + "";
         if (assetDesk.contains("183")) {
             for (ThresholdProcess thresholdProcess : thresholdProcessList) {
-                entity = thresholdManager.getThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), thresholdProcess.getProcessName());
+                entity = thresholdManager.xunjianGetThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), thresholdProcess.getProcessName());
                 break;
             }
         }
         if (entity == null) {
-            entity = thresholdManager.getThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), null);
+            entity = thresholdManager.xunjianGetThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), "");
         }
 
         if (Objects.isNull(entity)) {
