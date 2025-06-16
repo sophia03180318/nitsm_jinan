@@ -216,7 +216,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-            this.sendAll2Queue(asset, "巡检采集异常，需要重新检查后重新发起");
+            this.sendAll2Queue(asset, "巡检采集数据格式错误，需要重新检查后重新发起");
             return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
@@ -231,6 +231,8 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
         execRespList.sort(Comparator.comparing(CollectExecResult::getCode));
         Set<String> ipSet = new HashSet<>();
+        Set<String> assetIdSet = new HashSet<>();
+        Set<String> idFlagSet = new HashSet<>();
         ExecutorService executor = Executors.newFixedThreadPool(execRespList.size());
 
         try {
@@ -240,8 +242,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
                 Integer code = execResult.getCode();
                 if (code == 2) {
-                    this.sendAll2Queue(asset, execResult.getMsg());
                     latch.countDown();
+                    if (!assetIdSet.contains(asset.getAssetId())) {
+                        assetIdSet.add(asset.getAssetId());
+                        this.sendAll2Queue(asset, execResult.getMsg());
+                    }
                     continue;
                 }
                 ReceiveCollectDto dto = execResult.getResult();
@@ -252,9 +257,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
                 if (code == 3 || code == 4) {
                     latch.countDown();
-                    if (!Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
+                    String flag = assetId + dto.getCategory();
+                    if (idFlagSet.contains(flag) || !Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
                         continue;
                     }
+                    idFlagSet.add(flag);
                     this.send2Queue(asset, execResult.getMsg());
                     continue;
                 }
