@@ -433,14 +433,14 @@ public class ThresholdMangerService implements ThresholdManager {
     @Override
     public ThresholdBaseEntity xunjianGetThresholdValue(String code, String assetId, String flag) {
         String newCode = "";
-        if(code.contains("section")){
-            newCode = code.replace("section", "normal");
-        }else if(code.contains("sectionOne")){
+        if(code.contains("sectionOne")){
             newCode = code.replace("sectionOne", "normal");
         }else if(code.contains("sectionTwo")){
             newCode = code.replace("sectionTwo", "normal");
         }else if(code.contains("sectionThree")){
             newCode = code.replace("sectionThree", "normal");
+        }else if(code.contains("section")){
+            newCode = code.replace("section", "normal");
         }
 
 
