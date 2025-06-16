@@ -26,7 +26,9 @@ import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.dataProcessing.support.IEvent;
+import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.entity.AlarmRepository;
+import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdProcess;
@@ -37,6 +39,7 @@ import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
+import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
@@ -59,6 +62,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -93,6 +97,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private ThresholdManager thresholdManager;
     @Resource
     private ThresholdProcessService thresholdProcessService;
+    @Resource
+    private AlarmInfoService alarmInfoService;
 
 
     /**
@@ -403,6 +409,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 inspectAssetService.xunjianCollect(inspectAsset);
             }
 
+            TimeUnit.SECONDS.sleep(3L);
+            checkStatusTarget(schedule.getJobId(), schedule.getInspectRecordId());
+
             IEvent event = new IEvent();
             event.setXunjianIsFinish(1);
             event.setInspectRecordId(schedule.getInspectRecordId());
@@ -412,6 +421,59 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
         }
+    }
+
+    // 状态类单独处理
+    private void checkStatusTarget(String jobId, String inspectRecordId) {
+        QueryWrapper<InspectAsset> query1 = Wrappers.query();
+        query1.eq("JOB_ID", jobId);
+        query1.in("INSPECT_STATE", Arrays.asList("1", "2"));
+        List<InspectAsset> list1 = inspectAssetService.list(query1);
+        for (InspectAsset inspectAsset : list1) {
+            List<String> list = Arrays.asList(ALARM_TARGET_ARR);
+            if (!list.contains(inspectAsset.getTargetItem())) {
+                continue;
+            }
+            inspectAsset.setInspectRecordId(inspectRecordId);
+
+            QueryWrapper<AlarmInfo> query = Wrappers.query();
+            query.eq("ASSET_ID", inspectAsset.getAssetId());
+            query.eq("ALARM_CODE", inspectAsset.getTargetItem());
+            query.eq("ALARM_STATE", 1);
+            query.eq("BLANK", 1);
+            List<AlarmInfo> infos = alarmInfoService.list(query);
+            if (infos.isEmpty()) {
+                inspectAsset.setInspectValue("1");
+                inspectAsset.setInspectState(Web2Const.INSPECTED);
+                inspectAsset.setResultMsg("正常");
+                this.send2Queue(inspectAsset);
+                continue;
+            }
+            for (AlarmInfo info : infos) {
+                inspectAsset.setInspectValue("-1");
+                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+                inspectAsset.setResultMsg(info.getDescription());
+                inspectAsset.setAlarmId(info.getId());
+                this.send2Queue(inspectAsset);
+            }
+        }
+    }
+
+    private void send2Queue(InspectAsset asset) {
+        XunjianDataDto dto = new XunjianDataDto();
+        dto.setInspectRecordId(asset.getInspectRecordId());
+        dto.setAssetId(asset.getAssetId());
+        dto.setTargetItem(asset.getTargetItem());
+        dto.setInspectValue(asset.getInspectValue());
+        dto.setInspectState(asset.getInspectState());
+        dto.setResultMsg(asset.getResultMsg());
+        dto.setAlarmId(asset.getAlarmId());
+        dto.setEventTypeId(asset.getEventTypeId());
+        IEvent event = new IEvent();
+        event.setInspectRecordId(asset.getInspectRecordId());
+        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
+        event.setXunjianDataDto(dto);
+        Web2Const.XUNJIAN_COLLECT_QUEUE.add(event);
     }
 
     private void saveInspectRecord(XunjianSchedule schedule) {

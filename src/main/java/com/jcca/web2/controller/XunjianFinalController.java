@@ -450,6 +450,7 @@ public class XunjianFinalController {
             query.eq("WATCH", 1);
             query.eq("IS_DEL", 1);
             query.eq("NTP_FLAG", 1);
+            query.eq("MONITOR", 1);
             List<Asset> list = assetService.list(query);
             return list.size();
         }
@@ -464,6 +465,7 @@ public class XunjianFinalController {
                 query.in("ID", assetIds);
                 query.eq("WATCH", 1);
                 query.eq("IS_DEL", 1);
+                query.eq("MONITOR", 1);
                 query.isNotNull("IPMI_IP");
                 query.isNotNull("IPMI_USER");
                 query.isNotNull("IPMI_PWD");

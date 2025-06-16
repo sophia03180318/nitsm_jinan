@@ -17,14 +17,11 @@ import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.web.alarm.entity.AlarmInfo;
-import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.service.InspectAssetService;
-import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.service.XunjianScheduleService;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
@@ -63,10 +60,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     private RedisService redisService;
     @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
-    @Resource
-    private AlarmInfoService alarmInfoService;
-    @Resource
-    private InspectRecordService inspectRecordService;
     @Resource
     private XunjianScheduleService xunjianScheduleService;
 
@@ -238,9 +231,6 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
         execRespList.sort(Comparator.comparing(CollectExecResult::getCode));
         Set<String> ipSet = new HashSet<>();
-        Set<String> idFlagSet = new HashSet<>();
-        Set<String> assetIdSet = new HashSet<>();
-
         ExecutorService executor = Executors.newFixedThreadPool(execRespList.size());
 
         try {
@@ -248,35 +238,34 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
             for (CollectExecResult execResult : execRespList) {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
+                Integer code = execResult.getCode();
+                if (code == 2) {
+                    this.sendAll2Queue(asset, execResult.getMsg());
+                    latch.countDown();
+                    continue;
+                }
+                ReceiveCollectDto dto = execResult.getResult();
+                if (dto == null) {
+                    latch.countDown();
+                    continue;
+                }
+
+                if (code == 3 || code == 4) {
+                    latch.countDown();
+                    if (!Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
+                        continue;
+                    }
+                    this.send2Queue(asset, execResult.getMsg());
+                    continue;
+                }
+
+                String content1 = dto.getContent();
+                if (StringUtils.isEmpty(content1)) {
+                    latch.countDown();
+                    continue;
+                }
                 executor.execute(() -> {
                     try {
-                        Integer code = execResult.getCode();
-                        if (code == 2) {
-                            if (!assetIdSet.contains(asset.getAssetId())) {
-                                this.sendAll2Queue(asset, execResult.getMsg());
-                                assetIdSet.add(asset.getAssetId());
-                            }
-                            return;
-                        }
-                        ReceiveCollectDto dto = execResult.getResult();
-                        if (dto == null) {
-                            return;
-                        }
-
-                        if (code == 3 || code == 4) {
-                            String flag = assetId + dto.getCategory();
-                            if (idFlagSet.contains(flag) || !Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
-                                return;
-                            }
-                            idFlagSet.add(flag);
-                            this.send2Queue(asset, execResult.getMsg());
-                            return;
-                        }
-
-                        String content1 = dto.getContent();
-                        if (StringUtils.isEmpty(content1)) {
-                            return;
-                        }
                         SendPingAlarmReq statusResult = execResult.getStatusResult();
                         if (!ipSet.contains(statusResult.getAssetIp())) {
                             ipSet.add(statusResult.getAssetIp());
@@ -295,72 +284,15 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
-            if (executor != null) {
-                executor.shutdownNow();
-                try {
-                    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                        executor.shutdownNow();
-                    }
-                } catch (InterruptedException e) {
-                    log.error(e.getMessage(), e);
+            executor.shutdownNow();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
                 }
+            } catch (InterruptedException e) {
+                log.error(e.getMessage(), e);
             }
         }
-
-
-    }
-
-    // 状态类单独处理
-    private void checkStatusTarget(String jobId, String inspectRecordId) {
-        QueryWrapper<InspectAsset> query1 = Wrappers.query();
-        query1.eq("JOB_ID", jobId);
-        query1.in("INSPECT_STATE", Arrays.asList("1", "2"));
-        List<InspectAsset> list1 = this.list(query1);
-        for (InspectAsset inspectAsset : list1) {
-            List<String> list = Arrays.asList(ALARM_TARGET_ARR);
-            if (!list.contains(inspectAsset.getTargetItem())) {
-                continue;
-            }
-            inspectAsset.setInspectRecordId(inspectRecordId);
-
-            QueryWrapper<AlarmInfo> query = Wrappers.query();
-            query.eq("ASSET_ID", inspectAsset.getAssetId());
-            query.eq("ALARM_CODE", inspectAsset.getTargetItem());
-            query.eq("ALARM_STATE", 1);
-            query.eq("BLANK", 1);
-            List<AlarmInfo> infos = alarmInfoService.list(query);
-            if (infos.isEmpty()) {
-                inspectAsset.setInspectValue("1");
-                inspectAsset.setInspectState(Web2Const.INSPECTED);
-                inspectAsset.setResultMsg("正常");
-                this.send2Queue(inspectAsset);
-                continue;
-            }
-            for (AlarmInfo info : infos) {
-                inspectAsset.setInspectValue("-1");
-                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
-                inspectAsset.setResultMsg(info.getDescription());
-                inspectAsset.setAlarmId(info.getId());
-                this.send2Queue(inspectAsset);
-            }
-        }
-    }
-
-    private void send2Queue(InspectAsset asset) {
-        XunjianDataDto dto = new XunjianDataDto();
-        dto.setInspectRecordId(asset.getInspectRecordId());
-        dto.setAssetId(asset.getAssetId());
-        dto.setTargetItem(asset.getTargetItem());
-        dto.setInspectValue(asset.getInspectValue());
-        dto.setInspectState(asset.getInspectState());
-        dto.setResultMsg(asset.getResultMsg());
-        dto.setAlarmId(asset.getAlarmId());
-        dto.setEventTypeId(asset.getEventTypeId());
-        IEvent event = new IEvent();
-        event.setInspectRecordId(asset.getInspectRecordId());
-        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
-        event.setXunjianDataDto(dto);
-        Web2Const.XUNJIAN_COLLECT_QUEUE.add(event);
     }
 
     private final List<String> targets = Arrays.asList(SYSPORT_TARGET_ARR);
