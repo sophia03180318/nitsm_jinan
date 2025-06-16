@@ -22,52 +22,49 @@ public class EventXunjianHandler extends IFilterHandler<IEvent> {
     public boolean handler(IEvent info) throws Exception {
 
 
-        boolean returnflag=true;
-
+        boolean returnflag = true;
 
 
         if (info.getInspectRecordId() != null && !"".equals(info.getInspectRecordId())) {
 
             info.setXunjianDesc(info.getDescStr());
-            if(info.getXunjianDesc().contains("恢复")){
-                String desc=  info.getXunjianDesc().replace("恢复","正常");
+            if (info.getXunjianDesc().contains("恢复")) {
+                String desc = info.getXunjianDesc().replace("恢复", "正常");
                 info.setXunjianDesc(desc);
             }
 
 
-
-            ChangeInfo changeInfo=info.getInfo();
+            ChangeInfo changeInfo = info.getInfo();
             //有变化是true，无变化是false，null是第一次
-            Boolean flag= eventInfoChangeManagerService.infoChangeStatus(changeInfo.getRedisKey(),changeInfo.getMapKey(),changeInfo.getValue());
-            if(!Objects.isNull(flag)&&flag){
+            Boolean flag = eventInfoChangeManagerService.infoChangeStatus(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
+            if (!Objects.isNull(flag) && flag) {
                 //如果是本身状态有变化，那就是正常流程
-                returnflag= true;
+                returnflag = true;
             }
             //端口变化需要过滤，未使用的端口。
-            if(StatusInfoChangeTypeEnum.event_port_state.getCode().equals(info.getEventRedisKey())){
-                int value  =Integer.valueOf(changeInfo.getValue().toString());
+            if (StatusInfoChangeTypeEnum.event_port_state.getCode().equals(info.getEventRedisKey())) {
+                int value = Integer.valueOf(changeInfo.getValue().toString());
                 //端口本身是断开的，但是redis中已经有端口状态的缓存
-                if((value==2)&&!Objects.isNull(flag)&&(!flag)){
-                    Object object=  eventInfoChangeManagerService.getStateValue(info.getEventRedisKey(),info.getMapKey());
+                if ((value == 2) && !Objects.isNull(flag) && (!flag)) {
+                    Object object = eventInfoChangeManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
                     //如果没有事件说明不是异常的
-                    if(Objects.isNull(object)){
+                    if (Objects.isNull(object)) {
                         //设置巡检正常
                         info.setStatus(EventLevelEnum.NORMAL.getCode());
                         //redis缓存中一直存是的是断的端口信息
-                        info.setXunjianDesc("端口未启用");
-                        info.setStatus(EventLevelEnum.ABNORMAL.getCode());
-                        returnflag= false;
-                    }else{
+                        info.setXunjianDesc("端口 " + info.getAlarmTempReq().getFlag() + " 未启用");
+                        returnflag = false;
+                    } else {
                         //本身就存在异常
-                        returnflag =true;
+                        returnflag = true;
                     }
                 }
                 //如果状态是断的，并且缓存为空，说明是第一次采集
-                if(value==2&&Objects.isNull(flag)){
+                if (value == 2 && Objects.isNull(flag)) {
                     //redis缓存中一直存是的是断的端口信息
-                    info.setXunjianDesc("端口未启用");
-                    info.setStatus(EventLevelEnum.ABNORMAL.getCode());
-                    returnflag= false;
+                    info.setXunjianDesc("端口 " + info.getAlarmTempReq().getFlag() + " 未启用");
+                    info.setStatus(EventLevelEnum.NORMAL.getCode());
+                    returnflag = false;
                 }
             }
 
