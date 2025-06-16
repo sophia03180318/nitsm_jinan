@@ -25,6 +25,7 @@ import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
 import com.jcca.web2.service.ThresholdManageService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -443,6 +444,9 @@ public class ThresholdMangerService implements ThresholdManager {
             newCode = code.replace("section", "normal");
         }
 
+        if (StringUtils.isEmpty(newCode)) {
+            newCode = code;
+        }
 
         return v2(newCode, assetId, flag);
     }

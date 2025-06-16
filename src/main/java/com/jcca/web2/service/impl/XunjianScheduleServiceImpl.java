@@ -239,6 +239,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     if (StatusInfoChangeTypeEnum.event_clock_state.getCode().equals(repository.getAlarmCode())) {
                         continue;
                     }
+                    if (StatusInfoChangeTypeEnum.event_cpu_state.getCode().equals(repository.getAlarmCode())) {
+                        continue;
+                    }
                     if (asset.getNtpFlag() == 0
                             && repository.getAlarmCode().startsWith(StatusInfoChangeTypeEnum.event_time.getCode())) {
                         continue;

@@ -83,7 +83,7 @@ public interface Web2Const {
             StatusInfoChangeTypeEnum.event_process_once.getCode(),
             StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),
             StatusInfoChangeTypeEnum.event_port_state.getCode(),
-            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
+//            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
             StatusInfoChangeTypeEnum.event_power_state.getCode(),
             StatusInfoChangeTypeEnum.event_syslog_power.getCode(),
             StatusInfoChangeTypeEnum.event_cpu_state.getCode(),

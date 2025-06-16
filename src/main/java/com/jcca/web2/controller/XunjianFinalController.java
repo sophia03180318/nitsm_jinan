@@ -24,7 +24,6 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdProcess;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.ThresholdProcessService;
-import com.jcca.web.db.entity.ManageDb;
 import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
@@ -380,7 +379,6 @@ public class XunjianFinalController {
             vo.setId(id);
             vo.setName(mode);
 
-
             List<ItemVo> reslist = new ArrayList<>();
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
             for (ItemVo itemVo : list) {
@@ -426,16 +424,18 @@ public class XunjianFinalController {
         }
         // 查数据库
         if (StatusInfoChangeTypeEnum.event_db.getCode().equals(eventCategory)) {
-            QueryWrapper<ManageDb> query = Wrappers.query();
-            query.in("ASSET_ID", assetIds);
-            return manageDbService.count(query);
+//            QueryWrapper<ManageDb> query = Wrappers.query();
+//            query.in("ASSET_ID", assetIds);
+//            return manageDbService.count(query);
+            return 0;  // 暂时不做数据库巡检
         }
         if (StatusInfoChangeTypeEnum.event_db_tableSpace.getCode().equals(eventCategory)) {
-            QueryWrapper<ThresholdManage> query = Wrappers.query();
-            query.in("ASSET_ID", assetIds);
-            query.eq("CATEGORY", ThresholdCategoryEnum.TABLE_SPACE.name());
-            query.eq("ASSET_DESK", assetDesk);
-            return thresholdManageService.count(query);
+//            QueryWrapper<ThresholdManage> query = Wrappers.query();
+//            query.in("ASSET_ID", assetIds);
+//            query.eq("CATEGORY", ThresholdCategoryEnum.TABLE_SPACE.name());
+//            query.eq("ASSET_DESK", assetDesk);
+//            return thresholdManageService.count(query);
+            return 0; // 暂时不做数据库巡检
         }
         // 查进程
         if (StatusInfoChangeTypeEnum.event_process.getCode().equals(eventCategory)) {
