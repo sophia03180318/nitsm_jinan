@@ -241,6 +241,19 @@ public class XunjianCollectRun implements ApplicationRunner {
             return;
         }
 
+        // 已巡检指标数量
+        targetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
+        Map<String, Integer> tstateMap = targetStateMap.get(inspectRecordId);
+        if (tstateMap.get(eventTypeId) == null) {
+            tstateMap.put(eventTypeId, Integer.parseInt(targetState));
+            targetStateMap.put(inspectRecordId, tstateMap);
+        } else {
+            if (Integer.parseInt(targetState) > tstateMap.get(eventTypeId)) {
+                tstateMap.put(eventTypeId, Integer.parseInt(targetState));
+                targetStateMap.put(inspectRecordId, tstateMap);
+            }
+        }
+
         // 保存巡检详情
         this.saveDetail(dto);
 
@@ -279,22 +292,6 @@ public class XunjianCollectRun implements ApplicationRunner {
             assetStateMap.put(inspectRecordId, astateMap);
         }
         this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
-
-        // 已巡检指标数量
-        targetStateMap.computeIfAbsent(inspectRecordId, k -> new HashMap<>());
-        Map<String, Integer> tstateMap = targetStateMap.get(inspectRecordId);
-        if (tstateMap.get(eventTypeId) == null) {
-            tstateMap.put(eventTypeId, Integer.parseInt(targetState));
-            targetStateMap.put(inspectRecordId, tstateMap);
-        } else {
-            if (Integer.parseInt(targetState) > tstateMap.get(eventTypeId)) {
-                tstateMap.put(eventTypeId, Integer.parseInt(targetState));
-                targetStateMap.put(inspectRecordId, tstateMap);
-            }
-        }
-        if (Integer.parseInt(targetState) > tstateMap.get(eventTypeId)) {
-            tstateMap.put(eventTypeId, Integer.parseInt(Web2Const.INSPECT_ERROR));
-        }
 
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             if (targetAbnormalSet.get(inspectRecordId) == null) {
