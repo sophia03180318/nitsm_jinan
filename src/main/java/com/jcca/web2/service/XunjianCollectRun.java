@@ -241,6 +241,9 @@ public class XunjianCollectRun implements ApplicationRunner {
             return;
         }
 
+        // 保存巡检详情
+        this.saveDetail(dto);
+
         // 过滤重复指标
         Set<String> targets = repeatTargetMap.get(inspectRecordId);
         if (targets == null) {
@@ -335,9 +338,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
             }
         }
-
-        // 保存巡检详情
-        this.saveDetail(dto);
 
         // 某类指标巡检完成
         Map<String, Integer> targetMap = currentCountTargetMap.get(inspectRecordId);
