@@ -319,7 +319,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 currentAbnormalTargetMap.put(inspectRecordId, stringSetMap);
             }
 
-            String idType = assetId + eventTypeId;
             Map<String, Set<String>> eventTypeMap = repeatAssetIdMap.get(inspectRecordId);
             if (eventTypeMap == null) {
                 eventTypeMap = new ConcurrentHashMap<>();
@@ -328,11 +327,13 @@ public class XunjianCollectRun implements ApplicationRunner {
             if (assetSet == null) {
                 assetSet = new HashSet<>();
             }
+            String idType = assetId + "_" + eventTypeId;
             if (!assetSet.contains(idType)) {
                 assetSet.add(idType);
                 eventTypeMap.put(eventTypeId, assetSet);
                 repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
                 this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "指标记数", idType);
             }
         }
 
@@ -435,6 +436,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 inspectDetail.setInspectValue(dto.getInspectValue());
                 inspectDetail.setResultMsg(dto.getResultMsg());
                 inspectDetailService.save(inspectDetail);
+                break;
             }
         }
     }
