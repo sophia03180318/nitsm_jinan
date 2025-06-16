@@ -726,7 +726,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         String operator = wsDto.getUsername();
         WebSocketSession webSocketSession = XunjianWebSocketHandler.XUNJIAN_WEBSOCKET_MAP.get(operator);
         if (webSocketSession == null || !webSocketSession.isOpen()) {
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "用户WEBSOCKET连接失效", wsDto);
+//            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "用户WEBSOCKET连接失效", wsDto);
             return;
         }
         try {
@@ -758,6 +758,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             query.in("ORG_ID", orgIds);
             query.eq("WATCH", 1);
             query.eq("IS_DEL", 1);
+            query.eq("MONITOR", 1);
             query.orderByAsc("id", "name");
             List<Asset> list = assetService.list(query);
             for (Asset asset : list) {
