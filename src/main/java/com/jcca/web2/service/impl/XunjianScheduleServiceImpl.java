@@ -419,7 +419,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             event.setXunjianIsFinish(1);
             event.setInspectRecordId(schedule.getInspectRecordId());
             Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "发送巡检结束标记，用户：" + schedule.getOperator()
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "发送巡检结束标记，用户：" + schedule.getOperator()
                     + "，任务名称：" + schedule.getJobName(), schedule.getInspectRecordId());
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
@@ -798,7 +798,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             webSocketSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(wsDto)));
             XunjianWSDto message = wsDto.getMessage();
             if ("100".equals(message.getId()) && message.getStatus() == 100) {
-                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集给前端发送消息", wsDto);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集给前端发送消息", wsDto);
             }
         } catch (IOException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集给前端发送消息异常", wsDto);

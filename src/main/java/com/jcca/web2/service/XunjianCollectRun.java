@@ -232,7 +232,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             // 清空缓存
             Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
             this.clearMap(inspectRecordId);
-            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结束", inspectRecordId);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检结束", inspectRecordId);
             return;
         }
 
