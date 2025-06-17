@@ -617,8 +617,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
      * @return
      */
     @Override
-    public List<StatisticsAlarmVo> getModeAsset() {
-        List<String> orgIds = ShiroUtil.getSubjectOrgIds();
+    public List<StatisticsAlarmVo> getModeAsset(List<String> orgIds) {
         if (CollectionUtils.isEmpty(orgIds)) {
             return new ArrayList<>();
         }
@@ -1687,7 +1686,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             asset.setPort(Asset.getDefaultPort(asset.getCollectionType()));
         }
         // 当选择不监控时 把设备监控状态状态 初始化为不监控
-        if(Objects.isNull(asset.getWatch())){
+        if (Objects.isNull(asset.getWatch())) {
             asset.setWatch(AssetWatchStatusEnum.WATCH_STATUS_NO.getCode());
         }
         if (asset.getWatch() == AssetWatchStatusEnum.WATCH_STATUS_NO.getCode()) {

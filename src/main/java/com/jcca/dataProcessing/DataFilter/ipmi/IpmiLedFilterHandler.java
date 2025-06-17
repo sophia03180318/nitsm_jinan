@@ -37,7 +37,7 @@ public class IpmiLedFilterHandler extends IFilterHandler<CollectSensorEntity> {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口LED灯信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_event_ipmi_led.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_led_state.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue() + ":" + info.getStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue() + ":" + info.getStatus());
         if (flag) {
             Integer status = "green".equals(info.getValue().toLowerCase()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String str = status == EventLevelEnum.ABNORMAL.getCode() ? "异常。" : "恢复。";
@@ -56,7 +56,7 @@ public class IpmiLedFilterHandler extends IFilterHandler<CollectSensorEntity> {
             info.getMaps().put(mapKey, changeInfo);
             String eventRedisKey = StatusInfoChangeTypeEnum.event_led_state.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_led_state.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(),info.getName(), status, info, changeInfo);
             if (event != null) {

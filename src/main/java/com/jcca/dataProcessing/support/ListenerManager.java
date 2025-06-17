@@ -39,7 +39,11 @@ public class ListenerManager<T> {
      */
     public void dispatureEvent(T event) {
         for (IListener IListener : IListeners) {
-            IListener.onEvent(event);
+            try {
+                IListener.onEvent(event);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

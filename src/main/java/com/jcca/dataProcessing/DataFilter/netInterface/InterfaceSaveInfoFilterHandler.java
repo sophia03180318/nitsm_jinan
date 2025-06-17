@@ -1,5 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.netInterface;
 
+import cn.hutool.core.util.StrUtil;
+import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectInterfaceEntity;
@@ -56,6 +59,11 @@ public class InterfaceSaveInfoFilterHandler extends IFilterHandler<CollectInterf
         }
         // 保存采集数据
         interfaceServ.save(copy);
+
+        if(StrUtil.isNotEmpty(info.getVersion())){
+            //新版本车站采集器保存数据后直接结束，无需处理告警
+            return false;
+        }
 
         return true;
     }

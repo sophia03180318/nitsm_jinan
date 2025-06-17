@@ -34,7 +34,7 @@ public class IpmiLogFilterHandler extends IFilterHandler<CollectSensorEntity> {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口日志信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_ipmi_log.getCode();
         String mapKey = info.getValue() + "_" + info.getStatus();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getMsg());

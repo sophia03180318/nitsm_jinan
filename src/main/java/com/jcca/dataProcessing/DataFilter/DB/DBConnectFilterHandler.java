@@ -29,7 +29,7 @@ public class DBConnectFilterHandler extends IFilterHandler<CollectDBEntity> {
     public boolean handler(CollectDBEntity info) {
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_db_state.getCode());
 
-        boolean flag= eventInfoChangeManagerService.infoIschange(changeInfo.getRedisKey(), changeInfo.getMapKey(),changeInfo.getValue());
+        boolean flag= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),changeInfo.getRedisKey(), changeInfo.getMapKey(),changeInfo.getValue());
         if(flag){
             Integer status = changeInfo.getValue().toString().toLowerCase().equals("open") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String eventRedisKey = StatusInfoChangeTypeEnum.event_db_connect.getCode();
@@ -41,7 +41,7 @@ public class DBConnectFilterHandler extends IFilterHandler<CollectDBEntity> {
             alarmTempReq.setFlag("DB");
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_db_connect.getCode(),StatusInfoChangeTypeEnum.DB_CONN.getCode(),"", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_db_connect.getDescr(),status.equals(EventLevelEnum.NORMAL.getCode())?"正常":"异常"));

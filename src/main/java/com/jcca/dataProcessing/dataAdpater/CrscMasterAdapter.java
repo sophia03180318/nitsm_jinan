@@ -3,6 +3,8 @@ package com.jcca.dataProcessing.dataAdpater;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
 import com.jcca.common.log.constant.LogFunctionConstant;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -12,9 +14,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -41,12 +41,28 @@ public class CrscMasterAdapter extends AssetIpAdd implements IAdapter<String> {
         excutorService.submit(new Runnable() {
             @Override
             public void run() {
-                setAssetIp(itsmQueueReq);
-                dataProcessManager.crscMasterHandlerRequest(itsmQueueReq);
+
             }
         });
 
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                setAssetIp(itsmQueueReq);
+                dataProcessManager.crscMasterHandlerRequest(itsmQueueReq);
+                return 1;
+            }
+        });
 
+        if(itsmQueueReq.getInspectRecordId()!=null&&!"".equals(itsmQueueReq.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

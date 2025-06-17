@@ -12,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -40,17 +38,30 @@ public class MQAdapter extends AssetIpAdd implements IAdapter<MQMonitorEntity> {
     public void dispose(MQMonitorEntity data) {
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_memory.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 try {
                     dataProcessManager.mqHandlerRequest(data);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "mqHandlerRequest 抛出异常", e);
 
                 }
+                return 1;
             }
         });
+
+        if(data.getInspectRecordId()!=null&&!"".equals(data.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

@@ -13,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * IAdapter整合整理数据的作用，将数据整理成格式化数据
@@ -43,18 +41,28 @@ public class CustomEventAdapter extends AssetIpAdd implements IAdapter<CustomEve
 
     @Override
     public void dispose(CustomEvent data) {
-        excutorService.submit(new Runnable() {
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 setAssetIp(data);
                 try {
                     dataProcessManager.customEventHandlerRequest(data);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "customEventHandlerRequest 抛出异常", e);
                 }
+                return 1;
             }
         });
 
+        if(data.getInspectRecordId()!=null&&!"".equals(data.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

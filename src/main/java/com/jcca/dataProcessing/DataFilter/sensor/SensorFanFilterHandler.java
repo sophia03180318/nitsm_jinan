@@ -37,7 +37,7 @@ public class SensorFanFilterHandler extends IFilterHandler<CollectSensorEntity> 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_fan.getCode() + ":" + info.getSerialNumberName();
         String mapKey1 = StatusInfoChangeTypeEnum.status_fanStatus.getCode();
 
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getStatus());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getStatus());
         if (flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getStatus());
@@ -55,7 +55,7 @@ public class SensorFanFilterHandler extends IFilterHandler<CollectSensorEntity> 
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             alarmTempReq.setFlag(info.getSerialNumberName());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_fan_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

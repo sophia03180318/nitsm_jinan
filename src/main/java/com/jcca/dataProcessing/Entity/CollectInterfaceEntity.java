@@ -151,5 +151,10 @@ public class CollectInterfaceEntity extends  CommonEntity implements Serializabl
      * 接收功率 dBm
      */
     private Double rxPower;
+    /**
+     * 采集包版本号
+     * 新版本车站采集器会携带此参数
+     */
+    private String version;
 
 }

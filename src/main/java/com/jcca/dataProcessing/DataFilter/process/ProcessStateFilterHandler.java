@@ -37,7 +37,7 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
         }
         //只走车站的进程状态判断
         String mapKey = StatusInfoChangeTypeEnum.status_process_status.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, entity.getStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(entity.getInspectRecordId(),redisKey, mapKey, entity.getStatus());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(entity.getStatus());
@@ -60,7 +60,7 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             alarmTempReq.setFlag(entity.getProcessId());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), entity.getName(), status, entity, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(entity.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(entity.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,entity.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -3,6 +3,8 @@ package com.jcca.dataProcessing.dataAdpater;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
 import com.jcca.common.log.constant.LogFunctionConstant;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
@@ -12,9 +14,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -38,15 +38,25 @@ public class CrscProcessAdapter extends AssetIpAdd implements IAdapter<String> {
     public void dispose(String data) {
         ItsmQueueEntity itsmQueueReq = JSONUtil.toBean(data, ItsmQueueEntity.class);
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_CTC.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 setAssetIp(itsmQueueReq);
                 dataProcessManager.crscMasterHandlerRequest(itsmQueueReq);
+                return 1;
             }
         });
 
-
+        if(itsmQueueReq.getInspectRecordId()!=null&&!"".equals(itsmQueueReq.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

@@ -61,7 +61,7 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
             return true;
         }
         String mapKey = StatusInfoChangeTypeEnum.status_time_deviation.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, timeLong);
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, timeLong);
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(timeLong);
         changeInfo.setRedisKey(redisKey);
@@ -77,14 +77,14 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_time_state.getCode(), info.getAssetId(), null);
         if (threshold.baseValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);;
         }
@@ -101,7 +101,7 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
             alarmTempReq.setCollectValue(timeLong+"秒");
             alarmTempReq.setThresholdValue(threshold.getBaseValue() + "秒");
             this.addEventStatus(StatusInfoChangeTypeEnum.event_time_state.getCode(),StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(),"", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

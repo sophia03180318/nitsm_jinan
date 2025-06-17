@@ -7,7 +7,6 @@ import com.jcca.component.quartz.asset.QuartzUpdateCenterAssetStatusJob;
 import com.jcca.component.quartz.clear.QuartzRemoveDBJob;
 import com.jcca.component.quartz.clear.QuartzRemoveDataEachMonthJob;
 import com.jcca.component.quartz.dh.QuartzDhStatusJob;
-import com.jcca.component.quartz.inspect.InspectJob;
 import com.jcca.component.quartz.mq.QuartzMQStatusJob;
 import com.jcca.component.quartz.route.QuartzRouteJob;
 import com.jcca.component.quartz.station.*;
@@ -442,20 +441,20 @@ public class QuartzConfig {
      *
      * @return
      */
-    @Bean
-    public JobDetail inspectRecord() {
-        return JobBuilder.newJob(InspectJob.class)
-                .withIdentity(new JobKey("InspectJob", "InspectJobGroup")).storeDurably()
-                .build();
-    }
-
-    @Bean
-    public Trigger inspectRecordConf() {
-        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(4)
-                .repeatForever();
-
-        return TriggerBuilder.newTrigger().forJob(inspectRecord())
-                .withIdentity("InspectJob", "InspectJobGroup").withSchedule(scheduleBuilder).build();
-    }
+//    @Bean
+//    public JobDetail inspectRecord() {
+//        return JobBuilder.newJob(InspectJob.class)
+//                .withIdentity(new JobKey("InspectJob", "InspectJobGroup")).storeDurably()
+//                .build();
+//    }
+//
+//    @Bean
+//    public Trigger inspectRecordConf() {
+//        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(4)
+//                .repeatForever();
+//
+//        return TriggerBuilder.newTrigger().forJob(inspectRecord())
+//                .withIdentity("InspectJob", "InspectJobGroup").withSchedule(scheduleBuilder).build();
+//    }
 
 }

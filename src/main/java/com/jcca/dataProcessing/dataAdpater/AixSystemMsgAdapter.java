@@ -16,9 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * IAdapter整合整理数据的作用，将数据整理成格式化数据
@@ -57,23 +55,30 @@ public class AixSystemMsgAdapter extends AssetIpAdd implements IAdapter<JSONArra
             log.error("AIX 数据处理失败，空的序列集合");
             return;
         }
-
-
-
-
         CollectAixSystemFattenEntity aixSystemMsg = beanList.get(0);
 
-        excutorService.submit(new Runnable() {
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 setAssetIp(aixSystemMsg);
                 try {
                     dataProcessManager.aixSystemMsgHandlerRequest(aixSystemMsg);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + aixSystemMsg.getAssetIp() + "aixSystemMsgHandlerRequest 抛出异常", e);
                 }
+                return 1;
             }
         });
+
+        if(aixSystemMsg.getInspectRecordId()!=null&&!"".equals(aixSystemMsg.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
     }

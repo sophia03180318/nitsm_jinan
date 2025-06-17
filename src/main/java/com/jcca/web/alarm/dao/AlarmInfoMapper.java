@@ -228,4 +228,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     List<AlarmUnhandledDto> findUnhandledAlarm(AlarmPageDto req);
 
     List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req);
+
+    @Select("SELECT REMARK FROM ALARM_INFO WHERE ALARM_CODE = #{alarmCode} AND REMARK IS NOT NULL ORDER BY MODIFY_TIME DESC")
+    List<String> getRemarksByAlarmCode(String alarmCode);
 }

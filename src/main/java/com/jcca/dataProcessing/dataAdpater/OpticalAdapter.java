@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -49,9 +47,11 @@ public class OpticalAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             log.error("光交换机采集数据处理失败，空的序列集合");
             return;
         }
-        excutorService.submit(new Runnable() {
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 String collectCode = MyIdUtil.getId();
                 for (OpticalSwitchEntity opticalSwitchEntity : beanList) {
                     setAssetIp(opticalSwitchEntity);
@@ -63,8 +63,19 @@ public class OpticalAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                     }
 
                 }
+                return 1;
             }
         });
+
+        if(beanList.get(0).getInspectRecordId()!=null&&!"".equals(beanList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
     }

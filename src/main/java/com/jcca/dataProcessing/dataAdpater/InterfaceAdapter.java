@@ -19,10 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -58,30 +55,49 @@ public class InterfaceAdapter extends AssetIpAdd implements IAdapter<JSONArray> 
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_port.getCode(), "monitor", true);
         excutorService.execute(() -> {
 
-            CountDownLatch cdh = new CountDownLatch(interfaces.size());
-            String collectCode = MyIdUtil.getId();
-            for (CollectInterfaceEntity item : interfaces) {
-                thresholdDisposePool.execute(() -> {
-                    try {
-                        item.setCollectCode(collectCode);
-                        setAssetIp(item);
-                        dataProcessManager.interfaceHandlerRequest(item);
-                    } catch (Exception e) {
-                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
-                    } finally {
-                        cdh.countDown();
-
-                    }
-                });
-            }
-            try {
-                cdh.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
 
         });
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                CountDownLatch cdh = new CountDownLatch(interfaces.size());
+                String collectCode = MyIdUtil.getId();
+                for (CollectInterfaceEntity item : interfaces) {
+                    thresholdDisposePool.execute(() -> {
+                        try {
+                            item.setCollectCode(collectCode);
+                            setAssetIp(item);
+                            dataProcessManager.interfaceHandlerRequest(item);
+                        } catch (Exception e) {
+                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
+                        } finally {
+                            cdh.countDown();
+
+                        }
+                    });
+                }
+                try {
+                    cdh.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                return 1;
+            }
+        });
+
+        if(interfaces.get(0).getInspectRecordId()!=null&&!"".equals(interfaces.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
     }

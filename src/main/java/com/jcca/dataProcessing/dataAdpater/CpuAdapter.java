@@ -18,9 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -58,14 +56,33 @@ public class CpuAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         excutorService.submit(new Runnable() {
             @Override
             public void run() {
+
+            }
+        });
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
                 setAssetIp(collectCpuEntity);
                 try {
                     dataProcessManager.cpuHandlerRequest(collectCpuEntity);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectCpuEntity.getAssetIp() + "cpuHandlerRequest 抛出异常", e);
                 }
+                return 1;
             }
         });
+
+        if(collectCpuEntity.getInspectRecordId()!=null&&!"".equals(collectCpuEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

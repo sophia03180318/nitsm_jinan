@@ -1,7 +1,13 @@
 package com.jcca.web2.constant;
 
+import com.jcca.component.constants.ReceiveCollectConst;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.dataProcessing.support.IEvent;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author HanHW
@@ -56,5 +62,53 @@ public interface Web2Const {
     String MAINTENANCE_FIX = "maintenance:";
     // 采集指标表达式 时间间隔
     String TARGET_INTERVAL = "INTERVAL";
+
+    // 巡检实时采集队列
+    LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
+
+    // 巡检超时时间 5分钟
+    int XUNJIAN_TIME_OUT = 300 * 1000;
+    // 巡检数据采集接口
+    String XUNJIAN_CENTER_URI = "/business/exeCollect";
+    // 巡检状态数据接口
+    String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
+    // 用于重置任务状态 <jobId, recordId>
+    Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
+    // 巡检需要查询的指标
+    String[] ALARM_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_clock_state.getCode(),
+            StatusInfoChangeTypeEnum.event_run_restart.getCode(),
+//            StatusInfoChangeTypeEnum.event_run_time_state.getCode(),
+            StatusInfoChangeTypeEnum.event_process_status.getCode(),
+            StatusInfoChangeTypeEnum.event_process_once.getCode(),
+            StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),
+            StatusInfoChangeTypeEnum.event_port_state.getCode(),
+//            StatusInfoChangeTypeEnum.event_db_connect.getCode(),
+            StatusInfoChangeTypeEnum.event_power_state.getCode(),
+            StatusInfoChangeTypeEnum.event_syslog_power.getCode(),
+            StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
+            StatusInfoChangeTypeEnum.event_fan_state.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
+            StatusInfoChangeTypeEnum.event_led_state.getCode(),
+    };
+
+    // 管理口指标
+    String[] SYSPORT_TARGET_ARR = {
+            StatusInfoChangeTypeEnum.event_power_state.getCode(),
+            StatusInfoChangeTypeEnum.event_cpu_state.getCode(),
+            StatusInfoChangeTypeEnum.event_fan_state.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state.getCode(),
+            StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(),
+            StatusInfoChangeTypeEnum.event_led_state.getCode(),
+    };
+
+    // 管理口 存储
+    String[] SYSPORT_DS_ARR = {
+            ReceiveCollectConst.SYS_PORT,
+            ReceiveCollectConst.AIX_SYSTEM_MSG,
+            ReceiveCollectConst.RAID_SYSTEM_MSG,
+            ReceiveCollectConst.DS_SYSTEM_MSG,
+    };
 
 }

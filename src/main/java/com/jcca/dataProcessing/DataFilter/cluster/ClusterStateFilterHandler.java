@@ -33,7 +33,7 @@ public class ClusterStateFilterHandler extends IFilterHandler<CollectClusterEnti
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode() + ":" + info.getServerIp();
         String mapKey1 = StatusInfoChangeTypeEnum.status_clusterState.getCode();
 
-        boolean flag1= eventInfoChangeManagerService.infoIschange(redisKey, mapKey1,info.getStatus());
+        boolean flag1= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1,info.getStatus());
         if(flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getStatus());
@@ -55,7 +55,7 @@ public class ClusterStateFilterHandler extends IFilterHandler<CollectClusterEnti
             alarmTempReq.setFlag(info.getServerName());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_clusterState.getCode(),StatusInfoChangeTypeEnum.ZLJ_STATUS.getCode(),info.getServerName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -51,7 +51,7 @@ public class OpticalTemperatureStageTwoFilterHandler extends IFilterHandler<Opti
 
             ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_temp_state.getCode(), info.getAssetId(), mapKey);
             if (threshold.twoLevelIsNull()) {
-                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+                IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
                 if (event != null) {
                     this.dispatureEvent(event);
                 }
@@ -59,7 +59,7 @@ public class OpticalTemperatureStageTwoFilterHandler extends IFilterHandler<Opti
             }
 
 
-            boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, threshold.getTwoLevelValue());
+            boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getTwoLevelValue());
             if (thresholdFlag) {
                 this.addThresholdStatus(redisThresholdKey,thresholdMapKey, threshold.getBaseValue(), info);
             }
@@ -74,7 +74,7 @@ public class OpticalTemperatureStageTwoFilterHandler extends IFilterHandler<Opti
                 alarmTempReq.setThresholdValue(threshold.getTwoLevelValue()+"度");
                 alarmTempReq.setFlag(mapKey);
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_sectionTwo.getCode(),StatusInfoChangeTypeEnum.SECTION_TWO_VAL.getCode(),"temperature" + key, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

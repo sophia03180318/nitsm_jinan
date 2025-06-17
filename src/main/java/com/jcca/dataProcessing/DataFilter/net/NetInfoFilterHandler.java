@@ -37,12 +37,12 @@ public class NetInfoFilterHandler extends IFilterHandler<CollectNetworkCardEntit
         String mapKey7 = StatusInfoChangeTypeEnum.status_net_ip.getCode();
 
 
-        boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, info.getPortIn());
-        boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, info.getPortOut());
-        boolean flag4 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey4, info.getPortInSpeed());
-        boolean flag5 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey5, info.getPortOutSpeed());
-        boolean flag6 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey6, info.getMacAddress());
-        boolean flag7 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey7, info.getIp());
+        boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, info.getPortIn());
+        boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, info.getPortOut());
+        boolean flag4 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey4, info.getPortInSpeed());
+        boolean flag5 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey5, info.getPortOutSpeed());
+        boolean flag6 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey6, info.getMacAddress());
+        boolean flag7 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey7, info.getIp());
         //在下一个状态处理类中处理
         if (true) {
             ChangeInfo changeInfo = new ChangeInfo();

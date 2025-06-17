@@ -15,9 +15,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -42,11 +40,19 @@ public class SyslogAdapter extends AssetIpAdd implements IAdapter<SyslogEventInf
         excutorService.submit(new Runnable() {
             @Override
             public void run() {
+
+            }
+        });
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
                 //获取资产信息
                 getAssetIPbyIMM(infoEntity);
                 if(StrUtil.isEmpty(infoEntity.getAssetId())){
                     AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS, infoEntity.getIp() , "此IP在系统中不存在");
-                    return;
+                    return 1;
                 }
                 try {
                     dataProcessManager.syslogEventHandlerRequest(infoEntity);
@@ -56,8 +62,19 @@ public class SyslogAdapter extends AssetIpAdd implements IAdapter<SyslogEventInf
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + infoEntity.getIp() + " syslogEventHandlerRequest 抛出异常", e);
 
                 }
+                return 1;
             }
         });
+
+        if(infoEntity.getInspectRecordId()!=null&&!"".equals(infoEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -50,6 +48,13 @@ public class ClusterAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         excutorService.submit(new Runnable() {
             @Override
             public void run() {
+
+            }
+        });
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
                 for (CollectClusterEntity collectCluster : collectClusters) {
                     setAssetIp(collectCluster);
                     try {
@@ -59,8 +64,19 @@ public class ClusterAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
 
                     }
                 }
+                return 1;
             }
         });
+
+        if(collectClusters.get(0).getInspectRecordId()!=null&&!"".equals(collectClusters.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

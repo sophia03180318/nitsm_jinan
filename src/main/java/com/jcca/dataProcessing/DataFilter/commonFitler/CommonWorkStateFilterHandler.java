@@ -31,7 +31,7 @@ public class CommonWorkStateFilterHandler extends IFilterHandler<ItsmQueueEntity
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_soft.getCode();
         String mapKey = info.getIdStr();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getAlarmState());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getAlarmState());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getAlarmState());
@@ -48,7 +48,7 @@ public class CommonWorkStateFilterHandler extends IFilterHandler<ItsmQueueEntity
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_runstate.getDescr(), info.getAssetIp(), str));
             alarmTempReq.setCollectValue(info.getAlarmState()+"");
             alarmTempReq.setFlag(mapKey);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_runstate.getCode(),StatusInfoChangeTypeEnum.RUN_STATUS.getCode(),info.getIdStr(), status, info, changeInfo);
             if (event != null) {

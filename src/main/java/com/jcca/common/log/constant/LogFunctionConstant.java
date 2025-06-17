@@ -190,6 +190,7 @@ public interface LogFunctionConstant {
 
     // 巡检管理 60
     String XUNJIAN_MANAGE = "6001";
+    String XUNJIAN_REALTIME = "6002";
 
     //===========================================纯后台业务============================================
 

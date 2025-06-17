@@ -55,7 +55,7 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.event_process_status.getCode();
             String mapKey = info.getProcessName();
 
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, status);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, status);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(status);
@@ -75,7 +75,7 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status?EventLevelEnum.NORMAL.getCode():EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status?EventLevelEnum.NORMAL.getCode():EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

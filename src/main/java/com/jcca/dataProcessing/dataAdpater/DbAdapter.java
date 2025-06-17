@@ -20,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 /**
@@ -56,9 +54,10 @@ public class DbAdapter extends AssetIpAdd implements  IAdapter<JSONArray> {
         List<CollectDBEntity> dbList = JSONUtil.toList(data, CollectDBEntity.class);
         CollectDBEntity collectDBEntity = dbList.get(0);
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_db.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 getAssetId(collectDBEntity);
                 try {
                     dataProcessManager.dbHandlerRequest(collectDBEntity);
@@ -79,8 +78,19 @@ public class DbAdapter extends AssetIpAdd implements  IAdapter<JSONArray> {
                         AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectTablespaceEntity.getAssetIp() + "dbTableHandlerRequest 抛出异常", e);
                     }
                 }
+                return 1;
             }
         });
+
+        if(collectDBEntity.getInspectRecordId()!=null&&!"".equals(collectDBEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

@@ -56,7 +56,7 @@ public class PingGroupFilterHandler extends IFilterHandler<ReceiveAlarmEntity> {
         for (PingAssetStatus item : pingAssetStatusList) {
             String redisKey = item.getAsset().getIp() + ":" + item.getAsset().getId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
             String mapKey = StatusInfoChangeTypeEnum.group_single_status_ping.getCode();
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getFlag());
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getFlag());
             if (flag) {//将ping信息
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(item.getCurrStatus());

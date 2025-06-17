@@ -35,7 +35,7 @@ public class SoftLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softLinkState.getCode();
         String mapKey = info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getIdStr();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getLinkStatus());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getLinkStatus());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getLinkStatus());
@@ -60,7 +60,7 @@ public class SoftLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
             alarmTempReq.setCollectValue(status.toString());
             alarmTempReq.setFlag(mapKey);
             this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_link.getCode(), StatusInfoChangeTypeEnum.LINK_STATUS.getCode(), mapKey, status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
 
             if (event != null) {
                 changeInfo.setIsEvent(true);

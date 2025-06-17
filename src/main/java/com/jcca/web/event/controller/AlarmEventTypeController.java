@@ -32,6 +32,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,6 +86,9 @@ public class AlarmEventTypeController extends ListenerManager {
     @RequiresPermissions({"api:event:type:update"})
     @ActionLog(name = "修改事件类型", title = "事件管理", key = LogTypeConstant.MODIFY)
     ResultVo<?> update(@RequestBody @Validated EventTypeUpdateReq req) {
+        if (!StringUtils.isEmpty(req.getAssetDesks())) {
+            req.setAssetDesks(req.getAssetDesks() + ",");
+        }
         AlarmEventType type = eventTypeServ.getById(req.getId());
         if (Objects.isNull(type)) {
             return ResultVoUtil.warning("事件类型不存在");

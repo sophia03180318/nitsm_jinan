@@ -37,7 +37,7 @@ public class IpmiCPUFilterHandler extends IFilterHandler<CollectSensorEntity> {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "管理口CPU信息过滤处理类", info.getAssetIp());
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_CPU.getCode() + ":" + info.getName();
         String mapKey = StatusInfoChangeTypeEnum.status_cpu_value.getCode();
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getValue());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getValue());
@@ -48,7 +48,7 @@ public class IpmiCPUFilterHandler extends IFilterHandler<CollectSensorEntity> {
         }
 
         String mapKey1 = StatusInfoChangeTypeEnum.status_cpu_status.getCode();
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getValue());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getValue());
         if (flag1) {
             Integer status = "normal".equals(info.getStatus().toLowerCase()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String str = status == EventLevelEnum.ABNORMAL.getCode() ? "异常。" : "恢复。";
@@ -69,7 +69,7 @@ public class IpmiCPUFilterHandler extends IFilterHandler<CollectSensorEntity> {
             String eventRedisKey = StatusInfoChangeTypeEnum.event_cpu_state.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
             this.addEventStatus(StatusInfoChangeTypeEnum.event_cpu_state.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(),info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 event.setDescStr(descStr);
@@ -78,7 +78,7 @@ public class IpmiCPUFilterHandler extends IFilterHandler<CollectSensorEntity> {
             }
         }
         String mapKey2 = StatusInfoChangeTypeEnum.status_cpu_voltage.getCode();
-        boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, info.getValue());
+        boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, info.getValue());
         if (flag2) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getVoltage());
@@ -88,7 +88,7 @@ public class IpmiCPUFilterHandler extends IFilterHandler<CollectSensorEntity> {
         }
 
         String mapKey3 = StatusInfoChangeTypeEnum.status_cpu_core.getCode();
-        boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, info.getValue());
+        boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, info.getValue());
         if (flag3) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getVoltage());

@@ -14,9 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -43,9 +41,10 @@ public class ConnectAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
     @Override
     public void dispose(JSONArray data) {
         List<CollectConnectEntity> connBeanList = JSONUtil.toList(data, CollectConnectEntity.class);
-        excutorService.submit(new Runnable() {
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 for (CollectConnectEntity collectConnectEntity : connBeanList) {
                     setAssetIp(collectConnectEntity);
                     try {
@@ -54,8 +53,19 @@ public class ConnectAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                         AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectConnectEntity.getAssetIp() + "connectHandlerRequest 抛出异常", e);
                     }
                 }
+                return 1;
             }
         });
+
+        if(connBeanList.get(0).getInspectRecordId()!=null&&!"".equals(connBeanList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

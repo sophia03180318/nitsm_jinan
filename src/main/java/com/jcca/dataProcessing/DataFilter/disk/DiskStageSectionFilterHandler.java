@@ -42,7 +42,7 @@ public class DiskStageSectionFilterHandler extends IFilterHandler<CollectDiskEnt
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_disk_normal.getCode(), info.getAssetId(), info.getName());
         if (threshold.sectionValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -50,7 +50,7 @@ public class DiskStageSectionFilterHandler extends IFilterHandler<CollectDiskEnt
         }
 
         String thresholdValue = threshold.getMaxValue() + "_" + threshold.getMinValue();
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, thresholdValue);
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, thresholdValue);
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, thresholdValue, info);
         }
@@ -69,7 +69,7 @@ public class DiskStageSectionFilterHandler extends IFilterHandler<CollectDiskEnt
             alarmTempReq.setFlag(info.getName());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_disk_section.getCode(),StatusInfoChangeTypeEnum.SECTION_VAL.getCode(),info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

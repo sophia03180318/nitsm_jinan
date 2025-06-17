@@ -12,9 +12,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -36,9 +34,9 @@ public class SnmpAdapter extends AssetIpAdd implements IAdapter<SnmpEventInfoEnt
     @Override
     public void dispose(SnmpEventInfoEntity infoEntity) {
         //事件监控分类
-        excutorService.submit(new Runnable() {
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 getAssetIPbyIMM(infoEntity);
                 try {
                     dataProcessManager.snmpEventHandlerRequest(infoEntity);
@@ -46,8 +44,19 @@ public class SnmpAdapter extends AssetIpAdd implements IAdapter<SnmpEventInfoEnt
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + infoEntity.getAssetIp() + "snmpEventHandlerRequest 抛出异常", e);
 
                 }
+                return 1;
             }
         });
+
+        if(infoEntity.getInspectRecordId()!=null&&!"".equals(infoEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
     }

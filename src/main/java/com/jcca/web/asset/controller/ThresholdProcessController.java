@@ -590,6 +590,9 @@ public class ThresholdProcessController extends ListenerManager {
         Set<String> keySet2 = hashMap2.keySet();
         for (String key : keySet2) {
             Object value = hashMap2.get(key);
+            if(Objects.isNull(value)){
+                continue;
+            }
             if(value.toString().contains(process.getProcessName())){
                 redisService.deleteHashMap(mapKey2,key);
             }

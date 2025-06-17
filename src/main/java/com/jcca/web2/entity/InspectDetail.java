@@ -36,6 +36,8 @@ public class InspectDetail extends Model<InspectDetail> implements Serializable 
     private String assetIp2;
     private String orgId;
     private String orgName;
+    private String roomId;
+    private String roomName;
     private String cabinetId;
     private String cabinetName;
     // 巡检指标项
@@ -69,6 +71,11 @@ public class InspectDetail extends Model<InspectDetail> implements Serializable 
     private String deskName;
     // 巡检结果文件路径
     private String resultPath;
+    // 告警ID
+    private String alarmId;
+    // 事件类型ID
+    private String eventTypeId;
+    private String eventTypeName;
 
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

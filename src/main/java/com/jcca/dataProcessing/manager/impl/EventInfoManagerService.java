@@ -5,9 +5,7 @@ import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.event.enums.EventLevelEnum;
-import com.jcca.web.event.service.AlarmEventTypeService;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -33,7 +31,11 @@ public class EventInfoManagerService implements IEventInfoManagerService {
 
 
     @Override
-    public boolean infoIschange(String redisKey, String mapKey, Object changeValue) {
+    public boolean infoIschange(String inspectRecordId, String redisKey, String mapKey, Object changeValue) {
+        //判断是否是巡检过来的数据
+        if (inspectRecordId != null && !inspectRecordId.isEmpty()) {
+            return true;
+        }
         Object obj = redisService.hmGet(redisKey, mapKey);
         if (obj == null) {
             return true;
@@ -43,13 +45,29 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public synchronized Boolean infoIschangeFirst(String redisKey, String mapKey, Object changeValue) {
+    public synchronized Boolean infoIschangeFirst(String inspectRecordId, String redisKey, String mapKey, Object changeValue) {
+        //判断是否是巡检过来的数据
+        if (inspectRecordId != null && !"".equals(inspectRecordId)) {
+            return true;
+        }
         Object obj = redisService.hmGet(redisKey, mapKey);
         if (obj == null) {
             return null;
         }
         return this.judgeChange(obj, changeValue);
     }
+
+
+    public  Boolean infoChangeStatus(String redisKey, String mapKey, Object changeValue) {
+
+        Object obj = redisService.hmGet(redisKey, mapKey);
+        if (obj == null) {
+            return null;
+        }
+        return this.judgeChange(obj, changeValue);
+    }
+
+
 
     /**
      * 与缓存中的信息对比是否有变动
@@ -104,13 +122,13 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq) {
-        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq);
+    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq, String inspectRecordId) {
+        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq, inspectRecordId);
         return event;
     }
 
     @Override
-    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String eventMapKey, String redisThresholdKey, String thresholdMapKey) {
+    public IEvent creatRecoveryThresholdEvent(String assetId, ChangeInfo changeInfo, String eventRedisKey, String eventMapKey, String redisThresholdKey, String thresholdMapKey, String inspectRecordId) {
         Map<String, Object> map = redisService.getHashMap(redisThresholdKey);
         boolean redisThreshold = map.containsKey(thresholdMapKey);
         if (redisThreshold) {//如果存储阈值配置信息
@@ -120,7 +138,7 @@ public class EventInfoManagerService implements IEventInfoManagerService {
                     this.delStateValue(redisThresholdKey, key);//删除阈值配置
                 }
             }
-            IEvent event = new IEvent(assetId, changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.NORMAL.getCode());
+            IEvent event = new IEvent(assetId, changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.NORMAL.getCode(), inspectRecordId);
             event.setDescStr("阈值设置被清除,恢复阈值事件。");//恢复阈值告警
             changeInfo.setIsEvent(true);
             return event;
@@ -138,10 +156,10 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     public void saveRedisChange(IEvent info, RedisTemplate redisTemplate) {
         if (info.getStatus() == EventLevelEnum.NORMAL.getCode()) {//如果事件正常删除事件缓存
             HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
-            hash.delete(info.getRedisKey(), info.getMapKey());
+            hash.delete(info.getEventRedisKey(), info.getMapKey());
         } else {//如果事件缓存事件信息
             HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
-            hash.put(info.getRedisKey(), info.getMapKey(), info.getStatus());
+            hash.put(info.getEventRedisKey(), info.getMapKey(), info.getStatus());
         }
     }
 

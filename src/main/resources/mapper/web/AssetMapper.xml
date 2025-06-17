@@ -174,11 +174,12 @@
         select count(a.desk) total, m.name, m.code as id
         from asset a
         left join asset_mode m on a.desk = m.code
-        where a.desk is not null and a.is_del = 1 and a.org_id in
+        where a.desk is not null and a.is_del = 1 and m.code is not null and a.org_id in
         <foreach collection="orgIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
         group by m.name, m.code
+        order by m.code
     </select>
 
     <select id="getOrgAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"

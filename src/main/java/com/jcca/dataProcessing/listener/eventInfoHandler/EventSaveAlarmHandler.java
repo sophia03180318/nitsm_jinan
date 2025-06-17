@@ -49,7 +49,7 @@ public class EventSaveAlarmHandler extends IFilterHandler<IEvent> {
                     HashOperations<String, Object, Object> hash = redisTransactionTemplate.opsForHash();
                     hash.put(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
                 }
-                Object obj = eventInfoManagerService.getStateValue(info.getRedisKey(), info.getMapKey());
+                Object obj = eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
                 //推送的是恢复事件或者是异常事件需要保存事件
                 if ((obj != null && info.getStatus() != obj) || (obj == null && info.getStatus() == EventLevelEnum.ABNORMAL.getCode())) {
                     dataChangeManagerService.saveEvent(info);

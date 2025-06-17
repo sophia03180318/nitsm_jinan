@@ -4,6 +4,8 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
 import com.jcca.common.log.constant.LogFunctionConstant;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.CollectVlanEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -12,9 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -40,13 +40,25 @@ public class VlanAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
     @Override
     public void dispose(JSONArray data) {
         List<CollectVlanEntity> vlanList = JSONUtil.toList(data, CollectVlanEntity.class);
-        excutorService.submit(new Runnable() {
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 dataProcessManager.vlanHandlerRequest(vlanList);
+                return 1;
             }
         });
 
+        if(vlanList.get(0).getInspectRecordId()!=null&&!"".equals(vlanList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         }
 
