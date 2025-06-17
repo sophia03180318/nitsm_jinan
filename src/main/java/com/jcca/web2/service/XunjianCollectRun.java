@@ -134,9 +134,6 @@ public class XunjianCollectRun implements ApplicationRunner {
 
     // <inspectRecordId, 巡检设备总数量>
     private final Map<String, Integer> assetTotalMap = new ConcurrentHashMap<>();
-
-    // 设备指标总数量 <inspectRecordId, <assetId, 设备指标数量>>
-//    private final Map<String, Map<String, Long>> assetTargetCountMap = new ConcurrentHashMap<>();
     // 已巡检设备指标 <inspectRecordId, <assetId, 已巡检设备指标数量>>
     private final Map<String, Map<String, Integer>> currentAssetTargetMap = new ConcurrentHashMap<>();
 
@@ -170,7 +167,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 当前巡检资产
     public static final Map<String, String> currentAssetIdMap = new ConcurrentHashMap<>();
 
-    private void send2Web(XunjianDataDto dto) {
+    private synchronized void send2Web(XunjianDataDto dto) {
         String inspectRecordId = dto.getInspectRecordId();
         InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
@@ -282,7 +279,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
         // 资产状态
         if (assetStateMap.get(inspectRecordId) == null) {
-            Map<String, Integer> hashMap = new HashMap<>();
+            Map<String, Integer> hashMap = new ConcurrentHashMap<>();
             hashMap.put(assetId, Integer.parseInt(targetState));
             assetStateMap.put(inspectRecordId, hashMap);
         } else {
