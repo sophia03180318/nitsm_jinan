@@ -2,7 +2,6 @@ package com.jcca.dataProcessing.listener.alarmHandler;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.enums.AlarmStateEnum;
-import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
 import com.jcca.dataProcessing.manager.bean.SaveAlarmResp;
@@ -16,14 +15,11 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.enums.EventLevelEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -69,19 +65,19 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
         synchronized (obj){
             try {
-                log.error("------------------------------当前线程名称: " + Thread.currentThread().getName()+"eventInfo:"+info.getRedisKey()+"|@|"+info.getMapKey());
+//                log.error("------------------------------当前线程名称: " + Thread.currentThread().getName()+"eventInfo:"+info.getEventRedisKey()+"|@|"+info.getMapKey());
                 redisTransactionTemplate.multi();
                 SaveAlarmResp resp = new SaveAlarmResp();
                 resp.setNeedSendToWeb(false);
 
                 //查看是否有历史告警
-                AlarmInfo alarmInfo = alarmInfoService.getAssetAlarm(info.getRedisKey(), info.getAssetId(), info.getMapKey());
+                AlarmInfo alarmInfo = alarmInfoService.getAssetAlarm(info.getEventRedisKey(), info.getAssetId(), info.getMapKey());
 
                 //修改性能信息缓存
                 ChangeInfo changeInfo = (ChangeInfo) info.getInfo();
 
                 //这个变量是为了全局状态存储用的
-                eventInfoManagerService.getStateValue(info.getRedisKey(), info.getMapKey());
+                //eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
 
                 if (changeInfo.getRedisKey() != null) {
                     //这里是保存change中的变量数据……
@@ -92,11 +88,17 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     redisTransactionTemplate.exec();
                     return true;
                 }
+
                 //过滤掉 未确认的已恢复告警
-                if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && Objects.nonNull(alarmInfo) && AlarmStateEnum.RECOVER.getCode().equals(alarmInfo.getAlarmState())) {
+                if (info.getStatus().equals(EventLevelEnum.NORMAL.getCode()) && AlarmStateEnum.RECOVER.getCode().equals(alarmInfo.getAlarmState())) {
                     redisTransactionTemplate.exec();
                     return true;
                 }
+
+                if (Objects.nonNull(alarmInfo)) {
+                    info.setAlarmId(alarmInfo.getId());
+                }
+
                 //过滤 存在告警的 异常事件
                 if (info.getStatus().equals(EventLevelEnum.ABNORMAL.getCode()) && Objects.nonNull(alarmInfo) && AlarmStateEnum.ALARM.getCode().equals(alarmInfo.getAlarmState())) {
                     redisTransactionTemplate.exec();
@@ -110,6 +112,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     resp.setNeedSendToWeb(true);
                     resp.setAsset(asset);
                     resp.setNewAlarm(alarmInfo);
+                    info.setAlarmId(alarmInfo.getId());
                 } else {
                     //更新告警
                     boolean abnormal = info.getStatus().equals(EventLevelEnum.ABNORMAL.getCode());
@@ -127,14 +130,13 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
                 //推送的是恢复事件或者是异常事件需要保存事件
                 AlarmEvent alarmEvent = dataChangeManagerService.saveEvent(info);
-                if (alarmInfo != null) {
-                    dataChangeManagerService.linkEvent(alarmInfo.getId(), alarmEvent);
-                }
+                dataChangeManagerService.linkEvent(alarmInfo.getId(), alarmEvent);
 
                 //弹出通知框
                 if (resp.getNeedSendToWeb()) {
                     dataChangeManagerService.popup(resp.getAsset(), resp.getNewAlarm());
                 }
+
                 //保存事件缓存 使用带事务的 redisTransactionTemplate
                 eventInfoManagerService.saveRedisChange(info, redisTransactionTemplate);
                 redisTransactionTemplate.exec();
@@ -152,7 +154,7 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
 
     @Override
     public boolean isNeedNexthandle(Boolean flag) {
-        return false;
+        return flag;
     }
 
 }

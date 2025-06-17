@@ -40,7 +40,7 @@ public class OpticalFanFilterHandler extends IFilterHandler<OpticalSwitchEntity>
         Set<String> fanIndex = fanStateMap.keySet();
         for (String fan : fanIndex) {
             String mapKey = "FAN" + fan;
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, fanStateMap.get(fan));
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, fanStateMap.get(fan));
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(fanStateMap.get(fan));
@@ -59,7 +59,7 @@ public class OpticalFanFilterHandler extends IFilterHandler<OpticalSwitchEntity>
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(mapKey);
                 this.addEventStatus(StatusInfoChangeTypeEnum.status_fan.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(),"FAN" + fan, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

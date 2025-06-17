@@ -42,7 +42,7 @@ public class OpticalVoMapFilterHandler extends IFilterHandler<OpticalSwitchEntit
             String mapKey1 = item + "_" + StatusInfoChangeTypeEnum.status_interface_rxPower.getCode();
 
             OpticalVo opticalVo = VoMap.get(item);
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, opticalVo.getTxPower());
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, opticalVo.getTxPower());
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(opticalVo.getTxPower());
@@ -52,7 +52,7 @@ public class OpticalVoMapFilterHandler extends IFilterHandler<OpticalSwitchEntit
                 info.getMaps().put(mapKey, changeInfo);
             }
 
-            boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, opticalVo.getRxPower());
+            boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, opticalVo.getRxPower());
             if (flag1) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(opticalVo.getRxPower());

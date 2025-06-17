@@ -33,7 +33,7 @@ public class ClusterAbStatusFilterHandler extends IFilterHandler<CollectClusterE
         String mapKey1 = StatusInfoChangeTypeEnum.status_clusterABState.getCode();
 
 
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getServerName());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getServerName());
         if(flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getServerName());
@@ -50,7 +50,7 @@ public class ClusterAbStatusFilterHandler extends IFilterHandler<CollectClusterE
             alarmTempReq.setOrgMsg(keyWord);
             alarmTempReq.setCollectValue(info.getServerRole());
             alarmTempReq.setFlag(info.getServerName());
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

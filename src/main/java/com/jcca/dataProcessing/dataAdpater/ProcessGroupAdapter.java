@@ -21,9 +21,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -75,16 +73,31 @@ public class ProcessGroupAdapter extends AssetIpAdd implements IAdapter<ReceiveA
 
         processGroupEntity.setQueueObj(queueObj);
 
-        excutorService.submit(() -> {
-            getAssetId(processGroupEntity);
-            try {
-                dataProcessManager.processGroupHandlerRequest(processGroupEntity);
-            } catch (Exception e) {
-                String message = "设备" + processGroupEntity.getAssetIp() + "processGroupHandlerRequest 抛出异常【%s】";
-                String format = String.format(message, JSONUtil.parse(alarmDto).toString());
-                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, format, e);
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                getAssetId(processGroupEntity);
+                try {
+                    dataProcessManager.processGroupHandlerRequest(processGroupEntity);
+                } catch (Exception e) {
+                    String message = "设备" + processGroupEntity.getAssetIp() + "processGroupHandlerRequest 抛出异常【%s】";
+                    String format = String.format(message, JSONUtil.parse(alarmDto).toString());
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, format, e);
+                }
+                return 1;
             }
         });
+
+        if(processGroupEntity.getInspectRecordId()!=null&&!"".equals(processGroupEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 

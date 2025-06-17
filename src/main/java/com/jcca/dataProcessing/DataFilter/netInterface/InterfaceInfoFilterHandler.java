@@ -38,7 +38,7 @@ public class InterfaceInfoFilterHandler extends IFilterHandler<CollectInterfaceE
      * @param info
      */
     private void putInfoMap(String redisKey, String mapKey, Object value,CollectInterfaceEntity info,boolean isThresholdTag){
-        boolean flag= eventInfoChangeManagerService.infoIschange(redisKey, mapKey,value);
+        boolean flag= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey,value);
         if(isThresholdTag){
             ChangeInfo changeInfo= this.createChangeInfo(value,redisKey,mapKey);
             changeInfo.setIsChange(flag);

@@ -19,9 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -50,21 +48,34 @@ public class NetAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         List<CollectNetworkCardEntity> netList = JSONUtil.toList(data, CollectNetworkCardEntity.class);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_net.getCode(), "monitor", true);
-        excutorService.submit(() -> {
-            String collectCode = MyIdUtil.getId();
-            for (CollectNetworkCardEntity item : netList) {
-                setAssetIp(item);
-                item.setCollectCode(collectCode);
-                try {
-                    dataProcessManager.networkHandlerRequest(item);
-                } catch (ResultException e) {
-                    AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS, item.getAssetIp(), "networkHandlerRequest 抛出异常:" + e.getMessage());
-                } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + " networkHandlerRequest 抛出异常", e);
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                String collectCode = MyIdUtil.getId();
+                for (CollectNetworkCardEntity item : netList) {
+                    setAssetIp(item);
+                    item.setCollectCode(collectCode);
+                    try {
+                        dataProcessManager.networkHandlerRequest(item);
+                    } catch (ResultException e) {
+                        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS, item.getAssetIp(), "networkHandlerRequest 抛出异常:" + e.getMessage());
+                    } catch (Exception e) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + " networkHandlerRequest 抛出异常", e);
+                    }
                 }
+                return 1;
             }
         });
 
+        if(netList.get(0).getInspectRecordId()!=null&&!"".equals(netList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

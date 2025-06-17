@@ -40,7 +40,7 @@ public class OpticalPowerFilterHandler extends IFilterHandler<OpticalSwitchEntit
         Set<String> fanIndex = pwrStateMap.keySet();
         for (String power : fanIndex) {
             String mapKey = "power" + power;
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, pwrStateMap.get(power));
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, pwrStateMap.get(power));
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(pwrStateMap.get(power));
@@ -59,7 +59,7 @@ public class OpticalPowerFilterHandler extends IFilterHandler<OpticalSwitchEntit
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_power_state.getDescr(), mapKey, str));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(power);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

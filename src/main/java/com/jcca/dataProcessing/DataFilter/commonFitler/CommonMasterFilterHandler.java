@@ -39,7 +39,7 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
             return false;
         }
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getHostType());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getHostType());
         if (flag == null || flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getHostType());
@@ -65,7 +65,7 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
                 alarmTempReq.setCollectValue(info.getAbFlag().toString());
                 alarmTempReq.setFlag(info.getEntityId() + "_" + info.getAbFlag());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_AB.getCode(), StatusInfoChangeTypeEnum.MASTER_CHANGE.getCode(), "", EventLevelEnum.ABNORMAL.getCode(), info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq,info.getInspectRecordId());
                 //被事件信息截取
                 changeInfo.setIsEvent(true);
 

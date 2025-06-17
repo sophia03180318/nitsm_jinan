@@ -56,33 +56,33 @@ public class AixIoCardIFilterHandlerHandler extends IFilterHandler<CollectAixSys
             String mapKey3 = StatusInfoChangeTypeEnum.status_aix_adapterSlot.getCode();
             String mapKey4 = StatusInfoChangeTypeEnum.status_aix_io_description.getCode();
             String mapKey5 = StatusInfoChangeTypeEnum.status_aix_io_wwn.getCode();
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, aixIoCardEntity.getAdapterType());
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, aixIoCardEntity.getAdapterType());
             if (flag) {
                 ChangeInfo changeInfo = this.createChangeInfo(aixIoCardEntity.getAdapterType(), redisKey, mapKey);
                 info.getMaps().put(aixIoCardEntity.getAdapterName() + "_" + mapKey, changeInfo);
             }
-            boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, aixIoCardEntity.getAdapterStat());
+            boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, aixIoCardEntity.getAdapterStat());
             if (flag1) {
                 ChangeInfo changeInfo = this.createChangeInfo(aixIoCardEntity.getAdapterStat(), redisKey, mapKey1);
                 info.getMaps().put(aixIoCardEntity.getAdapterName() + "_" + mapKey1, changeInfo);
             }
-            boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, aixIoCardEntity.getAttentionType());
+            boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, aixIoCardEntity.getAttentionType());
             if (flag2) {
                 ChangeInfo changeInfo = this.createChangeInfo(aixIoCardEntity.getAttentionType(), redisKey, mapKey2);
                 info.getMaps().put(aixIoCardEntity.getAdapterName() + "_" + mapKey2, changeInfo);
             }
 
-            boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, aixIoCardEntity.getAdapterSlot());
+            boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, aixIoCardEntity.getAdapterSlot());
             if (flag3) {
                 ChangeInfo changeInfo = this.createChangeInfo(aixIoCardEntity.getAdapterSlot(), redisKey, mapKey3);
                 info.getMaps().put(aixIoCardEntity.getAdapterName() + "_" + mapKey3, changeInfo);
             }
-            boolean flag4 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey4, aixIoCardEntity.getDescription());
+            boolean flag4 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey4, aixIoCardEntity.getDescription());
             if (flag4) {
                 ChangeInfo changeInfo = this.createChangeInfo(aixIoCardEntity.getDescription(), redisKey, mapKey4);
                 info.getMaps().put(aixIoCardEntity.getAdapterName() + "_" + mapKey4, changeInfo);
             }
-            boolean flag5 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey5, aixIoCardEntity.getFcWwn());
+            boolean flag5 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey5, aixIoCardEntity.getFcWwn());
             if (flag5) {
                 ChangeInfo changeInfo = this.createChangeInfo(aixIoCardEntity.getFcWwn(), redisKey, mapKey5);
                 info.getMaps().put(aixIoCardEntity.getAdapterName() + "_" + mapKey5, changeInfo);

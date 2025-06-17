@@ -42,7 +42,7 @@ public class InterfaceErrorCodeInSectionFilterHandler extends IFilterHandler<Col
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_port_inError_normal.getCode(), info.getAssetId(), info.getPortName());
         if (threshold.sectionValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -50,7 +50,7 @@ public class InterfaceErrorCodeInSectionFilterHandler extends IFilterHandler<Col
         }
 
         String sectionValue = threshold.getMaxValue() + "_" + threshold.getMinValue();
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, sectionValue);
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, sectionValue);
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey,sectionValue, info);
         }
@@ -70,7 +70,7 @@ public class InterfaceErrorCodeInSectionFilterHandler extends IFilterHandler<Col
 
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_port_inError_section.getCode(),StatusInfoChangeTypeEnum.SECTION_VAL.getCode(),info.getPortName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -13,9 +13,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -38,19 +36,29 @@ public class CascoVersionAdapter extends AssetIpAdd implements IAdapter<ItsmQueu
     @Override
     public void dispose(ItsmQueueEntity data) {
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_CTC.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 setAssetIp(data);
                 try {
                     dataProcessManager.cascoVersionHandlerRequest(data);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "cascoVersionHandlerRequest 抛出异常", e);
                 }
+                return 1;
             }
         });
 
-
+        if(data.getInspectRecordId()!=null&&!"".equals(data.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

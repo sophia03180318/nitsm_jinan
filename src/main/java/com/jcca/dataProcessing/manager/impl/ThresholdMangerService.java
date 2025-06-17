@@ -25,6 +25,7 @@ import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
 import com.jcca.web2.service.ThresholdManageService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -426,7 +427,28 @@ public class ThresholdMangerService implements ThresholdManager {
 
     @Override
     public ThresholdBaseEntity getThresholdValue(String code, String assetId, String flag) {
+
         return v2(code, assetId, flag);
+    }
+
+    @Override
+    public ThresholdBaseEntity xunjianGetThresholdValue(String code, String assetId, String flag) {
+        String newCode = "";
+        if(code.contains("sectionOne")){
+            newCode = code.replace("sectionOne", "normal");
+        }else if(code.contains("sectionTwo")){
+            newCode = code.replace("sectionTwo", "normal");
+        }else if(code.contains("sectionThree")){
+            newCode = code.replace("sectionThree", "normal");
+        }else if(code.contains("section")){
+            newCode = code.replace("section", "normal");
+        }
+
+        if (StringUtils.isEmpty(newCode)) {
+            newCode = code;
+        }
+
+        return v2(newCode, assetId, flag);
     }
 
     /**

@@ -50,7 +50,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
         String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
 
         Integer status = StatusEnum.status_net_1.getCode().equals(info.getStatus().toString()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
         if (Objects.isNull(flag) && status.equals(EventLevelEnum.ABNORMAL.getCode())) {
             return true;
         }
@@ -86,7 +86,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
             tempReq.setFlag("网卡");
 
             this.addEventStatus(StatusInfoChangeTypeEnum.event_net_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

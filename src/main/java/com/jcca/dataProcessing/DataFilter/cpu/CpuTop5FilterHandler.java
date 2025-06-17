@@ -31,7 +31,7 @@ public class CpuTop5FilterHandler  extends IFilterHandler<CollectCpuEntity> {
         boolean flag=false;
         if(list!=null&&list.size()>0){
             for(CollectProcessEntity collectProcessEntity:list){
-               if( eventInfoChangeManagerService.infoIschange(redisKey,collectProcessEntity.getName()+"_"+collectProcessEntity.getProcessId(),collectProcessEntity.getCpuRate())){
+               if( eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey,collectProcessEntity.getName()+"_"+collectProcessEntity.getProcessId(),collectProcessEntity.getCpuRate())){
                     flag=true;
                     break;
                 }

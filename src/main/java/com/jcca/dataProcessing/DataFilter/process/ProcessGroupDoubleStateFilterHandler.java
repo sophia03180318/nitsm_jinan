@@ -54,7 +54,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
             String mapKey = info.getProcessName() + "_all_down";
             Boolean processStatus = info.getProcessStatus();
             //组进程全部掉线事件Flag 全部掉线则value为true 否则为false
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, normalAsset.isEmpty());
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, normalAsset.isEmpty());
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(normalAsset.isEmpty());
@@ -71,7 +71,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_all_down.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, entity, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);
@@ -83,7 +83,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
             String mapKey2 = info.getProcessName() + "_other_down_" + info.getProcessName();
             //组进程部分掉线事件 Flag errorAsset 有值则是异常 无值则是正常 部分掉线则value为true 否则为false
-            boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, info.getProcessStatus());
+            boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, info.getProcessStatus());
             if (flag1 && !normalAsset.isEmpty()) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(info.getProcessStatus());
@@ -104,7 +104,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                     alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
                 }
                 alarmTempReq.setFlag(info.getProcessId());
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

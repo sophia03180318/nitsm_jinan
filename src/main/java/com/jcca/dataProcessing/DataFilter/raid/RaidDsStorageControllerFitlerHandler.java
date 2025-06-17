@@ -28,7 +28,7 @@ public class RaidDsStorageControllerFitlerHandler extends IFilterHandler<DSEntit
         if (info.getType() == 0) {
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_raidDS_controller.getCode() + ":" + info.getName();
             String mapKey1 = info.getName();
-            boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getName());
+            boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getName());
             if (flag1) {
                 ChangeInfo changeInfo = this.createChangeInfo(info.getName(), redisKey, mapKey1);
                 info.getMaps().put(mapKey1, changeInfo);

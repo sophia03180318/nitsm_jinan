@@ -20,9 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -49,203 +47,219 @@ public class IpmiAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
     public void dispose(JSONArray data) {
 
         List<SensorEntity> ipmiList = JSONUtil.toList(data, SensorEntity.class);
-        excutorService.execute(() -> {
-            //CountDownLatch cdh = new CountDownLatch(ipmiList.size());
-            String collectCode = MyIdUtil.getId();
-            for (int j = 0; j < ipmiList.size(); j++) {
-                SensorEntity sensorEntity = ipmiList.get(j);
-                setAssetIp(sensorEntity);
-                List<CollectSensorEntity> fanList = sensorEntity.getFanList();
-                if (fanList != null) {
-                    for (int i = 0; i < fanList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = fanList.get(i);
-                        thresholdDisposePool.execute(() -> {
-
-                            collectSensorEntity.setSensorType(SensorTypeEnum.FAN.name());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
-
-                            }
-                        });
-
-                    }
-                }
 
 
-                List<CollectSensorEntity> temList = sensorEntity.getTemList();
-                if (temList != null) {
-                    for (int i = 0; i < temList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = temList.get(i);
-                        if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                            collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                //CountDownLatch cdh = new CountDownLatch(ipmiList.size());
+                String collectCode = MyIdUtil.getId();
+                for (int j = 0; j < ipmiList.size(); j++) {
+                    SensorEntity sensorEntity = ipmiList.get(j);
+                    setAssetIp(sensorEntity);
+                    List<CollectSensorEntity> fanList = sensorEntity.getFanList();
+                    if (fanList != null) {
+                        for (int i = 0; i < fanList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = fanList.get(i);
+                            thresholdDisposePool.execute(() -> {
+
+                                collectSensorEntity.setSensorType(SensorTypeEnum.FAN.name());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+
+                                }
+                            });
+
                         }
-                        collectSensorEntity.setSensorType(SensorTypeEnum.GAUGE.name());
-                        collectSensorEntity.setCollectCode(collectCode);
-                        collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                        collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                        try {
-                            dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                        } catch (Exception e) {
-                            AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+                    }
+
+
+                    List<CollectSensorEntity> temList = sensorEntity.getTemList();
+                    if (temList != null) {
+                        for (int i = 0; i < temList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = temList.get(i);
+                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                            }
+                            collectSensorEntity.setSensorType(SensorTypeEnum.GAUGE.name());
+                            collectSensorEntity.setCollectCode(collectCode);
+                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                            try {
+                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                            } catch (Exception e) {
+                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+                            }
+
+                        }
+                    }
+
+
+                    List<CollectSensorEntity> sysBrdList = sensorEntity.getSysBrdList();
+                    if (sysBrdList != null) {
+                        for (int i = 0; i < sysBrdList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = sysBrdList.get(i);
+                            thresholdDisposePool.execute(() -> {
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setSensorType(SensorTypeEnum.POWER.name());
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+
+                                }
+                            });
+
+                        }
+                    }
+
+
+                    List<CollectSensorEntity> planarList = sensorEntity.getSysPlanarList();
+                    if (planarList != null) {
+                        for (int i = 0; i < planarList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = planarList.get(i);
+
+                            thresholdDisposePool.execute(() -> {
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setSensorType(SensorTypeEnum.VOLTAGE.name());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+
+                                }
+                            });
                         }
 
                     }
-                }
 
+                    List<CollectSensorEntity> logList = sensorEntity.getLogList();
+                    if (logList != null) {
+                        for (int i = 0; i < logList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = logList.get(i);
+                            thresholdDisposePool.execute(() -> {
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setSensorType(SensorTypeEnum.LOG.name());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
 
-                List<CollectSensorEntity> sysBrdList = sensorEntity.getSysBrdList();
-                if (sysBrdList != null) {
-                    for (int i = 0; i < sysBrdList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = sysBrdList.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setSensorType(SensorTypeEnum.POWER.name());
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+                                }
+                            });
 
-                            }
-                        });
-
-                    }
-                }
-
-
-                List<CollectSensorEntity> planarList = sensorEntity.getSysPlanarList();
-                if (planarList != null) {
-                    for (int i = 0; i < planarList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = planarList.get(i);
-
-                        thresholdDisposePool.execute(() -> {
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setSensorType(SensorTypeEnum.VOLTAGE.name());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
-
-                            }
-                        });
+                        }
                     }
 
-                }
 
-                List<CollectSensorEntity> logList = sensorEntity.getLogList();
-                if (logList != null) {
-                    for (int i = 0; i < logList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = logList.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setSensorType(SensorTypeEnum.LOG.name());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
-
-                            }
-                        });
-
-                    }
-                }
-
-
-                List<CollectSensorEntity> manuList = sensorEntity.getManuList();
-                if (manuList != null) {
-                    for (int i = 0; i < manuList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = manuList.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setSensorType(SensorTypeEnum.MANU.name());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
-                            }
-                        });
-                    }
-                }
-
-
-                List<CollectSensorEntity> ledList = sensorEntity.getLedList();
-                if (ledList != null) {
-                    for (int i = 0; i < ledList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = ledList.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setSensorType(SensorTypeEnum.LED.name());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
-                            }
-                        });
-                    }
-                }
-
-
-                List<CollectSensorEntity> cpuList = sensorEntity.getCpuList();
-                if (cpuList != null) {
-                    for (int i = 0; i < cpuList.size(); i++) {
-                        CollectSensorEntity collectSensorEntity = cpuList.get(i);
-                        thresholdDisposePool.execute(() -> {
-                            if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
-                                collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
-                            }
-                            collectSensorEntity.setSensorType(SensorTypeEnum.CPU.name());
-                            collectSensorEntity.setCollectCode(collectCode);
-                            collectSensorEntity.setAssetId(sensorEntity.getAssetId());
-                            collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
-                            try {
-                                dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
-                            } catch (Exception e) {
-                                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
-                            }
-                        });
+                    List<CollectSensorEntity> manuList = sensorEntity.getManuList();
+                    if (manuList != null) {
+                        for (int i = 0; i < manuList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = manuList.get(i);
+                            thresholdDisposePool.execute(() -> {
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setSensorType(SensorTypeEnum.MANU.name());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+                                }
+                            });
+                        }
                     }
 
+
+                    List<CollectSensorEntity> ledList = sensorEntity.getLedList();
+                    if (ledList != null) {
+                        for (int i = 0; i < ledList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = ledList.get(i);
+                            thresholdDisposePool.execute(() -> {
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setSensorType(SensorTypeEnum.LED.name());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+                                }
+                            });
+                        }
+                    }
+
+
+                    List<CollectSensorEntity> cpuList = sensorEntity.getCpuList();
+                    if (cpuList != null) {
+                        for (int i = 0; i < cpuList.size(); i++) {
+                            CollectSensorEntity collectSensorEntity = cpuList.get(i);
+                            thresholdDisposePool.execute(() -> {
+                                if (StrUtil.isEmpty(collectSensorEntity.getSerialNumberName())) {
+                                    collectSensorEntity.setSerialNumberName(collectSensorEntity.getName());
+                                }
+                                collectSensorEntity.setSensorType(SensorTypeEnum.CPU.name());
+                                collectSensorEntity.setCollectCode(collectCode);
+                                collectSensorEntity.setAssetId(sensorEntity.getAssetId());
+                                collectSensorEntity.setAssetIp(sensorEntity.getAssetIp());
+                                try {
+                                    dataProcessManager.ipmiHandlerRequest(collectSensorEntity);
+                                } catch (Exception e) {
+                                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "ipmiHandlerRequest 抛出异常", e);
+                                }
+                            });
+                        }
+
+                    }
+                    //cdh.countDown();
                 }
-                //cdh.countDown();
-            }
 /*                try {
                 cdh.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }*/
+                return 1;
+            }
         });
+
+        if(ipmiList.get(0).getInspectRecordId()!=null&&!"".equals(ipmiList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
     }

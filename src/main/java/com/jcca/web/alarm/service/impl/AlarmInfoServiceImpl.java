@@ -1143,4 +1143,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         return alarmInfoMapper.find5TimesUp(req);
     }
 
+    @Override
+    public List<String> getRemarksByAlarmCode(String alarmCode) {
+        return alarmInfoMapper.getRemarksByAlarmCode(alarmCode);
+    }
+
 }

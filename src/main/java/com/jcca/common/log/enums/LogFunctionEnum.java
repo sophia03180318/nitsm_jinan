@@ -198,6 +198,7 @@ public enum LogFunctionEnum {
 
     // 巡检管理 60
     XUNJIAN_MANAGE(LogFunctionConstant.XUNJIAN_MANAGE, "巡检管理", ""),
+    XUNJIAN_REALTIME(LogFunctionConstant.XUNJIAN_REALTIME, "巡检实时消息", ""),
 
     //===========================================纯后台业务============================================
 

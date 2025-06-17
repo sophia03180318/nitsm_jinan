@@ -25,6 +25,11 @@ public interface ThresholdManager {
     public ThresholdBaseEntity getThresholdValue(String code,String assetId,String flag);
 
     /**
+     * @return
+     */
+    public ThresholdBaseEntity xunjianGetThresholdValue(String code,String assetId,String flag);
+
+    /**
      * 生成阈值类的阈值设定rediskey
      * @param assetId
      * @param assetIp

@@ -31,7 +31,7 @@ public class CommonVersionFilterHandler extends IFilterHandler<ItsmQueueEntity> 
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_softVersion.getCode();
         String mapKey = info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag();
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getNowVersion());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getNowVersion());
         if (flag == null || flag == true) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getNowVersion());
@@ -49,7 +49,7 @@ public class CommonVersionFilterHandler extends IFilterHandler<ItsmQueueEntity> 
                 alarmTempReq.setThresholdValue(info.getOldVersion());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_version.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), "", EventLevelEnum.ABNORMAL.getCode(), info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq,info.getInspectRecordId());
                 //被事件信息截取
                 changeInfo.setIsEvent(true);
                 //北洋软件的连接有collectValue描述信息

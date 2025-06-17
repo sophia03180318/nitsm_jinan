@@ -31,7 +31,7 @@ public class ConnectFilterHandler extends IFilterHandler<CollectConnectEntity> {
         String redisKey= info.getAssetIp()+":"+info.getAssetId()+":"+StatusInfoChangeTypeEnum.status.getCode();
         String mapKey=StatusInfoChangeTypeEnum.status_establishedNum.getCode();
 
-        boolean flag= eventInfoChangeManagerService.infoIschange(redisKey, mapKey,info.getEstablishedNum());
+        boolean flag= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey,info.getEstablishedNum());
         if(flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getEstablishedNum());
