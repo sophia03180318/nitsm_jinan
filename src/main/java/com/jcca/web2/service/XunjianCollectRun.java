@@ -409,7 +409,9 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
         currentAssetTargetMap.get(inspectRecordId).put(assetId, currentSize);
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
-            this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
+            if (assetIdEventTypeMap.get(assetId) != null && assetIdEventTypeMap.get(assetId).contains(eventTypeId)) {
+                this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
+            }
         }
 
         // 巡检总进度
