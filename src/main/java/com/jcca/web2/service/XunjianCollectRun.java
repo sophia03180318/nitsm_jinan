@@ -165,8 +165,8 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
     // 重复指标资产 <inspectRecordId, <eventTypeId, <assetId>>>
     private final Map<String, Map<String, Set<String>>> repeatAssetIdMap = new ConcurrentHashMap<>();
-    // 指标大类型总数
-//    private final Map<String, Set<String>> totalMap = new ConcurrentHashMap<>();
+    // 指标大类型记数 <assetId, <eventTypeId>>
+    private final Map<String, Set<String>> assetIdEventTypeMap = new ConcurrentHashMap<>();
     // 当前巡检资产
     public static final Map<String, String> currentAssetIdMap = new ConcurrentHashMap<>();
 
@@ -199,6 +199,12 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             for (InspectAsset inspectAsset : assetList) {
                 assetIdName.put(inspectAsset.getAssetId(), inspectAsset.getAssetName());
+                Set<String> eventTypeSet = assetIdEventTypeMap.get(inspectAsset.getAssetId());
+                if (eventTypeSet == null) {
+                    eventTypeSet = new HashSet<>();
+                }
+                eventTypeSet.add(inspectAsset.getEventTypeId());
+                assetIdEventTypeMap.put(inspectAsset.getAssetId(), eventTypeSet);
             }
 
             Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
@@ -319,21 +325,23 @@ public class XunjianCollectRun implements ApplicationRunner {
                 currentAbnormalTargetMap.put(inspectRecordId, stringSetMap);
             }
 
-            Map<String, Set<String>> eventTypeMap = repeatAssetIdMap.get(inspectRecordId);
-            if (eventTypeMap == null) {
-                eventTypeMap = new ConcurrentHashMap<>();
-            }
-            Set<String> assetSet = eventTypeMap.get(eventTypeId);
-            if (assetSet == null) {
-                assetSet = new HashSet<>();
-            }
-            String idType = assetId + "_" + eventTypeId;
-            if (!assetSet.contains(idType)) {
-                assetSet.add(idType);
-                eventTypeMap.put(eventTypeId, assetSet);
-                repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
-                this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
-                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "指标记数", idType);
+            if (assetIdEventTypeMap.get(assetId) != null && assetIdEventTypeMap.get(assetId).contains(eventTypeId)) {
+                Map<String, Set<String>> eventTypeMap = repeatAssetIdMap.get(inspectRecordId);
+                if (eventTypeMap == null) {
+                    eventTypeMap = new ConcurrentHashMap<>();
+                }
+                Set<String> assetSet = eventTypeMap.get(eventTypeId);
+                if (assetSet == null) {
+                    assetSet = new HashSet<>();
+                }
+                String idType = assetId + "_" + eventTypeId;
+                if (!assetSet.contains(idType)) {
+                    assetSet.add(idType);
+                    eventTypeMap.put(eventTypeId, assetSet);
+                    repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
+                    this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "指标记数", idType);
+                }
             }
         }
 
@@ -467,7 +475,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         currentAssetTargetMap.remove(inspectRecordId);
         currentCountTargetMap.remove(inspectRecordId);
         totalTargetMap.remove(inspectRecordId);
-//        assetTargetCountMap.remove(inspectRecordId);
         currentAbnormalTargetMap.remove(inspectRecordId);
         assetStateMap.remove(inspectRecordId);
         targetStateMap.remove(inspectRecordId);
@@ -475,7 +482,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         repeatTargetMap.remove(inspectRecordId);
         repeatAssetIdMap.remove(inspectRecordId);
         currentAssetIdMap.remove(inspectRecordId);
-//        totalMap.remove(inspectRecordId);
+        assetIdEventTypeMap.clear();
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {

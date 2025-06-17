@@ -127,7 +127,8 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         }
         List<String> list = inspectDetailMapper.totalAsset(inspectCode);
         if (list.isEmpty()) {
-            throw new ResultException(ResultEnum.CANNOT_FIND, "没有生成巡检明细");
+            inspectRecordService.removeById(record.getId());
+            return new HashMap<>();
         }
 
         QueryWrapper<InspectDetail> query = Wrappers.query();
