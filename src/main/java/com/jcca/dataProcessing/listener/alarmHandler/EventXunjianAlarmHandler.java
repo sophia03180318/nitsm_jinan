@@ -19,7 +19,10 @@ public class EventXunjianAlarmHandler extends IFilterHandler<IEvent> {
 
     @Override
     public boolean handler(IEvent info) throws Exception {
-                XUNJIAN_COLLECT_QUEUE.put(info);
+        //巡检信息
+        if (info.getInspectRecordId() != null && !"".equals(info.getInspectRecordId())) {
+            XUNJIAN_COLLECT_QUEUE.put(info);
+        }
         return true;
     }
 
