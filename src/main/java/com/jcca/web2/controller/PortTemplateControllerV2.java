@@ -3,13 +3,19 @@ package com.jcca.web2.controller;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.collect.entity.CollectInterfaces;
+import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web2.dto.PortModelTemp;
 import com.jcca.web2.dto.PortTempDto;
 import com.jcca.web2.entity.PortTemp;
@@ -25,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +50,10 @@ public class PortTemplateControllerV2 {
 
     @Resource
     private PortTempService tempService;
-
+    @Resource
+    private AssetService assetService;
+    @Resource
+    private CollectInterfacesService collectInterfacesService;
 
     @Value("${project.upload.file-path}")
     private String path;
@@ -52,12 +62,12 @@ public class PortTemplateControllerV2 {
     @PostMapping("/fileToBase64")
     public ResultVo<Object> fileToBase64(@RequestParam("file") MultipartFile multipartFile) {
         try {
-            byte[] fileBytes= multipartFile.getBytes();
+            byte[] fileBytes = multipartFile.getBytes();
             // 使用Base64编码器将字节数据编码为Base64字符串
             String base64String = Base64.getEncoder().encodeToString(fileBytes);
             // 添加数据URI前缀，这里假设图片是PNG格式，可以根据实际情况调整
             String imageBase64 = "data:image/png;base64," + base64String;
-            return ResultVoUtil.success("成功",imageBase64);
+            return ResultVoUtil.success("成功", imageBase64);
         } catch (IOException e) {
             return ResultVoUtil.error(e.getMessage());
         }
@@ -92,6 +102,26 @@ public class PortTemplateControllerV2 {
         return ResultVoUtil.success(modelTemps);
     }
 
+    @GetMapping("/model/interface")
+    @ApiOperation("获取型号端口列表")
+    public ResultVo<Object> getModelAsset(@RequestParam("modelName") String modelName) {
+        QueryWrapper<Asset> query = Wrappers.query();
+        query.select("ID", "NAME");
+        query.eq("ASSET_IMAGE", modelName);
+        query.eq("IS_DEL", StatusConst.OK);
+        query.eq("WATCH", StatusConst.OK);
+        query.orderByAsc("NAME");
+        List<Asset> list = assetService.list(query);
+        for (Asset asset : list) {
+            List<CollectInterfaces> list1 = collectInterfacesService.filterPort(asset.getId());
+            if (list1 != null && !list1.isEmpty()) {
+                return ResultVoUtil.success(list1);
+            }
+        }
+
+        return ResultVoUtil.success(new ArrayList<>());
+    }
+
     @PostMapping("/editPortTemp")
     @ApiOperation("修改端口模板")
     public ResultVo editPortTemp(@RequestBody PortTempDto portTempDto) {
@@ -109,7 +139,6 @@ public class PortTemplateControllerV2 {
     }
 
 
-
     @PostMapping("/savePortTemp")
     @ApiOperation("保存端口模板")
     public ResultVo savePortTemp(@RequestBody PortTempDto portTempDto) {
@@ -119,7 +148,7 @@ public class PortTemplateControllerV2 {
         List<PortTemp> list = tempService.list(qw);
         if (ObjectUtil.isNotNull(list) && !list.isEmpty()) {
             PortTemp portTemp = list.get(0);
-            if (!portTemp.getId().equals(portTempDto.getId())){
+            if (!portTemp.getId().equals(portTempDto.getId())) {
                 return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "同类型下模板名称已存在");
             }
         }
@@ -160,7 +189,6 @@ public class PortTemplateControllerV2 {
             return ResultVoUtil.error(e.toString());
         }
     }
-
 
 
     @GetMapping("/getPortTemp/{id}")
