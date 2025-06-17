@@ -30,9 +30,7 @@ import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
-import com.jcca.web2.entity.InspectAsset;
-import com.jcca.web2.entity.ThresholdManage;
-import com.jcca.web2.entity.XunjianSchedule;
+import com.jcca.web2.entity.*;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
 import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
@@ -504,6 +502,14 @@ public class XunjianFinalController {
     @GetMapping("/target/status")
     @ApiOperation("指标状态列表")
     public ResultVo<Object> targetStatus(String jobId) {
+
+        List<InspectRecord> recordList = inspectRecordService.findByJobId(jobId);
+        if (recordList.isEmpty()) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        }
+        InspectRecord record = recordList.get(0);
+        QueryWrapper<InspectDetail> detail;
+
         List<ItemVo> resultList = new ArrayList<>();
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.select("EVENT_TYPE_ID", "EVENT_TYPE_NAME", "MAX(INSPECT_STATE) AS INSPECT_STATE");
@@ -516,26 +522,20 @@ public class XunjianFinalController {
             vo.setId(inspectAsset.getEventTypeId());
             vo.setName(inspectAsset.getEventTypeName());
             vo.setStatus(Integer.parseInt(inspectAsset.getInspectState()));
-            query = Wrappers.query();
-            query.select("ASSET_ID");
-            query.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
-            query.eq("JOB_ID", jobId);
-            query.groupBy("ASSET_ID");
-            vo.setTotal(inspectAssetService.list(query).size());
-            query = Wrappers.query();
-            query.select("ASSET_ID");
-            query.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
-            query.eq("JOB_ID", jobId);
-            query.eq("INSPECT_STATE", INSPECTED);
-            query.groupBy("ASSET_ID");
-            vo.setNormal(inspectAssetService.list(query).size());
-            query = Wrappers.query();
-            query.select("ASSET_ID");
-            query.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
-            query.eq("JOB_ID", jobId);
-            query.eq("INSPECT_STATE", INSPECT_ERROR);
-            query.groupBy("ASSET_ID");
-            vo.setAbnormal(inspectAssetService.list(query).size());
+            detail = Wrappers.query();
+            detail.select("ASSET_ID");
+            detail.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
+            detail.eq("INSPECT_CODE", record.getId());
+            detail.groupBy("ASSET_ID");
+            vo.setTotal(inspectDetailService.list(detail).size());
+
+            detail = Wrappers.query();
+            detail.select("ASSET_ID");
+            detail.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
+            detail.eq("INSPECT_CODE", record.getId());
+            detail.eq("INSPECT_STATE", INSPECT_ERROR);
+            detail.groupBy("ASSET_ID");
+            vo.setAbnormal(inspectDetailService.list(detail).size());
             resultList.add(vo);
         }
 
