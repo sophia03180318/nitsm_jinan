@@ -884,6 +884,8 @@ public class DataProcessManager {
         eventXunjianHandler.setNextFilter(alarmFilterHandler);
           IFilterHandler alarmEventHandler= this.getIFilterHandler("alarmEventHandler");
         alarmFilterHandler.setNextFilter(alarmEventHandler);
+        IFilterHandler eventXunjianAlarmHandler= this.getIFilterHandler("eventXunjianAlarmHandler");
+        alarmEventHandler.setNextFilter(eventXunjianAlarmHandler);
         alarmInfoHandler=eventXunjianHandler;
 
     }

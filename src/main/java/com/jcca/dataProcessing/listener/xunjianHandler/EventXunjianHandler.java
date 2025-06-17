@@ -67,8 +67,11 @@ public class EventXunjianHandler extends IFilterHandler<IEvent> {
                     returnflag = false;
                 }
             }
+            //如果不在往下层提交，那么就在这个地方进行保存
+            if(returnflag==false){
+                XUNJIAN_COLLECT_QUEUE.put(info);
+            }
 
-            XUNJIAN_COLLECT_QUEUE.put(info);
             return returnflag;
         }
 
