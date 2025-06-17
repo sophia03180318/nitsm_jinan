@@ -127,7 +127,6 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         }
         List<String> list = inspectDetailMapper.totalAsset(inspectCode);
         if (list.isEmpty()) {
-            inspectRecordService.removeById(record.getId());
             return new HashMap<>();
         }
 
