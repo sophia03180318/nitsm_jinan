@@ -31,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -102,8 +101,8 @@ public class PortTemplateControllerV2 {
         return ResultVoUtil.success(modelTemps);
     }
 
-    @GetMapping("/model/interface")
-    @ApiOperation("获取型号端口列表")
+    @GetMapping("/model/asset")
+    @ApiOperation("获取型号资产列表")
     public ResultVo<Object> getModelAsset(@RequestParam("modelName") String modelName) {
         QueryWrapper<Asset> query = Wrappers.query();
         query.select("ID", "NAME");
@@ -112,14 +111,14 @@ public class PortTemplateControllerV2 {
         query.eq("WATCH", StatusConst.OK);
         query.orderByAsc("NAME");
         List<Asset> list = assetService.list(query);
-        for (Asset asset : list) {
-            List<CollectInterfaces> list1 = collectInterfacesService.filterPort(asset.getId());
-            if (list1 != null && !list1.isEmpty()) {
-                return ResultVoUtil.success(list1);
-            }
-        }
+        return ResultVoUtil.success(list);
+    }
 
-        return ResultVoUtil.success(new ArrayList<>());
+    @GetMapping("/asset/interface")
+    @ApiOperation("获取资产端口列表")
+    public ResultVo<Object> getAssetInterface(@RequestParam("assetId") String assetId) {
+        List<CollectInterfaces> list = collectInterfacesService.filterPort(assetId);
+        return ResultVoUtil.success(list);
     }
 
     @PostMapping("/editPortTemp")
