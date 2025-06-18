@@ -48,6 +48,14 @@ public interface AlarmRepositoryMapper extends BaseMapper<AlarmRepository> {
      */
     IPage<AlarmRepository> pageListV2(Page page, @Param("query") EventRpoPageDto query);
 
+
+    /**
+     * 查询告警对应的知识库名称
+     * @param alarmId
+     * @return
+     */
+    List<String> selectNameByAlarmId(@Param("alarmId") String alarmId);
+
     @Select("select id, type_alias as name, event_category from alarm_event_type where asset_desks like #{assetDesk} and event_category is not null")
     List<ItemVo> listTypeByAssetDesk(String assetDesk);
 }

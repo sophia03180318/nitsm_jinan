@@ -102,7 +102,7 @@ public class CollectLogicServiceImpl implements CollectLogicService {
             return false;
         }
         CollectCpu collectCpu = realTimeData.get(0);
-        Date collectTime = collectCpu.getCollectTime();
+        Date collectTime = collectCpu.getCreateTime();
 
         return verdict(minute, collectTime);
     }
@@ -139,7 +139,7 @@ public class CollectLogicServiceImpl implements CollectLogicService {
             return false;
         }
         CollectMemory item = realTimeData.get(0);
-        Date collectTime = item.getCollectTime();
+        Date collectTime = item.getCreateTime();
 
         return verdict(minute, collectTime);
     }
@@ -157,7 +157,7 @@ public class CollectLogicServiceImpl implements CollectLogicService {
             return false;
         }
         CollectDisk item = realTimeData.get(0);
-        Date collectTime = item.getCollectTime();
+        Date collectTime = item.getCreateTime();
 
         return verdict(minute, collectTime);
     }
@@ -175,7 +175,7 @@ public class CollectLogicServiceImpl implements CollectLogicService {
             return false;
         }
         CollectDB item = realTimeData.get(0);
-        Date collectTime = item.getCollectTime();
+        Date collectTime = item.getCreateTime();
 
         return verdict(minute, collectTime);
     }
@@ -193,7 +193,7 @@ public class CollectLogicServiceImpl implements CollectLogicService {
             return false;
         }
         CollectInterfaces item = realTimeData.get(0);
-        Date collectTime = item.getCollectTime();
+        Date collectTime = item.getCreateTime();
 
         return verdict(minute, collectTime);
     }

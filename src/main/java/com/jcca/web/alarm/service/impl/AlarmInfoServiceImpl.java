@@ -1049,8 +1049,18 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         } else {
             query.setShowJcca(2);
         }
+        IPage<AlarmPageVo> alarmPageVoIPage = alarmInfoMapper.pageV2(page, query);
+        List<AlarmPageVo> records = alarmPageVoIPage.getRecords();
+        for (AlarmPageVo record : records) {
+            String alarmId = record.getAlarmId();
+            List<String> nameList = repoServ.selectNameByAlarmId(alarmId);
+            if(!nameList.isEmpty()){
+                record.setRepoName(nameList.get(0));
+            }
+        }
+        alarmPageVoIPage.setRecords(records);
 
-        return alarmInfoMapper.pageV2(page, query);
+        return alarmPageVoIPage;
     }
 
     @Override
