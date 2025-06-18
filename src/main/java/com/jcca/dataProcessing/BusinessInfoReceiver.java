@@ -43,6 +43,7 @@ public class BusinessInfoReceiver{
                 List<byte[]> list = connection.bLPop(0, RedisQueueConst.BROKER_QUEUE_KEY.getBytes());
                 assert list != null;
                 String str =  redisService.stringRedisTemplateDeserialize(list.get(1));
+                AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "接收到卡斯柯业务信息", str);
                 ItsmQueueEntity itsmQueueReq = JSONUtil.toBean(str, ItsmQueueEntity.class);
                 IAdapter adapter = dataProcessManager.getAdapter(itsmQueueReq.getCascoAlarmType());
                 adapter.dispose(itsmQueueReq);
