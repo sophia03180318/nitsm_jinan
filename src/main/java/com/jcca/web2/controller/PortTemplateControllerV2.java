@@ -3,18 +3,14 @@ package com.jcca.web2.controller;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcca.common.bean.ResultVo;
-import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
-import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
-import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web2.dto.PortModelTemp;
 import com.jcca.web2.dto.PortTempDto;
@@ -99,26 +95,6 @@ public class PortTemplateControllerV2 {
             }
         }
         return ResultVoUtil.success(modelTemps);
-    }
-
-    @GetMapping("/model/asset")
-    @ApiOperation("获取型号资产列表")
-    public ResultVo<Object> getModelAsset(@RequestParam("modelName") String modelName) {
-        QueryWrapper<Asset> query = Wrappers.query();
-        query.select("ID", "NAME");
-        query.eq("ASSET_IMAGE", modelName);
-        query.eq("IS_DEL", StatusConst.OK);
-        query.eq("WATCH", StatusConst.OK);
-        query.orderByAsc("NAME");
-        List<Asset> list = assetService.list(query);
-        return ResultVoUtil.success(list);
-    }
-
-    @GetMapping("/asset/interface")
-    @ApiOperation("获取资产端口列表")
-    public ResultVo<Object> getAssetInterface(@RequestParam("assetId") String assetId) {
-        List<CollectInterfaces> list = collectInterfacesService.filterPort(assetId);
-        return ResultVoUtil.success(list);
     }
 
     @PostMapping("/editPortTemp")
