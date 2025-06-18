@@ -213,16 +213,19 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             this.sendAll2Queue(asset, e.getMsg());
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集异常", e);
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-            this.sendAll2Queue(asset, "巡检采集数据格式错误，需要重新检查后重新发起");
+            this.sendAll2Queue(asset, "巡检采集数据格式错误");
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集数据格式错误", respBody);
             return;
         }
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
-            this.sendAll2Queue(asset, "巡检采集异常，需要重新检查后重新发起");
+            this.sendAll2Queue(asset, "巡检采集不成功");
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集不成功", respBody);
             return;
         }
         o = jsonObject.get("body");
