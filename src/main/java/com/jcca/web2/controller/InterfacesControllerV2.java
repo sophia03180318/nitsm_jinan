@@ -13,7 +13,6 @@ import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
-import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web.asset.utils.enums.AssetWatchStatusEnum;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
@@ -22,7 +21,6 @@ import com.jcca.web2.entity.PortTemp;
 import com.jcca.web2.entity.TopoPcb;
 import com.jcca.web2.service.PortTempService;
 import com.jcca.web2.service.TopoPcbService;
-import com.jcca.web2.vo.InspectVo;
 import com.jcca.web2.vo.InterfacesConfigVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -124,6 +122,12 @@ public class InterfacesControllerV2 {
         pcb.setPcbId(MyIdUtil.getId());
         topoPcbServ.save(pcb);
 
+        String portTempId = pcb.getPortTempId();
+        if (StrUtil.isEmpty(portTempId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        PortTemp portTemp = portTempServ.getById(portTempId);
+        pcb.setModelId(portTemp.getModelId());
         return ResultVoUtil.success(pcb);
     }
 
@@ -134,6 +138,12 @@ public class InterfacesControllerV2 {
         }
         topoPcbServ.updateById(pcb);
 
+        String portTempId = pcb.getPortTempId();
+        if (StrUtil.isEmpty(portTempId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        PortTemp portTemp = portTempServ.getById(portTempId);
+        pcb.setModelId(portTemp.getModelId());
         return ResultVoUtil.success(pcb);
     }
 

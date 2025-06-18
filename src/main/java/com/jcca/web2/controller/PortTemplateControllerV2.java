@@ -94,10 +94,14 @@ public class PortTemplateControllerV2 {
 
     @PostMapping("/editPortTemp")
     @ApiOperation("修改端口模板")
-    public ResultVo editPortTemp(@RequestBody PortTempDto portTempDto) {
-        PortTemp port = tempService.getById(portTempDto.getId());
+    public ResultVo<Object> editPortTemp(@RequestBody PortTempDto portTempDto) {
+        String id = portTempDto.getId();
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        PortTemp port = tempService.getById(id);
         //删除
-        deletePortTemp(portTempDto.getId());
+        deletePortTemp(id);
 
         //新增
         PortTempDto portTempDto2 = PortTempDto.getPortTemp(port);

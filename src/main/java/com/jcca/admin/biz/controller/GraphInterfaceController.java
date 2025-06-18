@@ -21,10 +21,15 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web2.entity.PortTemp;
+import com.jcca.web2.entity.TopoPcb;
 import com.jcca.web2.enums.TopoCategoryEnum;
+import com.jcca.web2.service.PortTempService;
+import com.jcca.web2.service.TopoPcbService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -35,7 +40,7 @@ import java.util.*;
  * @date 2020/8/17 16:50
  */
 @Controller
-@RequestMapping(value={"/system/graphInterface","/api/v2/graphInterface"})
+@RequestMapping(value = {"/system/graphInterface", "/api/v2/graphInterface"})
 public class GraphInterfaceController {
 
     public static final Integer DOWN_STATUS = 2;
@@ -51,6 +56,10 @@ public class GraphInterfaceController {
     private TopoAssetPortPicService topoAssetPortPicService;
     @Resource
     private AssetService assetService;
+    @Resource
+    private TopoPcbService topoPcbService;
+    @Resource
+    private PortTempService portTempService;
 
     @GetMapping("/index")
     @RequiresPermissions("system:graphInterface:index")
@@ -67,7 +76,7 @@ public class GraphInterfaceController {
         List<SysOrg> list = new ArrayList<>(ShiroUtil.getSubjectOrgs());
         SysUser user = (SysUser) SecurityUtils.getSubject().getPrincipal();
         SysOrgService sysOrgService = SpringContextUtil.getBean(SysOrgService.class);
-        List<SysOrg> listAsset = sysOrgService.getOrgsAsset(user.getId(),"");
+        List<SysOrg> listAsset = sysOrgService.getOrgsAsset(user.getId(), "");
         listAsset.addAll(list);
         return ResultVoUtil.success(listAsset);
     }
@@ -80,26 +89,26 @@ public class GraphInterfaceController {
     @PostMapping("/listPort")
     @ResponseBody
     public ResultVo listPort(@RequestBody String assetId) {
-        return ResultVoUtil.success(portList(assetId,""));
+        return ResultVoUtil.success(portList(assetId, ""));
     }
-
 
 
     /**
      * 查询端口
+     *
      * @param assetId
      * @return
      */
-    public Map<String, Object> portList(String assetId,String pcbId) {
+    public Map<String, Object> portList(String assetId, String pcbId) {
         Map<String, Object> map = new HashMap<>();
         Asset asset = assetService.getById(assetId);
         List<AssetPortVo> port = null;
         if (assetService.isStationAsset(assetId) || AssetModeConst.B24.equals(asset.getAssetImage())) {
-            port = topoAssetPortService.selectAssetPort2(assetId,pcbId);
+            port = topoAssetPortService.selectAssetPort2(assetId, pcbId);
         } else {
-            port = topoAssetPortService.selectAssetPort(assetId,pcbId);
+            port = topoAssetPortService.selectAssetPort(assetId, pcbId);
             if (Objects.isNull(port) || port.isEmpty()) {
-                port = topoAssetPortService.selectAssetPort2(assetId,pcbId);
+                port = topoAssetPortService.selectAssetPort2(assetId, pcbId);
             }
         }
 
@@ -124,21 +133,21 @@ public class GraphInterfaceController {
 
         }
 
-        List<TopoAssetPortVlan> vlan = topoAssetPortVlanService.queryAssetPortVlan(assetId,pcbId);
+        List<TopoAssetPortVlan> vlan = topoAssetPortVlanService.queryAssetPortVlan(assetId, pcbId);
         for (TopoAssetPortVlan topoAssetPortVlan : vlan) {
             String str = new String(topoAssetPortVlan.getContent());
             topoAssetPortVlan.setContentStr(str);
         }
 
-        List<TopoAssetPortPic> pics = topoAssetPortPicService.queryAssetPortPic(assetId,pcbId);
+        List<TopoAssetPortPic> pics = topoAssetPortPicService.queryAssetPortPic(assetId, pcbId);
         for (TopoAssetPortPic pic : pics) {
             String content = new String(pic.getContent());
-            if(StrUtil.isNotEmpty(content)){
+            if (StrUtil.isNotEmpty(content)) {
                 String[] split = content.split("<mxImage src=");
-                if(split.length>1){
+                if (split.length > 1) {
                     String imageStr = split[1];
                     String[] split1 = imageStr.split("/>");
-                    if(split1.length>1){
+                    if (split1.length > 1) {
                         pic.setPictureImg(split1[0]);
                     }
                 }
@@ -146,8 +155,15 @@ public class GraphInterfaceController {
             pic.setContentStr(content);
         }
 
-        if(Objects.nonNull(port) && !port.isEmpty()){
-            port.sort(Comparator.comparingInt(person -> Integer.parseInt(StrUtil.isEmpty(person.getNodeId())?"0":person.getNodeId())));
+        if (Objects.nonNull(port) && !port.isEmpty()) {
+            port.sort(Comparator.comparingInt(person -> Integer.parseInt(StrUtil.isEmpty(person.getNodeId()) ? "0" : person.getNodeId())));
+        }
+
+        TopoPcb topoPcb = topoPcbService.getById(pcbId);
+        String portTempId = topoPcb.getPortTempId();
+        if (!StringUtils.isEmpty(portTempId)) {
+            PortTemp portTemp = portTempService.getById(portTempId);
+            map.put("portTemp", portTemp);
         }
         map.put("port", port);
         map.put("vlan", vlan);
@@ -162,14 +178,14 @@ public class GraphInterfaceController {
      *
      * @param assetId
      */
-    private List<AssetPortVo> getCachePortData(String assetId,String pcbId) {
+    private List<AssetPortVo> getCachePortData(String assetId, String pcbId) {
         List<AssetPortVo> portList = new ArrayList<AssetPortVo>();
         List<CollectInterfaces> realTimeData = intefacesServ.filterPort(assetId);
         for (CollectInterfaces item : realTimeData) {
             QueryWrapper<TopoAssetPort> queryWrapper = new QueryWrapper<TopoAssetPort>();
             queryWrapper.eq("ASSET_ID", assetId);
             queryWrapper.eq("PORT_INDEX", item.getPortIndex());
-            if(StrUtil.isNotEmpty(pcbId)){
+            if (StrUtil.isNotEmpty(pcbId)) {
                 queryWrapper.eq("PCB_ID", pcbId);
             }
             TopoAssetPort topoPort = topoAssetPortService.getOne(queryWrapper);
@@ -249,9 +265,9 @@ public class GraphInterfaceController {
             }
         }
 
-        topoAssetPortService.deleteAssetPort(topoVlanVo.getAssetId(),topoVlanVo.getPcbId());
-        topoAssetPortVlanService.deleteAssetPortVlan(topoVlanVo.getAssetId(),topoVlanVo.getPcbId());
-        topoAssetPortPicService.deleteAssetPortPic(topoVlanVo.getAssetId(),topoVlanVo.getPcbId());
+        topoAssetPortService.deleteAssetPort(topoVlanVo.getAssetId(), topoVlanVo.getPcbId());
+        topoAssetPortVlanService.deleteAssetPortVlan(topoVlanVo.getAssetId(), topoVlanVo.getPcbId());
+        topoAssetPortPicService.deleteAssetPortPic(topoVlanVo.getAssetId(), topoVlanVo.getPcbId());
         if (listAssetPorts.size() > 0) {
             topoAssetPortService.saveBatch(listAssetPorts);
         }

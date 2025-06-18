@@ -38,4 +38,15 @@ public class TopoPcb {
 
     @TableField(exist = false)
     private Boolean haveTopo;
+
+    /**
+     * 端口模板ID
+     */
+    @TableField("PORT_TEMPLATE_ID")
+    private String portTempId;
+    /**
+     * 模板型号ID
+     */
+    @TableField(exist = false)
+    private String modelId;
 }
