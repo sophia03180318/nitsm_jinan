@@ -11,6 +11,7 @@ import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web2.dto.PortModelTemp;
 import com.jcca.web2.dto.PortTempDto;
@@ -115,6 +116,13 @@ public class PortTemplateControllerV2 {
         portTempDto2.setPortSortType(portTempDto.getPortSortType());
         savePortTemp(portTempDto);
         return ResultVoUtil.success("编辑成功");
+    }
+
+    @GetMapping("/asset/interface")
+    @ApiOperation("获取资产端口列表")
+    public ResultVo<Object> getAssetInterface(@RequestParam("assetId") String assetId) {
+        List<CollectInterfaces> list = collectInterfacesService.filterPort(assetId);
+        return ResultVoUtil.success(list);
     }
 
 
