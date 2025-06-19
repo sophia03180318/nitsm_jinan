@@ -21,9 +21,11 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web2.entity.AssetModel;
 import com.jcca.web2.entity.PortTemp;
 import com.jcca.web2.entity.TopoPcb;
 import com.jcca.web2.enums.TopoCategoryEnum;
+import com.jcca.web2.service.AssetModelService;
 import com.jcca.web2.service.PortTempService;
 import com.jcca.web2.service.TopoPcbService;
 import org.apache.shiro.SecurityUtils;
@@ -60,6 +62,8 @@ public class GraphInterfaceController {
     private TopoPcbService topoPcbService;
     @Resource
     private PortTempService portTempService;
+    @Resource
+    private AssetModelService assetModelService;
 
     @GetMapping("/index")
     @RequiresPermissions("system:graphInterface:index")
@@ -159,10 +163,17 @@ public class GraphInterfaceController {
             port.sort(Comparator.comparingInt(person -> Integer.parseInt(StrUtil.isEmpty(person.getNodeId()) ? "0" : person.getNodeId())));
         }
 
+
+        PortTemp portTemp = new PortTemp();
+        if (!StringUtils.isEmpty(asset.getAssetImage())) {
+            AssetModel model = assetModelService.getByName(asset.getAssetImage());
+            portTemp.setModelId(model.getId());
+            map.put("portTemp", portTemp);
+        }
         TopoPcb topoPcb = topoPcbService.getById(pcbId);
         String portTempId = topoPcb.getPortTempId();
         if (!StringUtils.isEmpty(portTempId)) {
-            PortTemp portTemp = portTempService.getById(portTempId);
+            portTemp = portTempService.getById(portTempId);
             map.put("portTemp", portTemp);
         }
         map.put("port", port);

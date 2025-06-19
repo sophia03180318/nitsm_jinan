@@ -120,7 +120,7 @@ public class PortTemplateControllerV2 {
 
     @PostMapping("/savePortTemp")
     @ApiOperation("保存端口模板")
-    public ResultVo savePortTemp(@RequestBody PortTempDto portTempDto) {
+    public ResultVo<Object> savePortTemp(@RequestBody PortTempDto portTempDto) {
         QueryWrapper<PortTemp> qw = new QueryWrapper<>();
         qw.eq("MODEL_ID", portTempDto.getModelId());
         qw.eq("NAME", portTempDto.getName());
@@ -157,12 +157,12 @@ public class PortTemplateControllerV2 {
             fileWriter.write(portTempDto.getMsg());
             fileWriter.close();
             tempService.save(portTemp);
-            return ResultVoUtil.success("保存成功");
+            return ResultVoUtil.success(portTemp);
         } catch (IOException e) {
             if (ObjectUtil.isNotNull(fileWriter)) {
                 try {
                     fileWriter.close();
-                } catch (IOException ex) {
+                } catch (IOException ignored) {
                 }
             }
             return ResultVoUtil.error(e.toString());

@@ -25,4 +25,11 @@ public interface AssetModelService extends IService<AssetModel> {
      **/
     List<AssetModel> getByManufacturerId(String manufacturerId);
 
+    /**
+     * 通过型号名称获取型号
+     *
+     * @param assetImage 名称
+     * @return 型号
+     */
+    AssetModel getByName(String assetImage);
 }
