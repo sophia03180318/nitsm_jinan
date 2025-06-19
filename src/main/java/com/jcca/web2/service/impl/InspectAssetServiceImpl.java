@@ -217,7 +217,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             return;
         }
         if (!JSONUtil.isJson(respBody)) {
-            this.sendAll2Queue(asset, "巡检采集数据格式错误");
+            this.sendAll2Queue(asset, "巡检采集数据格式错误：" + respBody);
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集数据格式错误", respBody);
             return;
         }
