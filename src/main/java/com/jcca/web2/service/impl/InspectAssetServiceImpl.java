@@ -224,7 +224,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         JSONObject jsonObject = JSONUtil.parseObj(respBody);
         Object o = jsonObject.get("code");
         if (!"success".equals(o)) {
-            this.sendAll2Queue(asset, "巡检采集不成功");
+            this.sendAll2Queue(asset, "巡检采集不成功：" + jsonObject.get("msg").toString());
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集不成功", respBody);
             return;
         }
