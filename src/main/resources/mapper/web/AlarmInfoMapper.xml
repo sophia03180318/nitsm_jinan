@@ -94,7 +94,9 @@
 
     <select id="queryAbnormalAssetV2" resultType="java.lang.Integer"
             parameterType="com.jcca.web.alarm.service.data.AbnormalAssetQuery">
-        select count(*) from alarm_info a where a.EVENT_CATEGORY = #{eventCategory}
+        select count(*) from alarm_info a
+        left join asset b on a.ASSET_ID = b.ID
+        where a.EVENT_CATEGORY = #{eventCategory}
         <if test="statusLogical==1">
             <if test="status != null ">
                 and a.STATUS = #{status}
@@ -118,6 +120,9 @@
         </if>
         <if test="blank!=null ">
             and a.blank = #{blank}
+        </if>
+        <if test="showJcca==2">
+            and (b.ASSET_SUPPLIER != 'JCCA' or b.ASSET_SUPPLIER is null)
         </if>
     </select>
     <update id="recoverAlarmV2">

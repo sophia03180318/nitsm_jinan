@@ -65,4 +65,11 @@ public class AbnormalAssetQuery {
      */
     private Byte blank;
 
+    /**
+     * 是否显示JCCA设备
+     * 1显示
+     * 2不显示
+     */
+    private Integer showJcca;
+
 }

@@ -548,6 +548,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             query.setAlarmState((int) AlarmStateEnum.ALARM.getCode());
             query.setStatusLogical((int) StatusConst.OK);
             query.setBlank(AlarmBlankConst.NORMARL);
+            query.setShowJcca(SysConfig.YES.equals(showJcca) ? 1 : 2);
 
             Integer integer = alarmInfoService.queryAbnormalAssetV2(query);
             BizAlarmVo vo = new BizAlarmVo();
