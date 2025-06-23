@@ -37,40 +37,37 @@ public class QuartzDhStatusJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        log.info("推送动环告警");
-        QueryWrapper<Alarm> qw = new QueryWrapper<>();
-        qw.orderByDesc("ALARM_ID");
-        //qw.ne("LEVELL",318);   //因告警经常不上  更改成每次都推前10条
-        List<Alarm> alarmLists = alarmService.list(qw);
-        int size = 10;
-        if (alarmLists.size() < 10) {
-            size = alarmLists.size();
-        }
-        for (int i = 0; i < size; i++) {
+        QueryWrapper<Alarm> qw = new QueryWrapper();
+        qw.orderByDesc("OCCURRENCE_TIME");
+        qw.likeRight("DEVICE_ID", "1");
+        qw.ne("LEVELL", 318);
+        List<Alarm> alarmLists = this.alarmService.list(qw);
+
+        for(int i = 0; i < alarmLists.size(); ++i) {
             Alarm alarm = alarmLists.get(i);
-            if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
-                AssetMsgVo asset = assetServ.findMsgById(alarm.getDeviceId());
-                if (Objects.isNull(asset)) {
-                    log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
-                } else {
-                    try {
-                        DongHuanEntity dongHuanEntity = new DongHuanEntity();
-                        dongHuanEntity.setAssetId(alarm.getDeviceId());
-                        dongHuanEntity.setFlag(alarm.getAlarmId());
-                        dongHuanEntity.setCreateTime(alarm.getOccurrenceTime());
-                        dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
-                        dongHuanEntity.setAssetName(asset.getAssetName());
-                        log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
-                        DongHuanAdapter dhAdapter = (DongHuanAdapter) dataProcessManager.getAdapater("dongHuanAdapter");
-                        dhAdapter.dispose(dongHuanEntity);
-                    } catch (Exception e2) {
-                        log.error("接收动环推送设备告警失败: " + e2.toString());
+                if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
+                    AssetMsgVo asset = this.assetServ.findMsgById(alarm.getDeviceId());
+                    if (Objects.isNull(asset)) {
+                        log.error("动环告警收到未录入数据，资产ID不存在：" + JSONUtil.toJsonStr(alarm));
+                    } else {
+                        try {
+                            DongHuanEntity dongHuanEntity = new DongHuanEntity();
+                            dongHuanEntity.setAssetId(alarm.getDeviceId());
+                            dongHuanEntity.setFlag(alarm.getAlarmId());
+                            dongHuanEntity.setCreateTime(alarm.getOccurrenceTime());
+                            dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
+                            dongHuanEntity.setAssetName(asset.getAssetName());
+                            DongHuanAdapter dhAdapter = (DongHuanAdapter)this.dataProcessManager.getAdapater("dongHuanAdapter");
+                            dhAdapter.dispose(dongHuanEntity);
+                        } catch (Exception e2) {
+                            log.error("接收动环推送设备告警失败: " + e2.toString());
+                        }
                     }
                 }
-            }
-            alarm.setLevell(318);
-            alarmService.updateById(alarm);
+                alarm.setLevell(318);
+                this.alarmService.updateById(alarm);
         }
+
     }
 }
 
