@@ -18,7 +18,7 @@ import javax.annotation.Resource;
  * @date 2023/10/27 11:24
  * @since 2.1.0.0
  */
-@Component("dongHuanNotifyHandler")
+@Component("DongHuanPowerHandler")
 public class DongHuanPowerHandler extends IFilterHandler<DongHuanEntity> {
 
     @Resource
