@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -51,14 +52,12 @@ public class InterfaceAdapter extends AssetIpAdd implements IAdapter<JSONArray> 
     @Override
     public void dispose(JSONArray data) {
         List<CollectInterfaceEntity> interfaces = JSONUtil.toList(data, CollectInterfaceEntity.class);
+
+        if(Objects.isNull(interfaces)||interfaces.isEmpty()){
+            return ;
+        }
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_port.getCode(), "monitor", true);
-        excutorService.execute(() -> {
-
-
-
-        });
-
 
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
@@ -88,6 +87,8 @@ public class InterfaceAdapter extends AssetIpAdd implements IAdapter<JSONArray> 
                 return 1;
             }
         });
+
+
 
         if(interfaces.get(0).getInspectRecordId()!=null&&!"".equals(interfaces.get(0).getInspectRecordId())){
             try {
