@@ -2,13 +2,11 @@ package com.jcca.dataProcessing.DataFilter.donghuan;
 
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.DongHuanEntity;
-import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
-import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -46,8 +44,6 @@ public class DongHuanNotifyHandler extends IFilterHandler<DongHuanEntity> {
             event.setCollectTime(info.getCreateTime());
             this.dispatureEvent(event);
         }
-
-
         return true;
     }
 

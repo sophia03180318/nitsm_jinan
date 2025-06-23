@@ -2,6 +2,7 @@ package com.jcca.dataProcessing.manager;
 
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.quartz.alarm.AlarmJobService;
+import com.jcca.dataProcessing.DataFilter.donghuan.DongHuanPowerHandler;
 import com.jcca.dataProcessing.Entity.*;
 import com.jcca.dataProcessing.support.*;
 import com.jcca.web.alarm.controller.AlarmInfoController;
@@ -754,8 +755,8 @@ public class DataProcessManager {
 
         //动环业务事件
         IFilterHandler dongHuan = this.getIFilterHandler("dongHuanNotifyHandler");
+        //IFilterHandler dongHuanPower = this.getIFilterHandler("DongHuanPowerHandler");
         dongHuan.addDataSourceListener(eventInfoListener);
-
         donghuanHandler = dongHuan;
 
         IFilterHandler cascoMaster = this.getIFilterHandler("commonMasterFilterHandler");
