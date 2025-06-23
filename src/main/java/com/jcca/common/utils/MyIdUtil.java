@@ -16,7 +16,7 @@ public class MyIdUtil {
      *
      * @return
      */
-    public static String getId() {
+    public synchronized static String getId() {
         return getSnowFlake().nextIdStr();
     }
 

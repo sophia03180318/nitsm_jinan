@@ -174,11 +174,12 @@
         select count(a.desk) total, m.name, m.code as id
         from asset a
         left join asset_mode m on a.desk = m.code
-        where a.desk is not null and a.is_del = 1 and a.org_id in
+        where a.desk is not null and a.is_del = 1 and m.code is not null and a.org_id in
         <foreach collection="orgIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
         group by m.name, m.code
+        order by m.code
     </select>
 
     <select id="getOrgAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
@@ -306,6 +307,15 @@
         <if test="map.manufacturerId != null and map.manufacturerId !=''">
             and manufacturer_id = #{map.manufacturerId}
         </if>
+        <if test="map.monitorStatus != null and map.monitorStatus !=''">
+            and MONITOR = #{map.monitorStatus}
+        </if>
+        <if test="map.status != null and map.status !=''">
+            and STATUS = #{map.status}
+        </if>
+        <if test="map.collectionType != null and map.collectionType !=''">
+            and COLLECTION_TYPE = #{map.collectionType}
+        </if>
         <if test="map.orgId != null and map.orgId !=''">
             and org_id = #{map.orgId}
         </if>
@@ -345,6 +355,15 @@
         </if>
         <if test="map.manufacturerId != null and map.manufacturerId !=''">
             and manufacturer_id = #{map.manufacturerId}
+        </if>
+        <if test="map.monitorStatus != null and map.monitorStatus !=''">
+            and MONITOR = #{map.monitorStatus}
+        </if>
+        <if test="map.status != null and map.status !=''">
+            and STATUS = #{map.status}
+        </if>
+        <if test="map.collectionType != null and map.collectionType !=''">
+            and COLLECTION_TYPE = #{map.collectionType}
         </if>
         <if test="map.name != null and map.name !=''">
             and name like concat(concat('%', #{map.name}),'%')

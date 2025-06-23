@@ -3,7 +3,6 @@ package com.jcca.component.quartz.inspect;
 import com.jcca.web2.service.InspectRecordService;
 import org.quartz.JobExecutionContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
@@ -14,7 +13,7 @@ import javax.annotation.Resource;
  * @date 2024/1/19 9:20
  * @since 2.1.0.0
  */
-@Service
+//@Service
 public class InspectJob extends QuartzJobBean {
 
     @Resource

@@ -1049,8 +1049,18 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         } else {
             query.setShowJcca(2);
         }
+        IPage<AlarmPageVo> alarmPageVoIPage = alarmInfoMapper.pageV2(page, query);
+        List<AlarmPageVo> records = alarmPageVoIPage.getRecords();
+        for (AlarmPageVo record : records) {
+            String alarmId = record.getAlarmId();
+            List<String> nameList = repoServ.selectNameByAlarmId(alarmId);
+            if(!nameList.isEmpty()){
+                record.setRepoName(nameList.get(0));
+            }
+        }
+        alarmPageVoIPage.setRecords(records);
 
-        return alarmInfoMapper.pageV2(page, query);
+        return alarmPageVoIPage;
     }
 
     @Override
@@ -1131,6 +1141,11 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     @Override
     public List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req) {
         return alarmInfoMapper.find5TimesUp(req);
+    }
+
+    @Override
+    public List<String> getRemarksByAlarmCode(String alarmCode) {
+        return alarmInfoMapper.getRemarksByAlarmCode(alarmCode);
     }
 
 }

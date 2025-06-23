@@ -1,10 +1,13 @@
 package com.jcca.web2.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+
+import java.util.Date;
 
 /**
  * @author sophia
@@ -52,5 +55,16 @@ public class TopoTag {
      */
     @TableField("REMARK")
     private String remark;
+
+    /**
+     * TOPO排序
+     */
+    @TableField("TAG_SORT")
+    private Integer tagSort;
+    /**
+     * 修改时间
+     */
+    @TableField(value = "MODIFY_TIME", fill = FieldFill.INSERT_UPDATE)
+    private Date modifyTime;
 
 }

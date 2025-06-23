@@ -13,7 +13,6 @@ import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
-import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web.asset.utils.enums.AssetWatchStatusEnum;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
@@ -22,7 +21,6 @@ import com.jcca.web2.entity.PortTemp;
 import com.jcca.web2.entity.TopoPcb;
 import com.jcca.web2.service.PortTempService;
 import com.jcca.web2.service.TopoPcbService;
-import com.jcca.web2.vo.InspectVo;
 import com.jcca.web2.vo.InterfacesConfigVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +36,7 @@ import java.util.stream.Collectors;
 
 /**
  * 端口相关管理
+ *
  * @description: 端口相关管理
  * @author: Lvyp
  * @create: 2024/01/10 10:51
@@ -48,9 +47,9 @@ import java.util.stream.Collectors;
 public class InterfacesControllerV2 {
 
     @Resource
-    private CollectInterfacesService  collectInterfaceServ;
+    private CollectInterfacesService collectInterfaceServ;
     @Resource
-    private TopoPcbService  topoPcbServ;
+    private TopoPcbService topoPcbServ;
     @Resource
     private PortTempService portTempServ;
     @Resource
@@ -61,7 +60,6 @@ public class InterfacesControllerV2 {
     private SysOrgService sysOrgService;
 
 
-
     /**
      * 组织数据列表
      */
@@ -70,7 +68,7 @@ public class InterfacesControllerV2 {
     public ResultVo list() {
         List<SysOrg> list = new ArrayList<>(ShiroUtil.getSubjectOrgs());
         SysUser user = (SysUser) SecurityUtils.getSubject().getPrincipal();
-        List<SysOrg> listAsset = sysOrgService.getOrgsAsset(user.getId(), AssetWatchStatusEnum.WATCH_STATUS_YES.getCode()+"");
+        List<SysOrg> listAsset = sysOrgService.getOrgsAsset(user.getId(), AssetWatchStatusEnum.WATCH_STATUS_YES.getCode() + "");
         listAsset.addAll(list);
         return ResultVoUtil.success(listAsset);
     }
@@ -82,21 +80,22 @@ public class InterfacesControllerV2 {
      */
     @GetMapping("/listPortV2")
     @ResponseBody
-    public ResultVo listPortV2(String assetId,String pcbId) {
+    public ResultVo listPortV2(String assetId, String pcbId) {
 
-        return ResultVoUtil.success(graphInterfaceController.portList(assetId,pcbId));
+        return ResultVoUtil.success(graphInterfaceController.portList(assetId, pcbId));
     }
 
     /**
      * 获取设备可配置端口列表信息
      * v
+     *
      * @return
      */
     @GetMapping("/listConfPortV2")
     @ResponseBody
     public ResultVo listConfPortV2(String assetId) {
         List<CollectInterfaces> realTimeData = collectInterfaceServ.getRealTimeData(assetId);
-        if(realTimeData.isEmpty()){
+        if (realTimeData.isEmpty()) {
             return ResultVoUtil.success(new ArrayList<>());
         }
        /* List<Integer> portType = Arrays.asList(6, 18, 22);
@@ -105,12 +104,12 @@ public class InterfacesControllerV2 {
     }
 
     @GetMapping("/listPcb")
-    public ResultVo listPcb(String assetId){
-        if(StrUtil.isEmpty(assetId)){
+    public ResultVo listPcb(String assetId) {
+        if (StrUtil.isEmpty(assetId)) {
             return ResultVoUtil.success(new ArrayList<>());
         }
         QueryWrapper<TopoPcb> queryWrapper = new QueryWrapper<TopoPcb>();
-        queryWrapper.eq("ASSET_ID",assetId);
+        queryWrapper.eq("ASSET_ID", assetId);
         List<TopoPcb> list = topoPcbServ.list(queryWrapper);
         for (TopoPcb topoPcb : list) {
             List<AssetPortVo> assetPortVos = assetPortServ.selectAssetPort(topoPcb.getAssetId(), topoPcb.getPcbId());
@@ -120,26 +119,38 @@ public class InterfacesControllerV2 {
     }
 
     @PostMapping("/addPcb")
-    public ResultVo addPcb(@RequestBody TopoPcb pcb){
+    public ResultVo addPcb(@RequestBody TopoPcb pcb) {
         pcb.setPcbId(MyIdUtil.getId());
         topoPcbServ.save(pcb);
 
+        String portTempId = pcb.getPortTempId();
+        if (StrUtil.isEmpty(portTempId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        PortTemp portTemp = portTempServ.getById(portTempId);
+        pcb.setModelId(portTemp.getModelId());
         return ResultVoUtil.success(pcb);
     }
 
     @PostMapping("/updatePcb")
-    public ResultVo updatePcb(@RequestBody TopoPcb pcb){
-        if(StrUtil.isEmpty(pcb.getPcbId())){
+    public ResultVo updatePcb(@RequestBody TopoPcb pcb) {
+        if (StrUtil.isEmpty(pcb.getPcbId())) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
         }
         topoPcbServ.updateById(pcb);
 
+        String portTempId = pcb.getPortTempId();
+        if (StrUtil.isEmpty(portTempId)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        PortTemp portTemp = portTempServ.getById(portTempId);
+        pcb.setModelId(portTemp.getModelId());
         return ResultVoUtil.success(pcb);
     }
 
     @PostMapping("/delPcb")
-    public ResultVo delPcb(@RequestBody TopoPcb pcb){
-        if(StrUtil.isEmpty(pcb.getPcbId())){
+    public ResultVo delPcb(@RequestBody TopoPcb pcb) {
+        if (StrUtil.isEmpty(pcb.getPcbId())) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
         }
         topoPcbServ.removeEntity(pcb);
@@ -148,42 +159,42 @@ public class InterfacesControllerV2 {
 
     @GetMapping("/getPortConf")
     @ApiOperation("获取端口配置")
-    public ResultVo<Object> getPortCOnf(Integer pcbSort,String assetId,String tempId) {
-        if(StrUtil.isEmpty(assetId)||Objects.isNull(tempId)){
+    public ResultVo<Object> getPortCOnf(Integer pcbSort, String assetId, String tempId) {
+        if (StrUtil.isEmpty(assetId) || Objects.isNull(tempId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
         }
-        if(Objects.isNull(pcbSort)){
+        if (Objects.isNull(pcbSort)) {
             pcbSort = 1;
         }
         List<CollectInterfaces> realTimeData = collectInterfaceServ.getRealTimeData(assetId);
 
         List<Integer> typeList = Arrays.asList(18, 22, 23, 339, 135, 56, 6);
-        List<CollectInterfaces> collect = realTimeData.stream().filter(item ->( 1==item.getPortLinkType() && typeList.contains(item.getPortType()))).collect(Collectors.toList());
-        if(collect.isEmpty()){
+        List<CollectInterfaces> collect = realTimeData.stream().filter(item -> (1 == item.getPortLinkType() && typeList.contains(item.getPortType()))).collect(Collectors.toList());
+        if (collect.isEmpty()) {
             //光交
-            collect = realTimeData.stream().filter(item ->( 0==item.getPortLinkType() && typeList.contains(item.getPortType()))).collect(Collectors.toList());
+            collect = realTimeData.stream().filter(item -> (0 == item.getPortLinkType() && typeList.contains(item.getPortType()))).collect(Collectors.toList());
         }
         PortTempDto portTempMsg = portTempServ.getPortTempMsg(tempId);
-        if(Objects.isNull(portTempMsg)){
+        if (Objects.isNull(portTempMsg)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
         }
         List<InterfacesConfigVo> voList = new ArrayList<>();
         int portSize = collect.size();
         int count = portTempMsg.getPort1() + portTempMsg.getPort2();
-        int needGetNumStart = (pcbSort-1)*count;
+        int needGetNumStart = (pcbSort - 1) * count;
 
-        if(count <collect.size()){
-            return ResultVoUtil.error(String.format("模板端口数量(%s)少于实际端口数量(%s)",count,collect.size()));
+        if (count < collect.size()) {
+            return ResultVoUtil.error(String.format("模板端口数量(%s)少于实际端口数量(%s)", count, collect.size()));
         }
 
 
-        for (int i=1;i<count+1;i++){
-            String tmp = "Gi"+i;
+        for (int i = 1; i < count + 1; i++) {
+            String tmp = "Gi" + i;
             InterfacesConfigVo vo = new InterfacesConfigVo();
             vo.setTempPortName(tmp);
 
-            int needGetIndex = needGetNumStart+(i-1);
-            if(portSize>needGetIndex){
+            int needGetIndex = needGetNumStart + (i - 1);
+            if (portSize > needGetIndex) {
                 CollectInterfaces collectInterfaces = collect.get(needGetIndex);
                 vo.setPortName(collectInterfaces.getPortName());
                 vo.setPortIndex(collectInterfaces.getPortIndex());

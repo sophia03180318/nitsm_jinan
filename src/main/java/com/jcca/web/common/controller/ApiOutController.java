@@ -137,7 +137,6 @@ public class ApiOutController {
     private UploadProjectProperties fileProp;
 
 
-
     /**
      * 同步车站的TOPO
      *
@@ -220,14 +219,13 @@ public class ApiOutController {
      */
     @GetMapping("/version")
     @ApiOperation(value = "程序版本信息")
-    public Map<String, Object> version() {
+    public ResultVo<Object> version() {
         Map<String, Object> versionMap = new HashMap<>();
         versionMap.put("tags", projectVersionConf.getTags());
         versionMap.put("branch", projectVersionConf.getBranch());
         versionMap.put("version", projectVersionConf.getVersion());
         versionMap.put("commitId", projectVersionConf.getCommitId());
-
-        return versionMap;
+        return ResultVoUtil.success(versionMap);
     }
 
     /**

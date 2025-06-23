@@ -48,7 +48,7 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
             boolean compare = info.getProcessStatus();
             String mapKey = info.getProcessName();
 
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, compare);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, compare);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(compare);
@@ -69,7 +69,7 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

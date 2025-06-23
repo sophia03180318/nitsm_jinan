@@ -46,6 +46,14 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_interface_up_down.getCode();
         String mapKey = info.getPortName();
 
+        ChangeInfo changeInfo = new ChangeInfo();
+        changeInfo.setValue(info.getStatus());
+        changeInfo.setRedisKey(redisKey);
+        changeInfo.setMapKey(mapKey);
+        changeInfo.setCollectTime(new Date(info.getCollectTime()));
+        info.getMaps().put(mapKey, changeInfo);
+
+
         //过滤一下需要忽略的状态
         if(InterfaceStatus.needIgnore(info.getStatus())){
             return true;
@@ -66,19 +74,14 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
             }
         }
 
-        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(redisKey, mapKey, info.getStatus());
+        Boolean flag = eventInfoChangeManagerService.infoIschangeFirst(info.getInspectRecordId(),redisKey, mapKey, info.getStatus());
 
         if (Objects.isNull(flag) && status.equals(EventLevelEnum.ABNORMAL.getCode())) {
             return true;
         }
 
         if (Objects.isNull(flag) || flag) {
-            ChangeInfo changeInfo = new ChangeInfo();
-            changeInfo.setValue(info.getStatus());
-            changeInfo.setRedisKey(redisKey);
-            changeInfo.setMapKey(mapKey);
-            changeInfo.setCollectTime(new Date(info.getCollectTime()));
-            info.getMaps().put(mapKey, changeInfo);
+
             this.addEventStatus(StatusInfoChangeTypeEnum.event_port_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getPortName(), status, info, changeInfo);
 
             String eventRedisKey = StatusInfoChangeTypeEnum.event_port_state.getCode();
@@ -120,7 +123,7 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
 
             tempReq.setOrgMsg(descStr);
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq,info.getInspectRecordId());
 
             if (Objects.nonNull(event)) {
                 //被事件信息截取

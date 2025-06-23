@@ -52,7 +52,7 @@ public class OpticalInterfaceUpDownFilterHandler extends IFilterHandler<OpticalS
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_interface.getCode() + ":" + item;
             String mapKey = StatusInfoChangeTypeEnum.status_interface_optical_status.getCode();
             String value = stateMap.get(item) + "_" + moduleStateMap.get(stateMap.get(item));
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, value);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, value);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(value);
@@ -72,7 +72,7 @@ public class OpticalInterfaceUpDownFilterHandler extends IFilterHandler<OpticalS
                 alarmTempReq.setCollectValue(value);
                 alarmTempReq.setFlag(item);
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_port_optical_state.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(), item, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

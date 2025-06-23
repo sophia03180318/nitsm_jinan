@@ -10,6 +10,9 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.collect.entity.CollectInterfaces;
+import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web2.dto.PortModelTemp;
 import com.jcca.web2.dto.PortTempDto;
 import com.jcca.web2.entity.PortTemp;
@@ -43,7 +46,10 @@ public class PortTemplateControllerV2 {
 
     @Resource
     private PortTempService tempService;
-
+    @Resource
+    private AssetService assetService;
+    @Resource
+    private CollectInterfacesService collectInterfacesService;
 
     @Value("${project.upload.file-path}")
     private String path;
@@ -52,12 +58,12 @@ public class PortTemplateControllerV2 {
     @PostMapping("/fileToBase64")
     public ResultVo<Object> fileToBase64(@RequestParam("file") MultipartFile multipartFile) {
         try {
-            byte[] fileBytes= multipartFile.getBytes();
+            byte[] fileBytes = multipartFile.getBytes();
             // 使用Base64编码器将字节数据编码为Base64字符串
             String base64String = Base64.getEncoder().encodeToString(fileBytes);
             // 添加数据URI前缀，这里假设图片是PNG格式，可以根据实际情况调整
             String imageBase64 = "data:image/png;base64," + base64String;
-            return ResultVoUtil.success("成功",imageBase64);
+            return ResultVoUtil.success("成功", imageBase64);
         } catch (IOException e) {
             return ResultVoUtil.error(e.getMessage());
         }
@@ -94,10 +100,14 @@ public class PortTemplateControllerV2 {
 
     @PostMapping("/editPortTemp")
     @ApiOperation("修改端口模板")
-    public ResultVo editPortTemp(@RequestBody PortTempDto portTempDto) {
-        PortTemp port = tempService.getById(portTempDto.getId());
+    public ResultVo<Object> editPortTemp(@RequestBody PortTempDto portTempDto) {
+        String id = portTempDto.getId();
+        if (StringUtils.isEmpty(id)) {
+            return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        PortTemp port = tempService.getById(id);
         //删除
-        deletePortTemp(portTempDto.getId());
+        deletePortTemp(id);
 
         //新增
         PortTempDto portTempDto2 = PortTempDto.getPortTemp(port);
@@ -108,18 +118,24 @@ public class PortTemplateControllerV2 {
         return ResultVoUtil.success("编辑成功");
     }
 
+    @GetMapping("/asset/interface")
+    @ApiOperation("获取资产端口列表")
+    public ResultVo<Object> getAssetInterface(@RequestParam("assetId") String assetId) {
+        List<CollectInterfaces> list = collectInterfacesService.filterPort(assetId);
+        return ResultVoUtil.success(list);
+    }
 
 
     @PostMapping("/savePortTemp")
     @ApiOperation("保存端口模板")
-    public ResultVo savePortTemp(@RequestBody PortTempDto portTempDto) {
+    public ResultVo<Object> savePortTemp(@RequestBody PortTempDto portTempDto) {
         QueryWrapper<PortTemp> qw = new QueryWrapper<>();
         qw.eq("MODEL_ID", portTempDto.getModelId());
         qw.eq("NAME", portTempDto.getName());
         List<PortTemp> list = tempService.list(qw);
         if (ObjectUtil.isNotNull(list) && !list.isEmpty()) {
             PortTemp portTemp = list.get(0);
-            if (!portTemp.getId().equals(portTempDto.getId())){
+            if (!portTemp.getId().equals(portTempDto.getId())) {
                 return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "同类型下模板名称已存在");
             }
         }
@@ -149,18 +165,17 @@ public class PortTemplateControllerV2 {
             fileWriter.write(portTempDto.getMsg());
             fileWriter.close();
             tempService.save(portTemp);
-            return ResultVoUtil.success("保存成功");
+            return ResultVoUtil.success(portTemp);
         } catch (IOException e) {
             if (ObjectUtil.isNotNull(fileWriter)) {
                 try {
                     fileWriter.close();
-                } catch (IOException ex) {
+                } catch (IOException ignored) {
                 }
             }
             return ResultVoUtil.error(e.toString());
         }
     }
-
 
 
     @GetMapping("/getPortTemp/{id}")

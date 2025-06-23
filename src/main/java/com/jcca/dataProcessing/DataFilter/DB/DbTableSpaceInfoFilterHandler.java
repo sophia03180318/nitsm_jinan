@@ -27,7 +27,7 @@ public class DbTableSpaceInfoFilterHandler extends IFilterHandler<CollectTablesp
     public boolean handler(CollectTablespaceEntity info) {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_tablespace.getCode() + ":" + info.getName();
         String mapKey1 = StatusInfoChangeTypeEnum.status_tablespace_totalSize.getCode();
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, info.getTotalSize());
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getTotalSize());
         if (flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getTotalSize());
@@ -37,7 +37,7 @@ public class DbTableSpaceInfoFilterHandler extends IFilterHandler<CollectTablesp
             info.getMaps().put(mapKey1 + "_" + info.getName(), changeInfo);
         }
         String mapKey2 = StatusInfoChangeTypeEnum.status_tablespace_freeSize.getCode();
-        boolean flag2 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, info.getFreeSize());
+        boolean flag2 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, info.getFreeSize());
         if (flag2) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getTotalSize());
@@ -47,7 +47,7 @@ public class DbTableSpaceInfoFilterHandler extends IFilterHandler<CollectTablesp
             info.getMaps().put(mapKey2 + "_" + info.getName(), changeInfo);
         }
         String mapKey3 = StatusInfoChangeTypeEnum.status_tablespace_usedSize.getCode();
-        boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, info.getUsedSize());
+        boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, info.getUsedSize());
         if (flag3) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getTotalSize());
@@ -57,7 +57,7 @@ public class DbTableSpaceInfoFilterHandler extends IFilterHandler<CollectTablesp
             info.getMaps().put(mapKey3 + "_" + info.getName(), changeInfo);
         }
         String mapKey4 = StatusInfoChangeTypeEnum.status_tablespace_usedRate.getCode();
-        boolean flag4 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, info.getUsedRate());
+        boolean flag4 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, info.getUsedRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getUsedRate());
         changeInfo.setIsChange(flag4);

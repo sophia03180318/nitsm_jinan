@@ -29,7 +29,7 @@ public class RaidCommonStorageLogFilterHandler extends IFilterHandler<RaidCommon
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_raid_log.getCode();
 
         String mapKey3 = info.getLog();
-        boolean flag3 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey3, info.getLog());
+        boolean flag3 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey3, info.getLog());
         if (flag3) {
             ChangeInfo changeInfo = this.createChangeInfo(info.getLog(), redisKey, mapKey3);
             info.getMaps().put(mapKey3, changeInfo);

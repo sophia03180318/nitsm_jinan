@@ -35,7 +35,7 @@ public class MemoryInfoFilterHandler extends IFilterHandler<CollectMemoryEntity>
         String switchUsedKey = StatusInfoChangeTypeEnum.status_switch_memory_used.getCode();
 
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getMemTotal());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getMemTotal());
         if(flag){
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getMemTotal());
@@ -46,7 +46,7 @@ public class MemoryInfoFilterHandler extends IFilterHandler<CollectMemoryEntity>
             info.getMaps().put(mapKey, changeInfo);
         }
 
-        boolean usedFlag = eventInfoChangeManagerService.infoIschange(redisKey, usedKey, info.getMemUsed());
+        boolean usedFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, usedKey, info.getMemUsed());
 
         if(usedFlag){
             ChangeInfo changeInfo = new ChangeInfo();
@@ -59,7 +59,7 @@ public class MemoryInfoFilterHandler extends IFilterHandler<CollectMemoryEntity>
         }
 
 
-        boolean switchTotalFlag = eventInfoChangeManagerService.infoIschange(redisKey, switchTotalKey, info.getSwapTotal());
+        boolean switchTotalFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, switchTotalKey, info.getSwapTotal());
 
         if(switchTotalFlag){
             ChangeInfo changeInfo = new ChangeInfo();
@@ -71,7 +71,7 @@ public class MemoryInfoFilterHandler extends IFilterHandler<CollectMemoryEntity>
             info.getMaps().put(switchTotalKey, changeInfo);
         }
 
-        boolean switchUsedFlag = eventInfoChangeManagerService.infoIschange(redisKey, switchUsedKey, info.getSwapUsed());
+        boolean switchUsedFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, switchUsedKey, info.getSwapUsed());
 
         if(switchUsedFlag) {
             ChangeInfo changeInfo = new ChangeInfo();

@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 /**
@@ -59,14 +57,33 @@ public class DbAlarmAdapter extends AssetIpAdd implements  IAdapter<ReceiveAlarm
         excutorService.submit(new Runnable() {
             @Override
             public void run() {
+
+            }
+        });
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
                 try {
                     dataProcessManager.dbAlarmHandlerRequest(collectDBEntity);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectDBEntity.getAssetIp() + "dbAlarmHandlerRequest 抛出异常", e);
 
                 }
+                return 1;
             }
         });
+
+        if(collectDBEntity.getInspectRecordId()!=null&&!"".equals(collectDBEntity.getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

@@ -33,7 +33,7 @@ public class CongXingFilterHandler extends IFilterHandler<ItsmQueueEntity> {
         String redisKey = StatusInfoChangeTypeEnum.status_congxing.getCode();
         String mapKey = info.getIdStr();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, info.getCollectValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getCollectValue());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getNowVersion());
@@ -59,7 +59,7 @@ public class CongXingFilterHandler extends IFilterHandler<ItsmQueueEntity> {
             alarmTempReq.setFlag(mapKey);
 
             int status = (0==info.getAlarmState()? EventLevelEnum.ABNORMAL.getCode(): EventLevelEnum.NORMAL.getCode());
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey,status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey,status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

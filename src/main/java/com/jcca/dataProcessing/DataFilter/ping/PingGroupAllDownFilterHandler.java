@@ -82,7 +82,7 @@ public class PingGroupAllDownFilterHandler extends IFilterHandler<ReceiveAlarmEn
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_ping_group_all.getDescr()));
                 alarmTempReq.setCollectValue(changeInfoAll.getValue().toString());
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(change.getRedisKey().split(":")[1], changeInfoAll, eventRedisKey, eventMapKey, eventStatus,alarmTempReq);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(change.getRedisKey().split(":")[1], changeInfoAll, eventRedisKey, eventMapKey, eventStatus,alarmTempReq,info.getInspectRecordId());
                 if (event != null) {
                     //被事件信息截取
                     changeInfoAll.setIsEvent(true);

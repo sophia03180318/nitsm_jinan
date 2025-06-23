@@ -50,7 +50,7 @@ public class PortNumberTcpFilterHandler extends IFilterHandler<CollectPortUsedNu
 
         int portNum = tcpPortList.size();
         String maxPort = tcpPortList.get(0);
-        boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey1, portNum);
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, portNum);
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(portNum);
@@ -60,7 +60,7 @@ public class PortNumberTcpFilterHandler extends IFilterHandler<CollectPortUsedNu
             info.getMaps().put(mapKey1, changeInfo);
         }
 
-        boolean flag1 = eventInfoChangeManagerService.infoIschange(redisKey, mapKey2, maxPort);
+        boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey2, maxPort);
         if (flag1) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(maxPort);
@@ -75,7 +75,7 @@ public class PortNumberTcpFilterHandler extends IFilterHandler<CollectPortUsedNu
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_system_tcpPort_status.getDescr(), maxPort));
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_system_tcpPort_status.getCode(), StatusInfoChangeTypeEnum.TCP_STATUS.getCode(),"", status,info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

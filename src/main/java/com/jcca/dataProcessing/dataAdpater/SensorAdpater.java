@@ -20,9 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Zhaozheng
@@ -59,9 +57,11 @@ public class SensorAdpater extends AssetIpAdd implements IAdapter<JSONArray> {
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_temp.getCode(), "monitor", true);
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_fan.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
+
+
+        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
-            public void run() {
+            public Integer call() throws Exception {
                 String collectCode = MyIdUtil.getId();
                 for (CollectSensorEntity collectSensorEntity : sensorList) {
                     collectSensorEntity.setCollectCode(collectCode);
@@ -72,8 +72,19 @@ public class SensorAdpater extends AssetIpAdd implements IAdapter<JSONArray> {
                         AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectSensorEntity.getAssetIp() + "sensorHandlerRequest 抛出异常", e);
                     }
                 }
+                return 1;
             }
         });
+
+        if(sensorList.get(0).getInspectRecordId()!=null&&!"".equals(sensorList.get(0).getInspectRecordId())){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

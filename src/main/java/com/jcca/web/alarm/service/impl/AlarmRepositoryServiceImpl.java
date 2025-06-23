@@ -117,7 +117,7 @@ public class AlarmRepositoryServiceImpl extends ServiceImpl<AlarmRepositoryMappe
         //查询出所有此码的 命中关键字的更新
         QueryWrapper<AlarmEvent> queryWrapper = new QueryWrapper<AlarmEvent>();
         queryWrapper.eq("UNIQUE_CODE",copy.getAlarmCode());
-        queryWrapper.isNull("EVENT_LEVEL");
+        queryWrapper.eq("EVENT_LEVEL",EventLevelEnum.UNKNOW.getCode());
         List<AlarmEvent> eventList = eventMapper.selectList(queryWrapper);
         for (AlarmEvent alarmEvent : eventList) {
             String eventMsg = alarmEvent.getEventMsg();

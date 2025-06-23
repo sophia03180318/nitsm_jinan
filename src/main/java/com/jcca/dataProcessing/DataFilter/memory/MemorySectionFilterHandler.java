@@ -43,7 +43,7 @@ public class MemorySectionFilterHandler extends IFilterHandler<CollectMemoryEnti
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_memory_normal.getCode(), info.getAssetId(), null);
         if (threshold.sectionValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey);
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
@@ -51,7 +51,7 @@ public class MemorySectionFilterHandler extends IFilterHandler<CollectMemoryEnti
         }
 
         String thresholdValue = threshold.getMaxValue() + "_" + threshold.getMinValue();
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(redisThresholdKey, thresholdMapKey, thresholdValue);
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, thresholdValue);
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey,thresholdMapKey, thresholdValue, info);
         }
@@ -72,7 +72,7 @@ public class MemorySectionFilterHandler extends IFilterHandler<CollectMemoryEnti
 
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_memory_section.getCode(),StatusInfoChangeTypeEnum.SECTION_VAL.getCode(),null, status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -40,4 +40,15 @@ public class AssetModelServiceImpl extends ServiceImpl<AssetModelMapper, AssetMo
     public List<AssetModel> getByManufacturerId(String manufacturerId) {
         return modelMapper.getByManufacturerId(manufacturerId);
     }
+
+    /**
+     * 通过型号名称获取型号
+     *
+     * @param assetImage 名称
+     * @return 型号
+     */
+    @Override
+    public AssetModel getByName(String assetImage) {
+        return modelMapper.getByName(assetImage);
+    }
 }

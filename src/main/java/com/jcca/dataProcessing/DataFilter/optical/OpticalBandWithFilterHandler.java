@@ -41,7 +41,7 @@ public class OpticalBandWithFilterHandler extends IFilterHandler<OpticalSwitchEn
             String portName = "0/" + item;
             String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_interface.getCode() + ":" + portName;
             String mapKey = StatusInfoChangeTypeEnum.status_interface_optical_bandwith.getCode();
-            boolean flag = eventInfoChangeManagerService.infoIschange(redisKey, mapKey, stateMap.get(item));
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, stateMap.get(item));
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(stateMap.get(item));

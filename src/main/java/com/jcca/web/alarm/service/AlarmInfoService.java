@@ -396,4 +396,6 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     List<AlarmUnhandledDto> findUnhandledAlarm(AlarmPageDto req);
 
     List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req);
+
+    List<String> getRemarksByAlarmCode(String alarmCode);
 }

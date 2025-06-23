@@ -100,6 +100,12 @@ public class AsyncThreadConfig {
                 new MyThreadFactory(ThreadPoolEnum.xunjianExecutor));
     }
 
+    @Bean(name = ThreadPoolEnum.XUNJIAN_FIANL)
+    public ThreadPoolExecutor getXunjianFianPool() {
+        return new ThreadPoolExecutor(30, 30, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(20000),
+                new MyThreadFactory(ThreadPoolEnum.thresholdDataDisposePool));
+    }
+
     // 阈值采集数据处理
     @Bean(name = ThreadPoolEnum.thresholdDataDisposePool)
     public ThreadPoolExecutor getThresholdDisposePool() {

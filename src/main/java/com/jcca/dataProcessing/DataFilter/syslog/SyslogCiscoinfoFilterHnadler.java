@@ -77,7 +77,7 @@ public class SyslogCiscoinfoFilterHnadler extends IFilterHandler<SyslogEventInfo
         tempReq.setAssetIp(info.getAssetIp());
         tempReq.setOrgMsg(eventInfo.getMessage());
 
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq);
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
         if (event != null) {
             //被事件信息截取
             changeInfo.setIsEvent(true);

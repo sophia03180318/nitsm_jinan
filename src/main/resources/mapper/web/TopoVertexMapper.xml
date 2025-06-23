@@ -49,7 +49,7 @@
 
     <select id="selectNodeByAsset"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
-        SELECT v.*, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as
+        SELECT v.*, t.name as assetName,t.show_core as showCore,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as
         assetOrgId, t.asset_mode as assetMode,t.watch
         FROM asset t
         left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id
@@ -71,7 +71,7 @@
 
     <select id="selectNodeByAsset2"
             resultType="com.jcca.web.graph.vo.TopoVertexVo">
-        SELECT v.*, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as
+        SELECT v.*,t.show_core as showCore, t.name as assetName,t.A_B_FLAG as aBFlag, t.id as assetId, t.org_id as
         assetOrgId, t.asset_mode as assetMode,t.watch
         FROM asset t
         left join TOPO_VERTEX v on t.id = v.asset_id and t.org_id=v.org_id and
