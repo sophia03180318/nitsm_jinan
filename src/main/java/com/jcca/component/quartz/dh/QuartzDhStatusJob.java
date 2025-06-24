@@ -42,8 +42,8 @@ public class QuartzDhStatusJob extends QuartzJobBean {
         qw.orderByDesc("OCCURRENCE_TIME");
         qw.likeRight("DEVICE_ID", "1");
         List<Alarm> alarmLists = this.alarmService.list(qw);
-        int size = 10;
-        if (alarmLists.size() < 10) {
+        int size = 20;
+        if (alarmLists.size() < 20) {
             size = alarmLists.size();
         }
         for (int i = 0; i < size; ++i) {
