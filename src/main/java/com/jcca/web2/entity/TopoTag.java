@@ -67,4 +67,7 @@ public class TopoTag {
     @TableField(value = "MODIFY_TIME", fill = FieldFill.INSERT_UPDATE)
     private Date modifyTime;
 
+    @TableField(exist = false)
+    private String preId;
+
 }

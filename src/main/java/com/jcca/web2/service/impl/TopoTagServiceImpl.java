@@ -3,6 +3,8 @@ package com.jcca.web2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web2.dao.TopoTagMapper;
 import com.jcca.web2.entity.TopoTag;
@@ -25,45 +27,48 @@ public class TopoTagServiceImpl extends ServiceImpl<TopoTagMapper, TopoTag> impl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveOrUpdateTag(TopoTag topoTag) throws Exception {
+    public void saveOrUpdateTag(TopoTag topoTag) {
         String orgId = topoTag.getOrgId();
         String id = topoTag.getId();
-        int sort = topoTag.getTagSort();
+        String preId = topoTag.getPreId();
+        if (StringUtils.isEmpty(preId)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "没有选择排序");
+        }
 
         // 检查是否存在相同组织和类别的拓扑图
         QueryWrapper<TopoTag> query = Wrappers.<TopoTag>query()
                 .eq("ORG_ID", orgId)
-                .eq("CATEGORY", topoTag.getCategory());
+                .orderByAsc("TAG_SORT");
         if (StringUtils.hasText(id)) {
             query.ne("ID", id);
         }
-        if (this.count(query) > 0) {
-            throw new Exception("已存在该类型拓扑图");
+        List<TopoTag> existingTags = this.list(query);
+        boolean duplicateExists = existingTags.stream().anyMatch(tag ->
+                tag.getCategory().equals(topoTag.getCategory()) &&
+                        !tag.getId().equals(id));
+        if (duplicateExists) {
+            throw new ResultException(ResultEnum.PARAM_ERROR, "已存在该类型拓扑图");
         }
 
-        // 获取当前组织下的所有标签并按排序字段升序排列
-        QueryWrapper<TopoTag> otherTag = Wrappers.<TopoTag>query()
-                .eq("ORG_ID", orgId)
-                .orderByAsc("TAG_SORT");
-        if (StringUtils.hasText(id)) {
-            otherTag.ne("ID", id);
-        }
-        List<TopoTag> existingTags = this.list(otherTag);
-        if (sort >= existingTags.size()) {
-            existingTags.add(topoTag);
-        } else {
-            existingTags.add(sort - 1, topoTag);
+        if (StringUtils.isEmpty(topoTag.getId())) {
+            topoTag.setId(MyIdUtil.getId());
+            topoTag.setRemark("前端创建");
         }
         int tmp = 1;
         List<TopoTag> nlist = new ArrayList<>();
-        for (TopoTag tag : existingTags) {
-            if (StringUtils.isEmpty(tag.getId())) {
-                tag.setId(MyIdUtil.getId());
-                tag.setRemark("前端创建");
-            }
-            tag.setTagSort(tmp);
+        if ("0".equals(preId)) {
+            topoTag.setTagSort(tmp);
+            nlist.add(topoTag);
+        }
+        for (TopoTag existingTag : existingTags) {
             tmp++;
-            nlist.add(tag);
+            existingTag.setTagSort(tmp);
+            nlist.add(existingTag);
+            if (existingTag.getId().equals(preId)) {
+                tmp++;
+                topoTag.setTagSort(tmp);
+                nlist.add(topoTag);
+            }
         }
         // 批量保存或更新
         this.saveOrUpdateBatch(nlist);
