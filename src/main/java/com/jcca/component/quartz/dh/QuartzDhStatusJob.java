@@ -15,6 +15,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
@@ -40,11 +41,14 @@ public class QuartzDhStatusJob extends QuartzJobBean {
         QueryWrapper<Alarm> qw = new QueryWrapper();
         qw.orderByDesc("OCCURRENCE_TIME");
         qw.likeRight("DEVICE_ID", "1");
-        qw.ne("LEVELL", 318);
         List<Alarm> alarmLists = this.alarmService.list(qw);
-
-        for(int i = 0; i < alarmLists.size(); ++i) {
-            Alarm alarm = alarmLists.get(i);
+        int size = 20;
+        if (alarmLists.size() < 20) {
+            size = alarmLists.size();
+        }
+        for (int i = 0; i < size; ++i) {
+            Alarm alarm = (Alarm) alarmLists.get(i);
+            if (alarm.getLevell() != 318) {
                 if (ObjectUtil.isNotNull(alarm.getDeviceId())) {
                     AssetMsgVo asset = this.assetServ.findMsgById(alarm.getDeviceId());
                     if (Objects.isNull(asset)) {
@@ -57,17 +61,19 @@ public class QuartzDhStatusJob extends QuartzJobBean {
                             dongHuanEntity.setCreateTime(alarm.getOccurrenceTime());
                             dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
                             dongHuanEntity.setAssetName(asset.getAssetName());
-                            DongHuanAdapter dhAdapter = (DongHuanAdapter)this.dataProcessManager.getAdapater("dongHuanAdapter");
+                            log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
+                            DongHuanAdapter dhAdapter = (DongHuanAdapter) this.dataProcessManager.getAdapater("dongHuanAdapter");
                             dhAdapter.dispose(dongHuanEntity);
                         } catch (Exception e2) {
                             log.error("接收动环推送设备告警失败: " + e2.toString());
                         }
                     }
                 }
+
                 alarm.setLevell(318);
                 this.alarmService.updateById(alarm);
+            }
         }
-
     }
 }
 
