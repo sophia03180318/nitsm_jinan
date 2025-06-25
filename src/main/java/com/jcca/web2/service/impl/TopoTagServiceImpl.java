@@ -54,10 +54,10 @@ public class TopoTagServiceImpl extends ServiceImpl<TopoTagMapper, TopoTag> impl
             topoTag.setId(MyIdUtil.getId());
             topoTag.setRemark("前端创建");
         }
-        int tmp = 0;
+        int tmp = 1;
         List<TopoTag> nlist = new ArrayList<>();
         if ("0".equals(preId)) {
-            topoTag.setTagSort(tmp++);
+            topoTag.setTagSort(tmp);
             nlist.add(topoTag);
         }
         for (TopoTag existingTag : existingTags) {
