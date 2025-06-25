@@ -3,6 +3,9 @@ package com.jcca.component.quartz.dh;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jcca.admin.system.entity.SysModuleConfig;
+import com.jcca.admin.system.service.SysModuleConfigService;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.DongHuanEntity;
 import com.jcca.dataProcessing.dataAdpater.DongHuanAdapter;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -35,9 +38,27 @@ public class QuartzDhStatusJob extends QuartzJobBean {
     private DhAlarmService alarmService;
     @Resource
     private AssetService assetServ;
-
+    @Resource
+    private SysModuleConfigService sysModuleConfigService;
     @Override
     protected void executeInternal(JobExecutionContext context) {
+        SysModuleConfig config = sysModuleConfigService.getSysModuleConfig("config:dongHuan");
+        if (Objects.isNull(config)) {
+            SysModuleConfig config1 = new SysModuleConfig();
+            config1.setId(MyIdUtil.getId());
+            config1.setName("config:dongHuan");
+            config1.setValue("open");
+            config1.setDescription("open：开启动环消息接收  close：关闭动环消息接收");
+            config1.setOrgId("0");
+            config1.setWebConf("{\"title\":\"动环消息\",\"type\":\"radio\",\"radioVo\": [{\"name\":\"接收\",\"value\":\"open\"},{\"name\":\"不接收\",\"value\":\"close\"}]}");
+            config1.setServiceType(3);
+            sysModuleConfigService.save(config1);
+            config = config1;
+        }
+        if(!"open".equals(config.getValue())){
+            return ;
+        }
+        log.info("接收动环告警!");
         QueryWrapper<Alarm> qw = new QueryWrapper();
         qw.orderByDesc("OCCURRENCE_TIME");
         qw.likeRight("DEVICE_ID", "1");
