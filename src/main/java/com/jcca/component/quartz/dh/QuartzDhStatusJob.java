@@ -58,7 +58,6 @@ public class QuartzDhStatusJob extends QuartzJobBean {
         if(!"open".equals(config.getValue())){
             return ;
         }
-        log.info("接收动环告警!");
         QueryWrapper<Alarm> qw = new QueryWrapper();
         qw.orderByDesc("OCCURRENCE_TIME");
         qw.likeRight("DEVICE_ID", "1");
