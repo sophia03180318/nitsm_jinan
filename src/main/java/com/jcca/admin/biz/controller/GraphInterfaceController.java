@@ -171,10 +171,12 @@ public class GraphInterfaceController {
             map.put("portTemp", portTemp);
         }
         TopoPcb topoPcb = topoPcbService.getById(pcbId);
-        String portTempId = topoPcb.getPortTempId();
-        if (!StringUtils.isEmpty(portTempId)) {
-            portTemp = portTempService.getById(portTempId);
-            map.put("portTemp", portTemp);
+        if (Objects.nonNull(topoPcb)) {
+            String portTempId = topoPcb.getPortTempId();
+            if (!StringUtils.isEmpty(portTempId)) {
+                portTemp = portTempService.getById(portTempId);
+                map.put("portTemp", portTemp);
+            }
         }
         map.put("port", port);
         map.put("vlan", vlan);
