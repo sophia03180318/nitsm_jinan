@@ -382,6 +382,7 @@ public class XunjianFinalController {
             List<String> collect = this.getDeskAssetIds(key, assetIds);
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
             for (ItemVo itemVo : list) {
+                collect.retainAll(assetIds);
                 int count = this.checkTarget(itemVo.getEventCategory(), key, collect);
                 if (count == 0) {
                     continue;
@@ -407,7 +408,6 @@ public class XunjianFinalController {
         collect.retainAll(assetIds);
         return collect;
     }
-
 
     private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
         int count = 1;
