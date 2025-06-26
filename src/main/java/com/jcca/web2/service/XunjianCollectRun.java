@@ -155,7 +155,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 该指标正常数量 <inspectRecordId, <eventTypeId>>
     private final Map<String, Set<String>> currentNormalTargetMap = new ConcurrentHashMap<>();
     // 资产状态 <inspectRecordId, <assetId, 资产状态>>
-    private final Map<String, Map<String, Integer>> assetStateMap = new ConcurrentHashMap<>();
+    public static final Map<String, Map<String, Integer>> assetStateMap = new ConcurrentHashMap<>();
     // 指标状态 <inspectRecordId, <eventTypeId, 指标状态>>
     private final Map<String, Map<String, Integer>> targetStateMap = new ConcurrentHashMap<>();
     // 重复指标 <inspectRecordId, <targetItem>>
