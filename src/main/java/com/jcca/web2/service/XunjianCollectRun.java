@@ -294,7 +294,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
             assetStateMap.put(inspectRecordId, astateMap);
         }
-        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
+//        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
 
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             if (targetAbnormalSet.get(inspectRecordId) == null) {
