@@ -285,14 +285,16 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                         IAdapter adapter1 = dataProcessManager.getAdapter(dto.getCategory());
                         JSONArray jsonArray1 = JSONUtil.parseArray(content1);
                         adapter1.dispose(jsonArray1);
+                    } catch (Exception ignored) {
+
                     } finally {
                         latch.countDown();
                     }
                 });
             }
             latch.await();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception ignored) {
+
         } finally {
             executor.shutdownNow();
             try {
@@ -308,6 +310,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     private final List<String> targets = Arrays.asList(SYSPORT_TARGET_ARR);
 
     private void send2Queue(InspectAsset asset, String msg) {
+        String flag = XUNJIAN_JOB_RECORD.get(asset.getJobId());
+        if (flag == null) {
+            return;
+        }
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());
@@ -336,6 +342,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     private void sendAll2Queue(InspectAsset asset, String msg) {
+        String flag = XUNJIAN_JOB_RECORD.get(asset.getJobId());
+        if (flag == null) {
+            return;
+        }
         QueryWrapper<InspectAsset> query = Wrappers.query();
         query.eq("JOB_ID", asset.getJobId());
         query.eq("ASSET_ID", asset.getAssetId());

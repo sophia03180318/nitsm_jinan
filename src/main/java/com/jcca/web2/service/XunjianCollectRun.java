@@ -126,7 +126,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 this.send2Web(dto);
             } catch (Exception e) {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据异常", e.getMessage());
-                e.printStackTrace();
             }
         }
     }
