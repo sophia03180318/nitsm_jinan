@@ -51,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
 import static com.jcca.web2.service.XunjianCollectRun.targetAbnormalSet;
@@ -378,9 +379,11 @@ public class XunjianFinalController {
             vo.setName(mode);
 
             List<ItemVo> reslist = new ArrayList<>();
+            List<String> collect = this.getDeskAssetIds(key, assetIds);
             List<ItemVo> list = alarmEventTypeService.listTypeByAssetDesk(id);
             for (ItemVo itemVo : list) {
-                int count = this.checkTarget(itemVo.getEventCategory(), key, assetIds);
+                collect.retainAll(assetIds);
+                int count = this.checkTarget(itemVo.getEventCategory(), key, collect);
                 if (count == 0) {
                     continue;
                 }
@@ -393,6 +396,18 @@ public class XunjianFinalController {
         return ResultVoUtil.success(resultList);
     }
 
+    private List<String> getDeskAssetIds(String key, List<String> assetIds) {
+        QueryWrapper<Asset> query = Wrappers.query();
+        query.eq("DESK", key);
+        query.eq("WATCH", 1);
+        query.eq("IS_DEL", 1);
+        query.eq("MONITOR", 1);
+        query.in("ID", assetIds);
+        List<Asset> assets = assetService.list(query);
+        List<String> collect = assets.stream().map(Asset::getId).collect(Collectors.toList());
+        collect.retainAll(assetIds);
+        return collect;
+    }
 
     private int checkTarget(String eventCategory, String assetDesk, List<String> assetIds) {
         int count = 1;
