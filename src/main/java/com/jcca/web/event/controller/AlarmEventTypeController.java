@@ -86,6 +86,13 @@ public class AlarmEventTypeController extends ListenerManager {
     @RequiresPermissions({"api:event:type:update"})
     @ActionLog(name = "修改事件类型", title = "事件管理", key = LogTypeConstant.MODIFY)
     ResultVo<?> update(@RequestBody @Validated EventTypeUpdateReq req) {
+        if (!StringUtils.isEmpty(req.getAssetDesks()) && StringUtils.isEmpty(req.getTypeAlias())) {
+            return ResultVoUtil.warning("请输入事件类型别名");
+        }
+        if (StringUtils.isEmpty(req.getAssetDesks()) && !StringUtils.isEmpty(req.getTypeAlias())) {
+            return ResultVoUtil.warning("请选择设备类型");
+        }
+
         if (!StringUtils.isEmpty(req.getAssetDesks())) {
             req.setAssetDesks(req.getAssetDesks() + ",");
         }

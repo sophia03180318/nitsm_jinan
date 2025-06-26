@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
 import static com.jcca.web2.controller.XunjianFinalController.INSPECT_THREAD_MAP;
+import static com.jcca.web2.service.XunjianCollectRun.assetStateMap;
 
 /**
  * @author: hhw
@@ -406,10 +407,19 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
                 }
+                this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.XUNJIANING_ASSET, schedule.getJobId(), inspectAsset.getAssetId(), inspectAsset.getAssetName(), 2); // 当前巡检资产
+
                 assetIdSet.add(inspectAsset.getAssetId());
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检资产 " + inspectAsset.getAssetName(), dto);
                 inspectAssetService.xunjianCollect(inspectAsset);
+
+                if (assetStateMap.get(schedule.getInspectRecordId()) != null
+                        && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) != null
+                        && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) == Integer.parseInt(INSPECTED)) {
+                    this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.ASSET_STATUS, schedule.getJobId(), inspectAsset.getAssetId(),
+                            inspectAsset.getAssetName(), Integer.parseInt(INSPECTED)); // 正常资产状态
+                }
             }
 
             TimeUnit.SECONDS.sleep(3L);
@@ -424,6 +434,20 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         } catch (Exception e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
         }
+    }
+
+    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
+        XunjianWSDto wsDto = new XunjianWSDto();
+        wsDto.setUsername(operator);
+        wsDto.setMsgType(msgType);
+        XunjianWSDto msg = new XunjianWSDto();
+        msg.setJobId(jobId);
+        msg.setId(id);
+        msg.setName(name);
+        msg.setStatus(status);
+        msg.setCount(0);
+        wsDto.setMessage(msg);
+        this.sendWsMsg(wsDto);
     }
 
     // 状态类单独处理

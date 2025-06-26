@@ -155,7 +155,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 该指标正常数量 <inspectRecordId, <eventTypeId>>
     private final Map<String, Set<String>> currentNormalTargetMap = new ConcurrentHashMap<>();
     // 资产状态 <inspectRecordId, <assetId, 资产状态>>
-    private final Map<String, Map<String, Integer>> assetStateMap = new ConcurrentHashMap<>();
+    public static final Map<String, Map<String, Integer>> assetStateMap = new ConcurrentHashMap<>();
     // 指标状态 <inspectRecordId, <eventTypeId, 指标状态>>
     private final Map<String, Map<String, Integer>> targetStateMap = new ConcurrentHashMap<>();
     // 重复指标 <inspectRecordId, <targetItem>>
@@ -294,7 +294,7 @@ public class XunjianCollectRun implements ApplicationRunner {
             }
             assetStateMap.put(inspectRecordId, astateMap);
         }
-        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
+//        this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
 
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             if (targetAbnormalSet.get(inspectRecordId) == null) {
