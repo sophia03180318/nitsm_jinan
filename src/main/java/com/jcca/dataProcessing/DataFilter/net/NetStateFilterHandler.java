@@ -79,7 +79,9 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
                 tempReq.setLinkAssetIp(linkAsset.getLinkAssetIp());
                 tempReq.setLinkAssetName(linkAsset.getLinkAssetName());
                 Asset intAsset = assetService.getById(linkAsset.getAssetId());
-                descStr = descStr + ",对端设备【" + intAsset.getName() + "】,对端设备IP【" + intAsset.getIp() + "】";
+                if (Objects.nonNull(intAsset)) {
+                    descStr = descStr + ",对端设备【" + intAsset.getName() + "】,对端设备IP【" + intAsset.getIp() + "】";
+                }
             }
             tempReq.setOrgMsg(descStr);
             tempReq.setCollectValue(info.getStatus().toString());
