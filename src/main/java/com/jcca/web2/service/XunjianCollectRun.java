@@ -161,8 +161,8 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, Set<String>> repeatTargetMap = new ConcurrentHashMap<>();
     // 重复指标资产 <inspectRecordId, <eventTypeId, <assetId>>>
     private final Map<String, Map<String, Set<String>>> repeatAssetIdMap = new ConcurrentHashMap<>();
-    // 指标大类型记数 <assetId, <eventTypeId>>
-    private final Map<String, Set<String>> assetIdEventTypeMap = new ConcurrentHashMap<>();
+    // 指标大类型记数 <inspectRecordId, <assetId, <eventTypeId>>>
+    private final Map<String, Map<String, Set<String>>> assetIdEventTypeMap = new ConcurrentHashMap<>();
     // 当前巡检资产
     public static final Map<String, String> currentAssetIdMap = new ConcurrentHashMap<>();
 
@@ -195,12 +195,18 @@ public class XunjianCollectRun implements ApplicationRunner {
 
             for (InspectAsset inspectAsset : assetList) {
                 assetIdName.put(inspectAsset.getAssetId(), inspectAsset.getAssetName());
-                Set<String> eventTypeSet = assetIdEventTypeMap.get(inspectAsset.getAssetId());
+                Map<String, Set<String>> map = assetIdEventTypeMap.get(inspectRecordId);
+                if (map == null) {
+                    map = new HashMap<>();
+                }
+
+                Set<String> eventTypeSet = map.get(inspectAsset.getAssetId());
                 if (eventTypeSet == null) {
                     eventTypeSet = new HashSet<>();
                 }
                 eventTypeSet.add(inspectAsset.getEventTypeId());
-                assetIdEventTypeMap.put(inspectAsset.getAssetId(), eventTypeSet);
+                map.put(inspectAsset.getAssetId(), eventTypeSet);
+                assetIdEventTypeMap.put(inspectRecordId, map);
             }
 
             Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
@@ -321,7 +327,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                 currentAbnormalTargetMap.put(inspectRecordId, stringSetMap);
             }
 
-            if (assetIdEventTypeMap.get(assetId) != null && assetIdEventTypeMap.get(assetId).contains(eventTypeId)) {
+            if (assetIdEventTypeMap.get(inspectRecordId) != null && assetIdEventTypeMap.get(inspectRecordId).get(assetId).contains(eventTypeId)) {
                 Map<String, Set<String>> eventTypeMap = repeatAssetIdMap.get(inspectRecordId);
                 if (eventTypeMap == null) {
                     eventTypeMap = new ConcurrentHashMap<>();
@@ -336,6 +342,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                     eventTypeMap.put(eventTypeId, assetSet);
                     repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
                     this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "推送指标异常", eventTypeId);
                 }
             }
         }
@@ -404,7 +411,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
         currentAssetTargetMap.get(inspectRecordId).put(assetId, currentSize);
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
-            if (assetIdEventTypeMap.get(assetId) != null && assetIdEventTypeMap.get(assetId).contains(eventTypeId)) {
+            if (assetIdEventTypeMap.get(inspectRecordId) != null && assetIdEventTypeMap.get(inspectRecordId).get(assetId).contains(eventTypeId)) {
                 this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
             }
         }
@@ -479,7 +486,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         repeatTargetMap.remove(inspectRecordId);
         repeatAssetIdMap.remove(inspectRecordId);
         currentAssetIdMap.remove(inspectRecordId);
-        assetIdEventTypeMap.clear();
+        assetIdEventTypeMap.remove(inspectRecordId);
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
