@@ -517,11 +517,14 @@ public class XunjianFinalController {
     @ApiOperation("指标状态列表")
     public ResultVo<Object> targetStatus(String jobId) {
 
-        List<InspectRecord> recordList = inspectRecordService.findByJobId(jobId);
-        if (recordList.isEmpty()) {
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND);
+        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        if (StringUtils.isEmpty(inspectRecordId)) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务未开始或已结束");
         }
-        InspectRecord record = recordList.get(0);
+        InspectRecord record = inspectRecordService.getById(inspectRecordId);
+        if (record == null) {
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "暂未生成记录");
+        }
         QueryWrapper<InspectDetail> detail;
 
         List<ItemVo> resultList = new ArrayList<>();
@@ -560,11 +563,8 @@ public class XunjianFinalController {
         int totalCount = inspectAssetService.list(query).size();
 
         int normalCount = 0, abnormalCount = 0;
-        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
-        if (inspectRecordId != null) {
-            normalCount = targetNormalSet.get(inspectRecordId) == null ? 0 : targetNormalSet.get(inspectRecordId).size();
-            abnormalCount = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
-        }
+        normalCount = targetNormalSet.get(inspectRecordId) == null ? 0 : targetNormalSet.get(inspectRecordId).size();
+        abnormalCount = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
 
         Map<String, Object> map = new HashMap<>();
         map.put("totalCount", totalCount);

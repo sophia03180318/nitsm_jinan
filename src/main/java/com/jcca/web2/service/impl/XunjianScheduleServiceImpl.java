@@ -397,7 +397,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         schedule.setInspectRecordId(dto.getInspectRecordId());
         schedule.setLastTime(new Date());
         this.saveInspectRecord(schedule);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始资产巡检", "任务名称：" + schedule.getJobName() + ",记录ID：" + dto.getInspectRecordId());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "保存巡检记录", "任务名称：" + schedule.getJobName() + ",记录ID：" + dto.getInspectRecordId());
 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
         try {
