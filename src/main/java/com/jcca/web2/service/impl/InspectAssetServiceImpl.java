@@ -105,6 +105,14 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         }
 
         List<ItemVo> list = inspectAssetMapper.getAllCheckedAsset(jobId);
+        if (currentAssetIdMap.get(inspectRecordId) != null) {
+            for (ItemVo itemVo : list) {
+                if (itemVo.getId().equals(currentAssetIdMap.get(inspectRecordId))) {
+                    itemVo.setStatus(2);
+                    break;
+                }
+            }
+        }
         return list;
     }
 
