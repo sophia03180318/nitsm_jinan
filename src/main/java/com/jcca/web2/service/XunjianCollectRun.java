@@ -342,7 +342,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                     eventTypeMap.put(eventTypeId, assetSet);
                     repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
                     this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
-                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "推送异常指标", eventTypeId);
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "推送异常指标", idType);
                 }
             }
         }
