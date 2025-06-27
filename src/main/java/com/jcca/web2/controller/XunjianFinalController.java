@@ -261,7 +261,7 @@ public class XunjianFinalController {
         long taskCount = executor.getTaskCount();
         BlockingQueue<Runnable> queue = executor.getQueue();
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务--用户：" + schedule.getOperator() + "，任务ID：" + jobId,
-                "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务数-" + taskCount + ",队列长度-" + queue.size());
+                "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务总数-" + taskCount + ",队列长度-" + queue.size());
 
         XunjianJobDto dto = new XunjianJobDto();
         dto.setAutoFlag(1);
@@ -329,9 +329,9 @@ public class XunjianFinalController {
         if (Objects.nonNull(thread)) {
             thread.interrupt();
             INSPECT_THREAD_MAP.remove(jobId);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动结束线程", thread.getName());
         }
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动结束线程", thread.getName());
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动停止巡检任务", jobId);
         return ResultVoUtil.success();
     }
@@ -519,7 +519,9 @@ public class XunjianFinalController {
 
         String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
         if (StringUtils.isEmpty(inspectRecordId)) {
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务未开始或已结束");
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
+            BlockingQueue<Runnable> queue = executor.getQueue();
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务已满当前等待任务数：" + queue.size());
         }
         InspectRecord record = inspectRecordService.getById(inspectRecordId);
         if (record == null) {
