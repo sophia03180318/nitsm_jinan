@@ -98,7 +98,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                 i = Math.min(i, 100);
                 this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, i);
             }
-            this.sendMsg(username, XunjianWSDto.XUNJIANING_ASSET, jobId, inspectRecordId, currentAssetIdMap.get(inspectRecordId), 2); // 当前巡检资产
+            if (currentAssetIdMap.get(inspectRecordId) != null) {
+                this.sendMsg(username, XunjianWSDto.XUNJIANING_ASSET, jobId, inspectRecordId, currentAssetIdMap.get(inspectRecordId),
+                        assetStateMap.get(inspectRecordId).get(currentAssetIdMap.get(inspectRecordId))); // 当前巡检资产
+            }
         }
 
         List<ItemVo> list = inspectAssetMapper.getAllCheckedAsset(jobId);

@@ -420,15 +420,14 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检资产 " + inspectAsset.getAssetName(), dto);
                 inspectAssetService.xunjianCollect(inspectAsset);
 
+                TimeUnit.SECONDS.sleep(2L);
                 if (assetStateMap.get(schedule.getInspectRecordId()) != null
-                        && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) != null
-                        && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) == Integer.parseInt(INSPECTED)) {
+                        && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) != null) {
                     this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.ASSET_STATUS, schedule.getJobId(), inspectAsset.getAssetId(),
-                            inspectAsset.getAssetName(), Integer.parseInt(INSPECTED)); // 正常资产状态
+                            inspectAsset.getAssetName(), assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId())); // 资产状态
                 }
             }
 
-            TimeUnit.SECONDS.sleep(3L);
             checkStatusTarget(schedule.getJobId(), schedule.getInspectRecordId());
 
             IEvent event = new IEvent();
