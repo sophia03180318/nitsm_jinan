@@ -68,6 +68,7 @@ import java.util.stream.Collectors;
 import static com.jcca.web2.constant.Web2Const.*;
 import static com.jcca.web2.controller.XunjianFinalController.INSPECT_THREAD_MAP;
 import static com.jcca.web2.service.XunjianCollectRun.assetStateMap;
+import static com.jcca.web2.service.XunjianCollectRun.currentAssetIdMap;
 
 /**
  * @author: hhw
@@ -413,7 +414,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 if (flag == null) {
                     return;
                 }
-
+                currentAssetIdMap.put(schedule.getInspectRecordId(), inspectAsset.getAssetId()); // 当前巡检资产
                 this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.XUNJIANING_ASSET, schedule.getJobId(), inspectAsset.getAssetId(), inspectAsset.getAssetName(), 2); // 当前巡检资产
 
                 inspectAsset.setInspectRecordId(schedule.getInspectRecordId());

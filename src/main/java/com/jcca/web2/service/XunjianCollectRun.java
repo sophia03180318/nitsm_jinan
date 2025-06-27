@@ -403,11 +403,11 @@ public class XunjianCollectRun implements ApplicationRunner {
             currentSize += 1;
         }
         currentAssetTargetMap.get(inspectRecordId).put(assetId, currentSize);
-//        if (Web2Const.INSPECT_ERROR.equals(targetState)) {
-//            if (assetIdEventTypeMap.get(assetId) != null && assetIdEventTypeMap.get(assetId).contains(eventTypeId)) {
-//                this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
-//            }
-//        }
+        if (Web2Const.INSPECT_ERROR.equals(targetState)) {
+            if (assetIdEventTypeMap.get(assetId) != null && assetIdEventTypeMap.get(assetId).contains(eventTypeId)) {
+                this.sendMsg(operator, XunjianWSDto.ASSET_STATUS, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 资产状态
+            }
+        }
 
         // 巡检总进度
         Integer totalTarget = targetTotalMap.get(inspectRecordId);
