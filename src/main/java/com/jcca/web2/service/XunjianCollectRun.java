@@ -50,7 +50,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     private final Map<String, List<InspectAsset>> inspectAssetMap = new ConcurrentHashMap<>();
     private final Map<String, InspectRecord> inspectRecordMap = new ConcurrentHashMap<>();
     // 资产ID 名称对应，<assetId, assetName>
-    private final Map<String, String> assetIdName = new HashMap<>(256);
+    public static final Map<String, String> assetIdName = new HashMap<>(256);
 
 
     @Override
