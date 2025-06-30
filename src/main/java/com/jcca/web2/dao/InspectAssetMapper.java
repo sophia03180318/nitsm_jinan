@@ -45,4 +45,7 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
 
     @Select("SELECT * FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectRecordId} AND ASSET_ID = #{assetId} AND INSPECT_STATE = 4 ORDER BY TARGET_ITEM")
     List<InspectTargetDetailInfo> getAssetTargetInfo(String inspectRecordId, String assetId);
+
+    @Select("SELECT COLLECT_CATEGORY FROM ALARM_EVENT_TYPE WHERE ID IN (SELECT EVENT_TYPE_ID FROM INSPECT_ASSET WHERE JOB_ID = #{jobId} AND ASSET_ID = #{assetId} GROUP BY EVENT_TYPE_ID)")
+    List<String> getCategoryList(String assetId, String jobId);
 }

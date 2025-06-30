@@ -70,4 +70,12 @@ public class AlarmEventType extends Model<AlarmEventType> implements Serializabl
      */
     @TableField(value = "TYPE_ALIAS")
     private String typeAlias;
+
+    /**
+     * 采集类型
+     */
+    @TableField(value = "COLLECT_CATEGORY")
+    private String collectCategory;
+
+
 }

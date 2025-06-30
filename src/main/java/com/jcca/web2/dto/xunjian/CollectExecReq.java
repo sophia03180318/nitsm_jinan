@@ -2,6 +2,8 @@ package com.jcca.web2.dto.xunjian;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author: hhw
  * @description: CollectExecReq 主要是用来
@@ -18,4 +20,10 @@ public class CollectExecReq {
      * 巡检任务ID
      */
     private String inspectRecordId;
+    /**
+     * 巡检类型
+     * 空 全部巡检
+     * 非空 只采集传值的类型
+     */
+    private List<String> categoryList;
 }

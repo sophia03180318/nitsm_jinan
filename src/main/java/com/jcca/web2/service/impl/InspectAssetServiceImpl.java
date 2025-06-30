@@ -198,6 +198,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         return inspectAssetMapper.getAssetTargetInfo(inspectRecordId, assetId);
     }
 
+    private List<String> getCategoryList(String assetId, String jobId) {
+        List<String> categoryList = inspectAssetMapper.getCategoryList(assetId, jobId);
+        return categoryList;
+    }
+
     /**
      * 巡检实时采集
      *
@@ -208,9 +213,11 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         String assetId = asset.getAssetId();
         String respBody = "";
         try {
+            List<String> categoryList = this.getCategoryList(asset.getAssetId(), asset.getJobId());
             CollectExecReq req = new CollectExecReq();
             req.setInspectRecordId(asset.getInspectRecordId());
             req.setAssetId(assetId);
+            req.setCategoryList(categoryList);
             respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             this.sendAll2Queue(asset, e.getMsg());
