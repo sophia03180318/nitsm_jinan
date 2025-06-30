@@ -218,13 +218,12 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         if (xunjianIsFinish != null && xunjianIsFinish == 1) {
-            // 设置资产指标为初始状态
-            List<InspectAsset> assetList = inspectAssetMap.get(inspectRecordId);
+            // 将指标设置为最初状态
+            List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
             for (InspectAsset asset : assetList) {
                 asset.setInspectState(Web2Const.INSPECT);
             }
             inspectAssetService.updateBatchById(assetList);
-
             // 设置为结束巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
             schedule.setLastTime(new Date());
@@ -342,7 +341,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                     eventTypeMap.put(eventTypeId, assetSet);
                     repeatAssetIdMap.put(inspectRecordId, eventTypeMap);
                     this.sendTargetMsg(operator, XunjianWSDto.TARGET_STATUS, jobId, eventTypeId); // 异常指标大类型
-                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "推送异常指标", idType);
                 }
             }
         }

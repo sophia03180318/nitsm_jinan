@@ -41,6 +41,7 @@ import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.XunjianScheduleDao;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianJobDto;
+import com.jcca.web2.dto.xunjian.XunjianTask;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
@@ -66,7 +67,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.controller.XunjianFinalController.INSPECT_THREAD_MAP;
 import static com.jcca.web2.service.XunjianCollectRun.assetStateMap;
 import static com.jcca.web2.service.XunjianCollectRun.currentAssetIdMap;
 
@@ -164,11 +164,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 dto.setAutoFlag(1);
                 String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
                 dto.setInspectRecordId(inspectRecordId);
-                executor.execute(() -> {
-                    Thread thread = Thread.currentThread();
-                    INSPECT_THREAD_MAP.put(schedule.getJobId(), thread);
-                    this.beginXunjian(dto);
-                });
+                executor.execute(new XunjianTask(schedule.getJobId(), this, dto));
             }
             return jobId;
         }
@@ -727,11 +723,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 dto.setAutoFlag(1);
                 String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
                 dto.setInspectRecordId(inspectRecordId);
-                executor.execute(() -> {
-                    Thread thread = Thread.currentThread();
-                    INSPECT_THREAD_MAP.put(schedule.getJobId(), thread);
-                    this.beginXunjian(dto);
-                });
+                executor.execute(new XunjianTask(schedule.getJobId(), this, dto));
             }
             return;
         }
