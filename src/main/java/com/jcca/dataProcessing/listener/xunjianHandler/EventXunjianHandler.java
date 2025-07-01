@@ -66,6 +66,30 @@ public class EventXunjianHandler extends IFilterHandler<IEvent> {
                     info.setStatus(EventLevelEnum.NORMAL.getCode());
                     returnflag = false;
                 }
+            }else if (StatusInfoChangeTypeEnum.event_net_state.getCode().equals(info.getEventRedisKey())){
+                int value = Integer.valueOf(changeInfo.getValue().toString());
+                //端口本身是断开的，但是redis中已经有端口状态的缓存
+                if (value == 2 && Objects.nonNull(flag) && !flag) {
+                    Object object = eventInfoChangeManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
+                    //如果没有事件说明不是异常的
+                    if (Objects.isNull(object)) {
+                        //设置巡检正常
+                        info.setStatus(EventLevelEnum.NORMAL.getCode());
+                        //redis缓存中一直存是的是断的端口信息
+                        info.setXunjianDesc("网卡 " + info.getAlarmTempReq().getFlag() + " 未启用");
+                        returnflag = false;
+                    } else {
+                        //本身就存在异常
+                        returnflag = true;
+                    }
+                }
+                //如果状态是断的，并且缓存为空，说明是第一次采集
+                if (value == 2 && Objects.isNull(flag)) {
+                    //redis缓存中一直存是的是断的端口信息
+                    info.setXunjianDesc("网卡 " + info.getAlarmTempReq().getFlag() + " 未启用");
+                    info.setStatus(EventLevelEnum.NORMAL.getCode());
+                    returnflag = false;
+                }
             }
             //如果不在往下层提交，那么就在这个地方进行保存
             if(returnflag==false){

@@ -85,7 +85,7 @@ public class NetStateFilterHandler extends IFilterHandler<CollectNetworkCardEnti
             }
             tempReq.setOrgMsg(descStr);
             tempReq.setCollectValue(info.getStatus().toString());
-            tempReq.setFlag("网卡");
+            tempReq.setFlag(info.getName());
 
             this.addEventStatus(StatusInfoChangeTypeEnum.event_net_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getName(), status, info, changeInfo);
             IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq,info.getInspectRecordId());
