@@ -620,21 +620,22 @@ public class XunjianFinalController {
         Map<String, Object> map = inspectDetailService.report1Down(id);
 
         ExcelWriter writer = ExcelUtil.getWriter(true);
-        writer.merge(5, "综合维护平台巡检报告");
-        writer.merge(5, map.get("header1") + " " + map.get("header2"));
+        writer.merge(6, "综合维护平台巡检报告");
+        writer.merge(6, map.get("header1") + " " + map.get("header2"));
 
         writer.addHeaderAlias("index", "序号");
         writer.addHeaderAlias("assetDeskStr", "设备类型");
         writer.addHeaderAlias("assetName", "设备名称");
         writer.addHeaderAlias("alarmLevelStr", "告警级别");
+        writer.addHeaderAlias("alarmStatusStr", "处理状态");
         writer.addHeaderAlias("description", "告警描述");
         writer.addHeaderAlias("remarkStr", "参考建议");
         writer.setOnlyAlias(true);
 
         writer.setRowHeight(0, 18);
         writer.setColumnWidth(2, 20);
-        writer.setColumnWidth(4, 100);
-        writer.setColumnWidth(5, 30);
+        writer.setColumnWidth(5, 100);
+        writer.setColumnWidth(6, 30);
 
         writer.write((List) map.get("list"), true);
 

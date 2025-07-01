@@ -28,6 +28,9 @@ public class InspectReport1 {
     // 告警级别
     private Byte alarmLevel;
     private String alarmLevelStr;
+    // 告警状态
+    private Byte alarmStatus;
+    private String alarmStatusStr;
     // 告警标题
     private String alarmTitle;
     private String description;
