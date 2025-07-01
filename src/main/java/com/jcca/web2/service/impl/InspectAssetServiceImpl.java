@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -88,16 +86,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         String username = ShiroUtil.getSubject().getUsername();
         String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
         if (!StringUtils.isEmpty(inspectRecordId)) {
-            Integer totalTarget = targetTotalMap.get(inspectRecordId);
-            Integer countTarget = currentTargetCountMap.get(inspectRecordId);
-            if (totalTarget == null || countTarget == null) {
-                this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, 0);
-            } else {
-                BigDecimal process = new BigDecimal(countTarget).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-                int i = process.intValue();
-                i = Math.min(i, 100);
-                this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, i);
-            }
+            Integer i = currentProcessMap.get(inspectRecordId);
+            i = i == null ? 0 : i;
+            this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, i);
+
             if (currentAssetIdMap.get(inspectRecordId) != null && assetStateMap.get(inspectRecordId) != null) {
                 this.sendMsg(username, XunjianWSDto.XUNJIANING_ASSET, jobId, inspectRecordId, assetIdName.get(currentAssetIdMap.get(inspectRecordId)),
                         assetStateMap.get(inspectRecordId).get(currentAssetIdMap.get(inspectRecordId))); // 当前巡检资产

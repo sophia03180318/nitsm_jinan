@@ -69,8 +69,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.service.XunjianCollectRun.assetStateMap;
-import static com.jcca.web2.service.XunjianCollectRun.currentAssetIdMap;
+import static com.jcca.web2.service.XunjianCollectRun.*;
 
 /**
  * @author: hhw
@@ -430,6 +429,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
                 BigDecimal process = new BigDecimal(assetIdSet.size()).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
                 if (process.intValue() < 100) {
+                    currentProcessMap.put(schedule.getInspectRecordId(), process.intValue());
                     this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", process.intValue());
                 }
             }

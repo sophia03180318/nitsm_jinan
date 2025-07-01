@@ -142,7 +142,8 @@ public class XunjianCollectRun implements ApplicationRunner {
     public static Map<String, Set<String>> targetAbnormalSet = new ConcurrentHashMap<>();
     // 已巡检正常指标数量 <inspectRecordId, <已巡检正常指标数量>>
     public static Map<String, Set<String>> targetNormalSet = new ConcurrentHashMap<>();
-
+    // 巡检进度
+    public static final Map<String, Integer> currentProcessMap = new ConcurrentHashMap<>();
     // 指标分类总数量 <inspectRecordId, <targetItem, 该指标总数量>>
     private final Map<String, Map<String, Long>> totalTargetMap = new ConcurrentHashMap<>();
     // 该指标已巡检数量 <inspectRecordId, <targetItem, 该指标已巡检数量>>
@@ -477,6 +478,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         repeatAssetIdMap.remove(inspectRecordId);
         currentAssetIdMap.remove(inspectRecordId);
         assetIdEventTypeMap.remove(inspectRecordId);
+        currentProcessMap.remove(inspectRecordId);
     }
 
     private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
