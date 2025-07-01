@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Zhaozheng
@@ -32,6 +34,8 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
 
     @Resource
     private CollectNetworkCardService networkService;
+    @Resource
+    private RedisService redisService;
 
     @Override
     public synchronized boolean handler(CollectNetworkCardEntity info) {
@@ -41,6 +45,15 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
         date.setTime(info.getCollectTime());
 
         CollectNetworkCard net = EntityBeanUtil.copy(info, CollectNetworkCard.class);
+
+        if(StrUtil.isEmpty(net.getIp())||net.getIp().equals(DEFAULT_VALUE_STR)){
+            String key =info.getAssetIp()+":"+info.getAssetId()+":status:net:"+info.getName();
+            Object ip = redisService.hmGet(key, "ip");
+            if(Objects.nonNull(ip) && !DEFAULT_VALUE_STR.equals(ip.toString())){
+                net.setIp(ip.toString());
+            }
+        }
+
         net.setId(MyIdUtil.getId());
         net.setCollectTime(date);
         net.setCollectCode(info.getCollectCode());
