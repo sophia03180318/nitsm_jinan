@@ -216,12 +216,6 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         if (xunjianIsFinish != null && xunjianIsFinish == 1) {
-            // 将指标设置为最初状态
-            List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-            for (InspectAsset asset : assetList) {
-                asset.setInspectState(Web2Const.INSPECT);
-            }
-            inspectAssetService.updateBatchById(assetList);
             // 设置为结束巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
             schedule.setLastTime(new Date());

@@ -102,7 +102,7 @@ public class AsyncThreadConfig {
 
     @Bean(name = ThreadPoolEnum.XUNJIAN_FIANL)
     public ThreadPoolExecutor getXunjianFianPool() {
-        return new ThreadPoolExecutor(30, 60, 300, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000),
+        return new ThreadPoolExecutor(30, 60, 120, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100),
                 new MyThreadFactory(ThreadPoolEnum.XUNJIAN_FIANL));
     }
 
