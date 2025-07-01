@@ -61,6 +61,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -396,9 +398,12 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "保存巡检记录", "任务名称：" + schedule.getJobName() + ",记录ID：" + dto.getInspectRecordId());
 
         Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
+        Set<String> assetIdSet = new HashSet<>();
+        Set<String> collect = assetList.stream().map(InspectAsset::getAssetId).collect(Collectors.toSet());
+        int totalTarget = collect.size();
+
         try {
             // 开始巡检采集
-            Set<String> assetIdSet = new HashSet<>();
             for (InspectAsset inspectAsset : assetList) {
                 if (assetIdSet.contains(inspectAsset.getAssetId())) {
                     continue;
@@ -421,6 +426,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                         && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) != null) {
                     this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.ASSET_STATUS, schedule.getJobId(), inspectAsset.getAssetId(),
                             inspectAsset.getAssetName(), assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId())); // 资产状态
+                }
+
+                BigDecimal process = new BigDecimal(assetIdSet.size()).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+                if (process.intValue() < 100) {
+                    this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", process.intValue());
                 }
             }
 
