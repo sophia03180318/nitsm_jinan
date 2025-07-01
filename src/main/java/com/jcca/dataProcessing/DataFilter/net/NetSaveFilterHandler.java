@@ -51,6 +51,7 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
             Object ip = redisService.hmGet(key, "ip");
             if(Objects.nonNull(ip) && !DEFAULT_VALUE_STR.equals(ip.toString())){
                 net.setIp(ip.toString());
+                info.setIp(ip.toString());
             }
         }
 
