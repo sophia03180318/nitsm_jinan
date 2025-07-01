@@ -36,30 +36,6 @@ public class NetSaveFilterHandler extends IFilterHandler<CollectNetworkCardEntit
     @Override
     public synchronized boolean handler(CollectNetworkCardEntity info) {
         AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存网卡信息", info.getAssetIp());
-        //过滤掉IP地址为空的网卡 同时组的还要上
-        String ip = info.getIp();
-
-        // 断网后有的网卡采集不到IP 使用原有IP
-        if (DEFAULT_VALUE_STR.equals(ip)) {
-            QueryWrapper<CollectNetworkCard> query = Wrappers.query();
-            query.eq("ASSET_ID", info.getAssetId());
-            query.eq("NAME", info.getName());
-            List<CollectNetworkCard> list = networkService.list(query);
-            if (!list.isEmpty()) {
-                info.setIp(list.get(0).getIp());
-            }
-        }
-
-        if (StrUtil.isEmpty(ip) || DEFAULT_VALUE_STR.equals(ip)) {
-            if (!StringUtils.isEmpty(info.getBondType()) && !info.getName().contains("WFP") && !info.getName().contains("QoS")) {
-                // 标记行
-            } else if (!info.getName().contains("组") || info.getName().contains("WFP") || info.getName().contains("QoS")) {
-                //过滤掉名字不包含组，或包含组 含有WFP、QoS的
-                return false;
-            }
-        }
-
-
 
         Date date = new Date();
         date.setTime(info.getCollectTime());
