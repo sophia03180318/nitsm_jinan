@@ -263,7 +263,7 @@
     <select id="pageV2" resultType="com.jcca.web2.vo.AlarmPageVo">
         select DISTINCT c.TYPE as orgType,c.TITLE as orgName,
         b.ID as assetId,b.NAME as assetName,b.IP as assetIp1,b.IP2 as assetIp2,b.ASSET_MODE as assetMode,
-        a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel,
+        a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel, a.ASSET_IP, a.ASSET_NAME,
         a.content ,a.description,a.ALARM_CODE as alarmCode,a.OCCUR_TIME as occurTime,
         a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
         a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState
@@ -365,14 +365,14 @@
                 )
             </if>
             <if test="query.alarmCodeList != null">
-                and (a.ALARM_CODE  NOT IN
+                and (a.ALARM_CODE NOT IN
                 <trim suffixOverrides=" a.ALARM_CODE NOT IN()">
                     <!-- 表示删除最后一个条件 -->
                     <foreach collection="query.alarmCodeList" item="Id" index="index" open="(" close=")">
                         <if test="index != 0">
                             <choose>
                                 <when test="index % 1000 == 600">
-                                    ) OR a.ALARM_CODE  NOT IN (
+                                    ) OR a.ALARM_CODE NOT IN (
                                 </when>
                                 <otherwise>,</otherwise>
                             </choose>
