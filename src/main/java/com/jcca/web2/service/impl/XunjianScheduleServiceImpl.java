@@ -378,6 +378,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 return;
             }
 
+            Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), dto.getInspectRecordId());
+
             // 将任务设置为正在巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
             schedule.setLastTime(new Date());
@@ -396,7 +398,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         this.saveInspectRecord(schedule);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "保存巡检记录", "任务名称：" + schedule.getJobName() + ",记录ID：" + dto.getInspectRecordId());
 
-        Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), schedule.getInspectRecordId());
         Set<String> assetIdSet = new HashSet<>();
         Set<String> collect = assetList.stream().map(InspectAsset::getAssetId).collect(Collectors.toSet());
         int totalTarget = collect.size();

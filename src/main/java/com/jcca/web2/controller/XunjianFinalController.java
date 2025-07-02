@@ -246,11 +246,14 @@ public class XunjianFinalController {
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
         }
 
+        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+        Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
+
         // 将任务设置为正在巡检
         schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
         xunjianScheduleService.updateById(schedule);
         // 将指标设置为最初状态
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
         for (InspectAsset asset : assetList) {
             asset.setInspectState(Web2Const.INSPECT);
         }
@@ -261,9 +264,8 @@ public class XunjianFinalController {
         dto.setAutoFlag(1);
         dto.setId(schedule.getId());
         dto.setOperator(schedule.getOperator());
-        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         dto.setInspectRecordId(inspectRecordId);
-        executor.execute(new XunjianTask(schedule.getJobId(), xunjianScheduleService, dto));
+        executor.execute(new XunjianTask(jobId, xunjianScheduleService, dto));
 
         int poolSize = executor.getPoolSize();
         int activeCount = executor.getActiveCount();
