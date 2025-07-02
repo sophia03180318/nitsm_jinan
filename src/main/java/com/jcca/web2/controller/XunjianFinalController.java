@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
@@ -259,7 +260,7 @@ public class XunjianFinalController {
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
 
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
         XunjianJobDto dto = new XunjianJobDto();
         dto.setAutoFlag(1);
         dto.setId(schedule.getId());
@@ -530,6 +531,12 @@ public class XunjianFinalController {
     @GetMapping("/target/status")
     @ApiOperation("指标状态列表")
     public ResultVo<Object> targetStatus(String jobId) {
+
+        try {
+            TimeUnit.SECONDS.sleep(2L);
+        } catch (InterruptedException ignored) {
+
+        }
 
         String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
         if (StringUtils.isEmpty(inspectRecordId)) {
