@@ -53,6 +53,7 @@ import com.jcca.web2.vo.ItemVo;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.SchedulerException;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -64,7 +65,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -164,7 +164,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
                 Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
 
-                ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
+                ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
                 dto.setId(schedule.getId());
                 dto.setAutoFlag(1);
                 dto.setInspectRecordId(inspectRecordId);
@@ -735,7 +735,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
                 Web2Const.XUNJIAN_JOB_RECORD.put(dto.getJobId(), inspectRecordId);
 
-                ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
+                ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
                 dto.setId(schedule.getId());
                 dto.setAutoFlag(1);
                 dto.setInspectRecordId(inspectRecordId);

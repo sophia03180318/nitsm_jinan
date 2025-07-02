@@ -21,6 +21,4 @@ public class ThreadPoolEnum {
     public static final String transferDataExecutor = "transferDataExecutor";
     public static final String ipmiPingJob = "ipmiPingJob";
     public static final String xunjianAsync = "xunjianAsync";
-
-    public static final String XUNJIAN_FIANL = "xunjianFianl";
 }
