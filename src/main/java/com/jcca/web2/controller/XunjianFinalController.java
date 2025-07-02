@@ -38,6 +38,7 @@ import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -247,6 +248,9 @@ public class XunjianFinalController {
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
         }
 
+        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+        Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
+
         // 将任务设置为正在巡检
         schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
         xunjianScheduleService.updateById(schedule);
@@ -257,10 +261,7 @@ public class XunjianFinalController {
         }
         inspectAssetService.updateBatchById(assetList);
 
-        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
-        Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
-
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
+        ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
         XunjianJobDto dto = new XunjianJobDto();
         dto.setAutoFlag(1);
         dto.setId(schedule.getId());
@@ -268,12 +269,14 @@ public class XunjianFinalController {
         dto.setInspectRecordId(inspectRecordId);
         executor.execute(new XunjianTask(jobId, xunjianScheduleService, dto));
 
-        int poolSize = executor.getPoolSize();
-        int activeCount = executor.getActiveCount();
-        long taskCount = executor.getTaskCount();
-        BlockingQueue<Runnable> queue = executor.getQueue();
+        ThreadPoolExecutor threadPoolExecutor = executor.getThreadPoolExecutor();
+        int poolSize = threadPoolExecutor.getPoolSize();
+        int activeCount = threadPoolExecutor.getActiveCount();
+        long taskCount = threadPoolExecutor.getTaskCount();
+        BlockingQueue<Runnable> queue = threadPoolExecutor.getQueue();
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务--用户：" + schedule.getOperator() + "，任务ID：" + jobId,
                 "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务总数-" + taskCount + ",队列长度-" + queue.size());
+
         return ResultVoUtil.success();
     }
 
@@ -542,13 +545,13 @@ public class XunjianFinalController {
         if (StringUtils.isEmpty(inspectRecordId)) {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
             BlockingQueue<Runnable> queue = executor.getQueue();
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "当前等待任务数：" + (queue.size() + 1));
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务未开始或已结束：" + queue.size());
         }
         InspectRecord record = inspectRecordService.getById(inspectRecordId);
         if (record == null) {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
             BlockingQueue<Runnable> queue = executor.getQueue();
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务已满当前等待任务数：" + (queue.size() + 1));
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "暂未生成巡检记录：" + queue.size());
         }
         QueryWrapper<InspectDetail> detail;
 

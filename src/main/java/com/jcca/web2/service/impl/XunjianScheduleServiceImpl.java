@@ -677,6 +677,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateSchedule(XunjianJobDto dto) {
         Integer autoFlag = dto.getAutoFlag();
         String cronTimes = dto.getCronTimes();

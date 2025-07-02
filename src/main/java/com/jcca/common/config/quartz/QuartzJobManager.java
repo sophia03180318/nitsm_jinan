@@ -24,12 +24,19 @@ public class QuartzJobManager {
 
 
     public void addJob(String jobName, String jobGroup, String cronExpression, Class<? extends Job> jobClass) throws SchedulerException {
+
+        JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
+        if (scheduler.checkExists(jobKey)) {
+            scheduler.deleteJob(jobKey);
+        }
+
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
                 .withIdentity(jobName, jobGroup)
                 .build();
 
         Trigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity(jobName, jobGroup)
+                .forJob(jobDetail)
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                 .build();
 
@@ -37,7 +44,7 @@ public class QuartzJobManager {
     }
 
     public void deleteJob(String jobName, String jobGroup) throws SchedulerException {
-        JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
+        JobKey jobKey = new JobKey(jobName, jobGroup);
         scheduler.deleteJob(jobKey);
     }
 }
