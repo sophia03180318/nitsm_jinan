@@ -260,7 +260,7 @@ public class XunjianFinalController {
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
 
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
         XunjianJobDto dto = new XunjianJobDto();
         dto.setAutoFlag(1);
         dto.setId(schedule.getId());
