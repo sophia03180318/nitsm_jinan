@@ -246,9 +246,6 @@ public class XunjianFinalController {
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
         }
 
-        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
-        Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
-
         // 将任务设置为正在巡检
         schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
         xunjianScheduleService.updateById(schedule);
@@ -258,6 +255,9 @@ public class XunjianFinalController {
             asset.setInspectState(Web2Const.INSPECT);
         }
         inspectAssetService.updateBatchById(assetList);
+
+        String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+        Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
 
         ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
         XunjianJobDto dto = new XunjianJobDto();
@@ -273,7 +273,6 @@ public class XunjianFinalController {
         BlockingQueue<Runnable> queue = executor.getQueue();
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检任务--用户：" + schedule.getOperator() + "，任务ID：" + jobId,
                 "线程池大小-" + poolSize + ",存活线程数-" + activeCount + ",任务总数-" + taskCount + ",队列长度-" + queue.size());
-
         return ResultVoUtil.success();
     }
 
@@ -307,6 +306,7 @@ public class XunjianFinalController {
         dto.setOperator(username);
         xunjianScheduleService.updateSchedule(dto);
         AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "修改巡检任务", jobId);
+
         return ResultVoUtil.success();
     }
 

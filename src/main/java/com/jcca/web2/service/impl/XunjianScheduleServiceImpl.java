@@ -152,8 +152,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
                 }
 
-                Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
-
                 // 将任务设置为正在巡检
                 schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
                 this.updateById(schedule);
@@ -163,6 +161,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     asset.setInspectState(Web2Const.INSPECT);
                 }
                 inspectAssetService.updateBatchById(assetList);
+
+                Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
 
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
                 dto.setId(schedule.getId());
@@ -381,8 +381,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 return;
             }
 
-            Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), dto.getInspectRecordId());
-
             // 将任务设置为正在巡检
             schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
             schedule.setLastTime(new Date());
@@ -393,6 +391,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 asset.setInspectState(Web2Const.INSPECT);
             }
             inspectAssetService.updateBatchById(assetList);
+
+            Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), dto.getInspectRecordId());
         }
 
         // 保存巡检记录
@@ -723,8 +723,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
                 }
 
-                Web2Const.XUNJIAN_JOB_RECORD.put(dto.getJobId(), inspectRecordId);
-
                 // 将任务设置为正在巡检
                 schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
                 this.updateById(schedule);
@@ -734,6 +732,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     asset.setInspectState(Web2Const.INSPECT);
                 }
                 inspectAssetService.updateBatchById(assetList);
+
+                Web2Const.XUNJIAN_JOB_RECORD.put(dto.getJobId(), inspectRecordId);
 
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
                 dto.setId(schedule.getId());
