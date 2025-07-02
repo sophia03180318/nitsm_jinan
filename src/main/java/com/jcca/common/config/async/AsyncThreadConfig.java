@@ -36,7 +36,6 @@ public class AsyncThreadConfig {
     }
 
 
-
     /**
      * 巡检耗时较大，系统只允许一个线程运行
      * 系统只允许一个线程巡检
@@ -103,7 +102,7 @@ public class AsyncThreadConfig {
     @Bean(name = ThreadPoolEnum.XUNJIAN_FIANL)
     public ThreadPoolExecutor getXunjianFianPool() {
         return new ThreadPoolExecutor(30, 50, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000),
-                new MyThreadFactory(ThreadPoolEnum.XUNJIAN_FIANL));
+                new MyThreadFactory(ThreadPoolEnum.XUNJIAN_FIANL), new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     // 阈值采集数据处理
