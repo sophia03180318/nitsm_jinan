@@ -185,10 +185,10 @@ public class XunjianCollectRun implements ApplicationRunner {
             for (InspectAsset asset : assetList) {
                 targetNameMap.get(inspectRecordId).put(asset.getTargetItem(), asset.getTargetName());
             }
-            Set<String> set = targetNameMap.get(inspectRecordId).keySet();
-            if (!set.contains(targetItem)) {
-                return;
-            }
+//            Set<String> set = targetNameMap.get(inspectRecordId).keySet();
+//            if (!set.contains(targetItem)) {
+//                return;
+//            }
 
             inspectAssetMap.put(inspectRecordId, assetList);
 
@@ -422,7 +422,7 @@ public class XunjianCollectRun implements ApplicationRunner {
         List<InspectAsset> inspectAssets = inspectAssetMap.get(dto.getInspectRecordId());
         for (InspectAsset asset : inspectAssets) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
-                asset.setInspectState(targetStateMap.get(dto.getInspectRecordId()).get(dto.getEventTypeId()) + "");
+                asset.setInspectState(dto.getInspectState());
                 asset.setInspectValue(dto.getInspectValue());
                 asset.setResultMsg(dto.getResultMsg());
                 inspectAssetService.updateById(asset);
