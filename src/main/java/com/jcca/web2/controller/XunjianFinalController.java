@@ -533,7 +533,7 @@ public class XunjianFinalController {
     public ResultVo<Object> targetStatus(String jobId) {
 
         try {
-            TimeUnit.SECONDS.sleep(2L);
+            TimeUnit.SECONDS.sleep(1L);
         } catch (InterruptedException ignored) {
 
         }
@@ -542,11 +542,13 @@ public class XunjianFinalController {
         if (StringUtils.isEmpty(inspectRecordId)) {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
             BlockingQueue<Runnable> queue = executor.getQueue();
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务已满当前等待任务数：" + (queue.size() + 1));
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "当前等待任务数：" + (queue.size() + 1));
         }
         InspectRecord record = inspectRecordService.getById(inspectRecordId);
         if (record == null) {
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "暂未生成记录");
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
+            BlockingQueue<Runnable> queue = executor.getQueue();
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务已满当前等待任务数：" + (queue.size() + 1));
         }
         QueryWrapper<InspectDetail> detail;
 
