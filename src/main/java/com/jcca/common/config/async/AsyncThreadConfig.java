@@ -47,12 +47,12 @@ public class AsyncThreadConfig {
     public Executor xunjianAsync() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 当线程数量小于corePoolSize时，创建线程，不管线程是不是闲置的
-        executor.setCorePoolSize(1);
+        executor.setCorePoolSize(30);
         // 当线程数量大于等于corePoolSize时，把任务放到queueCapacity队列
         // 当queueCapacity满了，就创建新的线程来执行
         executor.setQueueCapacity(20000);
         // 当线程数量大于等于maxPoolSize时，根据RejectedExecutionHandler设置的策略来处理新加入的任务
-        executor.setMaxPoolSize(2);
+        executor.setMaxPoolSize(50);
         // (maxPoolSize-corePoolSize)部分线程空闲最大存活时间
         executor.setKeepAliveSeconds(10);
 
@@ -102,7 +102,7 @@ public class AsyncThreadConfig {
 
     @Bean(name = ThreadPoolEnum.XUNJIAN_FIANL)
     public ThreadPoolExecutor getXunjianFianPool() {
-        return new ThreadPoolExecutor(30, 50, 120, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000),
+        return new ThreadPoolExecutor(30, 50, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000),
                 new MyThreadFactory(ThreadPoolEnum.XUNJIAN_FIANL));
     }
 
