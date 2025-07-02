@@ -535,7 +535,7 @@ public class XunjianFinalController {
         if (StringUtils.isEmpty(inspectRecordId)) {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
             BlockingQueue<Runnable> queue = executor.getQueue();
-            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务已满当前等待任务数：" + queue.size() + 1);
+            return ResultVoUtil.error(ResultEnum.CANNOT_FIND.getCode(), "任务已满当前等待任务数：" + (queue.size() + 1));
         }
         InspectRecord record = inspectRecordService.getById(inspectRecordId);
         if (record == null) {

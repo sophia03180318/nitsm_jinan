@@ -141,6 +141,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             this.saveInspectAsset(dto);
 
             // 是否立即执行
+            String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
+            schedule.setInspectRecordId(inspectRecordId);
             if (dto.getStartNow() == 2) {
                 // 巡检前让采集器推送一次进程状态数据
                 try {
@@ -149,6 +151,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto.getJobId());
                     throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
                 }
+
+                Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
 
                 // 将任务设置为正在巡检
                 schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
@@ -163,7 +167,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
                 dto.setId(schedule.getId());
                 dto.setAutoFlag(1);
-                String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
                 dto.setInspectRecordId(inspectRecordId);
                 executor.execute(new XunjianTask(schedule.getJobId(), this, dto));
             }
@@ -710,6 +713,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             this.saveInspectAsset(dto);
 
             // 是否立即执行
+            String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
             if (dto.getStartNow() == 2) {
                 // 巡检前让采集器推送一次进程状态数据
                 try {
@@ -718,6 +722,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto.getJobId());
                     throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
                 }
+
+                Web2Const.XUNJIAN_JOB_RECORD.put(dto.getJobId(), inspectRecordId);
 
                 // 将任务设置为正在巡检
                 schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
@@ -732,7 +738,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.XUNJIAN_FIANL);
                 dto.setId(schedule.getId());
                 dto.setAutoFlag(1);
-                String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
                 dto.setInspectRecordId(inspectRecordId);
                 executor.execute(new XunjianTask(schedule.getJobId(), this, dto));
             }
