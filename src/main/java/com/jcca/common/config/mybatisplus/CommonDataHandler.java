@@ -2,6 +2,7 @@ package com.jcca.common.config.mybatisplus;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.jcca.admin.system.entity.SysUser;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
@@ -16,6 +17,7 @@ import java.util.Objects;
  * @Date 2020/4/9 16:08
  * @Author hanwone
  */
+@Slf4j
 @Component
 public class CommonDataHandler implements MetaObjectHandler {
 
@@ -48,20 +50,24 @@ public class CommonDataHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        boolean modifier = metaObject.hasSetter("modifier");
-        if (modifier) {
-            Subject subject = ThreadContext.getSubject();
-            String username = "系统";
-            if (Objects.nonNull(subject) && Objects.nonNull(subject.getPrincipal())) {
-                SysUser user = (SysUser) subject.getPrincipal();
-                username = user.getUsername();
+        try {
+            boolean modifier = metaObject.hasSetter("modifier");
+            if (modifier) {
+                Subject subject = ThreadContext.getSubject();
+                String username = "系统";
+                if (Objects.nonNull(subject) && Objects.nonNull(subject.getPrincipal())) {
+                    SysUser user = (SysUser) subject.getPrincipal();
+                    username = user.getUsername();
+                }
+                this.setUpdateFieldValByName("modifier", username, metaObject);
             }
-            this.setUpdateFieldValByName("modifier", username, metaObject);
-        }
 
-        boolean modifyTime = metaObject.hasSetter("modifyTime");
-        if (modifyTime) {
-            this.setUpdateFieldValByName("modifyTime", new Date(), metaObject);
+            boolean modifyTime = metaObject.hasSetter("modifyTime");
+            if (modifyTime) {
+                this.setUpdateFieldValByName("modifyTime", new Date(), metaObject);
+            }
+        }catch (Exception e){
+            log.error("自动更新用户名报错，多线程导致触发此类报警："+e.getMessage());
         }
     }
 }
