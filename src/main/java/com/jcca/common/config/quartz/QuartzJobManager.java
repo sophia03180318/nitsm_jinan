@@ -1,5 +1,7 @@
 package com.jcca.common.config.quartz;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import lombok.Getter;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -23,13 +25,7 @@ public class QuartzJobManager {
     }
 
 
-    public void addJob(String jobName, String jobGroup, String cronExpression, Class<? extends Job> jobClass) throws SchedulerException {
-
-        JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-        if (scheduler.checkExists(jobKey)) {
-            scheduler.deleteJob(jobKey);
-        }
-
+    public void addJob(String jobName, String jobGroup, String cronExpression, Class<? extends Job> jobClass) {
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
                 .withIdentity(jobName, jobGroup)
                 .build();
@@ -40,11 +36,25 @@ public class QuartzJobManager {
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                 .build();
 
-        scheduler.scheduleJob(jobDetail, trigger);
+        try {
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "添加任务异常", "任务名称：" + jobName + "，任务组：" + jobGroup);
+
+        }
     }
 
-    public void deleteJob(String jobName, String jobGroup) throws SchedulerException {
-        JobKey jobKey = new JobKey(jobName, jobGroup);
-        scheduler.deleteJob(jobKey);
+    public void deleteJob(String jobName, String jobGroup) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
+        try {
+            if (scheduler.checkExists(triggerKey)) {
+                JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
+                scheduler.pauseTrigger(triggerKey);
+                scheduler.unscheduleJob(triggerKey);
+                scheduler.deleteJob(jobKey);
+            }
+        } catch (SchedulerException e) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "删除任务异常", "任务名称：" + jobName + "，任务组：" + jobGroup);
+        }
     }
 }

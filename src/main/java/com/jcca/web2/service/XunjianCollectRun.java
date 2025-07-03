@@ -97,7 +97,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检接收到数据：" + Web2Const.XUNJIAN_COLLECT_QUEUE.size(), dto);
 
                 InspectRecord record;
-
                 if (inspectRecordMap.get(inspectRecordId) == null) {
                     record = inspectRecordService.getById(inspectRecordId);
                     if (record == null) {
@@ -112,11 +111,11 @@ public class XunjianCollectRun implements ApplicationRunner {
 
                 XunjianSchedule schedule;
                 String scheduleId = record.getScheduleId();
-                if (!xunjianScheduleMap.containsKey(scheduleId)) {
+                if (!xunjianScheduleMap.containsKey(inspectRecordId)) {
                     schedule = xunjianScheduleService.getById(scheduleId);
-                    xunjianScheduleMap.put(scheduleId, schedule);
+                    xunjianScheduleMap.put(inspectRecordId, schedule);
                 }
-                schedule = xunjianScheduleMap.get(scheduleId);
+                schedule = xunjianScheduleMap.get(inspectRecordId);
                 if (schedule == null) {
                     continue;
                 }
@@ -167,8 +166,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
     private synchronized void send2Web(XunjianDataDto dto) {
         String inspectRecordId = dto.getInspectRecordId();
-        InspectRecord inspectRecord = inspectRecordMap.get(inspectRecordId);
-        XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecord.getScheduleId());
+        XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecordId);
         String operator = schedule.getOperator();
         String jobId = schedule.getJobId();
         dto.setJobId(jobId);
@@ -185,10 +183,10 @@ public class XunjianCollectRun implements ApplicationRunner {
             for (InspectAsset asset : assetList) {
                 targetNameMap.get(inspectRecordId).put(asset.getTargetItem(), asset.getTargetName());
             }
-//            Set<String> set = targetNameMap.get(inspectRecordId).keySet();
-//            if (!set.contains(targetItem)) {
-//                return;
-//            }
+            Set<String> set = targetNameMap.get(inspectRecordId).keySet();
+            if (!set.contains(targetItem)) {
+                return;
+            }
 
             inspectAssetMap.put(inspectRecordId, assetList);
 

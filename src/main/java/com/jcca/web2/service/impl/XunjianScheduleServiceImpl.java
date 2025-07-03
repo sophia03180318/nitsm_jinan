@@ -51,7 +51,6 @@ import com.jcca.web2.service.*;
 import com.jcca.web2.util.TimeToCronConverter;
 import com.jcca.web2.vo.ItemVo;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.SchedulerException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -182,12 +181,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             String cron = TimeToCronConverter.convertToCron(time);
             cronSB.append(cron).append(",");
             // 添加到周期任务
-            try {
-                jobManager.addJob(schedule.getId() + "_" + cron, schedule.getOperator(), cron, XunjianJob.class);
-            } catch (SchedulerException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "添加巡检任务异常，jobId：" + schedule.getId(), e);
-                throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "添加巡检任务异常");
-            }
+            jobManager.addJob(schedule.getId() + "_" + cron.replace(" ", "-"), schedule.getOperator(), cron, XunjianJob.class);
         }
 
         schedule.setStartNow(1);
@@ -342,20 +336,15 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         query.eq("JOB_STATE", 1);
         query.eq("AUTO_FLAG", 2);
         List<XunjianSchedule> list = this.list(query);
-        try {
-            for (XunjianSchedule schedule : list) {
-                String[] crons = schedule.getCron().split(",");
-                for (String cron : crons) {
-                    if (StringUtils.isEmpty(cron)) {
-                        continue;
-                    }
-                    String jobName = schedule.getId() + "_" + cron;
-                    jobManager.addJob(jobName, schedule.getOperator(), cron, XunjianJob.class);
+        for (XunjianSchedule schedule : list) {
+            String[] crons = schedule.getCron().split(",");
+            for (String cron : crons) {
+                if (StringUtils.isEmpty(cron)) {
+                    continue;
                 }
+                String jobName = schedule.getId() + "_" + cron.replace(" ", "-");
+                jobManager.addJob(jobName, schedule.getOperator(), cron, XunjianJob.class);
             }
-        } catch (SchedulerException e) {
-            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "启动巡检任务异常", e);
-            throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "启动巡检任务异常");
         }
     }
 
@@ -552,18 +541,13 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             schedule.setJobState(3);
             this.updateById(schedule);
 
-            try {
-                String[] crons = schedule.getCron().split(",");
-                for (String cron : crons) {
-                    if (StringUtils.isEmpty(cron)) {
-                        continue;
-                    }
-                    jobManager.deleteJob(schedule.getId() + "_" + cron, schedule.getOperator());
-                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "暂停周期巡检任务，jobId：" + schedule.getId(), cron);
+            String[] crons = schedule.getCron().split(",");
+            for (String cron : crons) {
+                if (StringUtils.isEmpty(cron)) {
+                    continue;
                 }
-            } catch (SchedulerException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "暂停周期巡检任务异常", e);
-                throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "暂停周期巡检任务异常");
+                jobManager.deleteJob(schedule.getId() + "_" + cron.replace(" ", "-"), schedule.getOperator());
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "暂停周期巡检任务，jobId：" + schedule.getId(), cron);
             }
         }
     }
@@ -578,18 +562,13 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             schedule.setJobState(1);
             this.updateById(schedule);
 
-            try {
-                String[] crons = schedule.getCron().split(",");
-                for (String cron : crons) {
-                    if (StringUtils.isEmpty(cron)) {
-                        continue;
-                    }
-                    jobManager.addJob(schedule.getId() + "_" + cron, schedule.getOperator(), cron, XunjianJob.class);
-                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "恢复周期巡检任务，jobId：" + schedule.getId(), cron);
+            String[] crons = schedule.getCron().split(",");
+            for (String cron : crons) {
+                if (StringUtils.isEmpty(cron)) {
+                    continue;
                 }
-            } catch (SchedulerException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "恢复周期巡检任务异常，jobId：" + schedule.getId(), e);
-                throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "恢复周期巡检任务异常");
+                jobManager.addJob(schedule.getId() + "_" + cron.replace(" ", "-"), schedule.getOperator(), cron, XunjianJob.class);
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "恢复周期巡检任务，jobId：" + schedule.getId(), cron);
             }
         }
     }
@@ -648,12 +627,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                     if (StringUtils.isEmpty(cron)) {
                         continue;
                     }
-                    try {
-                        jobManager.deleteJob(schedule.getId() + "_" + cron, schedule.getOperator());
-                    } catch (SchedulerException e) {
-                        AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "删除周期巡检任务异常，jobId：" + schedule.getId(), e);
-                        throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "删除周期巡检任务异常");
-                    }
+                    jobManager.deleteJob(schedule.getId() + "_" + cron.replace(" ", "-"), schedule.getOperator());
                 }
             }
             // 删除巡检资产
@@ -751,13 +725,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             if (StringUtils.isEmpty(cron)) {
                 continue;
             }
-            try {
-                // 删除原周期任务
-                jobManager.deleteJob(schedule.getId() + "_" + cron, schedule.getOperator());
-            } catch (SchedulerException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "更新巡检任务异常，jobId：" + schedule.getId(), e);
-                throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "更新巡检任务异常");
-            }
+            // 删除原周期任务
+            jobManager.deleteJob(schedule.getId() + "_" + cron.replace(" ", "-"), schedule.getOperator());
         }
 
         String[] tims = cronTimes.split(",");
@@ -766,13 +735,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         for (String time : set) {
             String cron = TimeToCronConverter.convertToCron(time);
             cronSB.append(cron).append(",");
-            try {
-                // 添加到周期任务
-                jobManager.addJob(schedule.getId() + "_" + cron, schedule.getOperator(), cron, XunjianJob.class);
-            } catch (SchedulerException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "更新巡检任务异常，jobId：" + schedule.getId(), e);
-                throw new ResultException(ResultEnum.INSPECT_SCHEDULE_ERROR, "更新巡检任务异常");
-            }
+            // 添加到周期任务
+            jobManager.addJob(schedule.getId() + "_" + cron.replace(" ", "-"), schedule.getOperator(), cron, XunjianJob.class);
         }
 
         schedule.setStartNow(1);
@@ -794,7 +758,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
     @Override
     public void resetJob(XunjianSchedule schedule) {
-
         // 将任务设置为最初状态
         schedule.setJobState(Integer.parseInt(Web2Const.INSPECT));
         this.updateById(schedule);
