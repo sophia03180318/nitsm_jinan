@@ -44,12 +44,7 @@ public class RaidStorageStateFilterHandler extends IFilterHandler<DiskEntity> {
             //Driver
             eventRedisKey = StatusInfoChangeTypeEnum.event_storage_driver.getCode();
             message = String.format(StatusInfoChangeTypeEnum.event_storage_driver.getDescr(), keystr, str);
-        } else if (info.getDiskType() == 0) {
-            //group
-            eventRedisKey = StatusInfoChangeTypeEnum.event_storage_group.getCode();
-            message = String.format(StatusInfoChangeTypeEnum.event_storage_group.getDescr(), keystr, str);
-
-        } else if (info.getDiskType() == 1) {
+        }  else if (info.getDiskType() == 1) {
             //mdisk
             eventRedisKey = StatusInfoChangeTypeEnum.event_storage_Mdisk.getCode();
             message = String.format(StatusInfoChangeTypeEnum.event_storage_group.getDescr(), keystr, str);
