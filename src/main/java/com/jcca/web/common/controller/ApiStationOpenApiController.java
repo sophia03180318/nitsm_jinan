@@ -1,16 +1,28 @@
 package com.jcca.web.common.controller;
 
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.admin.biz.entity.Station;
 import com.jcca.admin.biz.service.StationService;
+import com.jcca.admin.system.entity.SysModuleConfig;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.bean.RestBean;
+import com.jcca.common.bean.constant.GlobalConfigConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.utils.ValidatorUtils;
 
+import com.jcca.component.constants.RedisQueueConst;
+import com.jcca.component.dto.ReceiveAlarmDto;
+import com.jcca.component.enums.ReceiveAlarmTypeEnum;
+import com.jcca.dataProcessing.Entity.SyslogEventInfoEntity;
+import com.jcca.dataProcessing.enums.CollectConst;
+import com.jcca.dataProcessing.manager.DataProcessManager;
+import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.web.asset.entity.*;
 
 import com.jcca.web.asset.service.*;
@@ -24,6 +36,7 @@ import com.jcca.web.common.service.StationAlarmService;
 import com.jcca.web2.dto.ThresholdManageQuery;
 import com.jcca.web2.service.ThresholdManageService;
 import com.jcca.web2.vo.ThresholdManageVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -35,6 +48,7 @@ import java.util.stream.Collectors;
  * @author: Lvyp
  * @create: 2024/04/10 14:19
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/free/station/openApi")
 public class ApiStationOpenApiController {
@@ -54,6 +68,11 @@ public class ApiStationOpenApiController {
     private ThresholdProcessService processServ;
     @Resource
     private StationAlarmService stationAlarmService;
+    @Resource
+    private SysModuleConfigService sysModuleConfServ;
+
+    @Resource(name = "dataProcessManager")
+    private DataProcessManager dataProcessManager;
 
 
 
@@ -70,7 +89,30 @@ public class ApiStationOpenApiController {
     }
 
 
+    @PostMapping("/pushAlarmSyslog")
+    RestBean pushAlarmSyslog(@RequestBody StationSyslogMessage stationSyslogMsg){
+        Asset asset = assetService.findOneByIp(stationSyslogMsg.getHostname());
+        if(Objects.isNull(asset)){
+            log.error("接收到车站syslog消息："+stationSyslogMsg.getRawMessage()+"设备"+stationSyslogMsg.getHostname()+"不存在");
+            return RestBean.ofSuccess("接收成功" );
+        }
+        String key = "[jcca-syslog-level:" + stationSyslogMsg.getSeverity() + "]";
 
+        SysModuleConfig syslogSwitch = sysModuleConfServ.getSysModuleConfig(GlobalConfigConst.SYSLOG_SWITCH);
+        if (Objects.nonNull(syslogSwitch) && "1".equals(syslogSwitch.getValue())) {
+            IAdapter adapter = dataProcessManager.getAdapter(CollectConst.SYSLOG);
+            SyslogEventInfoEntity syslogEventInfoEntity = new SyslogEventInfoEntity();
+
+            syslogEventInfoEntity.setIp(asset.getIp());
+            syslogEventInfoEntity.setMessage(stationSyslogMsg.getRawMessage()+key);
+            syslogEventInfoEntity.setLevel(stationSyslogMsg.getSeverity());
+            adapter.dispose(syslogEventInfoEntity);
+            //获取当前处理数量
+            adapter.dataProcess();
+        }
+
+        return RestBean.ofSuccess("处理成功");
+    }
 
 
     /**
