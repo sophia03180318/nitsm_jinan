@@ -31,7 +31,7 @@ spring:
       org:
         quartz:
           scheduler:
-            instanceName: NitsmScheduler2
+            instanceName: NitsmScheduler3
             instanceId: AUTO
           threadPool:
             #实例化ThreadPool时，使用的线程类为SimpleThreadPool
@@ -61,9 +61,9 @@ spring:
     druid:
       #url: jdbc:dm://192.168.51.252:5236/DMSERVER
 
-      url: jdbc:oracle:thin:@localhost:1521/orcl
-      username: ITSMV2
-      password: ITSMV2
+      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
+      username: jinanv2
+      password: jinanv2
 
       #      url: jdbc:oracle:thin:@localhost:1521/orcl
       #      username: gz_pusu
@@ -107,17 +107,16 @@ spring:
 
 jcca:
   redis:
-    host: localhost
+    host: 192.168.73.26
     port: 6379
-#    password: jcca@123
+    password: jcca@123
     timeout: 5000
-    database: 8
+    database: 7
 
     jedis:
       pool1:
-        max-wait: -1
+        max-wait: 1000
         max-total: 5
-        max-active: 5
         min-idle: 1
         max-idle: 3
         minEvictableIdleTimeMillis: 120000      #连接空闲多久后可以被驱逐，单位毫秒
@@ -125,9 +124,8 @@ jcca:
         numTestsPerEvictionRun: 100             # 测试间隔
         timeBetweenEvictionRunsMillis: 20000    # 20s检查一次
       pool2:                                     # 带事务的redis 缓存池
-        max-wait: -1
+        max-wait: 1000
         max-total: 5
-        max-active: 5
         min-idle: 1
         max-idle: 2
         minEvictableIdleTimeMillis: 120000      #连接空闲多久后可以被驱逐，单位毫秒
@@ -161,7 +159,7 @@ project:
     static-path: /upload                     #上传文件静态访问路径
     static-url: http://127.0.0.1:5502     #静态文件访问路径
   syslog_snmp:
-    host: 192.168.20.85
+    host: 192.168.20.66
 
 # 专家知识库
 kbUrl:
