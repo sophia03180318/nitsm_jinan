@@ -1,9 +1,7 @@
 package com.jcca.web.common.controller;
 
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.admin.biz.entity.Station;
@@ -16,9 +14,7 @@ import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.utils.ValidatorUtils;
 
-import com.jcca.component.constants.RedisQueueConst;
-import com.jcca.component.dto.ReceiveAlarmDto;
-import com.jcca.component.enums.ReceiveAlarmTypeEnum;
+import com.jcca.dataProcessing.Entity.SnmpEventInfoEntity;
 import com.jcca.dataProcessing.Entity.SyslogEventInfoEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -90,26 +86,40 @@ public class ApiStationOpenApiController {
 
 
     @PostMapping("/pushAlarmSyslog")
-    RestBean pushAlarmSyslog(@RequestBody StationSyslogMessage stationSyslogMsg){
+    RestBean pushAlarmSyslog(@RequestBody StationSyslogOrTrapMessage stationSyslogMsg){
         Asset asset = assetService.findOneByIp(stationSyslogMsg.getHostname());
         if(Objects.isNull(asset)){
             log.error("接收到车站syslog消息："+stationSyslogMsg.getRawMessage()+"设备"+stationSyslogMsg.getHostname()+"不存在");
             return RestBean.ofSuccess("接收成功" );
         }
-        String key = "[jcca-syslog-level:" + stationSyslogMsg.getSeverity() + "]";
 
-        SysModuleConfig syslogSwitch = sysModuleConfServ.getSysModuleConfig(GlobalConfigConst.SYSLOG_SWITCH);
-        if (Objects.nonNull(syslogSwitch) && "1".equals(syslogSwitch.getValue())) {
-            IAdapter adapter = dataProcessManager.getAdapter(CollectConst.SYSLOG);
-            SyslogEventInfoEntity syslogEventInfoEntity = new SyslogEventInfoEntity();
+        if("syslog".equals(stationSyslogMsg.getType())){
+            String key = "[jcca-syslog-level:" + stationSyslogMsg.getSeverity() + "]";
 
-            syslogEventInfoEntity.setIp(asset.getIp());
-            syslogEventInfoEntity.setMessage(stationSyslogMsg.getRawMessage()+key);
-            syslogEventInfoEntity.setLevel(stationSyslogMsg.getSeverity());
-            adapter.dispose(syslogEventInfoEntity);
+            SysModuleConfig syslogSwitch = sysModuleConfServ.getSysModuleConfig(GlobalConfigConst.SYSLOG_SWITCH);
+            if (Objects.nonNull(syslogSwitch) && "1".equals(syslogSwitch.getValue())) {
+                IAdapter adapter = dataProcessManager.getAdapter(CollectConst.SYSLOG);
+                SyslogEventInfoEntity syslogEventInfoEntity = new SyslogEventInfoEntity();
+
+                syslogEventInfoEntity.setIp(asset.getIp());
+                syslogEventInfoEntity.setMessage(stationSyslogMsg.getRawMessage()+key);
+                syslogEventInfoEntity.setLevel(stationSyslogMsg.getSeverity());
+                adapter.dispose(syslogEventInfoEntity);
+                //获取当前处理数量
+                adapter.dataProcess();
+            }
+        }else{
+            IAdapter adapter = dataProcessManager.getAdapter(CollectConst.SNMP);
+
+            String ip = stationSyslogMsg.getHostname();
+            SnmpEventInfoEntity snmpEventInfoEntity = new SnmpEventInfoEntity();
+            snmpEventInfoEntity.setIp(ip);
+            snmpEventInfoEntity.setMap(stationSyslogMsg.getTrapMap());
+            adapter.dispose(snmpEventInfoEntity);
             //获取当前处理数量
             adapter.dataProcess();
         }
+
 
         return RestBean.ofSuccess("处理成功");
     }

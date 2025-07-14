@@ -2,11 +2,13 @@ package com.jcca.web.common.controller.bean;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * syslog接收消息
  */
 @Data
-public class StationSyslogMessage {
+public class StationSyslogOrTrapMessage {
     /**
      * 优先级(PRI) - 由设施(Facility)和严重程度(Severity)组成
      * 计算方式: (Facility * 8) + Severity
@@ -50,4 +52,11 @@ public class StationSyslogMessage {
      * 原始的完整Syslog消息字符串
      */
     private String rawMessage;
+    /**
+     * syslog
+     * snmpTrap
+     */
+    private String type;
+
+    private Map<String,String> trapMap;
 }
