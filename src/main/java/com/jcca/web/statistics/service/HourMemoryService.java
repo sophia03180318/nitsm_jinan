@@ -1,8 +1,6 @@
 package com.jcca.web.statistics.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jcca.web.ai.vo.MemoryVo;
-import com.jcca.web.ai.vo.SwapVo;
 import com.jcca.web.asset.vo.AssetHistoryVo;
 import com.jcca.web.statistics.entity.HourMemory;
 
@@ -32,15 +30,4 @@ public interface HourMemoryService extends IService<HourMemory> {
      * @return
      */
     List<AssetHistoryVo> findLineByDate(String assetId, Date startDate, Date endDate);
-
-    /**
-     * 按天查询内存数据
-     */
-    List<MemoryVo> findDataByDay(String assetId, Date day);
-
-
-    /**
-     * 按天查询交换空间数据
-     */
-    List<SwapVo> findSwapByDay(String assetId, Date day);
 }

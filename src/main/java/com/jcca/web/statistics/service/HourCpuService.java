@@ -1,7 +1,6 @@
 package com.jcca.web.statistics.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jcca.web.ai.vo.CpuVo;
 import com.jcca.web.asset.vo.AssetHistoryVo;
 import com.jcca.web.asset.vo.AvgVo;
 import com.jcca.web.statistics.entity.HourCpu;
@@ -42,9 +41,4 @@ public interface HourCpuService extends IService<HourCpu> {
      * @return
      */
     AvgVo findAvgByDate(String assetId, Date startDate, Date endDate);
-
-    /**
-     * 查询最近day天内 CPU的运行数据
-     */
-    List<CpuVo> findDataByDay(String assetId, Date day);
 }
