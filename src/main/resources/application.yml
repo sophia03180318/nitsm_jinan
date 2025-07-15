@@ -178,3 +178,15 @@ threeD:
   rabbitMQPassword: 1qaz
   #MQ虚拟机
   rabbitMQVirtual: /
+
+aiConfig:
+  cpuStr: 根据以下CPU的运行趋势判断是否有风险点：
+  memoryStr: 根据以下内存的运行趋势判断是否有风险点：
+  swapStr: 根据以下交换空间的运行趋势判断是否有风险点：
+  diskStr: 分析以下磁盘状态：
+  processStr: 简单介绍这个进程：
+  alarmStr: 分析以下告警，并给出解决方案：
+  brokenRecordStr: 分析以下故障并给出建议方案：
+  networkCardStr: 分析以下网卡状态：
+  alarmListStr: 分析这个设备的告警清单，并给出建议方案
+  portStr: 端口
