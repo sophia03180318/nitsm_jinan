@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jcca.component.quartz.alarm.bean.UnhealthyAsset;
+import com.jcca.web.ai.vo.AlarmVo;
 import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
 import com.jcca.web.alarm.controller.bean.AssetAlarmReq;
 import com.jcca.web.alarm.dao.bean.QueryExportByTypeReq;
@@ -231,4 +232,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
 
     @Select("SELECT REMARK FROM ALARM_INFO WHERE ALARM_CODE = #{alarmCode} AND REMARK IS NOT NULL ORDER BY MODIFY_TIME DESC")
     List<String> getRemarksByAlarmCode(String alarmCode);
+
+    @Select("select title, ALARM_STATE  as alarmState,DESCRIPTION as description,OCCUR_TIME as occurTime FROM ALARM_INFO WHERE (ALARM_STATE = 1 OR STATUS = 1) AND BLANK = 1 AND ASSET_ID = #{assetId}")
+    List<AlarmVo> findAiAlarm(String assetId);
 }

@@ -4,6 +4,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.component.quartz.alarm.bean.UnhealthyAsset;
+import com.jcca.web.ai.vo.AlarmVo;
 import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
 import com.jcca.web.alarm.controller.bean.AssetAlarmReq;
 import com.jcca.web.alarm.dao.bean.QueryExportByTypeReq;
@@ -398,4 +399,11 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req);
 
     List<String> getRemarksByAlarmCode(String alarmCode);
+
+    /**
+     * 获取未确认或者已确认未恢复的告警
+     *
+     * @return
+     */
+    List<AlarmVo> findAiAlarm(String assetId);
 }
