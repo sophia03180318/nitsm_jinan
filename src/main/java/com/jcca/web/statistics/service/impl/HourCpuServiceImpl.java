@@ -1,6 +1,7 @@
 package com.jcca.web.statistics.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.web.ai.vo.CpuVo;
 import com.jcca.web.asset.vo.AssetHistoryVo;
 import com.jcca.web.asset.vo.AvgVo;
 import com.jcca.web.statistics.dao.HourCpuMapper;
@@ -52,6 +53,17 @@ public class HourCpuServiceImpl extends ServiceImpl<HourCpuMapper, HourCpu> impl
     @Override
     public AvgVo findAvgByDate(String assetId, Date startDate, Date endDate) {
         return hourCpuMapper.findAvgByDate(assetId, startDate, endDate);
+    }
+
+    /**
+     * 查询最近day天内 CPU的运行数据
+     *
+     * @param assetId
+     * @param day
+     */
+    @Override
+    public List<CpuVo> findDataByDay(String assetId, Date day) {
+        return hourCpuMapper.findDataByDay(assetId, day);
     }
 
 

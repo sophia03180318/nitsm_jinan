@@ -35,6 +35,7 @@ import com.jcca.component.quartz.alarm.bean.UnhealthyAsset;
 import com.jcca.component.thresholds.bean.CollectProcessBean;
 import com.jcca.component.thresholds.impl.DisposeInterfaceAdapterImpl;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.web.ai.vo.AlarmVo;
 import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
 import com.jcca.web.alarm.controller.bean.AssetAlarmReq;
 import com.jcca.web.alarm.dao.AlarmInfoMapper;
@@ -1146,6 +1147,17 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     @Override
     public List<String> getRemarksByAlarmCode(String alarmCode) {
         return alarmInfoMapper.getRemarksByAlarmCode(alarmCode);
+    }
+
+    /**
+     * 获取未确认或者已确认未恢复的告警
+     *
+     * @param assetId
+     * @return AlarmVo
+     */
+    @Override
+    public List<AlarmVo> findAiAlarm(String assetId) {
+        return alarmInfoMapper.findAiAlarm(assetId);
     }
 
 }
