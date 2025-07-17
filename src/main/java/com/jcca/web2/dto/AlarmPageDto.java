@@ -1,5 +1,6 @@
 package com.jcca.web2.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.util.List;
@@ -103,5 +104,10 @@ public class AlarmPageDto extends PageDto {
      * 告警内容
      * */
     private String content;
+
+    /**
+     * 1追踪  2追踪结束
+     */
+    private Integer traceStatus;
 
 }

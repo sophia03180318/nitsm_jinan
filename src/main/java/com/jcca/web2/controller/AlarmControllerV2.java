@@ -79,6 +79,8 @@ public class AlarmControllerV2 {
     private SysOrgService orgServ;
     @Resource
     private TraceInfoService infoService;
+    @Resource
+    private QuartzUncertainAlarmJob quartzUncertainAlarmJob;
 
 
     /**
@@ -274,8 +276,7 @@ public class AlarmControllerV2 {
         return ResultVoUtil.success(page);
     }
 
-    @Resource
-    private QuartzUncertainAlarmJob quartzUncertainAlarmJob;
+
 
     @PostMapping("/alarmMsgMock")
     @ApiOperation("模拟推送告警")
