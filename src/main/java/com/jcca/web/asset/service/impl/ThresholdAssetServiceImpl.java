@@ -637,5 +637,25 @@ public class ThresholdAssetServiceImpl extends ServiceImpl<ThresholdMapper, Thre
         return thresholdMapper.findRuntimeByAssetMode(assetMode);
     }
 
+    /**
+     * 设置CPU使用率
+     *
+     * @param asset   资产
+     * @param cpuLoad CPU负载
+     */
+    @Override
+    public void setCpuLoad(Asset asset, Double cpuLoad) {
+        ThresholdAsset threshold = this.getById(asset.getId());
+        if (Objects.isNull(threshold)) {
+            threshold = new ThresholdAsset();
+            threshold.setAssetId(asset.getId());
+            threshold.setAssetMode(asset.getAssetMode());
+            threshold.setCpuLoad(cpuLoad);
+            this.save(threshold);
+        } else {
+            threshold.setCpuLoad(cpuLoad);
+            this.updateById(threshold);
+        }
+    }
 
 }

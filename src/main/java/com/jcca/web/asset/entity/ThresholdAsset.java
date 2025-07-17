@@ -93,6 +93,11 @@ public class ThresholdAsset extends Model<ThresholdAsset> implements java.io.Ser
     @TableField(value = "TABLE_SPACE", updateStrategy = FieldStrategy.IGNORED, jdbcType = JdbcType.INTEGER)
     private Integer tablespace;
     /**
+     * CPU负载
+     */
+    @TableField(value = "CPU_LOAD")
+    private Double cpuLoad;
+    /**
      * 阈值类型标记，1默认阈值，2手动单个阈值
      * ThresholdAutoFlagEnum
      */

@@ -3,6 +3,7 @@ package com.jcca.web.asset.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jcca.component.event.bean.CreateEventReq;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
+import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdAsset;
 import com.jcca.web.asset.service.bean.AssetThresholdQueryV2;
 import com.jcca.web.asset.service.bean.VerifyThresholdReq;
@@ -118,4 +119,6 @@ public interface ThresholdAssetService extends IService<ThresholdAsset> {
      * @return 运行时长
      */
     List<Integer> findRuntimeByAssetMode(Integer assetMode);
+
+    void setCpuLoad(Asset asset, Double cpuLoad);
 }
