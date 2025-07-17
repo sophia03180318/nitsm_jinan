@@ -103,7 +103,7 @@ public class ApiAiController {
         qw.eq("STATUS", 1);
         List<SysOrg> list = orgService.list(qw);
         if (list.size() > 50) {
-            List<SysOrg> orgList = list.subList(0, Math.min(list.size(), 50));
+            List<SysOrg> orgList = list.subList(0, 50);
             return ResultVoUtil.success("成功", orgList);
         }
         return ResultVoUtil.success("成功", list);

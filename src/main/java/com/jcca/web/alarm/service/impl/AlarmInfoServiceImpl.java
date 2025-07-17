@@ -65,6 +65,7 @@ import com.jcca.web.common.service.bean.ThreeDAlarmReq;
 import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.construction.entity.ConstructionRecord;
 import com.jcca.web.construction.service.ConstructionRecordService;
+import com.jcca.web.cycles.service.CyclesInfoService;
 import com.jcca.web.event.dao.AlarmEventRelMapper;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.entity.AlarmEventGroup;
@@ -131,6 +132,8 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     private BrokenRecordMapper brokenMapper;
     @Resource
     private BizManageService bizService;
+    @Resource
+    private CyclesInfoService cyclesInfoServ;
 
     @Override
     public AlarmInfo getAssetAlarm(String alarmCode, String assetId, String alarmFlag) {
@@ -250,6 +253,12 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         ConstructionRecord one = constructionRecordService.getOne(construtionWrapper);
         if (Objects.nonNull(one)) {
             blank = AlarmBlankConst.BLANK;
+        } else {
+            //查询是否存在周期计划 2024-11-21 吕义鹏
+            boolean haveBlank = cyclesInfoServ.verifyIsBlank(asset, occurTime);
+            if (haveBlank) {
+                blank = AlarmBlankConst.BLANK;
+            }
         }
 
         AlarmInfo alarmInfo = new AlarmInfo();

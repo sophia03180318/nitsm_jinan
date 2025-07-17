@@ -12,9 +12,6 @@ import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.common.enums.AlarmTypeEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.component.client.StationCollectClient;
-import com.jcca.component.quartz.station.QuartzStationNotifyJob;
-import com.jcca.component.quartz.station.bean.StationNotifyBean;
-import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmInfoService;
@@ -23,7 +20,6 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetHidConf;
 import com.jcca.web.asset.service.AssetHidConfService;
 import com.jcca.web.asset.service.AssetService;
-import com.jcca.web.asset.vo.AssetMsgVo;
 import com.jcca.web.collect.enums.InterfaceStatus;
 import com.jcca.web.common.constants.StationAlarmUniqueCodeEnum;
 import com.jcca.web.common.controller.req.StationAlarmReqV1;
@@ -32,6 +28,7 @@ import com.jcca.web.common.controller.req.StationAlarmResp;
 import com.jcca.web.common.service.StationAlarmService;
 import com.jcca.web.construction.entity.ConstructionRecord;
 import com.jcca.web.construction.service.ConstructionRecordService;
+import com.jcca.web.cycles.service.CyclesInfoService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.entity.AlarmEventGroup;
 import com.jcca.web.event.entity.AlarmEventRel;
@@ -86,6 +83,8 @@ public class StationAlarmServiceImpl implements StationAlarmService {
     private TopoAssetPortService topoAssetPortServ;
     @Resource
     private StationCollectClient stationCollectClient;
+    @Resource
+    private CyclesInfoService cyclesInfoServ;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -357,6 +356,12 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         ConstructionRecord one = constructionRecordService.getOne(construtionWrapper);
         if (Objects.nonNull(one)) {
             blank = AlarmBlankConst.BLANK;
+        } else {
+            //查询是否存在周期计划 2024-11-21 吕义鹏
+            boolean haveBlank = cyclesInfoServ.verifyIsBlank(asset, occurTime);
+            if (haveBlank) {
+                blank = AlarmBlankConst.BLANK;
+            }
         }
 
         List<AlarmEventGroup> group = eventGroupServ.getAllByTypeId(typeId);

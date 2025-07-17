@@ -1,5 +1,7 @@
 package com.jcca.common.utils;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jcca.web.asset.entity.Asset;
 
 import java.util.ArrayList;
@@ -43,6 +45,47 @@ public class AppListUtils {
 
 
         return resp;
+    }
+
+    /**
+     * 分页方法，同时返回分页后的列表和总页数
+     *
+     * @param list       原始列表
+     * @param pageNumber 当前页码（从1开始）
+     * @param pageSize   每页显示的记录数
+     * @param <T>        列表元素的类型
+     * @return 包含分页后的列表和总页数的结果
+     */
+    public static IPage pageList(List list, int pageNumber, int pageSize) {
+        IPage pageInfo = new Page();
+        pageInfo.setCurrent(pageNumber);
+        if (list == null || list.isEmpty() || pageNumber <= 0 || pageSize <= 0) {
+            pageInfo.setSize(0);
+            pageInfo.setTotal(0);
+            pageInfo.setRecords(new ArrayList());
+            return pageInfo;
+        }
+
+
+        int totalItems = list.size();
+        // 计算总页数
+        int totalPages = (totalItems + pageSize - 1) / pageSize;
+
+        int fromIndex = (pageNumber - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalItems);
+
+        if (toIndex < fromIndex) {
+            List result = new ArrayList<>();
+            pageInfo.setRecords(result);
+        } else {
+            List result = new ArrayList<>(list.subList(fromIndex, toIndex));
+            pageInfo.setRecords(result);
+        }
+
+        pageInfo.setTotal(totalItems);
+        pageInfo.setSize(totalPages);
+
+        return pageInfo;
     }
 
 }
