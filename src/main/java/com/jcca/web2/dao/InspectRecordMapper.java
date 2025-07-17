@@ -3,7 +3,7 @@ package com.jcca.web2.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.vo.InspectOrgAssetVo;
-import com.jcca.web2.vo.ItemVo;
+import com.jcca.web2.vo.InspectShareVo;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -89,8 +89,10 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
     @Delete("DELETE FROM INSPECT_RECORD WHERE ORG_ID = #{orgId}")
     void deleteByOrgId(String orgId);
 
-    @Select("SELECT ID, INSPECT_TIME AS NAME FROM INSPECT_RECORD WHERE INSPECT_CODE = #{scheduleId} ORDER BY INSPECT_TIME DESC")
-    List<ItemVo> findBySchuduleId(String scheduleId);
+    @Select("SELECT R.ID, R.INSPECT_TIME AS NAME, S.OPERATOR FROM INSPECT_RECORD R " +
+            "LEFT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID AND S.VIEWER = #{username} " +
+            "WHERE R.INSPECT_CODE = #{jobId} ORDER BY R.INSPECT_TIME DESC")
+    List<InspectShareVo> findRecordByJobId(String jobId, String username);
 
     @Select("SELECT * FROM INSPECT_RECORD WHERE SCHEDULE_ID IN (SELECT ID FROM XUNJIAN_SCHEDULE WHERE JOB_ID = #{jobId}) ORDER BY ID DESC")
     List<InspectRecord> findByJobId(String jobId);

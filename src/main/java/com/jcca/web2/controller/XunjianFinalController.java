@@ -3,6 +3,7 @@ package com.jcca.web2.controller;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
@@ -27,14 +28,12 @@ import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
-import com.jcca.web2.dto.xunjian.XunjianJobDto;
-import com.jcca.web2.dto.xunjian.XunjianTask;
+import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.*;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
 import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
+import com.jcca.web2.vo.InspectShareVo;
 import com.jcca.web2.vo.ItemVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -93,8 +92,46 @@ public class XunjianFinalController {
     private ThresholdProcessService thresholdProcessService;
     @Resource
     private AssetService assetService;
+    @Resource
+    private InspectRecordShareService inspectRecordShareService;
 
     public static final Map<String, Thread> INSPECT_THREAD_MAP = new ConcurrentHashMap<>();
+
+    @PostMapping("/record/share")
+    @ApiOperation("分享巡检记录")
+    public ResultVo<Object> recordShare(@RequestBody @Validated InspectShareReq req) {
+
+        List<InspectRecordShare> list = new ArrayList<>();
+        String username = ShiroUtil.getSubject().getUsername();
+        String viewers = req.getViewers();
+        String[] split = viewers.split(",");
+        for (String viewer : split) {
+            if (viewer.equals(username)) {
+                continue;
+            }
+            InspectRecordShare share = new InspectRecordShare();
+            share.setId(MyIdUtil.getId());
+            share.setJobId(req.getJobId());
+            share.setInspectRecordId(req.getInspectRecordId());
+            share.setViewer(viewer);
+            share.setOperator(username);
+            list.add(share);
+        }
+        inspectRecordShareService.saveBatch(list);
+
+        return ResultVoUtil.success();
+    }
+
+    @GetMapping("/record/cancel")
+    @ApiOperation("取消分享巡检记录")
+    public ResultVo<Object> recordCancel(@RequestParam String inspectRecordId) {
+
+        UpdateWrapper<InspectRecordShare> update = Wrappers.update();
+        update.eq("INSPECT_RECORD_ID", inspectRecordId);
+        inspectRecordShareService.remove(update);
+
+        return ResultVoUtil.success();
+    }
 
     @GetMapping("/job/list")
     @ApiOperation("巡检任务列表")
@@ -146,21 +183,26 @@ public class XunjianFinalController {
             return ResultVoUtil.success(list);
         }
 
-        List<ItemVo> resultList = new ArrayList<>();
+        List<InspectShareVo> resultList = new ArrayList<>();
+        this.getResultList(list, resultList, username);
+        return ResultVoUtil.success(resultList);
+    }
+
+    private void getResultList(List<XunjianSchedule> list, List<InspectShareVo> resultList, String username) {
         for (XunjianSchedule schedule : list) {
-            List<ItemVo> voList = inspectRecordService.findBySchuduleId(schedule.getJobId());
+            List<InspectShareVo> voList = inspectRecordService.findRecordByJobId(schedule.getJobId(), username);
             if (voList.isEmpty()) {
                 continue;
             }
-            ItemVo itemVo = new ItemVo();
+            InspectShareVo itemVo = new InspectShareVo();
             itemVo.setId(schedule.getJobId());
             itemVo.setName(schedule.getJobName());
             itemVo.setAutoFlag(schedule.getAutoFlag());
             itemVo.setChildren(voList);
             resultList.add(itemVo);
         }
-        return ResultVoUtil.success(resultList);
     }
+
 
     @GetMapping("/record/detail")
     @ApiOperation("巡检记录详情")
