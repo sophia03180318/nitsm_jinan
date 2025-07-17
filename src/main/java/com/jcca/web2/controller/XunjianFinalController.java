@@ -119,6 +119,8 @@ public class XunjianFinalController {
         }
         inspectRecordShareService.saveBatch(list);
 
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "分享巡检记录", req);
+
         return ResultVoUtil.success();
     }
 
@@ -129,6 +131,8 @@ public class XunjianFinalController {
         UpdateWrapper<InspectRecordShare> update = Wrappers.update();
         update.eq("INSPECT_RECORD_ID", inspectRecordId);
         inspectRecordShareService.remove(update);
+
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "取消分享巡检记录", inspectRecordId);
 
         return ResultVoUtil.success();
     }
