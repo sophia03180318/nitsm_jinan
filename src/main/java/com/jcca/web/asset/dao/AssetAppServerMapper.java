@@ -31,4 +31,7 @@ public interface AssetAppServerMapper extends BaseMapper<AssetAppServer> {
     List<AssetAppServer> findByAssetIdAndServerPort2(String assetId, Integer serverPort);
 
     List<AssetAppServerVo> getAppServerInfo(@Param("assetId") String assetId);
+
+    @Select("SELECT * FROM ASSET_APP_SERVER WHERE ASSET_ID = #{assetId} AND SERVER_PORT = #{serverPort} AND LINK_IP = #{linkIp} AND LINK_STATUS IS NOT NULL")
+    AssetAppServer findOneLinkData(String assetId, Integer serverPort, String linkIp);
 }

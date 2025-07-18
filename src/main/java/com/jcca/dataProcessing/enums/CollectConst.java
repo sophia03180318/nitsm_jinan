@@ -154,4 +154,9 @@ public interface CollectConst {
     String SNMP = "76";
 
     String DongHuan = "77";
+
+    /**
+     * 采集CPU负载信息
+     */
+    String CPU_LINUX_LOAD_AVG = "2025070301";
 }

@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.component.event.constant.EventUniqueCode;
+import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.dao.AssetAppServerMapper;
@@ -166,6 +168,9 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
         return resList;
     }
 
+    @Resource
+    private IEventInfoManagerService eventInfoChangeManagerService;
+
     @Override
     public void deleteServerPort(String assetId, Integer serverPort) {
         if (serverPort != null) {
@@ -187,6 +192,13 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
             update.eq("SERVER_PORT", serverPort);
         }
         assetAppServerMapper.delete(update);
+
+        // 删除缓存
+        Asset asset = assetService.getById(assetId);
+        String redisKey = asset.getIp() + ":" + assetId + ":" + StatusInfoChangeTypeEnum.event_appServer_link.getCode() + ":" + serverPort;
+        String mapKey = serverPort + "";
+        eventInfoChangeManagerService.delStateValue(redisKey, mapKey);
+        eventInfoChangeManagerService.delRedisKey(redisKey);
     }
 
     @Override
@@ -214,5 +226,10 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
                 log.error("处理应用服务器连接失败", e);
             }
         }
+    }
+
+    @Override
+    public AssetAppServer findOneLinkData(String assetId, Integer serverPort, String linkIp) {
+        return assetAppServerMapper.findOneLinkData(assetId, serverPort, linkIp);
     }
 }

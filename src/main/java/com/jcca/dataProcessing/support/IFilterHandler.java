@@ -66,8 +66,8 @@ public abstract class IFilterHandler<T> extends ListenerManager {
         if (isNeedHandle) {
             try {
                 flag = handler(info);
-            }catch (ResultException exception){
-                AppLogUtils.buildLogInfo(LogFunctionEnum.ALARM_HANDLE,"",exception.getMessage());
+            } catch (ResultException exception) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.ALARM_HANDLE, "", exception.getMessage());
             }
         }
         if (next != null) {
@@ -79,6 +79,7 @@ public abstract class IFilterHandler<T> extends ListenerManager {
     /**
      * 缓存
      * statusEvent 和 statusEventValue
+     *
      * @param eventCode
      * @param valueTypeCode
      * @param flag
@@ -89,13 +90,13 @@ public abstract class IFilterHandler<T> extends ListenerManager {
     public void addEventStatus(String eventCode, String valueTypeCode, String flag, Object value, CommonEntity info, ChangeInfo change) {
         String statusEventRedisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.statusEvent.getCode();
         String eventValueRedisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.statusEventValue.getCode();
-        String statusEventMapKey ="";
+        String statusEventMapKey = "";
         String eventValueMapKey = "";
-        if(StrUtil.isNotEmpty(flag)){
-            eventValueMapKey =eventCode+"."+flag+"."+valueTypeCode;
-            statusEventMapKey = eventCode+"."+flag;
-        }else{
-            eventValueMapKey = eventCode+"."+valueTypeCode;
+        if (StrUtil.isNotEmpty(flag)) {
+            eventValueMapKey = eventCode + "." + flag + "." + valueTypeCode;
+            statusEventMapKey = eventCode + "." + flag;
+        } else {
+            eventValueMapKey = eventCode + "." + valueTypeCode;
             statusEventMapKey = eventCode;
         }
 
@@ -144,9 +145,11 @@ public abstract class IFilterHandler<T> extends ListenerManager {
         }
         changeThresholdInfo.setMapKey(mapKey);
         //内存中的MAP
-        info.getMaps().put("thresholdValue_"+mapKey, changeThresholdInfo);
+        info.getMaps().put("thresholdValue_" + mapKey, changeThresholdInfo);
 
-    };
+    }
+
+    ;
 
 }
 
