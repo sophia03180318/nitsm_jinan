@@ -117,11 +117,7 @@ public class AssetManufacturerControllerV2 {
         }
 
         Long id = manufacturerService.getMaxId();
-        if(Objects.isNull(id)){
-            assetManufacturer.setId(1L);
-        }else{
-            assetManufacturer.setId(id + 1);
-        }
+        assetManufacturer.setId(id==null?1:id + 1);
         manufacturerService.save(assetManufacturer);
         return ResultVoUtil.success("保存成功");
     }
