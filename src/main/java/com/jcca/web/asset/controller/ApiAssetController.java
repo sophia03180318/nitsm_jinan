@@ -203,7 +203,12 @@ public class ApiAssetController {
             if (Objects.isNull(telnetResult) || telnetResult.isEmpty()) {
                 return ResultVoUtil.warning("执行命令" + command + "获取配置信息失败");
             }
-            return ResultVoUtil.success("", telnetResult.get(0));
+            String msg = telnetResult.get(0);
+            if(StrUtil.isEmpty(msg)){
+                return ResultVoUtil.warning("执行命令" + command + "获取到了空的配置信息，请检查设备密码是否正确");
+            }
+
+            return ResultVoUtil.success("",msg );
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return ResultVoUtil.warning("执行命令" + command + "获取配置信息异常");
