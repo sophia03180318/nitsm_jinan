@@ -148,6 +148,16 @@ public enum ResultEnum implements ResultInterface {
     dataProcess_net_interrupter(1702, "网卡数据信息主动终止处理"),
     dataProcess_syslog_interrupter(1703, "syslog事件主动终止处理"),
     dataProcess_net_ip_null(1704, "网卡无ip地址,已过滤"),
+
+    /**
+     * 告警追踪
+     */
+    TRACE_ALARM_ID_NULL(1801,"缺少告警ID"),
+    TRACE_CONTENT_NULL(1802,"缺少处理意见"),
+    TRACE_ALARM_STATUS_ERROR(1803,"此告警不存在，请刷新界面重新操作"),
+    TRACE_ALARM_PROHIBIT_OPTION(1804,"此告警非追踪状态，禁止此操作"),
+
+
     //执行失败
     DETAIL_EXE_ERROR(8000, "设备信息查询失败，不支持的数据源导致数据查询失败");
 

@@ -174,7 +174,9 @@
             <if test="query.assetIp !=null and query.assetIp!='' ">
                 and (b.ip = #{query.assetIp} or b.ip2 = #{query.assetIp})
             </if>
-
+            <if test="query.traceStatus != null">
+                and a.TRACE_STATUS = #{query.traceStatus}
+            </if>
             <if test="query.orgIdList != null">
                 and (c.id IN
                 <trim suffixOverrides=" c.id  IN()">
@@ -266,7 +268,7 @@
         a.id as alarmId,a.TYPE as alarmType,a.TITLE,a.ALARM_LEVEL as alarmLevel, a.ASSET_IP, a.ASSET_NAME,
         a.content ,a.description,a.ALARM_CODE as alarmCode,a.OCCUR_TIME as occurTime,
         a.CONFIRM_TIME as confirmTime,a.confirmor as confirmor,a.ALARM_TO_RECORD as alarmToRecord,
-        a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState
+        a.opinion ,a.remark,a.blank,a.status,a.ALARM_STATE as alarmState,a.TRACE_STATUS as traceStatus
         from ALARM_INFO a
         left join ASSET b on a.ASSET_ID = b.ID
         left join sys_org c on b.ORG_ID = c.ID
@@ -306,6 +308,9 @@
             </if>
             <if test="query.alarmCode != null and query.alarmCode != ''">
                 and a.ALARM_CODE = #{query.alarmCode}
+            </if>
+            <if test="query.traceStatus != null">
+                and a.TRACE_STATUS = #{query.traceStatus}
             </if>
             <if test="query.alarmLevelList != null">
                 and (a.ALARM_LEVEL IN

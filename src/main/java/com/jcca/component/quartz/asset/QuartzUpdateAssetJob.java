@@ -32,6 +32,10 @@ import java.util.List;
 @Service
 public class QuartzUpdateAssetJob extends QuartzJobBean {
 
+    /**
+     * 启动的时候不执行此任务
+     * 等待启动后下一次在执行
+     */
     public static boolean once = true;
     @Resource
     private AssetService assetService;

@@ -116,5 +116,9 @@ public class AlarmPageVo {
      * 知识库名称
      */
     private  String repoName;
+    /**
+     * 追踪状态
+     */
+    private Integer traceStatus;
 
 }

@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
@@ -16,12 +18,10 @@ import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
-import com.jcca.common.utils.AppLogUtils;
-import com.jcca.common.utils.EntityBeanUtil;
-import com.jcca.common.utils.ResultVoUtil;
-import com.jcca.common.utils.WordUtil;
+import com.jcca.common.utils.*;
 import com.jcca.component.quartz.alarm.QuartzUncertainAlarmJob;
 import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
+import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.vo.AlarmExportVo;
 import com.jcca.web.asset.controller.bean.Repository;
@@ -31,7 +31,9 @@ import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web2.dto.*;
+import com.jcca.web2.entity.TraceInfo;
 import com.jcca.web2.service.IndexPageService;
+import com.jcca.web2.service.TraceInfoService;
 import com.jcca.web2.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -75,6 +77,44 @@ public class AlarmControllerV2 {
     private BrokenRecordWordService brokenRecordWordService;
     @Resource
     private SysOrgService orgServ;
+    @Resource
+    private TraceInfoService infoService;
+    @Resource
+    private QuartzUncertainAlarmJob quartzUncertainAlarmJob;
+
+
+    /**
+     * 告警转追踪
+     */
+    @PostMapping("/transformTrace")
+    @ApiOperation(value = "告警转追踪")
+    public ResultVo transformTrace(@RequestBody TraceInfo info) {
+        infoService.alarmTransform(info);
+        return ResultVoUtil.success("追踪成功~");
+    }
+
+    /**
+     * 追踪处理
+     */
+    @PostMapping("/dispose")
+    @ApiOperation(value = "追踪处理")
+    public ResultVo dispose(@RequestBody TraceInfo info) {
+        infoService.dispose(info);
+        return ResultVoUtil.success("处理成功");
+    }
+
+    /**
+     * 处理列表
+     */
+    @GetMapping("/disposeList")
+    @ApiOperation(value = "处理列表")
+    public ResultVo disposeList(String alarmId) {
+        QueryWrapper<TraceInfo> qw = new QueryWrapper<>();
+        qw.select("CREATE_TIME","CONTENT","CREATOR");
+        qw.eq("ALARM_ID", alarmId);
+        qw.orderByAsc("CREATE_TIME");
+        return ResultVoUtil.success(infoService.list(qw));
+    }
 
 
     @GetMapping("/exportByReq")
@@ -236,8 +276,7 @@ public class AlarmControllerV2 {
         return ResultVoUtil.success(page);
     }
 
-    @Resource
-    private QuartzUncertainAlarmJob quartzUncertainAlarmJob;
+
 
     @PostMapping("/alarmMsgMock")
     @ApiOperation("模拟推送告警")

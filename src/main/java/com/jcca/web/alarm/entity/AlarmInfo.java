@@ -160,6 +160,11 @@ public class AlarmInfo extends Model<AlarmInfo> implements Serializable {
      */
     @TableField("IS_SHOW_RECOVER")
     private Integer isShowRecover = -1;
+    /**
+     * 0不追踪 1追踪  2追踪结束
+     */
+    @TableField("TRACE_STATUS")
+    private Integer traceStatus;
 
     /**
      * 创建时间
