@@ -1,12 +1,13 @@
 package com.jcca.web.asset.controller;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.RedisCacheConst;
+import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.asset.controller.bean.AssetAppServerReq;
@@ -22,7 +23,6 @@ import com.jcca.web.asset.vo.ThresholdAssetVo;
 import com.jcca.web.common.service.OutService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +39,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/appserver")
 @Api(tags = "应用服务器接口")
-@Slf4j
 public class ApiAppServerController {
 
     @Resource
@@ -105,7 +104,7 @@ public class ApiAppServerController {
             return ResultVoUtil.error("资产[" + assetId + "]不存在");
         }
 
-        log.info("配置端口和负载阈值-{}", JSONUtil.toJsonStr(assetAppServerReq));
+        AppLogUtils.buildLogInfo(LogFunctionEnum.APP_SERVER_LINK, "配置端口和负载阈值", assetAppServerReq);
 
         Double cpuLoad = assetAppServerReq.getCpuLoad();
         if (Objects.isNull(cpuLoad) || cpuLoad <= 0) {
@@ -157,7 +156,7 @@ public class ApiAppServerController {
         Asset asset = assetService.getById(assetId);
         outService.notifyOnChange(2, asset);
 
-        log.info("删除应用服务器端口-{}", JSONUtil.toJsonStr(req));
+        AppLogUtils.buildLogInfo(LogFunctionEnum.APP_SERVER_LINK, "删除应用服务器端口", req);
 
         return ResultVoUtil.success();
     }

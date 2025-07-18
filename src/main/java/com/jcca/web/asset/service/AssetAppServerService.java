@@ -30,4 +30,6 @@ public interface AssetAppServerService extends IService<AssetAppServer> {
     void setLinkStatus(String alarmCode, Integer linkStatus);
 
     AssetAppServer findOneLinkData(String assetId, Integer serverPort, String linkIp);
+
+    void deleteLinkData(String alarmFlag);
 }

@@ -53,6 +53,7 @@ import com.jcca.web.alarm.vo.AlarmExportVo;
 import com.jcca.web.alarm.vo.AlarmUnconfirmVo;
 import com.jcca.web.asset.controller.bean.Repository;
 import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.asset.service.AssetAppServerService;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetBelong;
 import com.jcca.web.broken.dao.BrokenRecordMapper;
@@ -134,6 +135,8 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     private BizManageService bizService;
     @Resource
     private CyclesInfoService cyclesInfoServ;
+    @Resource
+    private AssetAppServerService appServerService;
 
     @Override
     public AlarmInfo getAssetAlarm(String alarmCode, String assetId, String alarmFlag) {
@@ -731,6 +734,8 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         String mapKey = alarmInfo.getAlarmFlag().replaceFirst("_", ":");
         mapKey = mapKey.replaceFirst("_", ":");
         redisService.hmDel(alarmInfo.getAlarmCode(), mapKey);
+
+        appServerService.deleteLinkData(alarmInfo.getAlarmFlag());
     }
 
     @Override
@@ -942,6 +947,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                 //告警转为故障记录
                 saveBrokenV2(dto, alarmId, date, alarmInfo, asset);
             }
+
+            String alarmFlag = alarmInfo.getAlarmFlag();
+            appServerService.setLinkStatus(alarmFlag, 2); // 未连接
         }
 
         if (dto.needDisposeRecord()) {
@@ -967,8 +975,6 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                 constructionRecordService.createV2(req);
             }
         }
-
-
     }
 
     @Override
@@ -1064,7 +1070,7 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         for (AlarmPageVo record : records) {
             String alarmId = record.getAlarmId();
             List<String> nameList = repoServ.selectNameByAlarmId(alarmId);
-            if(!nameList.isEmpty()){
+            if (!nameList.isEmpty()) {
                 record.setRepoName(nameList.get(0));
             }
         }

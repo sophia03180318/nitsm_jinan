@@ -6,7 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.AlarmStateEnum;
-import com.jcca.component.event.constant.EventUniqueCode;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.web.alarm.entity.AlarmInfo;
@@ -178,7 +179,8 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
             for (AssetAppServer assetAppServer : list) {
                 QueryWrapper<AlarmInfo> query = Wrappers.query();
                 query.eq("ASSET_ID", assetId);
-                query.like("ALARM_CODE", assetAppServer.getId());
+                query.eq("ALARM_CODE", StatusInfoChangeTypeEnum.event_appServer_link.getCode());
+                query.like("ALARM_FLAG", assetId + "_" + assetAppServer.getServerPort() + "_");
                 List<AlarmInfo> infos = alarmInfoService.list(query);
                 for (AlarmInfo info : infos) {
                     alarmInfoService.delAlarm(info.getId());
@@ -215,21 +217,35 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
 
     @Override
     public void setLinkStatus(String alarmCode, Integer linkStatus) {
-        if (alarmCode.contains(EventUniqueCode.ASSET_APP_LINK + "_")) {
-            try {
-                AssetAppServer appServer = this.getById(alarmCode.split(EventUniqueCode.ASSET_APP_LINK + "_")[1]);
-                if (appServer.getLinkStatus() != null && appServer.getLinkStatus() == 0) {
-                    appServer.setLinkStatus(linkStatus); // 未连接
-                    this.updateById(appServer);
-                }
-            } catch (Exception e) {
-                log.error("处理应用服务器连接失败", e);
-            }
+        try {
+            String[] split = alarmCode.split("_");
+            UpdateWrapper<AssetAppServer> update = Wrappers.update();
+            update.eq("ASSET_ID", split[1]);
+            update.eq("SERVER_PORT", split[2]);
+            update.eq("LINK_IP", split[3]);
+            update.set("LINK_STATUS", linkStatus);
+            this.update(update);
+        } catch (Exception e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.APP_SERVER_LINK, "设置应用服务器连接失败", e);
         }
     }
 
     @Override
     public AssetAppServer findOneLinkData(String assetId, Integer serverPort, String linkIp) {
         return assetAppServerMapper.findOneLinkData(assetId, serverPort, linkIp);
+    }
+
+    @Override
+    public void deleteLinkData(String alarmFlag) {
+        try {
+            String[] split = alarmFlag.split("_");
+            UpdateWrapper<AssetAppServer> update = Wrappers.update();
+            update.eq("ASSET_ID", split[1]);
+            update.eq("SERVER_PORT", split[2]);
+            update.eq("LINK_IP", split[3]);
+            this.remove(update);
+        } catch (Exception e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.APP_SERVER_LINK, "删除应用服务器连接失败", e);
+        }
     }
 }
