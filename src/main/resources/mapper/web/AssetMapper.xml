@@ -366,7 +366,7 @@
             and DOWNLINE_TIME &lt; #{map.today}
         </if>
         <if test="map.overdue != null and map.overdue ==2">
-            and DOWNLINE_TIME $ge; #{map.today}
+            and DOWNLINE_TIME &gt;= #{map.today}
         </if>
         <if test="map.monitorStatus != null and map.monitorStatus !=''">
             and MONITOR = #{map.monitorStatus}
