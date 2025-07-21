@@ -219,6 +219,9 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
     public void setLinkStatus(String alarmCode, Integer linkStatus) {
         try {
             String[] split = alarmCode.split("_");
+            if (split.length < 4) {
+                return;
+            }
             UpdateWrapper<AssetAppServer> update = Wrappers.update();
             update.eq("ASSET_ID", split[1]);
             update.eq("SERVER_PORT", split[2]);
