@@ -25,6 +25,8 @@ public class ThresholdAssetVo {
      */
     @Digits(integer = 2, fraction = 2, message = "CPU使用率只能输入2位整数最多两位小数")
     private Double cpu;
+    @Digits(integer = 2, fraction = 2, message = "CPU负载只能输入2位整数最多两位小数")
+    private Double cpuLoad;
     /**
      * 磁盘使用率
      */

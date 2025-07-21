@@ -25,7 +25,9 @@ import com.jcca.common.utils.*;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.asset.entity.AssetAppServer;
 import com.jcca.web.asset.entity.ThresholdProcess;
+import com.jcca.web.asset.service.AssetAppServerService;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetOutVo;
 import com.jcca.web.asset.vo.AssetProcessVo;
@@ -79,10 +81,8 @@ public class OutServiceImpl implements OutService {
     private ThresholdProcess thresholdProcessService;
     @Resource
     private CollectAgent collectAgent;
-
     @Resource
     private SysModuleConfigService configService;
-
     @Resource
     private TopoAssetGroupService topoAssetGroupServ;
     @Resource
@@ -93,6 +93,8 @@ public class OutServiceImpl implements OutService {
     private TopoPointsService topoPointsServ;
     @Resource
     private TopoVertexService topoVertexService;
+    @Resource
+    private AssetAppServerService appServerService;
 
 
     @Override
@@ -247,6 +249,11 @@ public class OutServiceImpl implements OutService {
             if (StrUtil.isEmpty(assetOutVo.getOsPassword())) {
                 assetOutVo.setOsPassword(EncryptUtil.aesEncryptHex("123"));
             }
+            if (assetOutVo.getServiceType() != null && assetOutVo.getServiceType() == 1) {
+                List<AssetAppServer> list = appServerService.findByAssetIdNullLink(assetOutVo.getId());
+                Set<Integer> collect = list.stream().map(AssetAppServer::getServerPort).collect(Collectors.toSet());
+                assetOutVo.setSsPortSet(collect);
+            }
         }
 
         return resultList;
@@ -288,6 +295,11 @@ public class OutServiceImpl implements OutService {
         }
         AssetOutVo assetOutVo = BeanUtil.copyProperties(asset, AssetOutVo.class);
         assetOutVo.setABFlag(asset.getABFlag());
+        if (asset.getServiceType() != null && asset.getServiceType() == 1) {
+            List<AssetAppServer> list = appServerService.findByAssetIdNullLink(asset.getId());
+            Set<Integer> collect = list.stream().map(AssetAppServer::getServerPort).collect(Collectors.toSet());
+            assetOutVo.setSsPortSet(collect);
+        }
 
         JSONObject reqBody = new JSONObject();
         reqBody.put("optFlag", optFlag);

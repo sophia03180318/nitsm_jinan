@@ -202,7 +202,7 @@ public interface InspectRecordService extends IService<InspectRecord> {
      * @param scheduleId 任务ID
      * @return
      */
-    List<ItemVo> findBySchuduleId(String scheduleId);
+    List<InspectShareVo> findRecordByJobId(String scheduleId, String username);
 
     /**
      * 获取任务的巡检记录列表

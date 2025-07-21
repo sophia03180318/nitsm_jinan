@@ -20,7 +20,7 @@
             resultType="com.jcca.web.asset.vo.AssetOutVo">
         select
         a.ID,a.NAME,a.A_B_FLAG,a.SHOW_TOPO,a.IP,a.IP2,a.OS_USER,a.OS_PASSWORD,a.ASSET_MODE,a.MANUFACTURER_ID,a.COLLECTION_TYPE,a.ASSET_IMAGE,a.ORG_ID,
-        a.NTP_FLAG,a.ASSET_CODE,a.IPMI_IP,a.IPMI_USER,a.IPMI_PWD,a.LOGIN_NAME,a.LOGIN_PWD,a.LOGIN_PORT,a.WATCH
+        a.NTP_FLAG,a.ASSET_CODE,a.IPMI_IP,a.IPMI_USER,a.IPMI_PWD,a.LOGIN_NAME,a.LOGIN_PWD,a.LOGIN_PORT,a.WATCH,a.SERVICE_TYPE
         from asset a
         left join sys_org o on a.org_id = o.id
         <if test="stationIp != null and stationIp != ''">

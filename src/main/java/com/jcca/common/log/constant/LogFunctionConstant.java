@@ -138,6 +138,7 @@ public interface LogFunctionConstant {
     String ASSET_MANAGE = "4401";
     String ASSET_MANAGE_OPTICAL = "4402"; // 光功率上传下载
     String ASSET_CHANGE = "4403"; // 资产变动
+    String APP_SERVER_LINK = "4404"; // 应用服务器
 
     // 维护手册 45,
     String HAND_BOOK = "4501";

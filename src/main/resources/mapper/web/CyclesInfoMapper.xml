@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.cycles.dao.CyclesInfoMapper">
+    <resultMap id="BaseResultMap" type="com.jcca.web.cycles.entity.CyclesInfo">
+        <id column="ID" property="id"/>
+        <result column="CYCLES_NAME" property="cyclesName"/>
+        <result column="REMARK" property="remark"/>
+        <result column="STATUS" property="status"/>
+        <result column="CREATE_TIME" property="createTime"/>
+
+        <collection property="orgList" javaType="java.util.List" resultMap="orgListResult"/>
+        <collection property="timesList" javaType="java.util.List" resultMap="timesListResult"/>
+    </resultMap>
+
+    <resultMap id="InfoResultMap" type="com.jcca.web.cycles.entity.CyclesInfo">
+        <id column="ID" property="id"/>
+        <result column="CYCLES_NAME" property="cyclesName"/>
+        <result column="REMARK" property="remark"/>
+        <result column="STATUS" property="status"/>
+        <result column="CREATE_TIME" property="createTime"/>
+
+    </resultMap>
+
+    <resultMap type="CyclesOrg" id="orgListResult">
+        <result column="cycles_org_id" property="id"/>
+        <result column="CYCLES_INFO_ID" property="cyclesInfoId"/>
+        <result column="ORG_PID" property="orgPid"/>
+        <result column="ORG_ID" property="orgId"/>
+    </resultMap>
+
+    <resultMap type="CyclesTimes" id="timesListResult">
+        <result column="cycles_times_id" property="id"/>
+        <result column="CYCLES_INFO_ID_ORG" property="cyclesInfoId"/>
+        <result column="WEEKS" property="weeks"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="END_TIME" property="endTime"/>
+    </resultMap>
+
+    <select id="queryAll" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select a.ID,a.CYCLES_NAME,a.REMARK,a.STATUS,a.CREATE_TIME,b.ID as
+        cycles_org_id,b.CYCLES_INFO_ID,b.ORG_PID,b.ORG_ID ,
+        c.ID as cycles_times_id,c.CYCLES_INFO_ID as CYCLES_INFO_ID_ORG,c.WEEKS,c.START_TIME,c.END_TIME
+        from cycles_info a left join cycles_org b on a.id = b.cycles_info_id
+        left join cycles_times c on a.id = c.cycles_info_id
+        <where>
+            <if test="name !=null and name !=''">
+                a.CYCLES_NAME like concat(concat('%',#{name}),'%')
+            </if>
+        </where>
+        order by a.CREATE_TIME desc
+    </select>
+
+    <select id="selectInfoById" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select a.ID,
+               a.CYCLES_NAME,
+               a.REMARK,
+               a.STATUS,
+               a.CREATE_TIME,
+               b.ID             as cycles_org_id,
+               b.CYCLES_INFO_ID,
+               b.ORG_PID,
+               b.ORG_ID,
+               c.ID             as cycles_times_id,
+               c.CYCLES_INFO_ID as CYCLES_INFO_ID_ORG,
+               c.WEEKS,
+               c.START_TIME,
+               c.END_TIME
+        from cycles_info a
+                 left join cycles_org b on a.id = b.cycles_info_id
+                 left join cycles_times c on a.id = c.cycles_info_id
+        where a.ID = #{id}
+    </select>
+
+    <select id="selectByOrgIdAndTime" parameterType="java.util.Map" resultMap="InfoResultMap">
+        select a.*
+        from cycles_info a
+                 left join cycles_org b on a.id = b.cycles_info_id
+                 left join cycles_times c on a.id = c.cycles_info_id
+        where b.org_id = #{orgId}
+          and c.weeks = #{week}
+          and c.start_time &lt; #{time}
+          and c.end_time &gt; #{time}
+          and a.status = 1
+    </select>
+
+
+</mapper>

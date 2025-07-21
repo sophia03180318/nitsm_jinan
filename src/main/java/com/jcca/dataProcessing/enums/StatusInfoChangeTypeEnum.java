@@ -156,6 +156,10 @@ public enum StatusInfoChangeTypeEnum {
     status_cpu_core("cpuCore", "cpu核数", "", "", ""),
     status_cpu_voltage("cpuVoltage", "cpu电压", "", "", ""),
 
+    // CPU负载
+    event_cpuLoad("event:event_cpuLoad", "cpu负载", "", "", "183"),
+    event_cpuLoad_normal("event:event_cpuLoad:normal", "cpu负载普通阈值事件", "CPU逻辑处理器数量：%s, 设定阈值：%s, CPU负载 %s", "CPU负载阈值状态", ""),
+    event_appServer_link("event:event_appServer_link", "应用服务器连接事件", "服务端口 %s 与 %s(%s) 连接 %s！", "应用服务器状态", ""),
 
     //数据库状态事件
     event_db("event:event_db", "数据库状态", "", "数据库巡检", "263"),
@@ -536,6 +540,7 @@ public enum StatusInfoChangeTypeEnum {
     STATUS("STATUS", "状态", "", "", ""),
     RUN_STATUS("RUN_STATUS", "运行状态", "", "", ""),
     LINK_STATUS("LINK_STATUS", "业务连接状态", "", "", ""),
+    APP_LINK_STATUS("APP_LINK_STATUS", "应用服务器连接状态", "", "", ""),
     THRESHOLD_STATUS("THRESHOLD_STATUS", "业务软件容量", "", "", ""),
     //自律机
     ZLJ_STATUS("ZLJ_STATUS", "", "", "", ""),

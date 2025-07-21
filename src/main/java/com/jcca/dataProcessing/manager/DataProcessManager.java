@@ -2,7 +2,6 @@ package com.jcca.dataProcessing.manager;
 
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.quartz.alarm.AlarmJobService;
-import com.jcca.dataProcessing.DataFilter.donghuan.DongHuanPowerHandler;
 import com.jcca.dataProcessing.Entity.*;
 import com.jcca.dataProcessing.support.*;
 import com.jcca.web.alarm.controller.AlarmInfoController;
@@ -68,6 +67,7 @@ public class DataProcessManager {
     private IFilterHandler congXingHandler;
     private IFilterHandler connectHandler;
     private IFilterHandler cpuHandler;
+    private IFilterHandler cpuLoadHandler;
     private IFilterHandler dbHandler;
     private IFilterHandler dbTableHandler;
     private IFilterHandler dbAlarmHandler;
@@ -111,19 +111,20 @@ public class DataProcessManager {
 
     /**
      * 创建执行器
+     *
      * @param handlerClassList
      * @param needAddEventHandlerClassList
      * @param eventInfoListener
      * @return
      */
-    private IFilterHandler createHandler(List<String> handlerClassList,List<String> needAddEventHandlerClassList,IListener eventInfoListener){
+    private IFilterHandler createHandler(List<String> handlerClassList, List<String> needAddEventHandlerClassList, IListener eventInfoListener) {
         IFilterHandler beginHandler = null;
         IFilterHandler filterHandler = null;
         for (String className : handlerClassList) {
             IFilterHandler itemHandler = this.getIFilterHandler(className);
-            if(Objects.nonNull(filterHandler)){
+            if (Objects.nonNull(filterHandler)) {
                 filterHandler.setNextFilter(itemHandler);
-            }else{
+            } else {
                 beginHandler = itemHandler;
             }
             filterHandler = itemHandler;
@@ -187,7 +188,6 @@ public class DataProcessManager {
         processControllerV2.addDataSourceListener(thresholdListener);
 
 
-
         ApiManageDbController apiManageDbController = SpringContextUtil.getBean(ApiManageDbController.class);
         apiManageDbController.addDataSourceListener(thresholdListener);
 
@@ -214,7 +214,6 @@ public class DataProcessManager {
         alarmListener = this.getListener("alarmListener");
 
 
-
         List<String> cpuHandlerList = Arrays.asList(
                 //数据库保存filterHandler
                 "cpuSaveFilterHandler",
@@ -227,7 +226,8 @@ public class DataProcessManager {
                 //通用缓存保存fitlerHandler
                 "saveFilterHandler");
         //需要添加内容event监听的filterHandler;
-        List<String> eventList = Arrays.asList("cpuFilterHandler",
+        List<String> eventList = Arrays.asList(
+                "cpuFilterHandler",
                 "cpuSectionFilterHandler",
                 "cpuStageOneFilterHandler",
                 "cpuStageTwoFilterHandler",
@@ -237,6 +237,18 @@ public class DataProcessManager {
         //CPU阈值
         IFilterHandler cpuHandlerImpl = createHandler(cpuHandlerList, eventList, eventInfoListener);
         cpuHandler = cpuHandlerImpl;
+
+
+        // CPU负载
+        List<String> cpuLoadHandlerList = Arrays.asList(
+                "cpuLoadSaveFilterHandler",
+                "cpuLoadThresholdFilterHandler",
+                "appServerLinkSaveFilterHandler",
+                "saveFilterHandler");
+        List<String> cpuLoadEventList = Arrays.asList(
+                "cpuLoadSaveFilterHandler",
+                "appServerLinkSaveFilterHandler");
+        cpuLoadHandler = createHandler(cpuLoadHandlerList, cpuLoadEventList, eventInfoListener);
 
 
         List<String> stationSystemHandlerList = Arrays.asList(
@@ -374,7 +386,7 @@ public class DataProcessManager {
                 "ProcessGroupDoubleStateFilterHandler",
                 "ProcessAloneStateFilterHandler",
                 "saveFilterHandler"
-                );
+        );
         List<String> processGroupEventHandlerList = Arrays.asList(
                 "processChangeFilterHandler",
                 "processGroupSingleStateFilterHandler",
@@ -744,7 +756,6 @@ public class DataProcessManager {
         beiYangLinkHandler = createHandler(beiYangLinkHandlerList, beiYangLinkEventHandlerList, eventInfoListener);
         beiYangVersionHandler = createHandler(beiYangVersionHandlerList, beiYangVersionEventHandlerList, eventInfoListener);
 
-
         //卡斯柯业务事件
         IFilterHandler cascoLink = this.getIFilterHandler("cascoLinkFitlerHandler");
         cascoLink.addDataSourceListener(eventInfoListener);
@@ -876,18 +887,16 @@ public class DataProcessManager {
         eventInfoHandler = eventIsConfigAlarmHandler;
 
 
-
-
         //-----------------以下为告警信息处理程序----------------------------------------------------------------------
         //巡检处理
         IFilterHandler eventXunjianHandler = this.getIFilterHandler("eventXunjianHandler");
         IFilterHandler alarmFilterHandler = this.getIFilterHandler("alarmFilterHandler");
         eventXunjianHandler.setNextFilter(alarmFilterHandler);
-          IFilterHandler alarmEventHandler= this.getIFilterHandler("alarmEventHandler");
+        IFilterHandler alarmEventHandler = this.getIFilterHandler("alarmEventHandler");
         alarmFilterHandler.setNextFilter(alarmEventHandler);
-        IFilterHandler eventXunjianAlarmHandler= this.getIFilterHandler("eventXunjianAlarmHandler");
+        IFilterHandler eventXunjianAlarmHandler = this.getIFilterHandler("eventXunjianAlarmHandler");
         alarmEventHandler.setNextFilter(eventXunjianAlarmHandler);
-        alarmInfoHandler=eventXunjianHandler;
+        alarmInfoHandler = eventXunjianHandler;
 
     }
 
@@ -948,6 +957,16 @@ public class DataProcessManager {
      */
     public void cpuHandlerRequest(CollectCpuEntity entity) throws Exception {
         cpuHandler.handleRequest(entity, true);
+    }
+
+    /**
+     * CPU负载数据
+     *
+     * @param entity
+     * @throws Exception
+     */
+    public void cpuLoadHandlerRequest(CollectCpuLoadBean entity) throws Exception {
+        cpuLoadHandler.handleRequest(entity, true);
     }
 
     /**
@@ -1113,7 +1132,7 @@ public class DataProcessManager {
     }
 
     public void donghuanHandlerRequest(DongHuanEntity dongHuanEntity) throws Exception {
-        donghuanHandler.handleRequest(dongHuanEntity,true);
+        donghuanHandler.handleRequest(dongHuanEntity, true);
     }
 
     public void cascoThreshOldHandlerRequest(ItsmQueueEntity itsmQueueReq) throws Exception {

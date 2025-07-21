@@ -35,6 +35,7 @@ import com.jcca.component.quartz.alarm.bean.UnhealthyAsset;
 import com.jcca.component.thresholds.bean.CollectProcessBean;
 import com.jcca.component.thresholds.impl.DisposeInterfaceAdapterImpl;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
+import com.jcca.web.ai.vo.AlarmVo;
 import com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery;
 import com.jcca.web.alarm.controller.bean.AssetAlarmReq;
 import com.jcca.web.alarm.dao.AlarmInfoMapper;
@@ -52,6 +53,7 @@ import com.jcca.web.alarm.vo.AlarmExportVo;
 import com.jcca.web.alarm.vo.AlarmUnconfirmVo;
 import com.jcca.web.asset.controller.bean.Repository;
 import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.asset.service.AssetAppServerService;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetBelong;
 import com.jcca.web.broken.dao.BrokenRecordMapper;
@@ -64,6 +66,7 @@ import com.jcca.web.common.service.bean.ThreeDAlarmReq;
 import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.construction.entity.ConstructionRecord;
 import com.jcca.web.construction.service.ConstructionRecordService;
+import com.jcca.web.cycles.service.CyclesInfoService;
 import com.jcca.web.event.dao.AlarmEventRelMapper;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.entity.AlarmEventGroup;
@@ -130,6 +133,10 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
     private BrokenRecordMapper brokenMapper;
     @Resource
     private BizManageService bizService;
+    @Resource
+    private CyclesInfoService cyclesInfoServ;
+    @Resource
+    private AssetAppServerService appServerService;
 
     @Override
     public AlarmInfo getAssetAlarm(String alarmCode, String assetId, String alarmFlag) {
@@ -249,6 +256,12 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         ConstructionRecord one = constructionRecordService.getOne(construtionWrapper);
         if (Objects.nonNull(one)) {
             blank = AlarmBlankConst.BLANK;
+        } else {
+            //查询是否存在周期计划 2024-11-21 吕义鹏
+            boolean haveBlank = cyclesInfoServ.verifyIsBlank(asset, occurTime);
+            if (haveBlank) {
+                blank = AlarmBlankConst.BLANK;
+            }
         }
 
         AlarmInfo alarmInfo = new AlarmInfo();
@@ -721,6 +734,8 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         String mapKey = alarmInfo.getAlarmFlag().replaceFirst("_", ":");
         mapKey = mapKey.replaceFirst("_", ":");
         redisService.hmDel(alarmInfo.getAlarmCode(), mapKey);
+
+        appServerService.deleteLinkData(alarmInfo.getAlarmFlag());
     }
 
     @Override
@@ -932,6 +947,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                 //告警转为故障记录
                 saveBrokenV2(dto, alarmId, date, alarmInfo, asset);
             }
+
+            String alarmFlag = alarmInfo.getAlarmFlag();
+            appServerService.setLinkStatus(alarmFlag, 2); // 未连接
         }
 
         if (dto.needDisposeRecord()) {
@@ -957,8 +975,6 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                 constructionRecordService.createV2(req);
             }
         }
-
-
     }
 
     @Override
@@ -1054,7 +1070,7 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         for (AlarmPageVo record : records) {
             String alarmId = record.getAlarmId();
             List<String> nameList = repoServ.selectNameByAlarmId(alarmId);
-            if(!nameList.isEmpty()){
+            if (!nameList.isEmpty()) {
                 record.setRepoName(nameList.get(0));
             }
         }
@@ -1148,4 +1164,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         return alarmInfoMapper.getRemarksByAlarmCode(alarmCode);
     }
 
+    @Override
+    public List<AlarmVo> findAiAlarm(String assetId) {
+        return alarmInfoMapper.findAiAlarm(assetId);
+
+    }
 }

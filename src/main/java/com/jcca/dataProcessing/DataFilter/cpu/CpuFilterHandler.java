@@ -39,7 +39,7 @@ public class CpuFilterHandler extends IFilterHandler<CollectCpuEntity> {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.status_CPUState.getCode();
         //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getCpuUsedRate());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisKey, mapKey, info.getCpuUsedRate());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getCpuUsedRate());
         changeInfo.setRedisKey(redisKey);
@@ -57,14 +57,14 @@ public class CpuFilterHandler extends IFilterHandler<CollectCpuEntity> {
 
         ThresholdBaseEntity threshold = thresholdManager.getThresholdValue(StatusInfoChangeTypeEnum.event_CPU_normal.getCode(), info.getAssetId(), null);
         if (threshold.baseValueIsNull()) {
-            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatRecoveryThresholdEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, redisThresholdKey, thresholdMapKey, info.getInspectRecordId());
             if (event != null) {
                 this.dispatureEvent(event);
             }
             return true;
         }
 
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
         }
@@ -77,11 +77,11 @@ public class CpuFilterHandler extends IFilterHandler<CollectCpuEntity> {
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CPU_normal.getDescr(), changeInfo.getValue(), keyWord, threshold.getBaseValue()));
             alarmTempReq.setCollectValue(info.getCpuUsedRate() + "%");
-            alarmTempReq.setThresholdValue(threshold.getBaseValue()+"%");
+            alarmTempReq.setThresholdValue(threshold.getBaseValue() + "%");
             alarmTempReq.setFlag("CPU");
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_CPU_normal.getCode(), StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(), "", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq, info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
 

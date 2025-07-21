@@ -63,8 +63,7 @@ public enum ReceiveAlarmTypeEnum {
     BEIYANG_CHANNEL_LINK("62", "BEIYANG_CHANNEL_LINK"), // 通道连接状态
 
     // 通信质量监督
-    CONGXING("70", "CONGXING_ALARM"); // 通信质量
-
+    CONGXING("70", "CONGXING_ALARM"), // 通信质量
     ;
 
 

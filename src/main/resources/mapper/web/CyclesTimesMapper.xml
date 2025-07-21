@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.cycles.dao.CyclesTimesMapper">
+    <insert id="saveBatch" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="timesList" item="item" separator="">
+            INTO cycles_times (id,weeks, cycles_info_id,start_time,end_time)
+            VALUES (#{item.id},#{item.weeks}, #{item.cyclesInfoId}, #{item.startTime},#{item.endTime})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+</mapper>

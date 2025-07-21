@@ -1,7 +1,10 @@
 package com.jcca.web.asset.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.Set;
 
 /**
  * @ClassName AssetOutVo
@@ -118,5 +121,11 @@ public class AssetOutVo {
     private Byte aBFlag;
 
     private Byte showTopo;
+    /**
+     * 应用服务器软件端口
+     */
+    @TableField(exist = false)
+    private Set<Integer> ssPortSet;
+    private Integer serviceType;
 
 }

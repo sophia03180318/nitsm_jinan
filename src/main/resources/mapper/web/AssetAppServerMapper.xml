@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web.asset.dao.AssetAppServerMapper">
+
+    <select id="getAppServerList" resultType="com.jcca.web.asset.vo.AssetAppServerVo">
+        select p.id,
+               a.id   as assetId,
+               a.name as itemName,
+               p.server_port,
+               p.link_asset_name,
+               p.link_ip,
+               p.link_status,
+               i.id      alarmId
+        from asset a
+                 left join asset_app_server p on a.id = p.asset_id
+                 left join alarm_info i
+                           on a.id = i.asset_id and i.alarm_code like concat('%', p.id) and i.status = 1 and
+                              i.alarm_state = 1
+        where a.watch = 1
+          and a.is_del = 1
+          and a.asset_mode = 183
+          and a.service_type = 1
+          and a.collection_type = 0
+    </select>
+
+    <select id="getAppServerInfo" resultType="com.jcca.web.asset.vo.AssetAppServerVo">
+        select p.id,
+               a.id   as assetId,
+               a.name as itemName,
+               p.server_port,
+               p.link_asset_name,
+               p.link_ip,
+               p.link_status,
+               i.id      alarmId
+        from asset a
+                 left join asset_app_server p on a.id = p.asset_id
+                 left join alarm_info i
+                           on a.id = i.asset_id and i.alarm_code like concat('%', p.id) and i.status = 1 and
+                              i.alarm_state = 1
+        where a.watch = 1
+          and a.is_del = 1
+          and a.asset_mode = 183
+          and a.service_type = 1
+          and a.collection_type = 0
+          and a.id = #{assetId}
+    </select>
+
+</mapper>

@@ -75,6 +75,10 @@ public enum ThresholdCategoryEnum {
      * 交换机发送光功率
      */
     SWITCH_OPTICAL_TX("交换机发送光功率"),
+    /**
+     * CPU负载阈值
+     */
+    CPU_LINUX_LOAD_AVG("CPU负载"),
 
     ;
 

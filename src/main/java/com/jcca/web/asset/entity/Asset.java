@@ -389,6 +389,12 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
     @TableField(value = "REMARK")
     private String remark;
 
+    /**
+     * 0非应用服务器，1应用服务器
+     */
+    @TableField(value = "SERVICE_TYPE")
+    private Integer serviceType;
+
 
     /**
      * 监控状态

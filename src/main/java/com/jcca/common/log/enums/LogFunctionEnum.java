@@ -146,6 +146,7 @@ public enum LogFunctionEnum {
     ASSET_MANAGE(LogFunctionConstant.ASSET_MANAGE, "资产管理", ""),
     ASSET_MANAGE_OPTICAL(LogFunctionConstant.ASSET_MANAGE_OPTICAL, "光功率模板文件", ""),
     ASSET_CHANGE(LogFunctionConstant.ASSET_CHANGE, "资产变动", ""),
+    APP_SERVER_LINK(LogFunctionConstant.APP_SERVER_LINK, "应用服务器", ""),
 
     // 维护手册 45,
     HAND_BOOK(LogFunctionConstant.HAND_BOOK, "维护手册", ""),

@@ -163,6 +163,9 @@ public class ThresholdMangerService implements ThresholdManager {
             } else if (ThresholdCategoryEnum.SWITCH_OPTICAL_TX.name().equals(item.getCategory())) {
                 key = StatusInfoChangeTypeEnum.event_port_optical_out_normal.getCode() + "_" + item.getAssetId();
                 type = StatusInfoChangeTypeEnum.event_port_optical_out_normal;
+            } else if (ThresholdCategoryEnum.CPU_LINUX_LOAD_AVG.name().equals(item.getCategory())) {
+                key = StatusInfoChangeTypeEnum.event_cpuLoad_normal.getCode() + "_" + item.getAssetId();
+                type = StatusInfoChangeTypeEnum.event_cpuLoad_normal;
             }
 
             if (Objects.isNull(type)) {

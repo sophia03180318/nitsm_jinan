@@ -53,25 +53,15 @@ public class CpuAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
         CollectCpuEntity collectCpuEntity = cpus.get(0);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_CPU.getCode(), "monitor", true);
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
 
+        Future<Integer> future = excutorService.submit(() -> {
+            setAssetIp(collectCpuEntity);
+            try {
+                dataProcessManager.cpuHandlerRequest(collectCpuEntity);
+            } catch (Exception e) {
+                AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectCpuEntity.getAssetIp() + "cpuHandlerRequest 抛出异常", e);
             }
-        });
-
-
-        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                setAssetIp(collectCpuEntity);
-                try {
-                    dataProcessManager.cpuHandlerRequest(collectCpuEntity);
-                } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + collectCpuEntity.getAssetIp() + "cpuHandlerRequest 抛出异常", e);
-                }
-                return 1;
-            }
+            return 1;
         });
 
         if(collectCpuEntity.getInspectRecordId()!=null&&!"".equals(collectCpuEntity.getInspectRecordId())){
