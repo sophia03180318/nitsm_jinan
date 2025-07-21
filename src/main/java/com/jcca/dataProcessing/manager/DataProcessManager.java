@@ -246,7 +246,7 @@ public class DataProcessManager {
                 "appServerLinkSaveFilterHandler",
                 "saveFilterHandler");
         List<String> cpuLoadEventList = Arrays.asList(
-                "cpuLoadSaveFilterHandler",
+                "cpuLoadThresholdFilterHandler",
                 "appServerLinkSaveFilterHandler");
         cpuLoadHandler = createHandler(cpuLoadHandlerList, cpuLoadEventList, eventInfoListener);
 

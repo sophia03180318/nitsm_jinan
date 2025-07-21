@@ -239,6 +239,9 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
     public void deleteLinkData(String alarmFlag) {
         try {
             String[] split = alarmFlag.split("_");
+            if (split.length < 4) {
+                return;
+            }
             UpdateWrapper<AssetAppServer> update = Wrappers.update();
             update.eq("ASSET_ID", split[1]);
             update.eq("SERVER_PORT", split[2]);

@@ -36,8 +36,6 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
     @Resource
     private AssetService assetService;
 
-    private static Map<String, String> ipName = new HashMap<>(256);
-
     /**
      * 处理方法
      *
@@ -80,6 +78,7 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
             Set<String> oldIpSet = new HashSet<>(Arrays.asList(split));
             Set<String> difference = this.getDifference(oldIpSet, newIpSet);
             if (!difference.isEmpty()) {
+                eventInfoChangeManagerService.setStateValue(redisKey, mapKey, redisValue);
                 linkStatus = 0;
                 this.updateLinkData(info, difference, linkStatus, mapKey, redisKey, redisValue, asset);
             }
