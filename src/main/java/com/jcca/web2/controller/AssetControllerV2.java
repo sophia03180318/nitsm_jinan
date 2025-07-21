@@ -36,10 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author HanHW
@@ -81,7 +78,7 @@ public class AssetControllerV2 {
     @ApiOperation("按类型统计")
     @GetMapping("/mode")
     public ResultVo<Object> mode(@RequestParam Map<String, Object> map) {
-
+        map.put("today", new Date());
         List<AssetStatisticsVo> list = assetServ.countModeV2(map);
 
         return ResultVoUtil.success(list);
@@ -90,7 +87,7 @@ public class AssetControllerV2 {
     @ApiOperation("按型号统计")
     @GetMapping("/model")
     public ResultVo<Object> model(@RequestParam Map<String, Object> map) {
-
+        map.put("today", new Date());
         List<AssetStatisticsVo> list = assetServ.countModelV2(map);
 
         return ResultVoUtil.success(list);

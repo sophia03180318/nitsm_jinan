@@ -6,6 +6,7 @@ import com.jcca.web.asset.controller.bean.AssetHardwareFixReq;
 import com.jcca.web.asset.entity.AssetHardwareFix;
 import com.jcca.web.asset.vo.AssetHardwareFixExportVo;
 import com.jcca.web.asset.vo.AssetHardwareFixVo;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -22,5 +23,7 @@ public interface AssetHardwareFixMapper extends BaseMapper<AssetHardwareFix> {
 
     Long countItem(AssetHardwareFixReq req);
 
+    @Select("select * from asset_hardware_fix where asset_id =#{assetId} order by CREATE_TIME desc")
+    List<AssetHardwareFix> getByListAssetId(String assetId);
 
 }

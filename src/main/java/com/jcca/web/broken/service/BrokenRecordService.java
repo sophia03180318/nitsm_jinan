@@ -70,4 +70,10 @@ public interface BrokenRecordService extends IService<BrokenRecord> {
      * @return
      */
     List<DialogsAlarmListVo> listByAlarmId(String alarmId);
+
+    /**
+     *
+     * 获取指定资产的最新记录
+     * */
+    BrokenRecord getByAssetId(String assetId);
 }

@@ -88,4 +88,9 @@ public class AssetQueryReq {
      * 运行方式
      */
     private String runModel;
+    /**
+     * 是否超期  1=超期了  2=没超期
+     */
+    private Integer overdue;
+
 }
