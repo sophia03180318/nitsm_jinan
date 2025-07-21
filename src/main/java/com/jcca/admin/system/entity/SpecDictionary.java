@@ -2,6 +2,7 @@ package com.jcca.admin.system.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -50,7 +51,7 @@ public class SpecDictionary extends Model<SpecDictionary> implements java.io.Ser
     private String manufacturerId;
 
     /**
-     * 采集类型
+     * 采集类型 SYSTEM_TYPE
      * 0:linux,1:window,2:aix,-1其他
      */
     @TableField("SYSTEM_TYPE")
@@ -74,6 +75,7 @@ public class SpecDictionary extends Model<SpecDictionary> implements java.io.Ser
     /**
      * 创建时间
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(value = "CREATE_DATE", fill = FieldFill.INSERT)
     private Date createDate;
 
