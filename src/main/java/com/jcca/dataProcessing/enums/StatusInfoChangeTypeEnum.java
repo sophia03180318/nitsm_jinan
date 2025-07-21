@@ -158,7 +158,7 @@ public enum StatusInfoChangeTypeEnum {
 
     // CPU负载
     event_cpuLoad("event:event_cpuLoad", "cpu负载", "", "", "183"),
-    event_cpuLoad_normal("event:event_cpuLoad:normal", "cpu负载普通阈值事件", getPubThresholdMsg("", "CPU15分钟负载", "%%"), "CPU负载阈值状态", ""),
+    event_cpuLoad_normal("event:event_cpuLoad:normal", "cpu负载普通阈值事件", "CPU逻辑处理器数量：%s, 设定阈值：%s, CPU负载 %s", "CPU负载阈值状态", ""),
     event_appServer_link("event:event_appServer_link", "应用服务器连接事件", "服务端口 %s 与 %s(%s) 连接 %s！", "应用服务器状态", ""),
 
     //数据库状态事件

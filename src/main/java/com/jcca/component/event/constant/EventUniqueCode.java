@@ -22,10 +22,6 @@ public class EventUniqueCode {
      */
     public static final String CPU_SECTION_UNIQUE_CODE = "THRE_CPU_SECTION";
     /**
-     * 应用链
-     */
-    public static final String ASSET_APP_LINK = "ASSET_APP_LINK";
-    /**
      * 磁盘
      */
     public static final String DISK_UNIQUE_CODE = "THRE_DISK";

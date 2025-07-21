@@ -76,9 +76,13 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
         if (flag || thresholdFlag) {
             Boolean compare = AppMathUtil.compare(info.getCpuLoadFifteen(), threshold.getBaseValue() + "");
             Integer status = compare ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
-            String keyWord = status.equals(EventLevelEnum.NORMAL.getCode()) ? "" : "超过";
+            String keyWord = status.equals(EventLevelEnum.NORMAL.getCode()) ? "正常！" : "过载！";
+
+            String str = "CPU负载信息：" + info.getCpuLoadOne() + "，" + info.getCpuLoadFive() + "，" + info.getCpuLoadFifteen() + "。";
+            String msg = String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), info.getCpuLogicalNum(), threshold.getBaseValue(), keyWord);
+            msg = msg + str;
             AlarmTempReq alarmTempReq = new AlarmTempReq();
-            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), changeInfo.getValue(), keyWord, threshold.getBaseValue()));
+            alarmTempReq.setOrgMsg(msg);
             alarmTempReq.setCollectValue(info.getCpuLoadFifteen());
             alarmTempReq.setThresholdValue(threshold.getBaseValue() + "");
             alarmTempReq.setFlag("cpuLoad");
@@ -87,7 +91,7 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
             IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq, info.getInspectRecordId());
             if (event != null) {
                 //被事件信息截取
-                event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), changeInfo.getValue(), keyWord, threshold.getBaseValue()));
+                event.setDescStr(msg);
                 changeInfo.setIsEvent(true);
                 this.dispatureEvent(event);
             }
