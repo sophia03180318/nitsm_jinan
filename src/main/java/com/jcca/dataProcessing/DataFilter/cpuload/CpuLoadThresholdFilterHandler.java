@@ -15,6 +15,8 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 
 /**
@@ -66,6 +68,12 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
             }
             return true;
         }
+        Double baseValue = threshold.getBaseValue();
+        if (baseValue == null) {
+            baseValue = 1D;
+        }
+        BigDecimal bigDecimal = new BigDecimal(baseValue).multiply(new BigDecimal(info.getCpuLogicalNum())).setScale(2, RoundingMode.HALF_UP);
+        threshold.setBaseValue(bigDecimal.doubleValue());
 
         boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
         if (thresholdFlag) {
