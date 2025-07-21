@@ -44,14 +44,12 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
     public boolean handler(CollectCpuLoadBean info) throws ResultException, Exception {
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.event_cpuLoad.getCode();
-        //判断数据是否有变化
-        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisKey, mapKey, info.getCpuLoadFifteen());
         ChangeInfo changeInfo = new ChangeInfo();
         changeInfo.setValue(info.getCpuLoadFifteen());
         changeInfo.setRedisKey(redisKey);
         changeInfo.setMapKey(mapKey);
         changeInfo.setCollectTime(new Date(info.getCollectTime()));
-        changeInfo.setIsChange(flag);
+        changeInfo.setIsChange(true);
         info.getMaps().put(mapKey, changeInfo);
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_cpuLoad_normal.getCode();
@@ -79,8 +77,8 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
         }
 
         //如果性能数据有变动或者阈值有变动,则需要重新推送事件信息
-        if (flag || thresholdFlag) {
-            Boolean compare = AppMathUtil.compare(info.getCpuLoadFifteen(), factor.doubleValue() + "");
+        if (thresholdFlag) {
+            Boolean compare = AppMathUtil.compare(info.getCpuLoadFifteen(), factor.toString());
             Integer status = compare ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
             String keyWord = status.equals(EventLevelEnum.NORMAL.getCode()) ? "正常！" : "过载！";
 
@@ -90,7 +88,7 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(msg);
             alarmTempReq.setCollectValue(info.getCpuLoadFifteen());
-            alarmTempReq.setThresholdValue(factor.doubleValue() + "");
+            alarmTempReq.setThresholdValue(factor.toString());
             alarmTempReq.setFlag("cpuLoad");
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getCode(), StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(), "", status, info, changeInfo);
