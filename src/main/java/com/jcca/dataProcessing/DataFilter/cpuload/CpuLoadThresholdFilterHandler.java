@@ -72,27 +72,25 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
         if (baseValue == null) {
             baseValue = 1D;
         }
-        BigDecimal bigDecimal = new BigDecimal(baseValue).multiply(new BigDecimal(info.getCpuLogicalNum())).setScale(2, RoundingMode.HALF_UP);
-        threshold.setBaseValue(bigDecimal.doubleValue());
-
-        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisThresholdKey, thresholdMapKey, threshold.getBaseValue());
+        BigDecimal factor = new BigDecimal(baseValue).multiply(new BigDecimal(info.getCpuLogicalNum())).setScale(2, RoundingMode.HALF_UP);
+        boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisThresholdKey, thresholdMapKey, factor.doubleValue());
         if (thresholdFlag) {
-            this.addThresholdStatus(redisThresholdKey, thresholdMapKey, threshold.getBaseValue(), info);
+            this.addThresholdStatus(redisThresholdKey, thresholdMapKey, factor.doubleValue(), info);
         }
 
         //如果性能数据有变动或者阈值有变动,则需要重新推送事件信息
         if (flag || thresholdFlag) {
-            Boolean compare = AppMathUtil.compare(info.getCpuLoadFifteen(), threshold.getBaseValue() + "");
+            Boolean compare = AppMathUtil.compare(info.getCpuLoadFifteen(), factor.doubleValue() + "");
             Integer status = compare ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
             String keyWord = status.equals(EventLevelEnum.NORMAL.getCode()) ? "正常！" : "过载！";
 
             String str = "CPU负载信息：" + info.getCpuLoadOne() + "，" + info.getCpuLoadFive() + "，" + info.getCpuLoadFifteen() + "。";
-            String msg = String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), info.getCpuLogicalNum(), threshold.getBaseValue(), keyWord);
+            String msg = String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), info.getCpuLogicalNum(), factor.doubleValue(), keyWord);
             msg = msg + str;
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(msg);
             alarmTempReq.setCollectValue(info.getCpuLoadFifteen());
-            alarmTempReq.setThresholdValue(threshold.getBaseValue() + "");
+            alarmTempReq.setThresholdValue(factor.doubleValue() + "");
             alarmTempReq.setFlag("cpuLoad");
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getCode(), StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(), "", status, info, changeInfo);
