@@ -510,6 +510,23 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
     @TableField(exist = false)
     private String assetPosition;
 
+    /**
+     * 是否超期  1=超期了  2=没超期
+     */
+    @TableField(exist = false)
+    private Integer overdue;
+    /**
+     * 最后一次记录时间
+     */
+    @TableField(exist = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date lastTime;
+
+    /**
+     * 最后一次记录内容
+     */
+    @TableField(exist = false)
+    private String lifeContent;
 
     /**
      * 判定是不是主机

@@ -316,6 +316,12 @@
         <if test="map.collectionType != null and map.collectionType !=''">
             and COLLECTION_TYPE = #{map.collectionType}
         </if>
+        <if test="map.overdue != null and map.overdue ==1">
+            and DOWNLINE_TIME &lt; #{map.today}
+        </if>
+        <if test="map.overdue != null and map.overdue ==2">
+            and DOWNLINE_TIME &gt;= #{map.today}
+        </if>
         <if test="map.orgId != null and map.orgId !=''">
             and org_id = #{map.orgId}
         </if>
@@ -355,6 +361,12 @@
         </if>
         <if test="map.manufacturerId != null and map.manufacturerId !=''">
             and manufacturer_id = #{map.manufacturerId}
+        </if>
+        <if test="map.overdue != null and map.overdue ==1">
+            and DOWNLINE_TIME &lt; #{map.today}
+        </if>
+        <if test="map.overdue != null and map.overdue ==2">
+            and DOWNLINE_TIME &gt;= #{map.today}
         </if>
         <if test="map.monitorStatus != null and map.monitorStatus !=''">
             and MONITOR = #{map.monitorStatus}

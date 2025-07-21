@@ -189,6 +189,16 @@ public class BrokenRecordServiceImpl extends ServiceImpl<BrokenRecordMapper, Bro
         return brokenRecordWordMapper.listByAlarmId(alarmId);
     }
 
+    @Override
+    public BrokenRecord getByAssetId(String assetId) {
+        List<BrokenRecord> list = brokenMapper.getListByAssetId(assetId);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+
     private void saveOpinion(RecordHandleReq recordHandleReq) {
         BrokenRecordOpinion opinion = new BrokenRecordOpinion();
         opinion.setOpinion(recordHandleReq.getOpinion());

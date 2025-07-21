@@ -105,4 +105,14 @@ public class AssetHardwareFixServiceImpl extends ServiceImpl<AssetHardwareFixMap
         }
         return voList;
     }
+
+
+    @Override
+    public AssetHardwareFix getByAssetId(String assetId) {
+        List<AssetHardwareFix> list = assetHardwareFixMapper.getByListAssetId(assetId);
+        if (!list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
+    }
 }

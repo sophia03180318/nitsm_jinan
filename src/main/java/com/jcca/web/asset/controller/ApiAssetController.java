@@ -61,6 +61,8 @@ import com.jcca.web.asset.vo.AssetHistoryVo;
 import com.jcca.web.asset.vo.AssetLogExportVo;
 import com.jcca.web.asset.vo.AssetManualVo;
 import com.jcca.web.asset.vo.AvgVo;
+import com.jcca.web.broken.entity.BrokenRecord;
+import com.jcca.web.broken.service.BrokenRecordService;
 import com.jcca.web.collect.entity.CollectPort;
 import com.jcca.web.collect.service.CollectHPManagerLogService;
 import com.jcca.web.collect.service.CollectPortService;
@@ -175,6 +177,8 @@ public class ApiAssetController {
     private AssetTemplateService assetTemplateService;
     @Resource
     private BusinessServiceTypeService businessServiceTypeService;
+    @Resource
+    private BrokenRecordService brokenRecordService;
 
 
     @GetMapping("/getConfig")
@@ -362,6 +366,16 @@ public class ApiAssetController {
         if (Objects.nonNull(assetQueryReq.getManufacturerId())) {
             wrapper.eq("manufacturer_id", assetQueryReq.getManufacturerId());
         }
+
+        Date date = new Date();
+        if (Objects.nonNull(assetQueryReq.getOverdue())) {
+            if (assetQueryReq.getOverdue() == 1) {
+                wrapper.lt("DOWNLINE_TIME", date);
+            } else {
+                wrapper.ge("DOWNLINE_TIME", date);
+            }
+        }
+
         if (Objects.nonNull(assetQueryReq.getOverhaul()) && assetQueryReq.getOverhaul() == 1) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date());
@@ -512,7 +526,8 @@ public class ApiAssetController {
                 record.setEndPosition(null);
                 record.setCabinetId("");
             }
-
+            //生命周期
+            fattenLifecycle(date, record);
         }
 
         Map<String, Object> map = new HashMap<>(16);
@@ -521,6 +536,54 @@ public class ApiAssetController {
         map.put("total", pageResult.getTotal());
 
         return map;
+    }
+
+    /**
+     * lvyp 增加生命周期参数
+     *
+     * @param date
+     * @param record
+     */
+    private void fattenLifecycle(Date date, Asset record) {
+        if (ObjectUtil.isNotNull(record.getDownlineTime())) {
+            record.setDownlineTime(record.getDownlineTime());
+            if (date.after(record.getDownlineTime())) {
+                record.setOverdue(1);
+            } else {
+                record.setOverdue(2);
+            }
+        }
+        if (ObjectUtil.isNotNull(record.getOnlineTime())) {
+            record.setOnlineTime(record.getOnlineTime());
+            record.setLastTime(record.getOnlineTime());
+            record.setLifeContent("设备上架");
+        }
+        //查询故障记录和硬件更换记录
+        AssetHardwareFix hardwareFix = assetHardwareFixService.getByAssetId(record.getId());
+        if (ObjectUtil.isNotNull(hardwareFix)) {
+            if (ObjectUtil.isNotNull(record.getLastTime())) {
+                if (hardwareFix.getCreateTime().after(record.getLastTime())) {
+                    record.setLastTime(hardwareFix.getCreateTime());
+                    record.setLifeContent(hardwareFix.getReason());
+                }
+            } else {
+                record.setLastTime(hardwareFix.getCreateTime());
+                record.setLifeContent(hardwareFix.getReason());
+            }
+        }
+
+        BrokenRecord brokenRecord = brokenRecordService.getByAssetId(record.getId());
+        if (ObjectUtil.isNotNull(brokenRecord)) {
+            if (ObjectUtil.isNotNull(record.getLastTime())) {
+                if (brokenRecord.getCreateTime().after(record.getLastTime())) {
+                    record.setLastTime(brokenRecord.getCreateTime());
+                    record.setLifeContent(brokenRecord.getReason());
+                }
+            } else {
+                record.setLastTime(brokenRecord.getCreateTime());
+                record.setLifeContent(brokenRecord.getReason());
+            }
+        }
     }
 
 
@@ -1431,6 +1494,20 @@ public class ApiAssetController {
         if (ObjectUtil.isNotNull(assetReq.getStatus())) {
             assetQueryWrapper.eq("STATUS", assetReq.getStatus());
         }
+        if (Objects.nonNull(assetReq.getOverhaul()) && assetReq.getOverhaul() == 1) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.add(Calendar.YEAR, 1);
+            assetQueryWrapper.le("DOWNLINE_TIME", calendar.getTime());
+        }
+        Date date = new Date();
+        if (Objects.nonNull(assetReq.getOverdue())) {
+            if (assetReq.getOverdue() == 1) {
+                assetQueryWrapper.lt("DOWNLINE_TIME", date);
+            } else {
+                assetQueryWrapper.ge("DOWNLINE_TIME", date);
+            }
+        }
 
         List<String> orgIds = ShiroUtil.getSubjectOrgIds();
         orgIds.add("x");
@@ -1556,6 +1633,20 @@ public class ApiAssetController {
             QueryWrapper<Asset> assetQueryWrapper = new QueryWrapper<>();
             assetQueryWrapper.eq("IS_DEL", 1);
 
+            Date date = new Date();
+            if (Objects.nonNull(assetReq.getOverdue())) {
+                if (assetReq.getOverdue() == 1) {
+                    assetQueryWrapper.lt("DOWNLINE_TIME", date);
+                } else {
+                    assetQueryWrapper.ge("DOWNLINE_TIME", date);
+                }
+            }
+            if (Objects.nonNull(assetReq.getOverhaul()) && assetReq.getOverhaul() == 1) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(new Date());
+                calendar.add(Calendar.YEAR, 1);
+                assetQueryWrapper.le("DOWNLINE_TIME", calendar.getTime());
+            }
             if (ObjectUtil.isNotNull(assetReq.getWatch()) && assetReq.getWatch() == (byte) 1) {
                 assetQueryWrapper.eq("WATCH", (byte) 1);
             }

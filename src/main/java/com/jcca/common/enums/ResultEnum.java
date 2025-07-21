@@ -114,6 +114,10 @@ public enum ResultEnum implements ResultInterface {
     COLLECTOR_SPEC_DICT(1305, "执行代码不能为空"),
     COLLECTOR_NULL(1306, "不可为空"),
     COLLECTOR_NUM(1307, "请填写1-59之间的整数"),
+    COLLECTOR_REMARK(1308, "描述不可空"),
+    COLLECTOR_NONE(1309, "信息已被删除，刷新重试"),
+    COLLECTOR_NULL_ID(1310, "主键不可为空"),
+    COLLECTOR_NULL_STATUS(1311, "状态不可为空"),
 
     /**
      * 巡检管理

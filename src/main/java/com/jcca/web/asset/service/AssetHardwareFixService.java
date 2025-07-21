@@ -54,4 +54,10 @@ public interface AssetHardwareFixService extends IService<AssetHardwareFix> {
      * @return
      */
     List<AssetLifeLineVo> getLifeLineV2(String assetId);
+
+    /**
+     *
+     * 获取指定资产的最新记录
+     * */
+    AssetHardwareFix getByAssetId(String assetId);
 }
