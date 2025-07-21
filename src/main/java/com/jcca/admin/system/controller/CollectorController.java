@@ -194,8 +194,8 @@ public class CollectorController {
             wrapper.like("TARGET_DESCRIPTION", performanceTarget.getTargetDescription());
         }
 
-        if (ObjectUtil.isNotNull(performanceTarget.getComman()) && StringUtils.isNotEmpty(performanceTarget.getComman())) {
-            wrapper.like("COMMAND", performanceTarget.getComman());
+        if (ObjectUtil.isNotNull(performanceTarget.getCommand()) && StringUtils.isNotEmpty(performanceTarget.getCommand())) {
+            wrapper.like("COMMAND", performanceTarget.getCommand());
         }
         if (ObjectUtil.isNotNull(performanceTarget.getTargetHandle()) && StringUtils.isNotEmpty(performanceTarget.getTargetHandle())) {
             wrapper.like("TARGET_HANDLE", performanceTarget.getTargetHandle());
@@ -297,7 +297,7 @@ public class CollectorController {
     @RequestMapping("/testSnmp")
     public String testSnmp(MinuteVo perform, Model model) {
         PerformanceTarget performanceTarget = performanceTargetService.getById(perform.getId());
-        String[] commans = performanceTarget.getComman().split("\\|");
+        String[] commans = performanceTarget.getCommand().split("\\|");
 
         ArrayList<CommanResultVo> commanResultVos = new ArrayList<>();
 

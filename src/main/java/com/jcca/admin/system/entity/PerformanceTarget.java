@@ -66,7 +66,7 @@ public class PerformanceTarget extends Model<PerformanceTarget> implements java.
      * 指标命令
      */
     @TableField(value = "COMMAND")
-    private String comman;
+    private String command;
 
     /**
      * 指标名称

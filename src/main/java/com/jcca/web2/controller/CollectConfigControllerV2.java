@@ -106,11 +106,29 @@ public class CollectConfigControllerV2 {
             throw new ResultException(ResultEnum.COLLECTOR_NONE);
         }
         QueryWrapper<PerformanceTarget> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id","COMMAND_NAME","TARGET_DESCRIPTION","COMMAND","TARGET_HANDLE","CRON_EXPRESS","IS_AVAILABLE");
         queryWrapper.eq("SPEC_ID", specDictionary.getSpecId());
-        queryWrapper.select("id","COMMAND_NAME","TARGET_DESCRIPTION","COMMAND","TARGET_HANDLE","CRON_EXPRESS");
         List<PerformanceTarget> list = performanceTargetService.list(queryWrapper);
 
         return ResultVoUtil.success(list);
+    }
+
+    @PostMapping("/startOrStop")
+    @ActionLog(name = "修改采集项状态", title = "采集配置", key = LogTypeConstant.MODIFY)
+    public ResultVo startOrStop(@RequestBody PerformanceTarget req) {
+        if(StrUtil.isEmpty(req.getId())){
+            throw new ResultException(ResultEnum.COLLECTOR_NULL_ID);
+        }
+        if(Objects.isNull(req.getIsAvailable())){
+            throw new ResultException(ResultEnum.COLLECTOR_NULL_STATUS);
+        }
+        PerformanceTarget performanceTarget = performanceTargetService.getById(req.getId());
+        if(Objects.isNull(performanceTarget)){
+            throw new ResultException(ResultEnum.COLLECTOR_NONE);
+        }
+        performanceTarget.setIsAvailable(req.getIsAvailable());
+        performanceTargetService.updateById(performanceTarget);
+        return ResultVoUtil.success("处理成功");
     }
 
 
