@@ -957,11 +957,11 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
             for (String orgId : orgIdList) {
                 //添加施工计划
                 List<String> assetIdList = recordMap.get(orgId);
-                StringBuilder builder = new StringBuilder("");
+                StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < assetIdList.size(); i++) {
                     String assetId = assetIdList.get(i);
                     builder.append(assetId);
-                    if (i != assetIdList.size()) {
+                    if (i != (assetIdList.size() - 1)) {
                         builder.append(",");
                     }
                 }
