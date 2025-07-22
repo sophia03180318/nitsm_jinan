@@ -159,4 +159,6 @@ public interface CollectConst {
      * 采集CPU负载信息
      */
     String CPU_LINUX_LOAD_AVG = "2025070301";
+
+    String CollectNodeStatus = "78";
 }

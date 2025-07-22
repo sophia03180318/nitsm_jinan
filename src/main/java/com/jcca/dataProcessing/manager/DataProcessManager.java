@@ -108,6 +108,8 @@ public class DataProcessManager {
 
     private IFilterHandler customHandler;
 
+    private IFilterHandler collectNodeStatusHandler;
+
 
     /**
      * 创建执行器
@@ -770,6 +772,13 @@ public class DataProcessManager {
         dongHuan.addDataSourceListener(eventInfoListener);
         donghuanHandler = dongHuan;
 
+
+        //采集器掉线事件
+        IFilterHandler nodeStatusHandler = this.getIFilterHandler("collectNodeStatusHandler");
+        nodeStatusHandler.addDataSourceListener(eventInfoListener);
+        collectNodeStatusHandler = nodeStatusHandler;
+
+
         IFilterHandler cascoMaster = this.getIFilterHandler("commonMasterFilterHandler");
         cascoMaster.addDataSourceListener(eventInfoListener);
         IFilterHandler cascoMasterSave = this.getIFilterHandler("saveFilterHandler");
@@ -1243,6 +1252,11 @@ public class DataProcessManager {
     //自定义事件处理
     public void customEventHandlerRequest(CustomEvent infoEntity) throws Exception {
         customHandler.handleRequest(infoEntity, true);
+
+    }
+
+    public void collectNodeStatus(CollectNodeEntity infoEntity) throws Exception {
+        collectNodeStatusHandler.handleRequest(infoEntity, true);
 
     }
 }
