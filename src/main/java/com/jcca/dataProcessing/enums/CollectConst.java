@@ -154,4 +154,6 @@ public interface CollectConst {
     String SNMP = "76";
 
     String DongHuan = "77";
+
+    String CollectNodeStatus = "78";
 }

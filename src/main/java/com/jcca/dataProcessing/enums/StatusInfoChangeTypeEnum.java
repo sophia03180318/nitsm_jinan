@@ -246,8 +246,8 @@ public enum StatusInfoChangeTypeEnum {
 
     //采集器节点状态
     event_jcca("event:jcca", "运维平台状态", "", "", ""),
-    event_jcca_center("event:jcca:center", "中心采集器事件", "", "", ""),
-    event_jcca_station("event:jcca:station", "车站采集器事件", "", "", ""),
+    event_jcca_center("event:jcca:center", "中心采集器事件", "中心采集器:%s,%s，IP：%s", "", ""),
+    event_jcca_station("event:jcca:station", "车站采集器事件", "车站采集器:%s,%s，IP：%s", "", ""),
 
 
     //温度事件
