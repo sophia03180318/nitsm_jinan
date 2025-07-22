@@ -41,7 +41,7 @@ public class AssetModeControllerV2 {
     @PostMapping("/index")
     @ApiOperation("获取类型列表")
     @RequiresPermissions("api:assetMode:index")
-    public ResultVo<Object> index(AssetMode mode) {
+    public ResultVo<Object> index(@RequestBody AssetMode mode) {
         QueryWrapper<AssetMode> queryWrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(mode.getName())) {
             queryWrapper.like("NAME", mode.getName());
@@ -49,6 +49,7 @@ public class AssetModeControllerV2 {
         if (ObjectUtil.isNotNull(mode.getCode())) {
             queryWrapper.eq("CODE", mode.getCode());
         }
+            queryWrapper.orderByDesc("MODIFY_TIME");
         return ResultVoUtil.success(modeService.list(queryWrapper));
     }
 
@@ -72,7 +73,7 @@ public class AssetModeControllerV2 {
             modeService.removeById(id);
             return ResultVoUtil.success("删除类型成功");
         } else {
-            return ResultVoUtil.warning("已有该型号资产:[" + list.get(0).getModel() + "]");
+            return ResultVoUtil.warning("类型下已有型号,无法直接删除");
         }
     }
 
@@ -156,16 +157,16 @@ public class AssetModeControllerV2 {
         return ResultVoUtil.success(list);
     }
 
-    @GetMapping("/getManufacturerMode")
+    @GetMapping("/getManufacturerMode/{manufacturerId}")
     @ApiOperation("获取厂商类型列表")
-    public ResultVo<Object> getManufacturerMode(String manufacturerId) {
+    public ResultVo<Object> getManufacturerMode(@PathVariable String manufacturerId) {
         List<AssetMode> list = modeService.getManufacturerMode(manufacturerId);
         return ResultVoUtil.success(list);
     }
 
-    @GetMapping("/getModelMode")
+    @GetMapping("/getModelMode/{modelId}")
     @ApiOperation("获取型号类型")
-    public ResultVo<Object> getModelMode(String modelId) {
+    public ResultVo<Object> getModelMode(@PathVariable String modelId) {
         AssetMode mode = modeService.getModelMode(modelId);
         return ResultVoUtil.success(mode);
     }
