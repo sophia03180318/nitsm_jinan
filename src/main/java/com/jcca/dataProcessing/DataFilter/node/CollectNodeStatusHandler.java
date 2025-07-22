@@ -1,6 +1,9 @@
 package com.jcca.dataProcessing.DataFilter.node;
 
+import cn.hutool.json.JSONUtil;
 import com.jcca.common.exception.ResultException;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.bean.CollectNodesMsg;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectNodeEntity;
@@ -45,6 +48,7 @@ public class CollectNodeStatusHandler extends IFilterHandler<CollectNodeEntity> 
         Integer status = CollectNodesMsg.DOWN.equals(node.getNodeState()) ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
         IEvent event = eventInfoChangeManagerService.creatChangeEvent(node.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey,status ,alarmTempReq,node.getInspectRecordId());
         if (event != null) {
+            AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, descStr, "执行采集节点状态处理");
             //被事件信息截取
             event.setDescLog(descStr);
             event.setCollectTime(new Date());

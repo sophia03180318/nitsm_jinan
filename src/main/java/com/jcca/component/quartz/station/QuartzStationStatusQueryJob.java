@@ -2,6 +2,7 @@ package com.jcca.component.quartz.station;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.jcca.admin.biz.entity.Station;
 import com.jcca.admin.biz.service.StationService;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -125,6 +126,7 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
             Asset asset = assetService.findOneByIp(node.getNodeIp());
 
             if (Objects.isNull(asset)) {
+                AppLogUtils.buildLogError(LogFunctionEnum.CRON_COLLECT_STATUS, node.getNodeIp(), "采集器所在设备未录入综维");
                 continue;
             }
 
