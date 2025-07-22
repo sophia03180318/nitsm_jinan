@@ -38,7 +38,7 @@ public class CollectNodeAdapter  extends AssetIpAdd implements IAdapter<CollectN
                 try {
                     dataProcessManager.collectNodeStatus(data);
                 } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "donghuanHandlerRequest 抛出异常", e);
+                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + data.getAssetIp() + "collectNodeAdapter 抛出异常", e);
                 }
                 return 1;
             }
