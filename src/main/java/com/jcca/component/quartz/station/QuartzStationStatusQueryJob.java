@@ -2,19 +2,26 @@ package com.jcca.component.quartz.station;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.jcca.admin.biz.entity.Station;
 import com.jcca.admin.biz.service.StationService;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.EntityBeanUtil;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.UrlUtil;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.bean.CollectNodesMsg;
 import com.jcca.component.client.exception.CollectAgencyException;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
+import com.jcca.dataProcessing.Entity.CollectNodeEntity;
+import com.jcca.dataProcessing.dataAdpater.CollectNodeAdapter;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.listener.EventInfoListener;
+import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.manager.bean.AlarmTempReq;
+import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.ListenerManager;
 import com.jcca.web.asset.entity.Asset;
@@ -51,21 +58,12 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
     @Resource
     private AssetService assetService;
     @Resource
-    private IEventInfoManagerService eventInfoChangeManagerService;
+    private DataProcessManager dataProcessManager;
 
-    private ListenerManager listenerManager;
     /**
      * 系统启动第一次任务跳过
      */
     private static boolean isOnce = true;
-
-    @PostConstruct
-    public void init() {
-        if(Objects.isNull(listenerManager)){
-            listenerManager = new ListenerManager();
-            listenerManager.addDataSourceListener(new EventInfoListener());
-        }
-    }
 
 
 
@@ -121,7 +119,6 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
             stationServ.updateBatchById(stationList);
         }
 
-        //
         for (CollectNodesMsg node : nodeList) {
             if (StrUtil.isEmpty(node.getNodeIp())) {
                 continue;
@@ -129,47 +126,20 @@ public class QuartzStationStatusQueryJob extends QuartzJobBean {
             Asset asset = assetService.findOneByIp(node.getNodeIp());
 
             if (Objects.isNull(asset)) {
+                AppLogUtils.buildLogError(LogFunctionEnum.CRON_COLLECT_STATUS, node.getNodeIp(), "采集器所在设备未录入综维");
                 continue;
             }
 
-            String eventMapKey = asset.getIp() + "_" + asset.getId();
-            ChangeInfo changeInfo = new ChangeInfo();
-            changeInfo.setIsEvent(true);
-            changeInfo.setCollectTime(new Date());
-            String originalMsg = "";
-            int status = -1;
-            if (CollectNodesMsg.IS_CENTER.equals(node.getNodeType())) {
-                AlarmTempReq alarmTempReq = new AlarmTempReq();
-                if (CollectNodesMsg.DOWN.equals(node.getNodeState())) {
-                    originalMsg = String.format("中心采集器:%s,已掉线，请及时处理，IP：%s", node.getNodeName(), node.getNodeIp());
-                    alarmTempReq.setCollectValue("掉线");
-                } else {
-                    originalMsg = String.format("中心采集器:%s,状态正常！", node.getNodeName());
-                    alarmTempReq.setCollectValue("正常");
-                    status = 1;
-                }
+            CollectNodeEntity copy = EntityBeanUtil.copy(node, CollectNodeEntity.class);
+            copy.setAssetIp(asset.getIp());
+            copy.setAssetName(asset.getName());
+            copy.setAssetId(asset.getId());
+            copy.setAssetIp2(asset.getIp2());
+            copy.setCollectTime(System.currentTimeMillis());
+            copy.setCollectCode(MyIdUtil.getId());
 
-                alarmTempReq.setOrgMsg(originalMsg);
-
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_jcca_center.getCode(), eventMapKey, status, alarmTempReq,null);
-                event.setDescStr(originalMsg);
-                listenerManager.dispatureEvent(event);
-            } else {
-                AlarmTempReq alarmTempReq = new AlarmTempReq();
-                if (CollectNodesMsg.DOWN.equals(node.getNodeState())) {
-                    originalMsg = String.format("车站采集器:%s,已掉线，请及时处理，IP：%s", node.getNodeName(), node.getNodeIp());
-                    alarmTempReq.setCollectValue("掉线");
-                } else {
-                    originalMsg = String.format("车站采集器:%s,状态正常！", node.getNodeName());
-                    alarmTempReq.setCollectValue("正常");
-                    status = 1;
-                }
-
-                alarmTempReq.setOrgMsg(originalMsg);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_jcca_station.getCode(), eventMapKey, status, alarmTempReq,null);
-                event.setDescStr(originalMsg);
-                listenerManager.dispatureEvent(event);
-            }
+            CollectNodeAdapter collectNodeAdapter = (CollectNodeAdapter) dataProcessManager.getAdapater("collectNodeAdapter");
+            collectNodeAdapter.dispose(copy);
         }
         AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, DateUtil.formatLocalDateTime(LocalDateTime.now()), "巡检中心、车站采集器状态结束~");
     }
