@@ -13,6 +13,7 @@ import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -42,6 +43,12 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
      */
     @Override
     public boolean handler(CollectCpuLoadBean info) throws ResultException, Exception {
+
+        String cpuLogicalNum = info.getCpuLogicalNum();
+        if (StringUtils.isEmpty(cpuLogicalNum)) {
+            return true;
+        }
+
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.event_cpuLoad.getCode();
         ChangeInfo changeInfo = new ChangeInfo();
@@ -70,7 +77,7 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
         if (baseValue == null) {
             baseValue = 1D;
         }
-        BigDecimal factor = new BigDecimal(baseValue).multiply(new BigDecimal(info.getCpuLogicalNum())).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal factor = new BigDecimal(baseValue).multiply(new BigDecimal(cpuLogicalNum)).setScale(2, RoundingMode.HALF_UP);
         boolean thresholdFlag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisThresholdKey, thresholdMapKey, factor.doubleValue());
         if (thresholdFlag) {
             this.addThresholdStatus(redisThresholdKey, thresholdMapKey, factor.doubleValue(), info);
@@ -83,7 +90,7 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
             String keyWord = status.equals(EventLevelEnum.NORMAL.getCode()) ? "正常！" : "过载！";
 
             String str = "CPU负载信息：" + info.getCpuLoadOne() + "，" + info.getCpuLoadFive() + "，" + info.getCpuLoadFifteen() + "。";
-            String msg = String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), info.getCpuLogicalNum(), factor.doubleValue(), keyWord);
+            String msg = String.format(StatusInfoChangeTypeEnum.event_cpuLoad_normal.getDescr(), cpuLogicalNum, factor.doubleValue(), keyWord);
             msg = msg + str;
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(msg);
