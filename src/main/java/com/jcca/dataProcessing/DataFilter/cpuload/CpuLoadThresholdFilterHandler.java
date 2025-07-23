@@ -43,12 +43,6 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
      */
     @Override
     public boolean handler(CollectCpuLoadBean info) throws ResultException, Exception {
-
-        String cpuLogicalNum = info.getCpuLogicalNum();
-        if (StringUtils.isEmpty(cpuLogicalNum)) {
-            return true;
-        }
-
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status.getCode();
         String mapKey = StatusInfoChangeTypeEnum.event_cpuLoad.getCode();
         ChangeInfo changeInfo = new ChangeInfo();
@@ -73,6 +67,12 @@ public class CpuLoadThresholdFilterHandler extends IFilterHandler<CollectCpuLoad
             }
             return true;
         }
+
+        String cpuLogicalNum = info.getCpuLogicalNum();
+        if (StringUtils.isEmpty(cpuLogicalNum)) {
+            return true;
+        }
+
         Double baseValue = threshold.getBaseValue();
         if (baseValue == null) {
             baseValue = 1D;
