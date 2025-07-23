@@ -18,5 +18,5 @@ public class InspectShareReq {
     @NotEmpty(message = "巡检记录ID不能为空")
     private String inspectRecordId;
     @NotEmpty(message = "查看人不能为空")
-    private String viewers;
+    private String usernames;
 }

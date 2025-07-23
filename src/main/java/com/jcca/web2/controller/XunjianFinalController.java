@@ -103,8 +103,8 @@ public class XunjianFinalController {
 
         List<InspectRecordShare> list = new ArrayList<>();
         String username = ShiroUtil.getSubject().getUsername();
-        String viewers = req.getViewers();
-        String[] split = viewers.split(",");
+        String usernames = req.getUsernames();
+        String[] split = usernames.split(",");
         for (String viewer : split) {
             if (viewer.equals(username)) {
                 continue;
