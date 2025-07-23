@@ -708,7 +708,12 @@ public class GraphControllerV2 {
         }
         map.put("groups", list);
         // 拓扑图编辑备注
-        List<TopoAssetMark> marks = topoAssetMarkService.queryAssetMark(orgId, category);
+        List<TopoAssetMark> marks;
+        if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
+            marks = topoAssetMarkService.queryAssetMark(graph.getRoomId(), category);
+        }else{
+            marks = topoAssetMarkService.queryAssetMark(orgId, category);
+        }
 
         for (TopoAssetMark topoAssetMark : marks) {
             String str = new String(topoAssetMark.getContent(), StandardCharsets.UTF_8);
