@@ -68,4 +68,13 @@ public class ConstructionRecordServiceImpl extends ServiceImpl<ConstructionRecor
         bizService.save(id, BizManageConstant.CONSTRUCTION);
         infoService.blankAlarm(req);
     }
+
+    @Override
+    public ConstructionRecord getConstructionRecord(String alarmId) {
+      List<ConstructionRecord> list= constructMapper.getConstructionRecord(alarmId);
+      if (!list.isEmpty()){
+          return list.get(0);
+      }
+      return null;
+    }
 }

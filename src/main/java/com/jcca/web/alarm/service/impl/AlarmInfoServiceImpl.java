@@ -912,6 +912,10 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
 
         Map<String, List<String>> recordMap = new HashMap<>();
         Date date = new Date();
+        int blank=0;
+        if (alarmIdList.size()==1&&ObjectUtil.isNotNull(dto.getBlank())){
+            blank=dto.getBlank();
+        }
         for (String alarmId : alarmIdList) {
             AlarmInfo alarmInfo = alarmInfoMapper.selectById(alarmId);
             if (Objects.isNull(alarmInfo)) {
@@ -941,6 +945,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
             alarmInfo.setRemark(dto.getRemark());
             alarmInfo.setConfirmor(dto.getConfirmor());
             alarmInfo.setConfirmTime(new Date());
+            if (blank!=0){
+                alarmInfo.setBlank((byte)blank);
+            }
             alarmInfoMapper.updateById(alarmInfo);
 
             if (dto.needDisposeBroken()) {

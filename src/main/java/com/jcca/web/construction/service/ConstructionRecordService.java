@@ -43,4 +43,13 @@ public interface ConstructionRecordService extends IService<ConstructionRecord> 
      * @param req
      */
     void createV2(ConstructionRecord req);
+
+
+
+    /**
+     * 通过告警ID 查询符合条件的维护计划
+     *
+     * @param alarmId 告警ID
+     */
+    ConstructionRecord getConstructionRecord(String alarmId);
 }
