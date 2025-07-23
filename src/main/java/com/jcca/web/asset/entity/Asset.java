@@ -393,6 +393,7 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
      * 0非应用服务器，1应用服务器
      */
     @TableField(value = "SERVICE_TYPE")
+    @FieldLogAnno(title = "是否应用服务器")
     private Integer serviceType;
 
 
