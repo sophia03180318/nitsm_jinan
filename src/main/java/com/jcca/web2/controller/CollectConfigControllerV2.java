@@ -173,7 +173,7 @@ public class CollectConfigControllerV2 {
         Asset asset = new Asset();
         asset.setIp(perform.getIp());
         asset.setOsUser(perform.getCommunity());
-        asset.setOsPassword(EncryptUtil.aesEncryptHex(perform.getPassword()));
+        asset.setOsPassword(perform.getPassword());
         asset.setName("采集项验证"+perform.getIp());
         return outService.testPerformanceTarget(asset,performanceTarget);
 
