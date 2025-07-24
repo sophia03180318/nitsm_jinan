@@ -54,7 +54,9 @@ public class CollectConfigControllerV2 {
     @PostMapping("/specDict")
     @ApiOperation("获取已配置采集列表")
     public ResultVo<Object> index(){
-        List<SpecDictionary> list = specDictionaryService.list();
+        QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("CREATE_DATE");
+        List<SpecDictionary> list = specDictionaryService.list(queryWrapper);
         return ResultVoUtil.success(list);
     }
 
@@ -133,6 +135,7 @@ public class CollectConfigControllerV2 {
         QueryWrapper<PerformanceTarget> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("id","COMMAND_NAME","TARGET_DESCRIPTION","COMMAND","TARGET_HANDLE","CRON_EXPRESS","IS_AVAILABLE");
         queryWrapper.eq("SPEC_ID", specDictionary.getSpecId());
+        queryWrapper.orderByAsc("id");
         List<PerformanceTarget> list = performanceTargetService.list(queryWrapper);
 
         return ResultVoUtil.success(list);
