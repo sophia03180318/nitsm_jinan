@@ -854,6 +854,7 @@ public class DataProcessManager {
                 "syslogPowerSupplyFilterHnadler",
                 "sysloglevel3FilterHnadler",
                 "syslogCiscoinfoFilterHnadler",
+                "syslogHuaWeiSwitchFilterHandler",
                 "syslogIBMinfoFilterHnadler",
                 "syslogOtherFilterHandler"
         );
@@ -862,6 +863,7 @@ public class DataProcessManager {
                 "syslogPowerSupplyFilterHnadler",
                 "sysloglevel3FilterHnadler",
                 "syslogCiscoinfoFilterHnadler",
+                "syslogHuaWeiSwitchFilterHandler",
                 "syslogIBMinfoFilterHnadler",
                 "syslogOtherFilterHandler"
         );
