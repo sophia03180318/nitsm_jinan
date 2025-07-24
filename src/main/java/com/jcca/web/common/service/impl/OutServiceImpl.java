@@ -168,7 +168,7 @@ public class OutServiceImpl implements OutService {
     public ResultVo testPerformanceTarget(Asset asset, PerformanceTarget performanceTarget) {
         TestPerformanceTarget target = new TestPerformanceTarget();
         target.setAsset(asset);
-        target.setTargetList(performanceTarget);
+        target.setTargetList(Arrays.asList(performanceTarget));
         try {
             String resp = collectAgent.sendPostToCenter(OutConst.TEST_TARGET, JSONUtil.toJsonStr(target), 180 * 1000);
             JSONObject respJson = JSONUtil.parseObj(resp);
