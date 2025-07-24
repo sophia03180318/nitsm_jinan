@@ -16,6 +16,7 @@ import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.EncryptUtil;
+import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.common.service.OutService;
@@ -90,9 +91,24 @@ public class CollectConfigControllerV2 {
         if(StrUtil.isEmpty(specDictionary.getRemark())){
             throw new ResultException(ResultEnum.COLLECTOR_REMARK);
         }
+
+        QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ASSET_MODE", specDictionary.getAssetMode());
+        queryWrapper.eq("ASSET_IMAGE", specDictionary.getAssetImage());
+        queryWrapper.eq("MANUFACTURER_ID", specDictionary.getManufacturerId());
+        queryWrapper.eq("SYSTEM_TYPE", specDictionary.getSystemType());
+
         if (ObjectUtil.isNull(specDictionary.getId())) {
+            specDictionary.setId(MyIdUtil.getId());
             specDictionary.setCreateDate(new Date());
+        }else {
+            queryWrapper.ne("id",specDictionary.getId());
         }
+        List<SpecDictionary> list = specDictionaryService.list(queryWrapper);
+        if(!list.isEmpty()){
+            return ResultVoUtil.error("此厂商的该型号存在相同系统类型的采集配置！");
+        }
+
         specDictionaryService.saveOrUpdate(specDictionary);
         return ResultVoUtil.SAVE_SUCCESS;
     }
