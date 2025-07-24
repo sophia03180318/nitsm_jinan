@@ -92,9 +92,9 @@ public class AlarmControllerV2 {
     @ApiOperation(value = "获取天窗信息")
     public ResultVo transformTrace(@PathVariable String alarmId) {
         ConstructionRecord constructionRecord = constructionRecordService.getConstructionRecord(alarmId);
-        if (constructionRecord == null) {
+/*        if (constructionRecord == null) {
             return ResultVoUtil.warning("未找到对应维护计划");
-        }
+        }*/
         return ResultVoUtil.success(constructionRecord);
     }
 
