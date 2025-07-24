@@ -171,8 +171,8 @@ public class DevLogAssetModifyImpl implements DevLogService {
             bo = temp;
         }
         if ("serviceType".equals(name)) {
-            ao = "1".equals(ao) ? "应用服务器" : "非应用服务器";
-            bo = "1".equals(bo) ? "应用服务器" : "非应用服务器";
+            ao = "1".equals(ao.toString()) ? "应用服务器" : "非应用服务器";
+            bo = "1".equals(bo.toString()) ? "应用服务器" : "非应用服务器";
         }
 
         if ("desk".equals(name)) {
