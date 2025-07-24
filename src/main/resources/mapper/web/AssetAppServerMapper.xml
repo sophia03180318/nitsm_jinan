@@ -14,7 +14,8 @@
         from asset a
                  left join asset_app_server p on a.id = p.asset_id
                  left join alarm_info i
-                           on a.id = i.asset_id and i.alarm_code like concat('%', p.id) and i.status = 1 and
+                           on a.id = i.asset_id and i.alarm_flag like ('%_' || p.server_port || '_' || p.link_ip) and
+                              i.status = 1 and
                               i.alarm_state = 1
         where a.watch = 1
           and a.is_del = 1
@@ -35,7 +36,8 @@
         from asset a
                  left join asset_app_server p on a.id = p.asset_id
                  left join alarm_info i
-                           on a.id = i.asset_id and i.alarm_code like concat('%', p.id) and i.status = 1 and
+                           on a.id = i.asset_id and i.alarm_flag like ('%_' || p.server_port || '_' || p.link_ip) and
+                              i.status = 1 and
                               i.alarm_state = 1
         where a.watch = 1
           and a.is_del = 1
