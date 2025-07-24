@@ -1,5 +1,7 @@
 package com.jcca.web.common.service;
 
+import com.jcca.admin.system.entity.PerformanceTarget;
+import com.jcca.common.bean.RestBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdProcess;
@@ -130,4 +132,6 @@ public interface OutService {
      * 采集指标变动
      */
     void targetOnChange();
+
+    ResultVo testPerformanceTarget(Asset asset, PerformanceTarget performanceTarget);
 }

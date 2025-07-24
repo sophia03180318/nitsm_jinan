@@ -8,15 +8,22 @@ import com.jcca.admin.system.entity.PerformanceTarget;
 import com.jcca.admin.system.entity.SpecDictionary;
 import com.jcca.admin.system.service.PerformanceTargetService;
 import com.jcca.admin.system.service.SpecDictionaryService;
+import com.jcca.admin.system.vo.CommanResultVo;
 import com.jcca.admin.system.vo.MinuteVo;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
+import com.jcca.common.utils.EncryptUtil;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.web.asset.entity.Asset;
+import com.jcca.web.common.service.OutService;
+import com.jcca.web.common.service.bean.BusinessGetSnmpResultReq;
+import com.jcca.web.common.service.bean.BusinessGetSnmpResultResp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -37,6 +44,8 @@ public class CollectConfigControllerV2 {
     private SpecDictionaryService specDictionaryService;
     @Resource
     private PerformanceTargetService performanceTargetService;
+    @Resource
+    private OutService outService;
 
     /**
      * 查询所有的型号配置列表
@@ -151,6 +160,23 @@ public class CollectConfigControllerV2 {
             throw new ResultException(ResultEnum.COLLECTOR_NUM);
         }
         return ResultVoUtil.success();
+    }
+
+
+    /**
+     * 跳转测试链接页面
+     */
+    @PostMapping("/test")
+    public ResultVo test(@RequestBody  MinuteVo perform) {
+        PerformanceTarget performanceTarget = performanceTargetService.getById(perform.getId());
+
+        Asset asset = new Asset();
+        asset.setIp(perform.getIp());
+        asset.setOsUser(perform.getCommunity());
+        asset.setOsPassword(EncryptUtil.aesEncryptHex(perform.getPassword()));
+        return outService.testPerformanceTarget(asset,performanceTarget);
+
+
     }
 
 

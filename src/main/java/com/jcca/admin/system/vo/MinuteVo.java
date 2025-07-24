@@ -21,5 +21,7 @@ public class MinuteVo implements Serializable {
     private String community;
     private String type;
 
+    private String password;
+
 
 }

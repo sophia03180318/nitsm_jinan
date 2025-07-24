@@ -12,9 +12,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.biz.entity.Station;
 import com.jcca.admin.biz.service.StationService;
+import com.jcca.admin.system.entity.PerformanceTarget;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
+import com.jcca.common.bean.RestBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.bean.constant.OrgTypeConst;
@@ -159,6 +161,26 @@ public class OutServiceImpl implements OutService {
         } catch (CollectAgencyException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_CONFIG, "指标变动通知中心采集器异常", e);
         }
+    }
+
+    @Override
+    public ResultVo testPerformanceTarget(Asset asset, PerformanceTarget performanceTarget) {
+        JSONObject reqJson = new JSONObject();
+        reqJson.put("asset", asset);
+        reqJson.put("targetList", Arrays.asList(performanceTarget));
+        try {
+            String resp = collectAgent.sendPostToCenter(OutConst.TEST_TARGET, "", 180 * 1000);
+            JSONObject respJson = JSONUtil.parseObj(resp);
+            RestBean restBean = JSONUtil.toBean(respJson, RestBean.class);
+            if(RestBean.SUCCESS.equals(restBean.getCode())){
+                return ResultVoUtil.success(restBean.getBody());
+            }
+            return ResultVoUtil.error(restBean.getMsg());
+        } catch (CollectAgencyException e) {
+            AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_CONFIG, "验证指标中心采集器异常", e);
+        }
+
+        return ResultVoUtil.error("指标验证失败-网络异常");
     }
 
 

@@ -48,4 +48,8 @@ public interface OutConst {
      * 指标变动
      */
     String NOTIFY_ONCHANGE_TARGET = "/business/targetChange";
+    /**
+     * 测试target
+     */
+    String TEST_TARGET = "/business/testTarget";
 }
