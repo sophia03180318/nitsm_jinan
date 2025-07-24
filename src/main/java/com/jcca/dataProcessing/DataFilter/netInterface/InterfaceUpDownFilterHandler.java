@@ -100,7 +100,7 @@ public class InterfaceUpDownFilterHandler extends IFilterHandler<CollectInterfac
                 linkAssetByAsset = assetLinkAssetServ.findLinkAssetByAsset(info.getAssetId(), info.getPortIndex());
             }
             //如果对端设备不为空
-            String descStr = String.format(StatusInfoChangeTypeEnum.event_port_state.getDescr(), info.getPortName(),statusStr);
+            String descStr = String.format(StatusInfoChangeTypeEnum.event_port_state.getDescr(), info.getPortName(),statusStr +"【采集原始状态值】："+info.getStatus());
             if (linkAssetByAsset != null) {
                 if (StrUtil.isNotEmpty(linkAssetByAsset.getLinkAssetName())) {
                     tempReq.setLinkAssetName(linkAssetByAsset.getLinkAssetName());
