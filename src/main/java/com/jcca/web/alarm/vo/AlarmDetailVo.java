@@ -45,6 +45,7 @@ public class AlarmDetailVo {
      * 组织id
      */
     private String orgId;
+    private String orgName;
     /**
      * 机柜名称
      */

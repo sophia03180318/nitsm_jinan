@@ -633,12 +633,14 @@
                a.ASSET_MODE  assetMode,
                a.ASSET_IMAGE assetImage,
                t.NAME        cabinetName,
+               o.TITLE orgName,
                r.NAME        roomName
         FROM ALARM_INFO i
                  LEFT JOIN ASSET a ON i.ASSET_ID = a.ID
                  LEFT JOIN ASSET_ATTACH c ON a.ID = c.ASSET_ID
                  LEFT JOIN CABINET t ON t.ID = c.CABINET_ID
                  LEFT JOIN ROOM r ON r.ID = c.ROOM_ID
+                 LEFT JOIN SYS_ORG o ON i.ORG_ID = o.ID
         WHERE i.id = #{id}
     </select>
 
