@@ -51,5 +51,5 @@ public interface OutConst {
     /**
      * 测试target
      */
-    String TEST_TARGET = "/business/testTarget";
+    String TEST_TARGET = "/business/itsmTestTarget";
 }
