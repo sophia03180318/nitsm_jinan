@@ -78,6 +78,10 @@ public class AssetInfoBaseVo {
      * ip2
      */
     private String ip2;
+    /**
+     * 0非应用服务器，1应用服务器
+     */
+    private String serviceType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date collectTime;
