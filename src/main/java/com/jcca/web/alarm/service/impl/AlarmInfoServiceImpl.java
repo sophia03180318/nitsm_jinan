@@ -12,7 +12,6 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.system.entity.SysModuleConfig;
@@ -249,19 +248,9 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         String alarmMsg = formatAlarmMsg(group, alarmEvent, asset);
 
         byte blank = AlarmBlankConst.NORMARL;
-        QueryWrapper<ConstructionRecord> construtionWrapper = Wrappers.query();
-        construtionWrapper.like("influence", assetId);
-        construtionWrapper.le("start_time", occurTime);
-        construtionWrapper.ge("end_time", occurTime);
-        ConstructionRecord one = constructionRecordService.getOne(construtionWrapper);
-        if (Objects.nonNull(one)) {
+        boolean haveBlank = constructionRecordService.isBlank(asset.getId(), occurTime);
+        if (haveBlank) {
             blank = AlarmBlankConst.BLANK;
-        } else {
-            //查询是否存在周期计划 2024-11-21 吕义鹏
-            boolean haveBlank = cyclesInfoServ.verifyIsBlank(asset, occurTime);
-            if (haveBlank) {
-                blank = AlarmBlankConst.BLANK;
-            }
         }
 
         AlarmInfo alarmInfo = new AlarmInfo();
@@ -895,6 +884,7 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
             }
             query.setAssetIdList(assetIds);
         }
+        query.setBlank((byte) 1);
         return alarmInfoMapper.queryDialogsVoListV2(query);
     }
 
