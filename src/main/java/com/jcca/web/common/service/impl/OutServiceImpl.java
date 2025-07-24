@@ -169,7 +169,7 @@ public class OutServiceImpl implements OutService {
         reqJson.put("asset", asset);
         reqJson.put("targetList", Arrays.asList(performanceTarget));
         try {
-            String resp = collectAgent.sendPostToCenter(OutConst.TEST_TARGET, "", 180 * 1000);
+            String resp = collectAgent.sendPostToCenter(OutConst.TEST_TARGET, reqJson.toString(), 180 * 1000);
             JSONObject respJson = JSONUtil.parseObj(resp);
             RestBean restBean = JSONUtil.toBean(respJson, RestBean.class);
             if(RestBean.SUCCESS.equals(restBean.getCode())){
