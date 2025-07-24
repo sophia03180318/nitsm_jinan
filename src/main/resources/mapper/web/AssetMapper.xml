@@ -71,6 +71,7 @@
                a.ASSET_IMAGE      as assetImage,
                a.ip               as ip1,
                a.ip2,
+               a.SERVICE_TYPE,
                f.PATH             as assetImagePath,
                c.NAME             as roomName,
                d.NAME             as cabinetName,
