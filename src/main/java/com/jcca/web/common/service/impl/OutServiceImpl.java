@@ -41,6 +41,7 @@ import com.jcca.web.common.dao.OutMapper;
 import com.jcca.web.common.service.OutService;
 import com.jcca.web.common.service.bean.BusinessGetSnmpResultReq;
 import com.jcca.web.common.service.bean.BusinessGetSnmpResultResp;
+import com.jcca.web.common.service.bean.TestPerformanceTarget;
 import com.jcca.web.common.vo.AssetCollectTestVo;
 import com.jcca.web.common.vo.AssetTestResult;
 import com.jcca.web.common.vo.ProcessOnChangeVo;
@@ -165,11 +166,11 @@ public class OutServiceImpl implements OutService {
 
     @Override
     public ResultVo testPerformanceTarget(Asset asset, PerformanceTarget performanceTarget) {
-        JSONObject reqJson = new JSONObject();
-        reqJson.put("asset", asset);
-        reqJson.put("targetList", Arrays.asList(performanceTarget));
+        TestPerformanceTarget target = new TestPerformanceTarget();
+        target.setAsset(asset);
+        target.setTargetList(performanceTarget);
         try {
-            String resp = collectAgent.sendPostToCenter(OutConst.TEST_TARGET, reqJson.toString(), 180 * 1000);
+            String resp = collectAgent.sendPostToCenter(OutConst.TEST_TARGET, JSONUtil.toJsonStr(target), 180 * 1000);
             JSONObject respJson = JSONUtil.parseObj(resp);
             RestBean restBean = JSONUtil.toBean(respJson, RestBean.class);
             if(RestBean.SUCCESS.equals(restBean.getCode())){
