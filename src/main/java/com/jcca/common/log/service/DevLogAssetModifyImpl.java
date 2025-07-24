@@ -170,6 +170,10 @@ public class DevLogAssetModifyImpl implements DevLogService {
         if (StringUtils.isEmpty(bo) || "null".equals(bo)) {
             bo = temp;
         }
+        if ("serviceType".equals(name)) {
+            ao = "1".equals(ao) ? "应用服务器" : "非应用服务器";
+            bo = "1".equals(bo) ? "应用服务器" : "非应用服务器";
+        }
 
         if ("desk".equals(name)) {
             ao = AssetModeEnum.getName(Integer.parseInt(ao.toString()));

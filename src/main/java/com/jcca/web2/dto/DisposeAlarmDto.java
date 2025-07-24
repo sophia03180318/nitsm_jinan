@@ -35,6 +35,10 @@ public class DisposeAlarmDto {
      */
     private String confirmor;
     /**
+     * 是否转为天窗(只有单条能使用 不支持批量设置天窗)
+     */
+    private Integer blank;
+    /**
      * 故障发生时间
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

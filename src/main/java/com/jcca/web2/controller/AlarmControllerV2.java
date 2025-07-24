@@ -28,6 +28,8 @@ import com.jcca.web.asset.controller.bean.Repository;
 import com.jcca.web.broken.controller.bean.BrokenRecordWord;
 import com.jcca.web.broken.service.BrokenRecordWordService;
 import com.jcca.web.config.vo.SysConfig;
+import com.jcca.web.construction.entity.ConstructionRecord;
+import com.jcca.web.construction.service.ConstructionRecordService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web2.dto.*;
@@ -81,6 +83,20 @@ public class AlarmControllerV2 {
     private TraceInfoService infoService;
     @Resource
     private QuartzUncertainAlarmJob quartzUncertainAlarmJob;
+    @Resource
+    ConstructionRecordService constructionRecordService;
+    /**
+     * 获取天窗信息
+     */
+    @GetMapping("/maintenancePlan/{alarmId}")
+    @ApiOperation(value = "获取天窗信息")
+    public ResultVo transformTrace(@PathVariable String alarmId) {
+        ConstructionRecord constructionRecord = constructionRecordService.getConstructionRecord(alarmId);
+        if (constructionRecord == null) {
+            return ResultVoUtil.warning("未找到对应维护计划");
+        }
+        return ResultVoUtil.success(constructionRecord);
+    }
 
 
     /**

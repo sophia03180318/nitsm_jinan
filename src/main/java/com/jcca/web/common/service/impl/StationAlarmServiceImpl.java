@@ -3,8 +3,6 @@ package com.jcca.web.common.service.impl;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.admin.system.service.TopoAssetPortService;
 import com.jcca.common.bean.constant.AlarmBlankConst;
 import com.jcca.common.bean.constant.StatusConst;
@@ -26,7 +24,6 @@ import com.jcca.web.common.controller.req.StationAlarmReqV1;
 import com.jcca.web.common.controller.req.StationAlarmReqV2;
 import com.jcca.web.common.controller.req.StationAlarmResp;
 import com.jcca.web.common.service.StationAlarmService;
-import com.jcca.web.construction.entity.ConstructionRecord;
 import com.jcca.web.construction.service.ConstructionRecordService;
 import com.jcca.web.cycles.service.CyclesInfoService;
 import com.jcca.web.event.entity.AlarmEvent;
@@ -349,19 +346,9 @@ public class StationAlarmServiceImpl implements StationAlarmService {
      */
     private AlarmInfo createAlarmInfo(StationAlarmReqV2 req, Asset asset, String typeId, Date occurTime){
         byte blank = AlarmBlankConst.NORMARL;
-        QueryWrapper<ConstructionRecord> construtionWrapper = Wrappers.query();
-        construtionWrapper.like("influence", asset.getId());
-        construtionWrapper.le("start_time", occurTime);
-        construtionWrapper.ge("end_time", occurTime);
-        ConstructionRecord one = constructionRecordService.getOne(construtionWrapper);
-        if (Objects.nonNull(one)) {
+        boolean haveBlank = constructionRecordService.isBlank(asset.getId(), occurTime);
+        if (haveBlank) {
             blank = AlarmBlankConst.BLANK;
-        } else {
-            //查询是否存在周期计划 2024-11-21 吕义鹏
-            boolean haveBlank = cyclesInfoServ.verifyIsBlank(asset, occurTime);
-            if (haveBlank) {
-                blank = AlarmBlankConst.BLANK;
-            }
         }
 
         List<AlarmEventGroup> group = eventGroupServ.getAllByTypeId(typeId);
