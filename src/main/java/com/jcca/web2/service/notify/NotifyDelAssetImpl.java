@@ -108,6 +108,8 @@ public class NotifyDelAssetImpl {
     private ThresholdManageService thresholdManageService;
     @Resource
     private InspectRecordService inspectRecordService;
+    @Resource
+    private AssetAppServerService appServerService;
 
     /**
      * OutConst
@@ -207,6 +209,11 @@ public class NotifyDelAssetImpl {
         // 删除巡检记录
         inspectRecordService.deleteInspectByAssetId(assetId);
         AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, assetId, "删除巡检记录成功");
+
+        // 如果是应用服务器
+        if (asset.getServiceType() != null && asset.getServiceType() == 1) {
+            appServerService.deleteServerPort(assetId, null);
+        }
         // ============================================所有要删除数据应该在删除资产前操作==================================
         // 删除资产
         assetService.removeById(assetId);
