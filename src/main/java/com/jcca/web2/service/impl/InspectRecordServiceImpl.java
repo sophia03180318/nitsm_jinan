@@ -1151,8 +1151,8 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      * @return
      */
     @Override
-    public List<InspectShareVo> findRecordByJobId(String scheduleId, String username) {
-        return inspectRecordMapper.findRecordByJobId(scheduleId, username);
+    public List<InspectShareVo> findRecordByJobId(String scheduleId) {
+        return inspectRecordMapper.findRecordByJobId(scheduleId);
     }
 
     /**
