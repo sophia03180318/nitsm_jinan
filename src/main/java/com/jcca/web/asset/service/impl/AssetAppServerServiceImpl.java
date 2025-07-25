@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
-import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.dao.AssetAppServerMapper;
@@ -47,6 +47,8 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
     private CollectCpuLoadService collectCpuLoadService;
     @Resource
     private AssetService assetService;
+    @Resource
+    private RedisService redisService;
 
 
     @Override
@@ -169,9 +171,6 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
         return resList;
     }
 
-    @Resource
-    private IEventInfoManagerService eventInfoChangeManagerService;
-
     @Override
     public void deleteServerPort(String assetId, Integer serverPort) {
         if (serverPort != null) {
@@ -188,19 +187,26 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
             }
         }
 
+        // 删除缓存
+        Asset asset = assetService.getById(assetId);
+        if (serverPort == null) {
+            List<AssetAppServer> list = this.findByAssetIdNullLink(assetId);
+            for (AssetAppServer assetAppServer : list) {
+                String redisKey = asset.getIp() + ":" + assetId + ":temp_app_link:port:" + assetAppServer.getServerPort();
+                redisService.remove(redisKey);
+            }
+        } else {
+            String redisKey = asset.getIp() + ":" + assetId + ":temp_app_link:port:" + serverPort;
+            redisService.remove(redisKey);
+        }
+
+        // 删除数据
         UpdateWrapper<AssetAppServer> update = Wrappers.update();
         update.eq("ASSET_ID", assetId);
         if (serverPort != null) {
             update.eq("SERVER_PORT", serverPort);
         }
         assetAppServerMapper.delete(update);
-
-        // 删除缓存
-        Asset asset = assetService.getById(assetId);
-        String redisKey = asset.getIp() + ":" + assetId + ":" + StatusInfoChangeTypeEnum.event_appServer_link.getCode() + ":" + serverPort;
-        String mapKey = serverPort + "";
-        eventInfoChangeManagerService.delStateValue(redisKey, mapKey);
-        eventInfoChangeManagerService.delRedisKey(redisKey);
     }
 
     @Override
@@ -245,6 +251,10 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
             if (split.length < 4) {
                 return;
             }
+
+            String redisKey = split[0] + ":" + split[1] + ":temp_app_link:port:" + split[2];
+            redisService.remove(redisKey);
+
             UpdateWrapper<AssetAppServer> update = Wrappers.update();
             update.eq("ASSET_ID", split[1]);
             update.eq("SERVER_PORT", split[2]);

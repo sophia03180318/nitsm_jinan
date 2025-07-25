@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.cpuload;
 
+import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.CollectCpuLoadBean;
@@ -29,12 +30,12 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
 
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
-
     @Resource
     private AssetAppServerService assetAppServerService;
-
     @Resource
     private AssetService assetService;
+    @Resource
+    private RedisService redisService;
 
     /**
      * 处理方法
@@ -61,24 +62,20 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
                 sb.append(ip).append(",");
             }
             String redisValue = sb.substring(0, sb.lastIndexOf(","));
-            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisKey, mapKey, redisValue);
-            if (!flag) {
-                continue;
-            }
-
             int linkStatus = 1;
-            Object stateValue = eventInfoChangeManagerService.getStateValue(redisKey, mapKey);
-            if (Objects.isNull(stateValue)) {
+            String oldKey = info.getAssetIp() + ":" + assetId + ":temp_app_link:port:" + entry.getKey();
+            Object oldValue = redisService.get(oldKey);
+            if (Objects.isNull(oldValue)) {
+                redisService.set(oldKey, redisValue);
                 this.saveLinkData(info, entry, asset);
                 this.handleEvent(info, newIpSet, redisKey, mapKey, linkStatus, redisValue);
                 continue;
             }
 
-            String[] split = stateValue.toString().split(",");
+            String[] split = oldValue.toString().split(",");
             Set<String> oldIpSet = new HashSet<>(Arrays.asList(split));
             Set<String> difference = this.getDifference(oldIpSet, newIpSet);
             if (!difference.isEmpty()) {
-                eventInfoChangeManagerService.setStateValue(redisKey, mapKey, redisValue);
                 linkStatus = 0;
                 this.updateLinkData(info, difference, linkStatus, mapKey, redisKey, redisValue, asset);
             }
@@ -88,6 +85,7 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
                 linkStatus = 1;
                 this.updateLinkData(info, intersection, linkStatus, mapKey, redisKey, redisValue, asset);
             }
+            redisService.set(oldKey, redisValue);
         }
         return true;
     }

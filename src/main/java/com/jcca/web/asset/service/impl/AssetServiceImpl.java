@@ -158,6 +158,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private CollectDsService dsService;
     @Resource
     private SysModuleConfigService sysModuleConfigService;
+    @Resource
+    private AssetAppServerService appServerService;
 
     @Value("${project.upload.static-url}")
     private String staticUrl;
@@ -341,6 +343,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateAsset(Asset updateReq) throws AddAssetException {
+        if (updateReq.getServiceType() != null && updateReq.getServiceType() == 0) {
+            try {
+                appServerService.deleteServerPort(updateReq.getId(), null);
+            } catch (Exception e) {
+                log.error("删除应用服务器端口失败：{}", e.getMessage());
+            }
+        }
         String ip = updateReq.getIp();
         //ip是否为空
 //        boolean ipIsEmpty = StrUtil.isEmpty(updateReq.getIp());
@@ -1396,6 +1405,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     }
 
     private void updateAssetV2(Asset req) throws AddAssetException {
+        if (req.getServiceType() != null && req.getServiceType() == 0) {
+            try {
+                appServerService.deleteServerPort(req.getId(), null);
+            } catch (Exception e) {
+                log.error("删除应用服务器端口失败：{}", e.getMessage());
+            }
+        }
         String id = req.getId();
         Asset oldAsset = this.getById(id);
         if (Objects.isNull(oldAsset)) {
