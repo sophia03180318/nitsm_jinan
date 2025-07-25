@@ -58,4 +58,8 @@ public class DbUpdateReq implements Serializable {
      */
     @NotEmpty(message = "数据库名称不能空")
     private String name;
+
+
+    @NotNull(message = "请选择厂商")
+    private Integer manufacturerId;
 }

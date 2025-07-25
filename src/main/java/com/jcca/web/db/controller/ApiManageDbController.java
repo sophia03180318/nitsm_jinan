@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jcca.admin.system.entity.SpecDictionary;
+import com.jcca.admin.system.service.SpecDictionaryService;
 import com.jcca.common.bean.PageBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AssetModeConst;
@@ -79,6 +81,8 @@ public class ApiManageDbController extends ListenerManager {
     private AssetAttachService assetAttachService;
     @Resource
     private RedisService redisService;
+    @Resource
+    private SpecDictionaryService specDictionaryService;
 
     /**
      * 分页查询数据库
@@ -254,6 +258,19 @@ public class ApiManageDbController extends ListenerManager {
             testVo.setMsg("IP[" + asset.getIp() + "]网络不通");
             return ResultVoUtil.success("IP[" + asset.getIp() + "]网络不通", testVo);
         }
+
+        //验证厂商对应是否存在可监控指标
+        QueryWrapper<SpecDictionary> specQuery = new QueryWrapper<SpecDictionary>();
+        specQuery.eq("ASSET_MODE", AssetModeEnum.DB.getCode());
+        specQuery.eq("MANUFACTURER_ID", req.getManufacturerId());
+        List<SpecDictionary> configSpec = specDictionaryService.list(specQuery);
+        if(Objects.isNull(configSpec)||configSpec.isEmpty()){
+            AssetCollectTestVo testVo = new AssetCollectTestVo();
+            testVo.setCode("1");
+            testVo.setMsg("系统缺少此厂家对应的采集项，请在采集配置中添加");
+            return ResultVoUtil.success("系统缺少此厂家对应的采集项，请在采集配置中添加", testVo);
+        }
+
         String pwd = EncryptUtil.aesEncryptHex(req.getPassword());
         AssetOutVo assetOutVo = BeanUtil.copyProperties(asset, AssetOutVo.class);
         assetOutVo.setName(req.getDbName());
@@ -354,6 +371,18 @@ public class ApiManageDbController extends ListenerManager {
             collectTest.setCode("1");
             collectTest.setMsg("IP网络不通");
             return ResultVoUtil.success(collectTest);
+        }
+
+        //验证厂商对应是否存在可监控指标
+        QueryWrapper<SpecDictionary> specQuery = new QueryWrapper<SpecDictionary>();
+        specQuery.eq("ASSET_MODE", AssetModeEnum.DB.getCode());
+        specQuery.eq("MANUFACTURER_ID", req.getManufacturerId());
+        List<SpecDictionary> configSpec = specDictionaryService.list(specQuery);
+        if(Objects.isNull(configSpec)||configSpec.isEmpty()){
+            AssetCollectTestVo testVo = new AssetCollectTestVo();
+            testVo.setCode("1");
+            testVo.setMsg("系统缺少此厂家对应的采集项，请在采集配置中添加");
+            return ResultVoUtil.success("系统缺少此厂家对应的采集项，请在采集配置中添加", testVo);
         }
 
         ManageDb dbEntity = EntityBeanUtil.copy(req, ManageDb.class);
