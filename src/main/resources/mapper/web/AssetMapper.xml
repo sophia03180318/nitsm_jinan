@@ -443,9 +443,10 @@
             resultType="com.jcca.web.asset.vo.LinkAssetExportVo">
         SELECT *
         FROM (SELECT a.NAME assetName, a.ip assetIp, l.port_index, l.link_asset_name, l.link_asset_ip, l.link_port,
-        DECODE(a.ASSET_MODE, 42, '路由器', 201, '交换机', '未知') assetModeStr
+        b.name assetModeStr
         FROM ASSET_LINK_ASSET l
         LEFT JOIN ASSET a ON l.ASSET_ID = a.ID
+        LEFT JOIN ASSET_MODE b ON a.desk = b.code
         WHERE a.ASSET_MODE IN (42, 201)
         <if test="orgId != null and orgId != ''">
             AND a.ORG_ID = #{orgId}

@@ -3,6 +3,7 @@ package com.jcca.web.asset.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.enums.AssetHardwareTypeEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web.asset.controller.bean.AssetHardwareFixReq;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author hanwone
@@ -68,7 +70,14 @@ public class AssetHardwareFixServiceImpl extends ServiceImpl<AssetHardwareFixMap
      */
     @Override
     public List<AssetHardwareFixExportVo> findExport(AssetHardwareFixReq req) {
-        return assetHardwareFixMapper.findExport(req);
+        List<AssetHardwareFixExportVo> export = assetHardwareFixMapper.findExport(req);
+        for (AssetHardwareFixExportVo assetHardwareFixExportVo : export) {
+            if(Objects.nonNull(assetHardwareFixExportVo.getHardwareType())){
+                String hardwareType = DictUtil.keyValue("HARDWARE_TYPE", assetHardwareFixExportVo.getHardwareType().toString());
+                assetHardwareFixExportVo.setHardwareTypeStr(hardwareType);
+            }
+        }
+        return export;
     }
 
     /**

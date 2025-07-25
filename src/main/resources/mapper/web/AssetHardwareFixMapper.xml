@@ -124,10 +124,13 @@
         a.ip assetIp,
         a.ipmi_ip ipmiIp,
         a.asset_mode assetMode,
-        decode(a.desk, 183,'服务器',42,'路由器',201,'交换机',263,'数据库',1831,'终端',1832,'小型机',1833,'工控机','未知' ) assetModeStr,
-        decode(a.MANUFACTURER_ID, 0,'惠普',1,'IBM',2,'华为',3,'ORACLE',4,'思科',5,'MOXA',6,'研华','未知' ) manufacturer,
-        decode(h.HARDWARE_TYPE,1,'CPU',2,'内存',3,'硬盘',4,'电源',5,'板卡',6,'风扇',7,'引擎',8,'CPU板',9,'IO板',10,'控制器',11,'稳压模块','未知')hardwareTypeStr
-        FROM ASSET_HARDWARE_FIX h LEFT JOIN ASSET a on a.ID = h.ASSET_ID
+        g.name assetModeStr,
+        b.name manufacturer,
+        h.HARDWARE_TYPE hardwareType
+        FROM ASSET_HARDWARE_FIX h
+        LEFT JOIN ASSET a on a.ID = h.ASSET_ID
+        LEFT JOIN ASSET_MODE g on a.desk = g.code
+        LEFT JOIN ASSET_MANUFACTURER b  on  b.id = a.MANUFACTURER_ID
         WHERE 1 = 1
         <if test="assetName != null and assetName !=''">
             and a.name like concat(concat('%', #{assetName}), '%')

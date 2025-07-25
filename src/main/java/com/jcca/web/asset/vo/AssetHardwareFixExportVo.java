@@ -44,6 +44,7 @@ public class AssetHardwareFixExportVo {
      * AssetHardwareTypeEnum
      */
     private String hardwareTypeStr;
+    private Integer hardwareType;
     /**
      * 更换时间
      */
