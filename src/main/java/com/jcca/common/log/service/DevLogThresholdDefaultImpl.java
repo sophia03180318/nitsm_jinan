@@ -11,8 +11,10 @@ import com.jcca.common.log.constant.LogDetailItemIdType;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web2.dto.ThresholdManageQuery;
+import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
+import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.ThresholdManageService;
 import com.jcca.web2.vo.ThresholdManageVo;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,8 @@ public class DevLogThresholdDefaultImpl implements DevLogService {
     private ThresholdManageService thresholdManageService;
     @Resource
     private SysActionLogDetailService sysActionLogDetailService;
+    @Resource
+    private AssetModeService assetModeService;
 
     /**
      * 运维日志分类
@@ -106,7 +110,8 @@ public class DevLogThresholdDefaultImpl implements DevLogService {
                 oldVo = oldList.get(0);
             }
             Integer autoFlag = req.getAutoFlag();
-            String description = sb.toString() + "所有" + AssetModeEnum.getName(req.getAssetDesk()) + "【" + ThresholdCategoryEnum.getTitle(req.getCategory()) + "】";
+            AssetMode modeAo = assetModeService.getByCode(req.getAssetDesk());
+            String description = sb.toString() + "所有" +(Objects.isNull(modeAo)?"未知类型设备"+req.getAssetDesk(): modeAo.getName()) + "【" + ThresholdCategoryEnum.getTitle(req.getCategory()) + "】";
             if (autoFlag == 2) {
                 Asset one = assetService.getById(req.getAssetIds().get(0));
                 description = sb.toString() + "的资产【" + one.getName() + "】【" + ThresholdCategoryEnum.getTitle(req.getCategory()) + "】";

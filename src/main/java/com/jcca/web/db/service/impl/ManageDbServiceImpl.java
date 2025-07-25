@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.bean.constant.StatusConst;
-import com.jcca.common.enums.AssetManufacturerEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.entity.Asset;
@@ -100,7 +99,7 @@ public class ManageDbServiceImpl extends ServiceImpl<ManageDbMapper, ManageDb> i
         asset.setOsPassword(db.getPassword());
         asset.setAssetMode(AssetModeConst.ORACLE_DB);
         asset.setCollectionType(a.getCollectionType());
-        asset.setManufacturerId(AssetManufacturerEnum.ORACLE.getCode());
+        asset.setManufacturerId(db.getManufacturerId());
         asset.setAssetImage(a.getAssetImage());
         asset.setNtpFlag(StatusConst.NO);
         outService.notifyOnChange(optFlag, asset);

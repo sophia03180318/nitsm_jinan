@@ -66,9 +66,11 @@ import com.jcca.web.ip.entity.IpInfo;
 import com.jcca.web.ip.enums.IpPingStatusEnum;
 import com.jcca.web.ip.service.IpInfoService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
+import com.jcca.web2.entity.AssetManufacturer;
 import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.enums.AssetMonitorEnum;
+import com.jcca.web2.service.AssetManufacturerService;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.AssetNotifyService;
 import com.jcca.web2.service.CacheDataService;
@@ -158,6 +160,8 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private CollectDsService dsService;
     @Resource
     private SysModuleConfigService sysModuleConfigService;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
     @Value("${project.upload.static-url}")
     private String staticUrl;
@@ -556,8 +560,17 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         AssetMsgVo copy = EntityBeanUtil.copy(asset, AssetMsgVo.class);
         copy.setAssetName(asset.getName());
-        copy.setAssetMode(AssetModeEnum.getName(asset.getAssetMode()));
-        copy.setManufacturerName(AssetManufacturerEnum.getName(asset.getManufacturerId()));
+
+        AssetMode mode = assetModeService.getByCode(asset.getDesk());
+        if(Objects.nonNull(mode)){
+            copy.setAssetMode(mode.getName());
+        }else{
+            copy.setAssetMode(asset.getDesk()+"");
+        }
+        AssetManufacturer manufacturer = assetManufacturerService.getById(asset.getManufacturerId());
+        if(Objects.nonNull(manufacturer)){
+            copy.setManufacturerName(manufacturer.getName());
+        }
         if (Objects.nonNull(org)) {
             copy.setOrgName(org.getTitle());
         }

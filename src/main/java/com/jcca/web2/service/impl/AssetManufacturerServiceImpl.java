@@ -7,7 +7,9 @@ import com.jcca.web2.service.AssetManufacturerService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -30,5 +32,17 @@ public class AssetManufacturerServiceImpl extends ServiceImpl<AssetManufacturerM
     @Override
     public Long getMaxId() {
         return assetManufacturerMapper.getMaxId();
+    }
+
+    @Override
+    public boolean isManufacturer(List<String> manufacturerList, Integer manufacturerId) {
+        AssetManufacturer manufacturer = getById(manufacturerId);
+        for (String flag : manufacturerList) {
+            if(Objects.nonNull(manufacturer) && manufacturer.getName().toLowerCase().contains(flag)){
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -58,6 +58,8 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web.event.service.AlarmEventGroupService;
 import com.jcca.web.ip.entity.IpInfo;
 import com.jcca.web.ip.service.IpInfoService;
+import com.jcca.web2.entity.AssetManufacturer;
+import com.jcca.web2.service.AssetManufacturerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.CollectionUtils;
@@ -135,6 +137,8 @@ public class ApiOutController {
 
     @Resource
     private UploadProjectProperties fileProp;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
 
     /**
@@ -623,8 +627,10 @@ public class ApiOutController {
             resp.setIp2(asset.getIp2());
             resp.setManufacturer("--");
             if (Objects.nonNull(asset.getManufacturerId())) {
-                String name = AssetManufacturerEnum.getName(asset.getManufacturerId());
-                resp.setManufacturer(name);
+                AssetManufacturer manufacturer = assetManufacturerService.getById(asset.getManufacturerId());
+                if(Objects.nonNull(manufacturer)){
+                    resp.setManufacturer(manufacturer.getName());
+                }
             }
             resp.setSerialNumber(asset.getSerialNumber());
             resp.setAssetMode(asset.getDesk());

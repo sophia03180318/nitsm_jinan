@@ -26,10 +26,7 @@ import com.jcca.admin.system.service.impl.SysModuleConfigServiceImpl;
 import com.jcca.admin.system.util.TemplateExportUtil;
 import com.jcca.admin.system.vo.Template;
 import com.jcca.common.bean.ResultVo;
-import com.jcca.common.bean.constant.AssetModeConst;
-import com.jcca.common.bean.constant.OrgTypeConst;
-import com.jcca.common.bean.constant.RedisCacheConst;
-import com.jcca.common.bean.constant.StatusConst;
+import com.jcca.common.bean.constant.*;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.enums.*;
@@ -78,6 +75,7 @@ import com.jcca.web.statistics.service.HourCpuService;
 import com.jcca.web.statistics.service.HourInterfacesService;
 import com.jcca.web.statistics.service.HourMemoryService;
 import com.jcca.web2.entity.BusinessServiceType;
+import com.jcca.web2.service.AssetManufacturerService;
 import com.jcca.web2.service.BusinessServiceTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -179,6 +177,8 @@ public class ApiAssetController {
     private BusinessServiceTypeService businessServiceTypeService;
     @Resource
     private BrokenRecordService brokenRecordService;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
 
     @GetMapping("/getConfig")
@@ -191,9 +191,11 @@ public class ApiAssetController {
             return ResultVoUtil.warning("仅可下载网络设备的配置备份！");
         }
         String command = "";
-        if (AssetManufacturerEnum.CISCO.getCode().intValue() == asset.getManufacturerId()) {
+
+
+        if (assetManufacturerService.isManufacturer(AssetManufacturerNameFlagConst.CISCO,asset.getManufacturerId())) {
             command = "enTPWDTshow run";
-        } else if (AssetManufacturerEnum.HUAWEI.getCode().intValue() == asset.getManufacturerId()) {
+        } else if (assetManufacturerService.isManufacturer(AssetManufacturerNameFlagConst.HUA_WEI,asset.getManufacturerId())) {
             command = "sysTPWDTdis cu";
         } else {
             return ResultVoUtil.warning("暂时仅支持思科和华为设备！");
@@ -1320,7 +1322,7 @@ public class ApiAssetController {
         }
 
 
-        if (AssetManufacturerEnum.HUIPU.getCode().intValue() == manufacturerId) {
+        if (assetManufacturerService.isManufacturer(AssetManufacturerNameFlagConst.CISCO,manufacturerId)) {
             // 惠普日志下载
             Object logList = redisService.get(CollectHPManagerLogServiceImpl.CACHE_KEY + assetId);
             if (Objects.nonNull(logList)) {

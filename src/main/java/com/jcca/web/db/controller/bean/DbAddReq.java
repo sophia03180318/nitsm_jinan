@@ -1,5 +1,6 @@
 package com.jcca.web.db.controller.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
@@ -56,4 +57,8 @@ public class DbAddReq implements Serializable {
      */
     @NotEmpty(message = "数据库名不能空")
     private String name;
+
+
+    @NotNull(message = "请选择厂商")
+    private Integer manufacturerId;
 }

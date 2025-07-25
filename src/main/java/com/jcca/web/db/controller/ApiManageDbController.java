@@ -11,7 +11,6 @@ import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.bean.constant.RedisCacheConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.config.mybatisplus.PagePlugin;
-import com.jcca.common.enums.AssetManufacturerEnum;
 import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.enums.DBTypeEnum;
 import com.jcca.common.enums.ThresholdAutoFlagEnum;
@@ -262,7 +261,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setOsUser(req.getUsername());
         assetOutVo.setOsPassword(pwd);
         assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
-        assetOutVo.setManufacturerId(AssetManufacturerEnum.ORACLE.getCode());
+        assetOutVo.setManufacturerId(req.getManufacturerId());
         assetOutVo.setNtpFlag(StatusConst.NO);
         AssetCollectTestVo collectTest = outService.collectTest(assetOutVo);
         if (!"0".equals(collectTest.getCode())) {
@@ -365,7 +364,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setOsUser(dbEntity.getUsername());
         assetOutVo.setOsPassword(pwd);
         assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
-        assetOutVo.setManufacturerId(AssetManufacturerEnum.ORACLE.getCode());
+        assetOutVo.setManufacturerId(dbEntity.getManufacturerId());
         assetOutVo.setNtpFlag(StatusConst.NO);
         AssetCollectTestVo collectTest = outService.collectTest(assetOutVo);
         if (!"0".equals(collectTest.getCode())) {
@@ -421,7 +420,7 @@ public class ApiManageDbController extends ListenerManager {
         asset.setOsPassword(db.getPassword());
         asset.setAssetMode(AssetModeConst.ORACLE_DB);
         asset.setCollectionType(a.getCollectionType());
-        asset.setManufacturerId(AssetManufacturerEnum.ORACLE.getCode());
+        asset.setManufacturerId(db.getManufacturerId());
         asset.setAssetImage(a.getAssetImage());
         asset.setNtpFlag(StatusConst.NO);
         outService.notifyOnChange(optFlag, asset);

@@ -33,23 +33,4 @@ public enum AssetModeEnum {
         return name;
     }
 
-    public static Integer getCode(String name) {
-        AssetModeEnum[] values = AssetModeEnum.values();
-        for (AssetModeEnum v : values) {
-            if (name.equals(v.getName())) {
-                return v.getCode();
-            }
-        }
-        return 0;
-    }
-
-    public static String getName(int code) {
-        AssetModeEnum[] values = AssetModeEnum.values();
-        for (AssetModeEnum v : values) {
-            if (v.getCode() == code) {
-                return v.getName();
-            }
-        }
-        return code + "";
-    }
 }

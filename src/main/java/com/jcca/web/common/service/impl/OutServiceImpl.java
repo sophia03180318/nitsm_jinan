@@ -21,7 +21,6 @@ import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.bean.constant.OrgTypeConst;
 import com.jcca.common.bean.constant.SysModuleConfigConst;
-import com.jcca.common.enums.AssetManufacturerEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.*;
 import com.jcca.component.client.CollectAgent;
@@ -291,7 +290,9 @@ public class OutServiceImpl implements OutService {
         outVo.setOsUser(db.getUsername());
         outVo.setOsPassword(db.getPassword());
         outVo.setAssetMode(AssetModeConst.ORACLE_DB);
-        outVo.setManufacturerId(AssetManufacturerEnum.ORACLE.getCode());
+
+
+        outVo.setManufacturerId(db.getManufacturerId());
         outVo.setCollectionType(vo.getCollectionType());
         outVo.setOrgId(vo.getOrgId());
         outVo.setAssetCode(vo.getAssetCode());

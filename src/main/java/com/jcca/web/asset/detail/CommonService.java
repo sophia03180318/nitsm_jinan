@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
-import com.jcca.common.enums.AssetManufacturerEnum;
-import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.enums.UnitEnum;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.alarm.controller.bean.AssetAlarmReq;
@@ -28,6 +26,10 @@ import com.jcca.web.collect.service.CollectMemoryService;
 import com.jcca.web.collect.service.CollectSystemTimeService;
 import com.jcca.web.collect.service.bean.AssetMemoryVo;
 import com.jcca.web.xunjian.controller.util.XunjianReportUtil;
+import com.jcca.web2.entity.AssetManufacturer;
+import com.jcca.web2.entity.AssetMode;
+import com.jcca.web2.service.AssetManufacturerService;
+import com.jcca.web2.service.AssetModeService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,6 +51,10 @@ public class CommonService {
     private AssetService assetService;
     @Resource
     private CollectSystemTimeService collectSystemTimeService;
+    @Resource
+    private AssetModeService assetModeService;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
     /**
      * 获取基本信息
@@ -62,8 +68,16 @@ public class CommonService {
         detailGeneral.setCabinetName(assetBelong.getCabinetName());
         detailGeneral.setRoomName(assetBelong.getRoomName());
         // 细分资产类型 20210112hanwon
-        detailGeneral.setAssetModeStr(AssetModeEnum.getName(asset.getDesk()));
-        detailGeneral.setManufacturerStr(AssetManufacturerEnum.getName(asset.getManufacturerId()));
+        AssetMode mode = assetModeService.getByCode(asset.getDesk());
+        if(Objects.nonNull(mode)){
+            detailGeneral.setAssetModeStr(mode.getName());
+        }else{
+            detailGeneral.setAssetModeStr(asset.getDesk()+"");
+        }
+        AssetManufacturer manufacturer = assetManufacturerService.getById(asset.getManufacturerId());
+        if(Objects.nonNull(manufacturer)){
+            detailGeneral.setManufacturerStr(manufacturer.getName());
+        }
         return detailGeneral;
     }
 

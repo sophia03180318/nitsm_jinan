@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.system.entity.SysModuleConfig;
 import com.jcca.admin.system.service.SysModuleConfigService;
+import com.jcca.common.bean.constant.AssetManufacturerNameFlagConst;
 import com.jcca.common.bean.constant.AssetModeConst;
-import com.jcca.common.enums.AssetManufacturerEnum;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
@@ -16,6 +16,7 @@ import com.jcca.web.collect.entity.CollectRoute;
 import com.jcca.web.collect.service.AssetLinkAssetService;
 import com.jcca.web.collect.service.CollectTopoDiscoveryService;
 import com.jcca.web.collect.service.bean.*;
+import com.jcca.web2.service.AssetManufacturerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,8 @@ public class CollectTopoDiscoveryHandlerService extends ServiceImpl<CollectRoute
     private CollectRouteMapper collectRouteMapper;
     @Resource
     private AssetLinkAssetService linkAssetService;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
     public static boolean discoveryRunnig = false;
 
@@ -132,11 +135,14 @@ public class CollectTopoDiscoveryHandlerService extends ServiceImpl<CollectRoute
                     }
                 }
 
+                ArrayList<String> manufacturerList = new ArrayList<>();
+                manufacturerList.addAll(AssetManufacturerNameFlagConst.IBM);
+                manufacturerList.addAll(AssetManufacturerNameFlagConst.H3C);
+                manufacturerList.addAll(AssetManufacturerNameFlagConst.HUA_WEI);
+                manufacturerList.addAll(AssetManufacturerNameFlagConst.YAN_HUA);
+
                 DicoveryRelatedInfo route = null;
-                if (AssetManufacturerEnum.IBM.getCode().equals(asset.getManufacturerId())
-                        || AssetManufacturerEnum.H3C.getCode().equals(asset.getManufacturerId())
-                        || AssetManufacturerEnum.HUAWEI.getCode().equals(asset.getManufacturerId())
-                        || AssetManufacturerEnum.YANHUA.getCode().equals(asset.getManufacturerId())) {
+                if (assetManufacturerService.isManufacturer(manufacturerList, asset.getManufacturerId())) {
                     for (int i = 0; i < 3; i++) {
                         if (route == null) {
                             route = (DicoveryRelatedInfo) collectTopoDiscoveryService.routeInfo(asset);
@@ -151,7 +157,7 @@ public class CollectTopoDiscoveryHandlerService extends ServiceImpl<CollectRoute
                 }
                 // cisco设备的CDP协议 查询较为详细 用来补充刚ARP查询中对端的详细信息
                 DicoveryRelatedInfo cdp = null;
-                if (AssetManufacturerEnum.CISCO.getCode().equals(asset.getManufacturerId())) {
+                if (assetManufacturerService.isManufacturer(AssetManufacturerNameFlagConst.CISCO, asset.getManufacturerId())) {
                     log.info("--------------------拓扑发现：开始查找设备" + asset.getIp() + "CDP关系");
                     cdp = (DicoveryRelatedInfo) collectTopoDiscoveryService.cdpInfo(asset);
                     if (cdp != null) {
@@ -163,7 +169,7 @@ public class CollectTopoDiscoveryHandlerService extends ServiceImpl<CollectRoute
 
                 for (int i = 0; i < 3; i++) {
                     if (mapAssetVlan != null && mapAssetVlan.keySet() != null) {
-                        if (AssetManufacturerEnum.CISCO.getCode().equals(asset.getManufacturerId())) {
+                        if (assetManufacturerService.isManufacturer(AssetManufacturerNameFlagConst.CISCO, asset.getManufacturerId())) {
                             Iterator<String> iterator1 = mapAssetVlan.keySet().iterator();
                             while (iterator1.hasNext()) {
                                 String next = (String) iterator1.next();
@@ -179,7 +185,7 @@ public class CollectTopoDiscoveryHandlerService extends ServiceImpl<CollectRoute
 
                             }
                         } else {
-                            BridgeRelatedInfo bridgeRelatedInfo = AssetManufacturerEnum.H3C.getCode().equals(asset.getManufacturerId()) ?
+                            BridgeRelatedInfo bridgeRelatedInfo = assetManufacturerService.isManufacturer(AssetManufacturerNameFlagConst.H3C, asset.getManufacturerId()) ?
                                     (BridgeRelatedInfo) collectTopoDiscoveryService.h3CbridgeInfo(asset) : (BridgeRelatedInfo) collectTopoDiscoveryService.huaWeibridgeInfo(asset);
                             Iterator<String> iterator1 = mapAssetVlan.keySet().iterator();
                             while (iterator1.hasNext()) {

@@ -13,8 +13,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
-import com.jcca.common.enums.AssetManufacturerEnum;
-import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppListUtils;
 import com.jcca.common.utils.MyIdUtil;
@@ -40,6 +38,10 @@ import com.jcca.web.xunjian.service.XunjianAssetService;
 import com.jcca.web.xunjian.service.XunjianDetailService;
 import com.jcca.web.xunjian.service.XunjianRecordService;
 import com.jcca.web.xunjian.vo.XunjianRecordVo;
+import com.jcca.web2.entity.AssetManufacturer;
+import com.jcca.web2.entity.AssetMode;
+import com.jcca.web2.service.AssetManufacturerService;
+import com.jcca.web2.service.AssetModeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +85,10 @@ public class XunjianController {
     private AssetAttachService assetAttachService;
     @Resource
     private AlarmInfoService alarmInfoService;
+    @Resource
+    private AssetModeService assetModeService;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
     @PostMapping("/asset/list")
     @ApiOperation(value = "待巡视设备列表")
@@ -113,9 +119,21 @@ public class XunjianController {
                     xunjianAsset.getDownlineTime() == null ? "" : sdf1.format(xunjianAsset.getDownlineTime()));
             parseObj.put("onlineTime",
                     xunjianAsset.getOnlineTime() == null ? "" : sdf1.format(xunjianAsset.getOnlineTime()));
-            parseObj.put("assetMode", AssetModeEnum.getName(xunjianAsset.getAssetMode()));
+
+            AssetMode mode = assetModeService.getByCode(asset.getDesk());
+            if(Objects.nonNull(mode)){
+                parseObj.put("assetMode",mode.getName());
+            }else{
+                parseObj.put("assetMode","未定义的设备类型"+asset.getDesk());
+            }
+
             if (Objects.nonNull(xunjianAsset.getManufactoryId())) {
-                parseObj.put("manufactoryStr", AssetManufacturerEnum.getName(xunjianAsset.getManufactoryId()));
+                AssetManufacturer manufacturer = assetManufacturerService.getById(xunjianAsset.getManufactoryId());
+                if(Objects.nonNull(manufacturer)){
+                    parseObj.put("manufactoryStr", manufacturer.getName());
+                }
+
+
             }
             respList.add(parseObj);
         }

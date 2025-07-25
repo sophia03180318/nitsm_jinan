@@ -46,6 +46,9 @@ public class ManageDb extends Model<ManageDb> {
      */
     @TableField("DB_PROTOCOL")
     private Byte dbProtocol;
+
+    @TableField("MANUFACTURER_ID")
+    private Integer manufacturerId;
     /**
      * 端口
      */

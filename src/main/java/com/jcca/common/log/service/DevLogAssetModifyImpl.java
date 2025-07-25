@@ -5,8 +5,6 @@ import com.jcca.admin.system.entity.SysActionLog;
 import com.jcca.admin.system.entity.SysActionLogDetail;
 import com.jcca.admin.system.service.SysActionLogDetailService;
 import com.jcca.admin.system.service.SysOrgService;
-import com.jcca.common.enums.AssetManufacturerEnum;
-import com.jcca.common.enums.AssetModeEnum;
 import com.jcca.common.log.annotation.FieldLogAnno;
 import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogDetailItemIdType;
@@ -20,6 +18,10 @@ import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.asset.utils.enums.AssetRunModelEnum;
 import com.jcca.web.asset.utils.enums.AssetWatchStatusEnum;
 import com.jcca.web.asset.utils.enums.ManufacturersEnum;
+import com.jcca.web2.entity.AssetManufacturer;
+import com.jcca.web2.entity.AssetMode;
+import com.jcca.web2.service.AssetManufacturerService;
+import com.jcca.web2.service.AssetModeService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -40,6 +42,19 @@ public class DevLogAssetModifyImpl implements DevLogService {
     private AssetService assetService;
     @Resource
     private SysActionLogDetailService sysActionLogDetailService;
+    @Resource
+    private SysOrgService orgService;
+    @Resource
+    private RoomService roomService;
+    @Resource
+    private CabinetService cabinetService;
+    @Resource
+    private AssetAttachService assetAttachService;
+
+    @Resource
+    private AssetModeService assetModeService;
+    @Resource
+    private AssetManufacturerService assetManufacturerService;
 
     /**
      * 运维日志分类
@@ -153,14 +168,7 @@ public class DevLogAssetModifyImpl implements DevLogService {
         sysActionLogDetailService.saveBatch(detailList);
     }
 
-    @Resource
-    private SysOrgService orgService;
-    @Resource
-    private RoomService roomService;
-    @Resource
-    private CabinetService cabinetService;
-    @Resource
-    private AssetAttachService assetAttachService;
+
 
     private Map<Object, Object> translate(String name, Object ao, Object bo, String bid) {
         String temp = "-99";
@@ -176,8 +184,14 @@ public class DevLogAssetModifyImpl implements DevLogService {
         }
 
         if ("desk".equals(name)) {
-            ao = AssetModeEnum.getName(Integer.parseInt(ao.toString()));
-            bo = AssetModeEnum.getName(Integer.parseInt(bo.toString()));
+            AssetMode modeAo = assetModeService.getByCode(Integer.parseInt(ao.toString()));
+            AssetMode modeBo = assetModeService.getByCode(Integer.parseInt(bo.toString()));
+            if(Objects.nonNull(modeAo)){
+                ao =modeAo.getName();
+            }
+            if(Objects.nonNull(modeBo)){
+                bo =modeBo.getName();
+            }
         }
         if ("runModel".equals(name)) {
             ao = "".equals(AssetRunModelEnum.getMsg(ao.toString())) ? "无" : AssetRunModelEnum.getMsg(ao.toString());
@@ -258,8 +272,14 @@ public class DevLogAssetModifyImpl implements DevLogService {
             bo = AssetWatchStatusEnum.getEnum(Byte.parseByte(bo.toString())).getSta();
         }
         if ("manufacturerId".equals(name)) {
-            ao = AssetManufacturerEnum.getName(Integer.parseInt(ao.toString()));
-            bo = AssetManufacturerEnum.getName(Integer.parseInt(bo.toString()));
+            AssetManufacturer manufacturer = assetManufacturerService.getById(Integer.parseInt(ao.toString()));
+            AssetManufacturer manufacturer2 = assetManufacturerService.getById(Integer.parseInt(bo.toString()));
+            if(Objects.nonNull(manufacturer)){
+                ao =manufacturer.getName();
+            }
+            if(Objects.nonNull(manufacturer2)){
+                bo =manufacturer2.getName();
+            }
         }
         if ("onlineTime".equals(name) || "downlineTime".equals(name)) {
             if (!temp.equals(ao)) {

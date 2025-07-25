@@ -25,8 +25,10 @@ import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectReport1;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
+import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
+import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.InspectDetailService;
 import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.vo.InspectRecordListVo;
@@ -59,6 +61,8 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     private InspectRecordService inspectRecordService;
     @Resource
     private AlarmInfoService alarmInfoService;
+    @Resource
+    private AssetModeService assetModeService;
 
     @Override
     public List<InspectRecordListVo> recordList() {
@@ -204,7 +208,14 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         for (InspectReport1 report1 : list) {
             i++;
             report1.setIndex(i);
-            report1.setAssetDeskStr(AssetModeEnum.getName(report1.getAssetDesk()));
+            AssetMode mode = assetModeService.getByCode(report1.getAssetDesk());
+            if(Objects.nonNull(mode)){
+                report1.setAssetDeskStr(mode.getName());
+            }else{
+                report1.setAssetDeskStr("为定义的设备类型"+report1.getAssetDesk());
+            }
+
+
             report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel()));
             report1.setAlarmStatusStr(AlarmStatusEnum.getMsg(report1.getAlarmStatus()));
             List<String> infos = map.get(report1.getAlarmCode());
