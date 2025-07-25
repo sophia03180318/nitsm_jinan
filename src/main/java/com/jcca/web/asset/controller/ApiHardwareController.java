@@ -9,11 +9,14 @@ import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.jcca.admin.system.entity.SysDict;
 import com.jcca.admin.system.entity.SysOrg;
+import com.jcca.admin.system.service.SysDictService;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.PageBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.OrgTypeConst;
+import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.input.ErrorCodeEnum;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
@@ -114,6 +117,11 @@ public class ApiHardwareController {
             if (Objects.nonNull(assetBelong)) {
                 assetHardwareFixVo.setOrgName(assetBelong.getOrgName());
             }
+            if(Objects.nonNull(assetHardwareFixVo.getHardwareType())){
+                String hardwareType = DictUtil.keyValue("HARDWARE_TYPE", assetHardwareFixVo.getHardwareType().toString());
+                assetHardwareFixVo.setHardwareTypeStr(hardwareType);
+            }
+
         }
 
         Long count = assetHardwareFixService.countItem(req);

@@ -61,7 +61,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     }
 
     @Override
-    public SysDict getByTitle(String name) {
+    public SysDict getByName(String name) {
         QueryWrapper<SysDict> dictQuery = new QueryWrapper<>();
         dictQuery.like("name", name);
         List<SysDict> sysDict = sysDictMapper.selectList(dictQuery);
@@ -72,7 +72,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     }
 
     @Override
-    public List<SysDict> getByNames(String name) {
+    public List<SysDict> listByNames(String name) {
         QueryWrapper<SysDict> dictQuery = new QueryWrapper<>();
         dictQuery.like("name", name);
         List<SysDict> sysDict = sysDictMapper.selectList(dictQuery);

@@ -38,13 +38,11 @@
         a.ip assetIp,
         a.ipmi_ip ipmiIp,
         a.asset_mode assetMode,
-        decode(a.desk, 183,'服务器',42,'路由器',201,'交换机',263,'数据库',1831,'终端',1832,'小型机',1833,'工控机',61,'磁盘阵列','未知' )
-        assetModeStr,
-        m.name manufacturer,
-        decode(h.HARDWARE_TYPE,1,'CPU',2,'内存',3,'硬盘',4,'电源',5,'板卡',6,'风扇',7,'引擎',8,'CPU板',9,'IO板',10,'控制器',11,'稳压模块','未知')
-        hardwareTypeStr
+        g.name assetModeStr,
+        m.name manufacturer
         FROM ASSET_HARDWARE_FIX h LEFT JOIN ASSET a on a.ID = h.ASSET_ID
         LEFT JOIN ASSET_MANUFACTURER m on m.id = a.MANUFACTURER_ID
+        LEFT JOIN ASSET_MODE g on a.desk = g.code
         WHERE 1 = 1 and a.IS_DEL = 1
         <if test="assetName != null and assetName !=''">
             and a.name like concat(concat('%', #{assetName}), '%')

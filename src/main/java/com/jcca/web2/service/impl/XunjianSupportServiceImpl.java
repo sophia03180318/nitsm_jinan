@@ -83,7 +83,7 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
 
         }
         List<InspectVo> list = new ArrayList<>(map.values());
-        List<SysDict> allLikeName = sysDictServ.getByNames("XUNJIAN_");
+        List<SysDict> allLikeName = sysDictServ.listByNames("XUNJIAN_");
         for (int i = 0; i < allLikeName.size(); i++) {
             SysDict sysDict = allLikeName.get(i);
             String[] split = sysDict.getTitle().split("-");

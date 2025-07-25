@@ -28,11 +28,13 @@ public class SysDict extends Model<SysDict> implements java.io.Serializable {
     private String id;
     /**
      * 字典名称
+     * 汉字名称
      */
     @TableField("TITLE")
     private String title;
     /**
      * 字典键名称
+     * 编码
      */
     @TableField("NAME")
     private String name;

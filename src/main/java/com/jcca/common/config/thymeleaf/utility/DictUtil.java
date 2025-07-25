@@ -24,17 +24,17 @@ public class DictUtil {
     /**
      * 获取字典值集合
      *
-     * @param label 字典标识
+     * @param name 字典标识
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, String> value(String label) {
+    public static Map<String, String> value(String name) {
         Map<String, String> value = null;
-        Element dictEle = dictCache.get(label);
+        Element dictEle = dictCache.get(name);
         if (dictEle != null) {
             value = (Map<String, String>) dictEle.getObjectValue();
         } else {
             SysDictService dictService = SpringContextUtil.getBean(SysDictService.class);
-            SysDict dict = dictService.getByNameOk(label);
+            SysDict dict = dictService.getByNameOk(name);
             if (dict != null) {
                 String dictValue = dict.getValue();
                 String[] outerSplit = dictValue.split(",");
@@ -64,7 +64,7 @@ public class DictUtil {
     public static String getTitle(String name) {
         String value = "";
         SysDictService dictService = SpringContextUtil.getBean(SysDictService.class);
-        SysDict dict = dictService.getByTitle(name);
+        SysDict dict = dictService.getByName(name);
         if (dict != null) {
             value = dict.getTitle();
         }
@@ -75,7 +75,7 @@ public class DictUtil {
     /**
      * 根据选项编码获取选项值
      *
-     * @param label 字典标识
+     * @param label 字典标识 其实是name,这个工具写的和数据库对不上……服了
      * @param code  选项编码
      */
     public static String keyValue(String label, String code) {
@@ -100,12 +100,12 @@ public class DictUtil {
     /**
      * 清除缓存中指定的数据
      *
-     * @param label 字典标识
+     * @param name 字典标识
      */
-    public static void clearCache(String label) {
-        Element dictEle = dictCache.get(label);
+    public static void clearCache(String name) {
+        Element dictEle = dictCache.get(name);
         if (dictEle != null) {
-            dictCache.remove(label);
+            dictCache.remove(name);
         }
     }
 
@@ -113,8 +113,8 @@ public class DictUtil {
     /**
      * 根据字典标识和value值获取key值
      */
-    public static String getKey(String label, String value) {
-        Map<String, String> map = DictUtil.value(label);
+    public static String getKey(String name, String value) {
+        Map<String, String> map = DictUtil.value(name);
         String key = "";
         if (map != null) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -129,8 +129,8 @@ public class DictUtil {
     /**
      * 根据字典标识和value值获取key值
      */
-    public static String getKeyNotNull(String label, String value) throws NullFieldException {
-        Map<String, String> map = DictUtil.value(label);
+    public static String getKeyNotNull(String name, String value) throws NullFieldException {
+        Map<String, String> map = DictUtil.value(name);
         String key = "";
         boolean b = false;
         if (map != null) {
@@ -153,12 +153,12 @@ public class DictUtil {
     /**
      * 获取选项值(取不出返回 "")
      *
-     * @param label 字典标识
+     * @param name 字典标识
      * @param code  选项编码
      */
-    public static String getValue(String label, String code) {
+    public static String getValue(String name, String code) {
         try {
-            Map<String, String> list = DictUtil.value(label);
+            Map<String, String> list = DictUtil.value(name);
             if (list != null) {
                 return list.get(code) + "";
             } else {

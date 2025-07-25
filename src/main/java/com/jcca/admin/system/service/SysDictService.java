@@ -51,7 +51,7 @@ public interface SysDictService extends IService<SysDict> {
      * @param name
      * @return
      */
-    SysDict getByTitle(String name);
+    SysDict getByName(String name);
 
     /**
      * 通过name名模糊查询
@@ -59,5 +59,5 @@ public interface SysDictService extends IService<SysDict> {
      * @param name
      * @return
      */
-    List<SysDict> getByNames(String name);
+    List<SysDict> listByNames(String name);
 }
