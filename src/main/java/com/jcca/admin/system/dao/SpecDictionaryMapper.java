@@ -6,6 +6,8 @@ import com.jcca.web.asset.entity.Asset;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * @ Author：sophia
  * @ Date：Created in 14:53 2021/8/20
@@ -16,4 +18,7 @@ public interface SpecDictionaryMapper extends BaseMapper<SpecDictionary> {
     @Select("SELECT * FROM SPEC_DICT WHERE ASSET_MODE = #{asset.assetMode} AND ASSET_IMAGE = #{asset.assetImage} " +
             "AND MANUFACTURER_ID = #{asset.manufacturerId} AND SYSTEM_TYPE = #{asset.collectionType}")
     SpecDictionary queryDictByAsset(@Param("asset") Asset asset);
+
+    @Select("SELECT * FROM SPEC_DICT WHERE MANUFACTURER_ID = #{menufactureId}")
+    List<SpecDictionary> findByManufacturerId(String menufactureId);
 }

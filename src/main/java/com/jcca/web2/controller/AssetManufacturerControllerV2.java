@@ -3,6 +3,8 @@ package com.jcca.web2.controller;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.jcca.admin.system.entity.SpecDictionary;
+import com.jcca.admin.system.service.SpecDictionaryService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.log.annotation.ActionLog;
@@ -23,7 +25,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @description: 资产厂商
@@ -39,6 +40,8 @@ public class AssetManufacturerControllerV2 {
     private AssetManufacturerService manufacturerService;
     @Resource
     private AssetModelService modelService;
+    @Resource
+    private SpecDictionaryService specDictionaryService;
 
     @PostMapping("/index")
     @ApiOperation("获取厂商列表")
@@ -75,7 +78,12 @@ public class AssetManufacturerControllerV2 {
 
         List<AssetModel> models = modelService.getByManufacturerId(id);
         if (!CollectionUtils.isEmpty(models)) {
-            return ResultVoUtil.error(ResultEnum.DATA_DELETE);
+            return ResultVoUtil.error(ResultEnum.DATA_DELETE.getCode(), "有在用厂商型号数据不能删除");
+        }
+
+        List<SpecDictionary> specs = specDictionaryService.findByManufacturerId(id);
+        if (!CollectionUtils.isEmpty(specs)) {
+            return ResultVoUtil.error(ResultEnum.DATA_DELETE.getCode(), "有在用厂商指标数据不能删除");
         }
 
         manufacturerService.removeById(id);
@@ -117,7 +125,7 @@ public class AssetManufacturerControllerV2 {
         }
 
         Long id = manufacturerService.getMaxId();
-        assetManufacturer.setId(id==null?1:id + 1);
+        assetManufacturer.setId(id == null ? 1 : id + 1);
         manufacturerService.save(assetManufacturer);
         return ResultVoUtil.success("保存成功");
     }
