@@ -176,6 +176,7 @@ public class XunjianFinalController {
     @GetMapping("/record/list")
     @ApiOperation("巡检记录列表")
     public ResultVo<Object> recordList() {
+        List<InspectShareVo> resultList = new ArrayList<>();
         String username = ShiroUtil.getSubject().getUsername();
         QueryWrapper<XunjianSchedule> query = Wrappers.query();
         query.select("JOB_ID", "JOB_NAME", "AUTO_FLAG");
@@ -183,28 +184,43 @@ public class XunjianFinalController {
         query.groupBy("JOB_ID", "JOB_NAME", "AUTO_FLAG");
         query.orderByDesc("JOB_ID");
         List<XunjianSchedule> list = xunjianScheduleService.list(query);
-        if (list.isEmpty()) {
-            return ResultVoUtil.success(list);
+        if (!list.isEmpty()) {
+            this.getResultList(list, resultList);
         }
 
-        List<InspectShareVo> resultList = new ArrayList<>();
-        this.getResultList(list, resultList, username);
+        List<XunjianSchedule> shareList = inspectRecordShareService.findByViewer(username);
+        if (!shareList.isEmpty()) {
+            this.getShareResultList(shareList, resultList, username);
+        }
         return ResultVoUtil.success(resultList);
     }
 
-    private void getResultList(List<XunjianSchedule> list, List<InspectShareVo> resultList, String username) {
+    // 自己的巡检记录
+    private void getResultList(List<XunjianSchedule> list, List<InspectShareVo> resultList) {
         for (XunjianSchedule schedule : list) {
-            List<InspectShareVo> voList = inspectRecordService.findRecordByJobId(schedule.getJobId(), username);
-            if (voList.isEmpty()) {
-                continue;
-            }
-            InspectShareVo itemVo = new InspectShareVo();
-            itemVo.setId(schedule.getJobId());
-            itemVo.setName(schedule.getJobName());
-            itemVo.setAutoFlag(schedule.getAutoFlag());
-            itemVo.setChildren(voList);
-            resultList.add(itemVo);
+            List<InspectShareVo> voList = inspectRecordService.findRecordByJobId(schedule.getJobId());
+            this.setData(voList, resultList, schedule);
         }
+    }
+
+    // 别人分享的巡检记录
+    private void getShareResultList(List<XunjianSchedule> list, List<InspectShareVo> resultList, String username) {
+        for (XunjianSchedule schedule : list) {
+            List<InspectShareVo> voList = inspectRecordShareService.findShareRecord(schedule.getJobId(), username);
+            this.setData(voList, resultList, schedule);
+        }
+    }
+
+    private void setData(List<InspectShareVo> voList, List<InspectShareVo> resultList, XunjianSchedule schedule) {
+        if (voList.isEmpty()) {
+            return;
+        }
+        InspectShareVo itemVo = new InspectShareVo();
+        itemVo.setId(schedule.getJobId());
+        itemVo.setName(schedule.getJobName());
+        itemVo.setAutoFlag(schedule.getAutoFlag());
+        itemVo.setChildren(voList);
+        resultList.add(itemVo);
     }
 
 

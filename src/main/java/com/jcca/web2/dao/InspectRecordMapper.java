@@ -89,10 +89,10 @@ public interface InspectRecordMapper extends BaseMapper<InspectRecord> {
     @Delete("DELETE FROM INSPECT_RECORD WHERE ORG_ID = #{orgId}")
     void deleteByOrgId(String orgId);
 
-    @Select("SELECT R.ID, R.INSPECT_TIME AS NAME, S.OPERATOR FROM INSPECT_RECORD R " +
-            "LEFT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID AND S.VIEWER = #{username} " +
+    @Select("SELECT DISTINCT R.ID, R.INSPECT_TIME AS NAME, '1' isShare, S.OPERATOR FROM INSPECT_RECORD R " +
+            "LEFT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID " +
             "WHERE R.INSPECT_CODE = #{jobId} ORDER BY R.INSPECT_TIME DESC")
-    List<InspectShareVo> findRecordByJobId(String jobId, String username);
+    List<InspectShareVo> findRecordByJobId(String jobId);
 
     @Select("SELECT * FROM INSPECT_RECORD WHERE SCHEDULE_ID IN (SELECT ID FROM XUNJIAN_SCHEDULE WHERE JOB_ID = #{jobId}) ORDER BY ID DESC")
     List<InspectRecord> findByJobId(String jobId);
