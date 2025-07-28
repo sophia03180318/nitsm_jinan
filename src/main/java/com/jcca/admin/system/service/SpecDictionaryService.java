@@ -5,6 +5,8 @@ import com.jcca.admin.system.entity.SpecDictionary;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web2.vo.CollectConfigVo;
 
+import java.util.List;
+
 /**
  * @ Author：sophia
  * @ Date：Created in 9:58 2021/8/12
@@ -30,4 +32,13 @@ public interface SpecDictionaryService extends IService<SpecDictionary> {
      * @return
      */
     SpecDictionary getSpecDict(CollectConfigVo vo, Integer specId);
+
+    /**
+     * @description: 根据厂商ID查询
+     * @author: HanHW
+     * @date: 2023/11/16 14:29
+     * @param: [menufactureId]
+     * @return: java.util.List<com.jcca.admin.system.entity.SpecDictionary>
+     */
+    List<SpecDictionary> findByManufacturerId(String menufactureId);
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @ Author：sophia
@@ -54,6 +55,19 @@ public class SpecDictionaryServiceImpl extends ServiceImpl<SpecDictionaryMapper,
         dictionary.setCreateDate(new Date());
 
         return dictionary;
+    }
+
+    /**
+     * @param menufactureId
+     * @description: 根据厂商ID查询
+     * @author: HanHW
+     * @date: 2023/11/16 14:29
+     * @param: [menufactureId]
+     * @return: java.util.List<com.jcca.admin.system.entity.SpecDictionary>
+     */
+    @Override
+    public List<SpecDictionary> findByManufacturerId(String menufactureId) {
+        return specDictionaryMapper.findByManufacturerId(menufactureId);
     }
 
 /*    @Override
