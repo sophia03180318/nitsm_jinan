@@ -74,16 +74,27 @@ public class CollectConfigControllerV2 {
      */
     @GetMapping("/manufacturerSpec")
     @ApiOperation("查询厂商对应的采集列表")
-    public ResultVo<Object> manufacturerSpec(String manufacturerId){
+    public ResultVo<Object> manufacturerSpec(String manufacturerId,String image){
+        if(StrUtil.isEmpty(manufacturerId)||StrUtil.isEmpty(image)){
+            return ResultVoUtil.error("请传入厂商ID和型号");
+        }
         QueryWrapper<SpecDictionary> query = new QueryWrapper<>();
         query.eq("MANUFACTURER_ID", manufacturerId);
+        query.eq("ASSET_IMAGE", image);
         List<SpecDictionary> specDictList = specDictionaryService.list(query);
+
+        if(specDictList.isEmpty()){
+            QueryWrapper<SpecDictionary> query2 = new QueryWrapper<>();
+            query2.eq("MANUFACTURER_ID", manufacturerId);
+            query2.eq("ASSET_IMAGE", "PUB");
+            specDictList = specDictionaryService.list(query);
+        }
 
         List<ManufacturerSpecResp> specRespList = new ArrayList<>();
 
         for (SpecDictionary specDictionary : specDictList) {
             QueryWrapper<PerformanceTarget> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("SPEC_ID", specDictionary);
+            queryWrapper.eq("SPEC_ID", specDictionary.getSpecId());
             List<PerformanceTarget> list = performanceTargetService.list(queryWrapper);
 
             ManufacturerSpecResp resp = new ManufacturerSpecResp();
