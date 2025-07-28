@@ -57,7 +57,7 @@ public class CollectConfigControllerV2 {
         List<SpecDictionary> list = new ArrayList<>();
         for (String key : keyList) {
             SpecDictionary item = new SpecDictionary();
-            item.setId(MyIdUtil.getId());
+            item.setId(key);
             item.setRemark(baseSpecMap.get(key));
             item.setSpecId(Integer.valueOf(key));
 
@@ -166,13 +166,9 @@ public class CollectConfigControllerV2 {
 
     @GetMapping("/queryPerformanceTarget")
     public ResultVo<Object> queryPerformanceTarget(String id) {
-        SpecDictionary specDictionary = specDictionaryService.getById(id);
-        if(Objects.isNull(specDictionary)){
-            throw new ResultException(ResultEnum.COLLECTOR_NONE);
-        }
         QueryWrapper<PerformanceTarget> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("id","COMMAND_NAME","TARGET_DESCRIPTION","COMMAND","TARGET_HANDLE","CRON_EXPRESS","IS_AVAILABLE");
-        queryWrapper.eq("SPEC_ID", specDictionary.getSpecId());
+        queryWrapper.eq("SPEC_ID", id);
         queryWrapper.orderByAsc("id");
         List<PerformanceTarget> list = performanceTargetService.list(queryWrapper);
 
