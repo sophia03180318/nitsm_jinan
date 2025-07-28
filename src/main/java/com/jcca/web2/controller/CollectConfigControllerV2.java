@@ -87,7 +87,7 @@ public class CollectConfigControllerV2 {
             QueryWrapper<SpecDictionary> query2 = new QueryWrapper<>();
             query2.eq("MANUFACTURER_ID", manufacturerId);
             query2.eq("ASSET_IMAGE", "PUB");
-            specDictList = specDictionaryService.list(query);
+            specDictList = specDictionaryService.list(query2);
         }
 
         List<ManufacturerSpecResp> specRespList = new ArrayList<>();
