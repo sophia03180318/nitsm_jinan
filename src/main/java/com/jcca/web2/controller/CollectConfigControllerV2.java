@@ -10,6 +10,7 @@ import com.jcca.admin.system.service.PerformanceTargetService;
 import com.jcca.admin.system.service.SpecDictionaryService;
 import com.jcca.admin.system.vo.MinuteVo;
 import com.jcca.common.bean.ResultVo;
+import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.annotation.ActionLog;
@@ -19,6 +20,7 @@ import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.common.service.OutService;
 
+import com.jcca.web2.vo.ManufacturerSpecResp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -26,9 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 采集配置相关接口
@@ -46,15 +46,56 @@ public class CollectConfigControllerV2 {
     private OutService outService;
 
     /**
-     * 查询所有的型号配置列表
+     * 查询所有的基础配置列表
      */
     @PostMapping("/specDict")
     @ApiOperation("获取已配置采集列表")
     public ResultVo<Object> index(){
-        QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("CREATE_DATE");
-        List<SpecDictionary> list = specDictionaryService.list(queryWrapper);
+        Map<String, String> baseSpecMap = DictUtil.value("SPEC_DICT");
+        Set<String> keyList = baseSpecMap.keySet();
+
+        List<SpecDictionary> list = new ArrayList<>();
+        for (String key : keyList) {
+            SpecDictionary item = new SpecDictionary();
+            item.setId(MyIdUtil.getId());
+            item.setRemark(baseSpecMap.get(key));
+            item.setSpecId(Integer.valueOf(key));
+
+            list.add(item);
+        }
+
         return ResultVoUtil.success(list);
+    }
+
+    /**
+     * 查询厂商对应的执行列表
+     * @param manufacturerId
+     * @return
+     */
+    @GetMapping("/manufacturerSpec")
+    @ApiOperation("查询厂商对应的采集列表")
+    public ResultVo<Object> manufacturerSpec(String manufacturerId){
+        QueryWrapper<SpecDictionary> query = new QueryWrapper<>();
+        query.eq("MANUFACTURER_ID", manufacturerId);
+        List<SpecDictionary> specDictList = specDictionaryService.list(query);
+
+        List<ManufacturerSpecResp> specRespList = new ArrayList<>();
+
+        for (SpecDictionary specDictionary : specDictList) {
+            QueryWrapper<PerformanceTarget> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("SPEC_ID", specDictionary);
+            List<PerformanceTarget> list = performanceTargetService.list(queryWrapper);
+
+            ManufacturerSpecResp resp = new ManufacturerSpecResp();
+            resp.setSpecDictTitle(StrUtil.isEmpty(specDictionary.getRemark())?"未命名":specDictionary.getRemark());
+            resp.setSystemType(specDictionary.getSystemType());
+            resp.setTargetList(list);
+
+            specRespList.add(resp);
+        }
+
+        return ResultVoUtil.success(specRespList);
+
     }
 
 

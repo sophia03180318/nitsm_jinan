@@ -74,6 +74,9 @@ public class PerformanceTarget extends Model<PerformanceTarget> implements java.
     @TableField(value = "COMMAND_NAME")
     private String commandName;
 
+    @TableField(value = "EXE_COMMAND")
+    private String exeCommand;
+
     /**
      *
      */
