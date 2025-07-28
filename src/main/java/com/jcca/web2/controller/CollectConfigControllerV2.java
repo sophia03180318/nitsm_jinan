@@ -98,6 +98,8 @@ public class CollectConfigControllerV2 {
             List<PerformanceTarget> list = performanceTargetService.list(queryWrapper);
 
             ManufacturerSpecResp resp = new ManufacturerSpecResp();
+            resp.setId(specDictionary.getId());
+            resp.setSpecId(specDictionary.getSpecId());
             resp.setSpecDictTitle(StrUtil.isEmpty(specDictionary.getRemark())?"未命名":specDictionary.getRemark());
             resp.setSystemType(specDictionary.getSystemType());
             resp.setTargetList(list);

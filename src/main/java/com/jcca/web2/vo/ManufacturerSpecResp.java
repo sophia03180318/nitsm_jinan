@@ -26,4 +26,8 @@ public class ManufacturerSpecResp {
      */
     private Integer systemType;
 
+    private String id;
+
+    private Integer specId;
+
 }
