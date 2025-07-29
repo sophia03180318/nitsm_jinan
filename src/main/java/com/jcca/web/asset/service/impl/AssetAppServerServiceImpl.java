@@ -129,6 +129,7 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
         QueryWrapper<AssetAppServer> query = Wrappers.query();
         query.eq("ASSET_ID", assetId);
         query.eq("LINK_STATUS", 0);
+        query.eq("BLANK", 1);
         int count = this.count(query);
         if (count > 0) {
             vo.setAlarmState(AlarmStateEnum.ALARM.getCode());
