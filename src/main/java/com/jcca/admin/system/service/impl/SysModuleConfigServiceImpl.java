@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.admin.biz.entity.Station;
@@ -264,7 +265,7 @@ public class SysModuleConfigServiceImpl extends ServiceImpl<SysModuleConfigMappe
     public List<SysModuleConfigVo> queryWebConfigList() {
         QueryWrapper<SysModuleConfig> q1 = new QueryWrapper<SysModuleConfig>();
         q1.isNotNull("WEB_CONF");
-        q1.orderByAsc("TITLE");
+        q1.orderByAsc("NAME");
 
         List<SysModuleConfig> list = list(q1);
 
@@ -286,20 +287,21 @@ public class SysModuleConfigServiceImpl extends ServiceImpl<SysModuleConfigMappe
         SysModuleConfig config = null;
         Object o = redisService.get(name);
         if (Objects.isNull(o)) {
-            QueryWrapper<SysModuleConfig> wrapper = Wrappers.query();
-            wrapper.eq("name", name);
-            List<SysModuleConfig> list = this.list(wrapper);
-            if (CollectionUtil.isNotEmpty(list)) {
-                config = list.get(0);
-                redisService.set(name, config);
-            }
+            UpdateWrapper<SysModuleConfig> update = Wrappers.update();
+            update.eq("name", name);
+            update.set("value", value);
+            this.update(update);
+
+            config = this.getSysModuleConfig(name);
+            redisService.set(name, config);
+
             return;
         }
         config = (SysModuleConfig) o;
         config.setName(name);
         config.setValue(value);
-        redisService.set(name, config);
-
         configMapper.updateById(config);
+
+        redisService.set(name, config);
     }
 }

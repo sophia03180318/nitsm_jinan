@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -80,5 +79,10 @@ public class SysModuleConfig extends Model<SysModuleConfig> {
      */
     @TableField("web_conf")
     private String webConf;
+    /**
+     * web界面展示名称
+     */
+    @TableField("title")
+    private String title;
 
 }

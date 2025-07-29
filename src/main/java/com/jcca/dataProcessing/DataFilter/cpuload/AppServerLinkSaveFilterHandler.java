@@ -66,8 +66,7 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
             String oldKey = info.getAssetIp() + ":" + assetId + ":temp_app_link:port:" + entry.getKey();
             Object oldValue = redisService.get(oldKey);
             if (Objects.isNull(oldValue)) {
-                redisService.set(oldKey, redisValue);
-                this.saveLinkData(info, entry, asset);
+                this.saveLinkData(info, entry, asset, oldKey, redisValue);
                 this.handleEvent(info, newIpSet, redisKey, mapKey, linkStatus, redisValue);
                 continue;
             }
@@ -107,13 +106,15 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
         this.handleEvent(info, ipSet, redisKey, serverPort, linkStatus, redisValue);
     }
 
-    private void saveLinkData(CollectCpuLoadBean info, Map.Entry<String, Set<String>> entry, Asset asset) {
+    private void saveLinkData(CollectCpuLoadBean info, Map.Entry<String, Set<String>> entry, Asset asset, String oldKey, String redisValue) {
         String assetId = info.getAssetId();
-        List<AssetAppServer> list = assetAppServerService.findByAssetIdNullLink(assetId);
+        List<AssetAppServer> list = assetAppServerService.findByAssetIdAndServerPort(assetId, entry.getKey());
         if (list.isEmpty()) {
             return;
         }
         this.saveApp(info.getAssetId(), entry.getKey(), entry.getValue(), asset);
+
+        redisService.set(oldKey, redisValue);
     }
 
     private void saveApp(String assetId, String serverPort, String linkIp, Asset asset) {

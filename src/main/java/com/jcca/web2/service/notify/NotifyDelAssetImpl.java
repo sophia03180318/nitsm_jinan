@@ -211,7 +211,7 @@ public class NotifyDelAssetImpl {
         AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, assetId, "删除巡检记录成功");
 
         // 如果是应用服务器
-        if (asset.getServiceType() != null && asset.getServiceType() == 1) {
+        if (asset.getServiceType() != null) {
             appServerService.deleteServerPort(assetId, null);
         }
         // ============================================所有要删除数据应该在删除资产前操作==================================

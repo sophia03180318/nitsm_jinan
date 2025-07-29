@@ -476,7 +476,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 this.notifySubjectV2(updateReq, OutConst.ADD_ASSET);
             } else if (updateReq.getBeforeVerify().equals("no")) {
                 // 监控->监控 且采集字段发生改变
-                this.notifySubjectV2(updateReq, OutConst.MODIFY_ASSET);
+                this.notifySubjectV2(updateReq, OutConst.ALL_ASSET_UPDATE);
             }
         }
     }
@@ -1501,7 +1501,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 this.notifySubjectV2(req, OutConst.ADD_ASSET);
             } else if (this.assectChange(req, oldAsset)) {
                 // 由监控->监控
-                this.notifySubjectV2(req, OutConst.MODIFY_ASSET);
+                this.notifySubjectV2(req, OutConst.ALL_ASSET_UPDATE);
             }
         }
 

@@ -942,7 +942,6 @@ public class AlarmInfoController extends ListenerManager {
      */
     @GetMapping("/detail/{id}")
     @ApiOperation(value = "告警详情")
-    @RequiresPermissions({"api:alarm:info:detail"})
     @ActionLog(name = "查看资产告警详情", title = "告警管理", key = LogTypeConstant.QUERY)
     public ResultVo<?> detail(@PathVariable("id") String id) {
         AlarmDetailVo detail = alarmInfoService.findDetailById(id);

@@ -729,6 +729,10 @@ public class GraphControllerV2 {
             throw new ResultException(ResultEnum.PARAM_ERROR, "请选择中心组织");
         }
         List<SysOrg> stations = orgService.getListByOrgType(OrgTypeConst.STATION);
+        if (stations.isEmpty()) {
+            map.put("vertex", new ArrayList<>());
+            return;
+        }
         List<String> orgIds = stations.stream().map(SysOrg::getId).collect(Collectors.toList());
         QueryWrapper<Asset> query = Wrappers.query();
         query.eq("DESK", AssetModeConst.ROUTER);
