@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.enums.AlarmStateEnum;
+import com.jcca.common.enums.AlarmStatusEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
@@ -116,21 +117,12 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
     }
 
     private void setAlarmState(String assetId, AssetAppServerVo vo) {
-//        QueryWrapper<AlarmInfo> query = Wrappers.query();
-//        query.eq("asset_id", assetId);
-//        query.eq("alarm_state", AlarmStateEnum.ALARM.getCode());
-//        query.eq("status", AlarmStatusEnum.UNCONFIRM.getCode());
-//        query.like("alarm_code", EventUniqueCode.ASSET_APP_LINK);
-//        int count = alarmInfoService.count(query);
-//        if (count > 0) {
-//            vo.setAlarmState(AlarmStateEnum.ALARM.getCode());
-//        }
-
-        QueryWrapper<AssetAppServer> query = Wrappers.query();
-        query.eq("ASSET_ID", assetId);
-        query.eq("LINK_STATUS", 0);
-        query.eq("BLANK", 1);
-        int count = this.count(query);
+        QueryWrapper<AlarmInfo> query = Wrappers.query();
+        query.eq("asset_id", assetId);
+        query.eq("blank", 1);
+        query.eq("alarm_state", AlarmStateEnum.ALARM.getCode());
+        query.eq("status", AlarmStatusEnum.UNCONFIRM.getCode());
+        int count = alarmInfoService.count(query);
         if (count > 0) {
             vo.setAlarmState(AlarmStateEnum.ALARM.getCode());
         }
