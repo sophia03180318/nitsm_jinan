@@ -383,7 +383,13 @@ public class ApiAssetController {
             calendar.setTime(new Date());
             calendar.add(Calendar.YEAR, 1);
             wrapper.lt("downline_time", calendar.getTime());
+        }else if(Objects.nonNull(assetQueryReq.getOverhaul()) && assetQueryReq.getOverhaul() == 0) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.add(Calendar.YEAR, 1);
+            wrapper.ge("downline_time", calendar.getTime());
         }
+
         if (Objects.nonNull(assetQueryReq.getWatch())) {
             wrapper.eq("WATCH", assetQueryReq.getWatch());
         }
