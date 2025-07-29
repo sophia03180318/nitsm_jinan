@@ -108,7 +108,7 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
 
     private void saveLinkData(CollectCpuLoadBean info, Map.Entry<String, Set<String>> entry, Asset asset, String oldKey, String redisValue) {
         String assetId = info.getAssetId();
-        List<AssetAppServer> list = assetAppServerService.findByAssetIdNullLink(assetId);
+        List<AssetAppServer> list = assetAppServerService.findByAssetIdAndServerPort(assetId, entry.getKey());
         if (list.isEmpty()) {
             return;
         }
