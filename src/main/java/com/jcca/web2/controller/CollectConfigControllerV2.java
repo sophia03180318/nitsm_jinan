@@ -203,6 +203,10 @@ public class CollectConfigControllerV2 {
         }
         performanceTarget.setIsAvailable(req.getIsAvailable());
         performanceTargetService.updateById(performanceTarget);
+
+        //调用采集器同步任务
+        outService.targetOnChange();
+
         return ResultVoUtil.success("处理成功");
     }
 
@@ -222,6 +226,9 @@ public class CollectConfigControllerV2 {
             PerformanceTarget performanceTarget = performanceTargetService.getById(minte.getId());
             performanceTarget.setCronExpress("0 0/" + min + " * * * ? *");
             performanceTargetService.saveOrUpdate(performanceTarget);
+
+            //调用采集器同步任务
+            outService.targetOnChange();
         } catch (NumberFormatException e) {
             throw new ResultException(ResultEnum.COLLECTOR_NUM);
         }
