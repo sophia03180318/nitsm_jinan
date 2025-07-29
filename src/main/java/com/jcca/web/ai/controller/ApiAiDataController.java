@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.jcca.admin.system.entity.SysModuleConfig;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
@@ -30,7 +32,6 @@ import com.jcca.web.statistics.service.HourCpuService;
 import com.jcca.web.statistics.service.HourMemoryService;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -68,35 +69,9 @@ public class ApiAiDataController {
     @Resource
     private BrokenRecordService brokenRecordService;
 
-    @Value("${aiConfig.cpuStr}")
-    private String cpuStr;
+    @Resource
+    private SysModuleConfigService moduleConfigService;
 
-    @Value("${aiConfig.memoryStr}")
-    private String memoryStr;
-
-    @Value("${aiConfig.swapStr}")
-    private String swapStr;
-
-    @Value("${aiConfig.diskStr}")
-    private String diskStr;
-
-    @Value("${aiConfig.processStr}")
-    private String processStr;
-
-    @Value("${aiConfig.alarmStr}")
-    private String alarmStr;
-
-    @Value("${aiConfig.alarmListStr}")
-    private String alarmListStr;
-
-    @Value("${aiConfig.brokenRecordStr}")
-    private String brokenRecordStr;
-
-    @Value("${aiConfig.networkCardStr}")
-    private String networkCardStr;
-
-    @Value("${aiConfig.portStr}")
-    private String portStr;
 
     /**
      * 分析CPU
@@ -128,7 +103,10 @@ public class ApiAiDataController {
             cpuLineList = hourCpuService.findDataByDay(assetId, fiveDaysAgo);
         }
         String collect = cpuLineList.stream().map(CpuVo::toString).collect(Collectors.joining(";"));
-        return ResultVoUtil.success(cpuStr, cpuStr + collect);
+
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.cpuStr");
+
+        return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
 
 
@@ -162,7 +140,9 @@ public class ApiAiDataController {
             memoryLineList = hourMemoryService.findDataByDay(assetId, fiveDaysAgo);
         }
         String collect = memoryLineList.stream().map(MemoryVo::toString).collect(Collectors.joining(";"));
-        return ResultVoUtil.success(memoryStr, memoryStr + collect);
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.memoryStr");
+
+        return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
 
 
@@ -180,7 +160,9 @@ public class ApiAiDataController {
         Date fiveDaysAgo = calendar.getTime();
         List<SwapVo> swapByDay = hourMemoryService.findSwapByDay(assetId, fiveDaysAgo);
         String collect = swapByDay.stream().map(SwapVo::toString).collect(Collectors.joining(";"));
-        return ResultVoUtil.success(swapStr, swapStr + collect);
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.swapStr");
+
+        return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
 
 
@@ -206,7 +188,9 @@ public class ApiAiDataController {
             networkVos.add(networkVo);
         }
         String collect = networkVos.stream().map(NetworkVo::toString).collect(Collectors.joining(";"));
-        return ResultVoUtil.success(networkCardStr, networkCardStr + collect);
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.networkCardStr");
+
+        return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
 
 
@@ -221,7 +205,9 @@ public class ApiAiDataController {
         if (Objects.nonNull(assetDiskVo)) {
             List<DiskVo> diskVoList = assetDiskVo.getDiskList();
             String collect = diskVoList.stream().map(DiskVo::toString).collect(Collectors.joining(";"));
-            return ResultVoUtil.success(diskStr, diskStr + collect);
+            SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.diskStr");
+
+            return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
         }
         return ResultVoUtil.warning("未获取到相关硬盘信息");
     }
@@ -234,7 +220,9 @@ public class ApiAiDataController {
      */
     @PostMapping("/getProcess")
     public ResultVo getInterfaceList(@RequestBody QueryVo queryVo) {
-        return ResultVoUtil.success(processStr, processStr + queryVo.getProcessName());
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.processStr");
+
+        return ResultVoUtil.success(config.getValue(), config.getValue() + queryVo.getProcessName());
     }
 
     /**
@@ -263,18 +251,20 @@ public class ApiAiDataController {
         String linkAsset = "";
 
         if (content.contains("对端设备")) {
+            SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.portStr");
             if (content.contains("Gi1/0/9")) {
                 Asset asset = assetService.getById("1327545380090540033");
                 linkAsset += "\n对端设备:" + asset.getName() + ";对端IP:" + asset.getIp() + ";对端端口:GigabitEthernet1/0/5;对端供货商:" + asset.getAssetSupplier() + ";供货商联系方式:400-921-9900\n";
-                return ResultVoUtil.success(portStr, assetStr + linkAsset + portStr + alarmVo.toString());
+                return ResultVoUtil.success(config.getValue(), assetStr + linkAsset + config.getValue() + alarmVo);
 
             } else if (content.contains("Gi1/0/17")) {
                 Asset asset = assetService.getById("1333467992012427266");
                 linkAsset += "\n对端设备:" + asset.getName() + ";对端IP:" + asset.getIp() + ";对端供货商:" + asset.getAssetSupplier() + ";供货商联系方式:400-921-9900;影响进程:[oraclebhm (LOCAL=NO)]、[nginx: worker process]\n";
-                return ResultVoUtil.success(portStr, assetStr + linkAsset + alarmStr + alarmVo.toString());
+                return ResultVoUtil.success(config.getValue(), assetStr + linkAsset + config.getValue() + alarmVo);
             }
         }
-        return ResultVoUtil.success(alarmStr, assetStr + linkAsset + alarmStr + alarmVo.toString());
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.alarmStr");
+        return ResultVoUtil.success(config.getValue(), assetStr + linkAsset + config.getValue() + alarmVo);
     }
 
     /**
@@ -293,7 +283,8 @@ public class ApiAiDataController {
             assetStr = "\n设备厂商:" + manufacturerName + ";设备类型:" + assetModelStr + ";设备型号:" + asset.getAssetImage() + "\n";
         }
         String collect = aiAlarm.stream().map(AlarmVo::toString).collect(Collectors.joining(";"));
-        return ResultVoUtil.success(alarmListStr, alarmListStr + assetStr + collect);
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.alarmListStr");
+        return ResultVoUtil.success(config.getValue(), config.getValue() + assetStr + collect);
     }
 
 
@@ -306,7 +297,8 @@ public class ApiAiDataController {
     public ResultVo getbrokenRecord(@PathVariable String brokenRecordId) {
         BrokenRecord brokenRecord = brokenRecordService.getById(brokenRecordId);
         Asset asset = assetService.getById(brokenRecord.getAssetId());
-        String str = brokenRecordStr + "\n";
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.brokenRecordStr");
+        String str = config.getValue() + "\n";
         if (ObjectUtil.isNotNull(asset)) {
             String manufacturerName = DictUtil.getValue("ASSET_FACTORY", asset.getManufacturerId() + "");
             String assetModelStr = DictUtil.getValue("ASSET_MODE", asset.getAssetMode() + "");
@@ -320,7 +312,7 @@ public class ApiAiDataController {
             }
         }
         str += "故障现象:" + brokenRecord.getDescription() + "\n";
-        return ResultVoUtil.success(brokenRecordStr, str);
+        return ResultVoUtil.success(config.getValue(), str);
     }
 
 
