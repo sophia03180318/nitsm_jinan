@@ -190,11 +190,8 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
         // 删除缓存
         Asset asset = assetService.getById(assetId);
         if (serverPort == null) {
-            List<AssetAppServer> list = this.findByAssetIdNullLink(assetId);
-            for (AssetAppServer assetAppServer : list) {
-                String redisKey = asset.getIp() + ":" + assetId + ":temp_app_link:port:" + assetAppServer.getServerPort();
-                redisService.remove(redisKey);
-            }
+            String redisKey = asset.getIp() + ":" + assetId + ":temp_app_link:port:*";
+            redisService.removePattern(redisKey);
         } else {
             String redisKey = asset.getIp() + ":" + assetId + ":temp_app_link:port:" + serverPort;
             redisService.remove(redisKey);
