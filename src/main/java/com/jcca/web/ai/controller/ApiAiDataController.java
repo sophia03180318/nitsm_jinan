@@ -104,7 +104,7 @@ public class ApiAiDataController {
         }
         String collect = cpuLineList.stream().map(CpuVo::toString).collect(Collectors.joining(";"));
 
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.cpuStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:cpuStr");
 
         return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
@@ -140,7 +140,7 @@ public class ApiAiDataController {
             memoryLineList = hourMemoryService.findDataByDay(assetId, fiveDaysAgo);
         }
         String collect = memoryLineList.stream().map(MemoryVo::toString).collect(Collectors.joining(";"));
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.memoryStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:memoryStr");
 
         return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
@@ -160,7 +160,7 @@ public class ApiAiDataController {
         Date fiveDaysAgo = calendar.getTime();
         List<SwapVo> swapByDay = hourMemoryService.findSwapByDay(assetId, fiveDaysAgo);
         String collect = swapByDay.stream().map(SwapVo::toString).collect(Collectors.joining(";"));
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.swapStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:swapStr");
 
         return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
@@ -188,7 +188,7 @@ public class ApiAiDataController {
             networkVos.add(networkVo);
         }
         String collect = networkVos.stream().map(NetworkVo::toString).collect(Collectors.joining(";"));
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.networkCardStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:networkCardStr");
 
         return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
     }
@@ -205,7 +205,7 @@ public class ApiAiDataController {
         if (Objects.nonNull(assetDiskVo)) {
             List<DiskVo> diskVoList = assetDiskVo.getDiskList();
             String collect = diskVoList.stream().map(DiskVo::toString).collect(Collectors.joining(";"));
-            SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.diskStr");
+            SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:diskStr");
 
             return ResultVoUtil.success(config.getValue(), config.getValue() + collect);
         }
@@ -220,7 +220,7 @@ public class ApiAiDataController {
      */
     @PostMapping("/getProcess")
     public ResultVo getInterfaceList(@RequestBody QueryVo queryVo) {
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.processStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:processStr");
 
         return ResultVoUtil.success(config.getValue(), config.getValue() + queryVo.getProcessName());
     }
@@ -251,7 +251,7 @@ public class ApiAiDataController {
         String linkAsset = "";
 
         if (content.contains("对端设备")) {
-            SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.portStr");
+            SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:portStr");
             if (content.contains("Gi1/0/9")) {
                 Asset asset = assetService.getById("1327545380090540033");
                 linkAsset += "\n对端设备:" + asset.getName() + ";对端IP:" + asset.getIp() + ";对端端口:GigabitEthernet1/0/5;对端供货商:" + asset.getAssetSupplier() + ";供货商联系方式:400-921-9900\n";
@@ -263,7 +263,7 @@ public class ApiAiDataController {
                 return ResultVoUtil.success(config.getValue(), assetStr + linkAsset + config.getValue() + alarmVo);
             }
         }
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.alarmStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:alarmStr");
         return ResultVoUtil.success(config.getValue(), assetStr + linkAsset + config.getValue() + alarmVo);
     }
 
@@ -283,7 +283,7 @@ public class ApiAiDataController {
             assetStr = "\n设备厂商:" + manufacturerName + ";设备类型:" + assetModelStr + ";设备型号:" + asset.getAssetImage() + "\n";
         }
         String collect = aiAlarm.stream().map(AlarmVo::toString).collect(Collectors.joining(";"));
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.alarmListStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:alarmListStr");
         return ResultVoUtil.success(config.getValue(), config.getValue() + assetStr + collect);
     }
 
@@ -297,7 +297,7 @@ public class ApiAiDataController {
     public ResultVo getbrokenRecord(@PathVariable String brokenRecordId) {
         BrokenRecord brokenRecord = brokenRecordService.getById(brokenRecordId);
         Asset asset = assetService.getById(brokenRecord.getAssetId());
-        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig.brokenRecordStr");
+        SysModuleConfig config = moduleConfigService.getSysModuleConfig("aiConfig:brokenRecordStr");
         String str = config.getValue() + "\n";
         if (ObjectUtil.isNotNull(asset)) {
             String manufacturerName = DictUtil.getValue("ASSET_FACTORY", asset.getManufacturerId() + "");
