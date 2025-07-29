@@ -680,6 +680,9 @@ public class ApiMaintainHandBookController {
             }
         }
         SysOrg org = orgService.getDefaultOrg();
+        if (Objects.isNull(org)) {
+            return ResultVoUtil.error(ResultEnum.NO_PERMISSIONS);
+        }
 
         // 组织下的机房机柜
         // 机房
