@@ -382,7 +382,7 @@ public class ApiAssetController {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date());
             calendar.add(Calendar.YEAR, 1);
-            wrapper.le("downline_time", calendar.getTime());
+            wrapper.lt("downline_time", calendar.getTime());
         }
         if (Objects.nonNull(assetQueryReq.getWatch())) {
             wrapper.eq("WATCH", assetQueryReq.getWatch());
