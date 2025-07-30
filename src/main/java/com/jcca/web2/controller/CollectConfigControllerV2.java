@@ -163,6 +163,7 @@ public class CollectConfigControllerV2 {
         }
 
         specDictionaryService.saveOrUpdate(specDictionary);
+        outService.targetOnChange();
         return ResultVoUtil.SAVE_SUCCESS;
     }
 
@@ -171,6 +172,7 @@ public class CollectConfigControllerV2 {
     public ResultVo deleteById(String id) {
         boolean b = specDictionaryService.removeById(id);
         if (b) {
+            outService.targetOnChange();
             return ResultVoUtil.success("模板删除成功");
         }
         return ResultVoUtil.error("模板删除失败");
