@@ -88,6 +88,7 @@ public class AssetModelControllerV2 {
     private AssetCommandService commandService;
 
 
+
     /**
      * 由厂商或类型找型号
      *
@@ -137,20 +138,31 @@ public class AssetModelControllerV2 {
         qw.eq("ASSET_IMAGE", model.getModel());
         qw.eq("IS_DEL", StatusConst.OK);
         List<Asset> list = assetService.list(qw);
-        if (list.isEmpty()) {
-            modelService.removeById(id);
-            //删除关联文件
-            if (!StringUtils.isEmpty(model.getPath())) {
-                File file = new File(model.getPath());
-                // 路径为文件且不为空则进行删除
-                if (file.isFile() && file.exists()) {
-                    file.delete();
-                }
-            }
-            return ResultVoUtil.success("删除型号成功");
-        } else {
+        if (!list.isEmpty()) {
             return ResultVoUtil.warning("已有该型号资产:[" + list.get(0).getName() + "]");
         }
+
+        //验证是否存在指标
+        QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ASSET_IMAGE", model.getModel());
+        List<SpecDictionary> modelList = specDictionaryService.list(queryWrapper);
+
+        if (!modelList.isEmpty()) {
+            return ResultVoUtil.warning("请先删除型号下的采集配置");
+        }
+
+
+        modelService.removeById(id);
+        //删除关联文件
+        if (!StringUtils.isEmpty(model.getPath())) {
+            File file = new File(model.getPath());
+            // 路径为文件且不为空则进行删除
+            if (file.isFile() && file.exists()) {
+                file.delete();
+            }
+        }
+        return ResultVoUtil.success("删除型号成功");
+
     }
 
 
