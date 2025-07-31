@@ -62,4 +62,8 @@ public class DbUpdateReq implements Serializable {
 
     @NotNull(message = "请选择厂商")
     private Integer manufacturerId;
+
+    @NotNull(message = "请选择资产型号")
+    private String assetImage;
+
 }

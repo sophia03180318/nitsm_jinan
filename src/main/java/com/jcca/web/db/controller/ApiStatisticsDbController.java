@@ -151,7 +151,7 @@ public class ApiStatisticsDbController {
             vo.setDbCacheStr(collectDB.getDbCache().toString());
             vo.setDbMemTotalStr(collectDB.getDbMemTotal().toString());
             vo.setDbSessionSize(collectDB.getDbSessionSize());
-            vo.setDbTypeStr(DictUtil.getKey("COLLECT_DB_TYPE",collectDB.getDbType().toString()));
+            vo.setDbTypeStr(DictUtil.getValue("COLLECT_DB_TYPE",collectDB.getDbType().toString()));
             vo.setDbVersion(collectDB.getDbVersion());
             vo.setLanguage(collectDB.getLanguage());
             // 查询表空间
