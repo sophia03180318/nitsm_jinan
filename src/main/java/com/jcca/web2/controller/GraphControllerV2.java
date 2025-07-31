@@ -734,6 +734,9 @@ public class GraphControllerV2 {
             return;
         }
         List<String> orgIds = stations.stream().map(SysOrg::getId).collect(Collectors.toList());
+        if(orgIds.isEmpty()){
+            orgIds.add("x");
+        }
         QueryWrapper<Asset> query = Wrappers.query();
         query.eq("DESK", AssetModeConst.ROUTER);
         query.eq("SHOW_TOPO", 1);
