@@ -32,7 +32,7 @@ public class DbUpdateReq implements Serializable {
      * 数据库协议 DBTypeEnum
      */
     @NotNull(message = "数据库协议不能空")
-    private Byte dbProtocol;
+    private Integer dbProtocol;
     /**
      * 端口
      */
