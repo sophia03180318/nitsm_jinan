@@ -147,8 +147,6 @@ public class ApiManageDbController extends ListenerManager {
         List<ManageDbVo> copyList = EntityBeanUtil.copyList(page.getRecords(), ManageDbVo.class);
         for (ManageDbVo vo : copyList) {
             Asset asset = assetService.getById(vo.getAssetId());
-            vo.setDbProtocolStr(DBTypeEnum.getNameByCode(vo.getDbProtocol()));
-            vo.setDbTypeStr(DBTypeEnum.getNameByCode(vo.getDbType()));
             vo.setAssetName(asset.getName());
             vo.setAliasStr(asset.getName());
             vo.setIp(asset.getIp());

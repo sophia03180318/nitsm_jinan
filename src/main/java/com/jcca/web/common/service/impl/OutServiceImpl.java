@@ -291,9 +291,10 @@ public class OutServiceImpl implements OutService {
         outVo.setOsPassword(db.getPassword());
         outVo.setAssetMode(AssetModeConst.ORACLE_DB);
 
-
         outVo.setManufacturerId(db.getManufacturerId());
-        outVo.setCollectionType(vo.getCollectionType());
+        outVo.setCollectionType(db.getDbProtocol());
+        outVo.setAssetImage(db.getAssetImage());
+
         outVo.setOrgId(vo.getOrgId());
         outVo.setAssetCode(vo.getAssetCode());
         return outVo;

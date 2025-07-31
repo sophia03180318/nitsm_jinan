@@ -11,6 +11,7 @@ import com.jcca.common.bean.PageBean;
 import com.jcca.common.bean.PageQuery;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
+import com.jcca.common.config.thymeleaf.utility.DictUtil;
 import com.jcca.common.enums.DBTypeEnum;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.log.annotation.ActionLog;
@@ -150,7 +151,7 @@ public class ApiStatisticsDbController {
             vo.setDbCacheStr(collectDB.getDbCache().toString());
             vo.setDbMemTotalStr(collectDB.getDbMemTotal().toString());
             vo.setDbSessionSize(collectDB.getDbSessionSize());
-            vo.setDbTypeStr(DBTypeEnum.getNameByCode(collectDB.getDbType()));
+            vo.setDbTypeStr(DictUtil.getKey("COLLECT_DB_TYPE",collectDB.getDbType().toString()));
             vo.setDbVersion(collectDB.getDbVersion());
             vo.setLanguage(collectDB.getLanguage());
             // 查询表空间

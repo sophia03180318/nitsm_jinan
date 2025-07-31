@@ -2,6 +2,7 @@ package com.jcca.web.db.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.jcca.common.log.annotation.FieldLogAnno;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -43,12 +44,16 @@ public class ManageDb extends Model<ManageDb> {
     private Byte dbType;
     /**
      * 数据库协议 DBTypeEnum
+     * 废弃
      */
     @TableField("DB_PROTOCOL")
-    private Byte dbProtocol;
+    private Integer dbProtocol;
 
     @TableField("MANUFACTURER_ID")
     private Integer manufacturerId;
+
+    @TableField("ASSET_IMAGE")
+    private String assetImage;
     /**
      * 端口
      */

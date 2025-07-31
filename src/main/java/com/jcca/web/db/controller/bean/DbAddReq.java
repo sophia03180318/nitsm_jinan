@@ -61,4 +61,10 @@ public class DbAddReq implements Serializable {
 
     @NotNull(message = "请选择厂商")
     private Integer manufacturerId;
+
+    @NotNull(message = "请选择资产型号")
+    private String assetImage;
+
+    @NotNull(message = "请选择采集协议")
+    private Integer collectionType;
 }

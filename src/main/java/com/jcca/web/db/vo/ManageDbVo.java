@@ -32,17 +32,9 @@ public class ManageDbVo implements Serializable {
      */
     private Byte dbType;
     /**
-     * 数据库类型
-     */
-    private String dbTypeStr;
-    /**
      * 数据库协议 DBTypeEnum
      */
     private Byte dbProtocol;
-    /**
-     * 数据库协议
-     */
-    private String dbProtocolStr;
     /**
      * ip
      */
