@@ -278,6 +278,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
         assetOutVo.setManufacturerId(req.getManufacturerId());
         assetOutVo.setAssetImage(req.getAssetImage());
+        assetOutVo.setCollectionType(req.getDbProtocol());
         assetOutVo.setNtpFlag(StatusConst.NO);
         AssetCollectTestVo collectTest = outService.collectTest(assetOutVo);
         if (!"0".equals(collectTest.getCode())) {
@@ -394,6 +395,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
         assetOutVo.setManufacturerId(req.getManufacturerId());
         assetOutVo.setAssetImage(req.getAssetImage());
+        assetOutVo.setCollectionType(req.getDbProtocol());
         assetOutVo.setNtpFlag(StatusConst.NO);
         AssetCollectTestVo collectTest = outService.collectTest(assetOutVo);
         if (!"0".equals(collectTest.getCode())) {
@@ -448,9 +450,9 @@ public class ApiManageDbController extends ListenerManager {
         asset.setOsUser(db.getUsername());
         asset.setOsPassword(db.getPassword());
         asset.setAssetMode(AssetModeConst.ORACLE_DB);
-        asset.setCollectionType(a.getCollectionType());
+        asset.setCollectionType(db.getDbProtocol());
         asset.setManufacturerId(db.getManufacturerId());
-        asset.setAssetImage(a.getAssetImage());
+        asset.setAssetImage(db.getAssetImage());
         asset.setNtpFlag(StatusConst.NO);
         outService.notifyOnChange(optFlag, asset);
     }
