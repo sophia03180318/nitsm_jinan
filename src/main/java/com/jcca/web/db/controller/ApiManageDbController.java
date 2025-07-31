@@ -227,6 +227,22 @@ public class ApiManageDbController extends ListenerManager {
             AssetCollectTestVo testVo = new AssetCollectTestVo();
             return ResultVoUtil.success("请先为该资产分配组织", testVo);
         }
+
+        //验证是否有可用指标
+        QueryWrapper<SpecDictionary> dictWrapper = new QueryWrapper<>();
+        dictWrapper.eq("MANUFACTURER_ID", req.getManufacturerId());
+        dictWrapper.eq("SYSTEM_TYPE", req.getDbProtocol());
+        dictWrapper.eq("ASSET_IMAGE", req.getAssetImage());
+        List<SpecDictionary> specDictionaries = specDictionaryService.list(dictWrapper);
+
+        if(specDictionaries.isEmpty()){
+            AssetCollectTestVo testVo = new AssetCollectTestVo();
+            testVo.setCode("1");
+            testVo.setMsg("请在模板管理设备型号管理中添加对应的采集配置");
+            return ResultVoUtil.success("请在模板管理设备型号管理中添加对应的采集配置", testVo);
+        }
+
+
         // 验证数据库是否已添加
         QueryWrapper<ManageDb> queryWrapper = new QueryWrapper<ManageDb>();
         queryWrapper.eq("ASSET_ID", asset.getId());
