@@ -92,6 +92,9 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
 
     private int isPower(String content) {
         Map<String, String> map = DictUtil.value("SYSLOG_POWER_KEYWORDS");
+        if (map == null) {
+            return 0;
+        }
         Set<Map.Entry<String, String>> entries = map.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             String key = entry.getKey();
