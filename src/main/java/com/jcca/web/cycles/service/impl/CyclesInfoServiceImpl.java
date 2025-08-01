@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.utils.AppListUtils;
 import com.jcca.common.utils.MyIdUtil;
+import com.jcca.common.utils.SqlInjectionUtils;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.cycles.dao.CyclesInfoMapper;
 import com.jcca.web.cycles.dao.CyclesOrgMapper;
@@ -19,6 +20,7 @@ import com.jcca.web.cycles.service.CyclesInfoService;
 import com.jcca.web.cycles.service.bean.CyclesException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -161,6 +163,9 @@ public class CyclesInfoServiceImpl extends ServiceImpl<CyclesInfoMapper, CyclesI
 
     @Override
     public IPage pageQuery(Integer page, Integer size, String name) {
+        if (!StringUtils.isEmpty(name)) {
+            name = SqlInjectionUtils.formattingParameter(name);
+        }
         List<CyclesInfo> cyclesInfos = cyclesInfoMapper.queryAll(name);
         return AppListUtils.pageList(cyclesInfos, page, size);
     }
