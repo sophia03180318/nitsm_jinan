@@ -27,6 +27,11 @@ import java.util.Set;
 @Component("syslogPowerSupplyFilterHnadler")
 public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventInfoEntity> {
 
+    private static final int NO_POWER = 0;
+    private static final int POWER_LOST = 1;
+    private static final int POWER_RECOVER = 2;
+
+
     @Resource
     private IEventInfoManagerService eventInfoChangeManagerService;
 
@@ -34,14 +39,14 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
     public boolean handler(SyslogEventInfoEntity info) throws Exception {
         String content = info.getMessage();
         int power = isPower(content);
-        if (power == 0) {
+        if (power == NO_POWER) {
             return true;
         }
 
         info.setMessage(content + "电源丢失");
         String msg = "电源模块冗余电源丢失";
         Integer status = EventLevelEnum.ABNORMAL.getCode();
-        if (power == 2) {
+        if (power == POWER_RECOVER) {
             status = EventLevelEnum.NORMAL.getCode();
             msg = "电源模块冗余电源恢复";
             info.setMessage(content + "电源恢复");
@@ -93,7 +98,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
     private int isPower(String content) {
         Map<String, String> map = DictUtil.value("SYSLOG_POWER_KEYWORDS");
         if (map == null) {
-            return 0;
+            return NO_POWER;
         }
         Set<Map.Entry<String, String>> entries = map.entrySet();
         for (Map.Entry<String, String> entry : entries) {
@@ -103,24 +108,24 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
                 String[] split = value.split("\\|");
                 if (content.contains(split[0]) && content.contains(split[1])) {
                     if (key.contains("lost")) {
-                        return 1;
+                        return POWER_LOST;
                     }
                     if (key.contains("gain")) {
-                        return 2;
+                        return POWER_RECOVER;
                     }
                 }
             } else {
                 if (content.contains(value)) {
                     if (key.contains("lost")) {
-                        return 1;
+                        return POWER_LOST;
                     }
                     if (key.contains("gain")) {
-                        return 2;
+                        return POWER_RECOVER;
                     }
                 }
             }
         }
-        return 0;
+        return NO_POWER;
     }
 
     @Override

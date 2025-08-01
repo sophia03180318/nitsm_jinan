@@ -37,14 +37,6 @@ public class SyslogAdapter extends AssetIpAdd implements IAdapter<SyslogEventInf
     @Override
     public void dispose(SyslogEventInfoEntity infoEntity) {
         //事件监控分类
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
-
-
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
