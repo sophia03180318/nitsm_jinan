@@ -175,9 +175,10 @@ public class ApiConstructionRecordController {
     @PostMapping("/edit")
     @ActionLog(name = "修改维护计划", title = "维护记录", key = LogTypeConstant.MODIFY)
     ResultVo edit(@Validated @RequestBody ConstructionRecord req) {
-        if (req.getStartTime().compareTo(req.getEndTime()) == 1) {
+        if (req.getStartTime().compareTo(req.getEndTime()) > 0) {
             return ResultVoUtil.error("开始时间不能晚于结束时间");
         }
+
         String[] split = req.getInfluence().split(ASSET_ID_SPLIT_FLG);
         for (String assetId : split) {
             Asset asset = assetService.getById(assetId);

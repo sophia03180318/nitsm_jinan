@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -31,7 +32,7 @@ public class ConstructionRecord extends Model<ConstructionRecord> implements Ser
     /**
      * 施工记录名称
      */
-    @NotEmpty(message = "请输入施工记录名称")
+    @NotBlank(message = "请输入施工记录名称")
     @TableField("NAME")
     private String name;
     /**
