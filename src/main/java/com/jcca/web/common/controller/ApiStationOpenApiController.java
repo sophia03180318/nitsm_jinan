@@ -88,6 +88,9 @@ public class ApiStationOpenApiController {
     @PostMapping("/pushAlarmSyslog")
     RestBean pushAlarmSyslog(@RequestBody StationSyslogOrTrapMessage stationSyslogMsg){
         Asset asset = assetService.findOneByIp(stationSyslogMsg.getHostname());
+
+        log.info("收到车站syslog消息："+JSONUtil.toJsonStr(stationSyslogMsg));
+
         if(Objects.isNull(asset)){
             log.error("接收到车站syslog消息："+stationSyslogMsg.getRawMessage()+"设备"+stationSyslogMsg.getHostname()+"不存在");
             return RestBean.ofSuccess("接收成功" );
