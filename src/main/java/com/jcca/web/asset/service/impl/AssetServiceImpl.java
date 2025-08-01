@@ -571,13 +571,13 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         copy.setAssetName(asset.getName());
 
         AssetMode mode = assetModeService.getByCode(asset.getDesk());
-        if(Objects.nonNull(mode)){
+        if (Objects.nonNull(mode)) {
             copy.setAssetMode(mode.getName());
-        }else{
-            copy.setAssetMode(asset.getDesk()+"");
+        } else {
+            copy.setAssetMode(asset.getDesk() + "");
         }
         AssetManufacturer manufacturer = assetManufacturerService.getById(asset.getManufacturerId());
-        if(Objects.nonNull(manufacturer)){
+        if (Objects.nonNull(manufacturer)) {
             copy.setManufacturerName(manufacturer.getName());
         }
         if (Objects.nonNull(org)) {
@@ -1354,6 +1354,16 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveAssetV2(Asset req) throws Exception {
+        if (req.getServiceType() != null && req.getServiceType() == 1) {
+            if (req.getCollectionType() == null || req.getCollectionType() != 0) {
+                throw new AddAssetException(AddAssetException.VERIFY_ERROR, "只有linux设备可以配置为应用服务器", null);
+            }
+            String orgId = req.getOrgId();
+            SysOrg org = orgService.getById(orgId);
+            if (org.getType() != OrgTypeConst.CENTER) {
+                throw new AddAssetException(AddAssetException.VERIFY_ERROR, "只有中心设备可以配置为应用服务器", null);
+            }
+        }
         // 填充类型型号
         this.setAssetMode(req);
 
