@@ -1356,12 +1356,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     public void saveAssetV2(Asset req) throws Exception {
         if (req.getServiceType() != null && req.getServiceType() == 1) {
             if (req.getCollectionType() == null || req.getCollectionType() != 0) {
-                throw new AddAssetException(AddAssetException.VERIFY_ERROR, "只有linux设备可以配置为应用服务器", null);
+                throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "只有linux设备可以配置为应用服务器");
             }
             String orgId = req.getOrgId();
             SysOrg org = orgService.getById(orgId);
             if (org.getType() != OrgTypeConst.CENTER) {
-                throw new AddAssetException(AddAssetException.VERIFY_ERROR, "只有中心设备可以配置为应用服务器", null);
+                throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "只有中心设备可以配置为应用服务器");
             }
         }
         if (req.getServiceType() != null && req.getServiceType() == 0 && !StringUtils.isEmpty(req.getId())) {
