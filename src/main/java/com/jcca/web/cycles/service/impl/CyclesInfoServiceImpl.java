@@ -145,6 +145,9 @@ public class CyclesInfoServiceImpl extends ServiceImpl<CyclesInfoMapper, CyclesI
             if (Objects.isNull(times.getWeeks())) {
                 throw new CyclesException("缺少日期");
             }
+            if (times.getStartTime() >= times.getEndTime()) {
+                throw new CyclesException("开始时间不能早于结束时间");
+            }
 
             times.setId(MyIdUtil.getId());
             times.setCyclesInfoId(infoId);
