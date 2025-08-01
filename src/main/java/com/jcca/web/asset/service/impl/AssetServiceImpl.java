@@ -1364,6 +1364,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 throw new AddAssetException(AddAssetException.VERIFY_ERROR, "只有中心设备可以配置为应用服务器", null);
             }
         }
+        if (req.getServiceType() != null && req.getServiceType() == 0 && !StringUtils.isEmpty(req.getId())) {
+            try {
+                appServerService.deleteServerPort(req.getId(), null);
+            } catch (Exception e) {
+                log.error("删除应用服务器端口失败：{}", e.getMessage());
+            }
+        }
+
         // 填充类型型号
         this.setAssetMode(req);
 
