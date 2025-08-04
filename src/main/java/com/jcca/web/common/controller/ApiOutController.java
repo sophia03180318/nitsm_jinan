@@ -1,6 +1,7 @@
 package com.jcca.web.common.controller;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -24,7 +25,10 @@ import com.jcca.common.bean.RestBean;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.config.thymeleaf.utility.DictUtil;
-import com.jcca.common.enums.*;
+import com.jcca.common.enums.AlarmStatusEnum;
+import com.jcca.common.enums.FolderCategoryEnum;
+import com.jcca.common.enums.ResultEnum;
+import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.common.utils.AppLogUtils;
@@ -139,6 +143,78 @@ public class ApiOutController {
     private UploadProjectProperties fileProp;
     @Resource
     private AssetManufacturerService assetManufacturerService;
+
+
+    /**
+     * AI获取指定类型设备列表
+     *
+     * @return
+     */
+    @GetMapping("/getAssetInfo/{type}/{value}")
+    public ResultVo getAssetInfo(@PathVariable String type, @PathVariable String value) {
+        switch (type) {
+            case "1":
+                int desk = 0;
+                try {
+                    desk = Integer.parseInt(DictUtil.getKey("ASSET_MODE", value.trim()));
+                } catch (Exception e) {
+                    return ResultVoUtil.success("", value + "：系统未知类型");
+                }
+                QueryWrapper<Asset> qw = new QueryWrapper<>();
+                qw.eq("DESK", desk);
+                qw.eq("IS_DEL", 1);
+                String list = assetSeerv.list(qw).stream().map(a -> {
+                    return a.getName() + "[" + a.getIp() + "]";
+                }).collect(Collectors.joining("、"));
+                return ResultVoUtil.success("", list);
+
+            case "2":
+                Asset asset = assetSeerv.getOneByAllIp(value);
+                if (ObjectUtil.isNull(asset)) {
+                    return ResultVoUtil.success("", "系统没有ip为[" + value + "]的设备");
+                }
+                return ResultVoUtil.success("", asset.getName() + ":[" + asset.getAssetImage() + "]");
+
+            case "3":
+                QueryWrapper<Asset> qw2 = new QueryWrapper<>();
+                qw2.like("NAME", value);
+                qw2.eq("IS_DEL", 1);
+                String list1 = assetSeerv.list(qw2).stream().map(a -> {
+                    return a.getName() + "[" + a.getIp() + "]";
+                }).collect(Collectors.joining("、"));
+                return ResultVoUtil.success("", list1);
+        }
+        return ResultVoUtil.success("", "");
+    }
+
+
+    /**
+     * AI获取所有设备信息
+     *
+     * @return
+     */
+    @GetMapping("/getAssetInfo")
+    public ResultVo getAssetInfo() {
+        QueryWrapper<Asset> qw2 = new QueryWrapper<>();
+        qw2.eq("IS_DEL", 1);
+        List<String> list = assetSeerv.list(qw2).stream().map(Asset::toString).collect(Collectors.toList());
+        return ResultVoUtil.success("", list);
+    }
+
+
+    /**
+     * AI获取指定告警信息
+     *
+     * @return
+     */
+    @GetMapping("/getAlarmInfo/{alarmId}")
+    public ResultVo getAlarmInfo(@PathVariable String alarmId) {
+        AlarmInfo alarm = alarmInfoServ.getById(alarmId);
+        if (ObjectUtil.isNull(alarm)) {
+            return ResultVoUtil.success("未找到指定告警");
+        }
+        return ResultVoUtil.success("", alarm.getDescription());
+    }
 
 
     /**
