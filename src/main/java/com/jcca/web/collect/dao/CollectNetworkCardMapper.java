@@ -66,5 +66,6 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
      */
     Integer updateNetCardStatus(@Param("assetId") String assetId, @Param("ip") String ip, @Param("status") Byte status, @Param("seachStatus") Byte seachStatus);
 
-
+    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.id=(SELECT MAX(id) AS code FROM COLLECT_NETWORK_CARD WHERE NAME=#{networkName} AND ASSET_ID=#{assetId}) ")
+    CollectNetworkCard findByNetworkName(String networkName, String assetId);
 }

@@ -6,13 +6,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jcca.admin.system.service.TopoAssetPortService;
+import com.jcca.admin.system.vo.AssetPortVo;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.collect.entity.CollectInterfaces;
+import com.jcca.web.collect.entity.CollectNetworkCard;
 import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web.collect.service.CollectNetworkCardService;
 import com.jcca.web2.dto.PortModelTemp;
 import com.jcca.web2.dto.PortTempDto;
 import com.jcca.web2.entity.PortTemp;
@@ -28,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +56,8 @@ public class PortTemplateControllerV2 {
     private AssetService assetService;
     @Resource
     private CollectInterfacesService collectInterfacesService;
+    @Resource
+    private CollectNetworkCardService collectNetworkCardService;
 
     @Value("${project.upload.file-path}")
     private String path;
@@ -121,7 +129,23 @@ public class PortTemplateControllerV2 {
     @GetMapping("/asset/interface")
     @ApiOperation("获取资产端口列表")
     public ResultVo<Object> getAssetInterface(@RequestParam("assetId") String assetId) {
-        List<CollectInterfaces> list = collectInterfacesService.filterPort(assetId);
+        Asset asset = assetService.getById(assetId);
+        List<CollectInterfaces> list = new ArrayList<>();
+        if (asset.getAssetMode() == 183) {
+            List<CollectNetworkCard> cardList = collectNetworkCardService.getRealTimeData(assetId);
+            for (CollectNetworkCard networkCard : cardList) {
+                if (StringUtils.isEmpty(networkCard.getIp()) || "--".equals(networkCard.getIp())) {
+                    continue;
+                }
+                CollectInterfaces vo = new CollectInterfaces();
+                vo.setPortName(networkCard.getName());
+                vo.setPortIndex(networkCard.getName());
+                vo.setLinkIp(networkCard.getIp());
+                list.add(vo);
+            }
+        } else {
+            list = collectInterfacesService.filterPort(assetId);
+        }
         return ResultVoUtil.success(list);
     }
 

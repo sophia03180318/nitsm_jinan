@@ -14,10 +14,14 @@ import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.thresholds.bean.OpticalSwitchBean;
 import com.jcca.component.thresholds.impl.DisposeOpticalAdapterImpl;
+import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetHidConf;
 import com.jcca.web.asset.service.AssetHidConfService;
+import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.collect.entity.CollectInterfaces;
+import com.jcca.web.collect.entity.CollectNetworkCard;
 import com.jcca.web.collect.service.CollectInterfacesService;
+import com.jcca.web.collect.service.CollectNetworkCardService;
 import com.jcca.web.graph.util.PortTranfromUtil;
 import com.jcca.web.graph.vo.StatisticsInfoVo;
 import com.jcca.web.graph.vo.TopoPortIndexReq;
@@ -55,7 +59,10 @@ public class ApiGraphInterfaceController {
     private RedisService redisService;
     @Resource
     private AssetHidConfService hidConfService;
-
+    @Resource
+    private AssetService assetService;
+    @Resource
+    private CollectNetworkCardService networkCardService;
 
     /**
      * 获取端口信息
@@ -88,18 +95,18 @@ public class ApiGraphInterfaceController {
     @GetMapping("/listPort")
     @ApiOperation(value = "获取端口拓扑图")
     @ResponseBody
-    public ResultVo listPort(String assetId,String pcbId) {
+    public ResultVo listPort(String assetId, String pcbId) {
         GraphInterfaceController graphInterfaceController = SpringContextUtil.getBean(GraphInterfaceController.class);
-        Map map = graphInterfaceController.portList(assetId,pcbId);
+        Map map = graphInterfaceController.portList(assetId, pcbId);
         return ResultVoUtil.success(map);
     }
 
     @GetMapping("/listGroupPort")
     @ApiOperation(value = "获取组端口")
     @ResponseBody
-    public ResultVo listGroupPort(String assetId,String pcbId) {
+    public ResultVo listGroupPort(String assetId, String pcbId) {
         GraphInterfaceController graphInterfaceController = SpringContextUtil.getBean(GraphInterfaceController.class);
-        Map map = graphInterfaceController.portList(assetId,pcbId);
+        Map map = graphInterfaceController.portList(assetId, pcbId);
         List<AssetPortVo> ports = (List<AssetPortVo>) map.get("port");
         try {
             List<AssetPortVo> assetPortIntger = PortTranfromUtil.tranfromIntger(ports);
@@ -197,24 +204,33 @@ public class ApiGraphInterfaceController {
         if (StrUtil.isEmpty(topoPortIndexReq.getPortName())) {
             return ResultVoUtil.error("未配置端口信息");
         }
-        TopoPortInfoVo topoPortInfoVo = topoAssetPortService.selectPortIndex(topoPortIndexReq.getAssetId(),
-                topoPortIndexReq.getPortName());
+        Asset asset = assetService.getById(topoPortIndexReq.getAssetId());
+        if (asset.getAssetMode() == 183) {
+            CollectNetworkCard networkCard = networkCardService.findByNetworkName(topoPortIndexReq.getPortName(), topoPortIndexReq.getAssetId());
+            TopoPortInfoVo topoPortInfoVo = new TopoPortInfoVo();
+            topoPortInfoVo.setPortName(networkCard.getName());
+            topoPortInfoVo.setStatus(networkCard.getStatus().intValue());
+            topoPortInfoVo.setPhyAddress(networkCard.getMacAddress());
+            return  ResultVoUtil.success(topoPortInfoVo);
+        } else {
+            TopoPortInfoVo topoPortInfoVo = topoAssetPortService.selectPortIndex(topoPortIndexReq.getAssetId(),
+                    topoPortIndexReq.getPortName());
 
-        if (Objects.isNull(topoPortInfoVo)) {
-            return ResultVoUtil.error("未找到端口信息");
-        }
-
-        // 光交换机端口信息
-        String key = RedisCacheConst.OPTICAL_SWITCH_MSG + topoPortIndexReq.getAssetId();
-        if (Objects.nonNull(redisService.get(key))) {
-            OpticalSwitchBean o = JSONUtil.toBean(redisService.get(key).toString(), OpticalSwitchBean.class);
-            if (Objects.nonNull(o.getModuleStateMap())) {
-                String moduleState = o.getModuleStateMap().get(topoPortInfoVo.getPortName());
-                topoPortInfoVo.setModuleState(DisposeOpticalAdapterImpl.moduleStateMap.get(moduleState));
+            if (Objects.isNull(topoPortInfoVo)) {
+                return ResultVoUtil.error("未找到端口信息");
             }
-        }
 
-        return ResultVoUtil.success(topoPortInfoVo);
+            // 光交换机端口信息
+            String key = RedisCacheConst.OPTICAL_SWITCH_MSG + topoPortIndexReq.getAssetId();
+            if (Objects.nonNull(redisService.get(key))) {
+                OpticalSwitchBean o = JSONUtil.toBean(redisService.get(key).toString(), OpticalSwitchBean.class);
+                if (Objects.nonNull(o.getModuleStateMap())) {
+                    String moduleState = o.getModuleStateMap().get(topoPortInfoVo.getPortName());
+                    topoPortInfoVo.setModuleState(DisposeOpticalAdapterImpl.moduleStateMap.get(moduleState));
+                }
+            }
+            return ResultVoUtil.success(topoPortInfoVo);
+        }
     }
 
     @SuppressWarnings("rawtypes")
