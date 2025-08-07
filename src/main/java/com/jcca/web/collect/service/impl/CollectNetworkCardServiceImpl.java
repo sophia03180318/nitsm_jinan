@@ -80,6 +80,11 @@ public class CollectNetworkCardServiceImpl extends ServiceImpl<CollectNetworkCar
     }
 
     @Override
+    public CollectNetworkCard findByNetworkName(String networkName,String assetId) {
+        return collectNetMapper.findByNetworkName(networkName,assetId);
+    }
+
+    @Override
     public List<CollectNetworkCard> selectByMacAddressAndAssetId(String macAddr, String assetId) {
 
         return collectNetMapper.selectByMacAddressAndAssetId(macAddr, assetId);

@@ -51,6 +51,16 @@ public interface CollectNetworkCardService extends IService<CollectNetworkCard> 
      */
     CollectNetworkCard findByMacAddress(String atPhysAddress);
 
+
+    /**
+     * 通过网卡名名查找网卡信息
+     *
+     * @param networkName
+     * @return
+     */
+    CollectNetworkCard findByNetworkName(String networkName,String assetId);
+
+
     /**
      * 查询网卡
      * @param macAddr
