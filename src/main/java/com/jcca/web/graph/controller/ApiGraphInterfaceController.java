@@ -211,11 +211,11 @@ public class ApiGraphInterfaceController {
             topoPortInfoVo.setPortName(networkCard.getName());
             topoPortInfoVo.setStatus(networkCard.getStatus().intValue());
             topoPortInfoVo.setPhyAddress(networkCard.getMacAddress());
+            topoPortInfoVo.setPortIndexRank(1);
             return  ResultVoUtil.success(topoPortInfoVo);
         } else {
             TopoPortInfoVo topoPortInfoVo = topoAssetPortService.selectPortIndex(topoPortIndexReq.getAssetId(),
                     topoPortIndexReq.getPortName());
-
             if (Objects.isNull(topoPortInfoVo)) {
                 return ResultVoUtil.error("未找到端口信息");
             }
