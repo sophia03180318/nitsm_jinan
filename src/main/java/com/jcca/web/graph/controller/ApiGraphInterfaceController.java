@@ -208,11 +208,15 @@ public class ApiGraphInterfaceController {
         if (asset.getAssetMode() == 183) {
             CollectNetworkCard networkCard = networkCardService.findByNetworkName(topoPortIndexReq.getPortName(), topoPortIndexReq.getAssetId());
             TopoPortInfoVo topoPortInfoVo = new TopoPortInfoVo();
-            topoPortInfoVo.setPortName(networkCard.getName());
-            topoPortInfoVo.setStatus(networkCard.getStatus().intValue());
-            topoPortInfoVo.setPhyAddress(networkCard.getMacAddress());
+            topoPortInfoVo.setPortName(topoPortIndexReq.getPortName());
+            topoPortInfoVo.setPhyAddress(topoPortIndexReq.getPortName());
+            topoPortInfoVo.setStatus(1);
             topoPortInfoVo.setPortIndexRank(1);
-            return  ResultVoUtil.success(topoPortInfoVo);
+            if (Objects.isNull(networkCard)) {
+                topoPortInfoVo.setStatus(networkCard.getStatus().intValue());
+                topoPortInfoVo.setPhyAddress(networkCard.getMacAddress());
+            }
+            return ResultVoUtil.success(topoPortInfoVo);
         } else {
             TopoPortInfoVo topoPortInfoVo = topoAssetPortService.selectPortIndex(topoPortIndexReq.getAssetId(),
                     topoPortIndexReq.getPortName());
