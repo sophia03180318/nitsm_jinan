@@ -38,13 +38,14 @@ public class StationSystemTimeAdapter extends AssetIpAdd implements IAdapter<JSO
 
 
         List<CollectStationSystemTimeEntity> timeList = JSONUtil.toList(data, CollectStationSystemTimeEntity.class);
-
+        CollectStationSystemTimeEntity stationSystemTimeEntity = timeList.get(0);
 
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
+                setAssetIp(stationSystemTimeEntity);
                 try {
-                    dataProcessManager.stationSystemTimeHandlerRequest(timeList);
+                    dataProcessManager.stationSystemTimeHandlerRequest(stationSystemTimeEntity);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "snmpEventHandlerRequest 抛出异常", e);
 
