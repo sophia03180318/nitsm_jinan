@@ -17,7 +17,7 @@ public class CollectSystemTimeEntity extends CommonEntity implements Serializabl
 
 
     /**
-     * 时长 单位毫秒
+     * 时间偏差 单位毫秒
      */
     private Long timeSpan;
     /**
