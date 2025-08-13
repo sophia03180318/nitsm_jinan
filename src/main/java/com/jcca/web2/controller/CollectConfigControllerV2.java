@@ -82,26 +82,25 @@ public class CollectConfigControllerV2 {
         if(StrUtil.isEmpty(manufacturerId)||StrUtil.isEmpty(image)){
             return ResultVoUtil.error("请传入厂商ID和型号");
         }
+        //查询
+        if(Objects.nonNull(assetMode)){
+            AssetMode mode = assetModeService.getByCode(assetMode);
+            if(Objects.nonNull(mode)){
+                assetMode = mode.getAmode();
+            }else{
+                assetMode = -1;
+            }
+        }else{
+            assetMode = -1;
+        }
+
         QueryWrapper<SpecDictionary> query = new QueryWrapper<>();
         query.eq("MANUFACTURER_ID", manufacturerId);
+        query.eq("ASSET_MODE", assetMode);
         query.eq("ASSET_IMAGE", image);
         List<SpecDictionary> specDictList = specDictionaryService.list(query);
 
         if(specDictList.isEmpty()){
-            //查询
-            if(Objects.nonNull(assetMode)){
-                AssetMode mode = assetModeService.getByCode(assetMode);
-                if(Objects.nonNull(mode)){
-                    assetMode = mode.getAmode();
-                }else{
-                    assetMode = -1;
-                }
-            }else{
-                assetMode = -1;
-            }
-
-
-
             QueryWrapper<SpecDictionary> query2 = new QueryWrapper<>();
             query2.eq("MANUFACTURER_ID", manufacturerId);
             query2.eq("ASSET_MODE", assetMode);
