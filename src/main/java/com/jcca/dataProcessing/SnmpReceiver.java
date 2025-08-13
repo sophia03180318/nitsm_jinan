@@ -1,6 +1,5 @@
 package com.jcca.dataProcessing;
 
-import cn.hutool.json.JSONUtil;
 import com.jcca.dataProcessing.Entity.SnmpEventInfoEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -80,7 +79,7 @@ public class SnmpReceiver implements CommandResponder {
             log.info("【SNMP收到原始信息】：空的消息");
             return;
         }
-        log.info("【SNMP收到原始信息】：{}", JSONUtil.toJsonStr(event));
+//        log.info("【SNMP收到原始信息】：{}", JSONUtil.toJsonStr(event));
 
         Map<String, String> snmpMap = new HashMap<String, String>();
 
