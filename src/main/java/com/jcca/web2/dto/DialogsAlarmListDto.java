@@ -60,7 +60,7 @@ public class DialogsAlarmListDto {
     /**
      * 查询告警包含级别
      */
-    private List<Byte> alarmLevelList;
+    private List<Integer> alarmLevelList;
     /**
      * 监控项目code
      * 对应是alarmInfo表中的eventCategroy

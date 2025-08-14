@@ -26,10 +26,10 @@ public class AlarmUtils {
      * @Author: syt
      * @Date: 2021/5/17
      */
-    public static Integer isShowRecover(String alarmCategory, Byte alarmLevel, Byte alarmState) {
+    public static Integer isShowRecover(String alarmCategory, Integer alarmLevel, Byte alarmState) {
         // 卡斯柯主备不显示(必须同时符合卡斯柯主备和信息通知两个条件)
         if (AlarmTemplateEnum.CASCO_MASTER_CHANGE.getCode().equals(alarmCategory)
-                & AlarmLevelEnum.LEVEL_MSG.getCode() == alarmLevel) {
+                & AlarmLevelEnum.LEVEL_MSG.getCode().equals(alarmLevel) ) {
             return 0;
         }
         // 卡斯柯版本变更不显示

@@ -6,7 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.admin.system.service.SysOrgService;
@@ -233,7 +233,7 @@ public class AlarmControllerV2 {
         List<String> levelList = pieInfo.stream().map(item -> item.getCode()).collect(Collectors.toList());
         AlarmLevelEnum[] values = AlarmLevelEnum.values();
         for (AlarmLevelEnum level : values) {
-            if (level == AlarmLevelEnum.UNKNOW) {
+            if (level == AlarmLevelEnum.UN_CONFIG) {
                 continue;
             }
             if (!levelList.contains(level.getCode().toString())) {
