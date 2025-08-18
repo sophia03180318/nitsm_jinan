@@ -304,7 +304,7 @@ public class ThresholdManageServiceImpl extends ServiceImpl<ThresholdManageMappe
     public List<AssetBaseInfoVo> getAssetList(ThresholdAssetListDto dto) {
         Integer assetDesk = dto.getAssetDesk();
         ThresholdManage manage = new ThresholdManage();
-        if (Objects.nonNull(assetDesk) && AssetModeConst.ORACLE_DB.intValue() == assetDesk) {
+        if (Objects.nonNull(assetDesk) && AssetModeConst.DB.intValue() == assetDesk) {
             List<ManageDb> list = manageDbService.list();
             if (CollectionUtils.isEmpty(list)) {
                 throw new ResultException(ResultEnum.CANNOT_FIND.getCode(), "没有找到数据库资产");

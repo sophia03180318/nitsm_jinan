@@ -59,9 +59,11 @@ public class StatisticsDbBaseMsgVo implements Serializable {
      */
     private String assetIp;
     /**
-     * 数据库类型
+     * 数据库驱动
      */
     private String dbTypeStr;
+
+    private String assetImage;
     /**
      * 数据库版本
      */

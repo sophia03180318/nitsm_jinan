@@ -138,6 +138,7 @@ public class ApiStatisticsDbController {
         vo.setAssetIp(asset.getIp());
         vo.setName(db.getName());
         vo.setDbName(db.getDbName());
+        vo.setAssetImage(db.getAssetImage());
 
         if (CollUtil.isNotEmpty(collectDbList)) {
             CollectDB collectDB = collectDbList.get(0);
@@ -145,13 +146,21 @@ public class ApiStatisticsDbController {
             BeanUtil.copyProperties(collectDB, vo);
 
             vo.setSysUpTime(collectDB.getSysUpTime());
-            vo.setSysUpTimeStr(DateUtil.formatBetween(collectDB.getSysUpTime()));
+            if(Objects.nonNull(collectDB.getSysUpTime())){
+                vo.setSysUpTimeStr(DateUtil.formatBetween(collectDB.getSysUpTime()));
+            }
             vo.setCanUseLockSize(collectDB.getCanUseLockSize());
-            vo.setDbCachePoolSizeStr(collectDB.getDbCachePoolSize().toString());
-            vo.setDbCacheStr(collectDB.getDbCache().toString());
-            vo.setDbMemTotalStr(collectDB.getDbMemTotal().toString());
-            vo.setDbSessionSize(collectDB.getDbSessionSize());
+            if(Objects.nonNull(collectDB.getDbCachePoolSize())){
+                vo.setDbCachePoolSizeStr(collectDB.getDbCachePoolSize().toString());
+            }
+            if(Objects.nonNull(collectDB.getDbCache())){
+                vo.setDbCacheStr(collectDB.getDbCache().toString());
+            }
+            if(Objects.nonNull(collectDB.getDbMemTotal())){
+                vo.setDbMemTotalStr(collectDB.getDbMemTotal().toString());
+            }
             vo.setDbTypeStr(DictUtil.getValue("COLLECT_DB_TYPE",collectDB.getDbType().toString()));
+            vo.setDbSessionSize(collectDB.getDbSessionSize());
             vo.setDbVersion(collectDB.getDbVersion());
             vo.setLanguage(collectDB.getLanguage());
             // 查询表空间
