@@ -5,25 +5,25 @@ import lombok.Getter;
 
 /**
  * 告警级别枚举
- *
+ * 对应字典：ALARM_LEVEL
  * @author hanwone
  */
 @Getter
 public enum AlarmLevelEnum {
     /**
-     * 未知告警
+     *
      */
-    UNKNOW(AlarmLevelConst.UNKNOW, "未知告警"),
     LEVEL_ONE(AlarmLevelConst.SERIOUS_LEVEL, "一级告警"),
     LEVEL_TWO(AlarmLevelConst.MIDDLE_LEVEL, "二级告警"),
     LEVEL_THREE(AlarmLevelConst.LIGHT_LEVEL, "三级告警"),
-    LEVEL_MSG(AlarmLevelConst.MSG_LEVEL, "信息通知");
+    LEVEL_MSG(AlarmLevelConst.MSG_LEVEL, "信息通知"),
+    UN_CONFIG(AlarmLevelConst.UN_CONFIG, "未配制");
 
-    private Byte code;
+    private Integer code;
 
     private String msg;
 
-    AlarmLevelEnum(byte code, String msg) {
+    AlarmLevelEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
@@ -31,7 +31,7 @@ public enum AlarmLevelEnum {
     public static String getMsg(Byte code) {
         AlarmLevelEnum[] values = AlarmLevelEnum.values();
         for (AlarmLevelEnum item : values) {
-            Byte code2 = item.getCode();
+            Integer code2 = item.getCode();
             if (code2.equals(code)) {
                 return item.getMsg();
             }

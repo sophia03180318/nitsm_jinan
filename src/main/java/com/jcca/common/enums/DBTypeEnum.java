@@ -12,7 +12,9 @@ public enum DBTypeEnum {
 
     ORACLE((byte) 1),
 
-    MYSQL((byte) 2);
+    MYSQL((byte) 2),
+
+    KING((byte) 3);
 
     private Byte code;
 

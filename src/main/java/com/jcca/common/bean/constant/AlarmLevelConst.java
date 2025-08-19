@@ -8,24 +8,25 @@ package com.jcca.common.bean.constant;
  */
 public interface AlarmLevelConst {
 
-    /**
-     * 未知告警
-     */
-    byte UNKNOW = 0;
+
     /**
      * 一级告警
      */
-    byte SERIOUS_LEVEL = 1;
+    Integer SERIOUS_LEVEL = 1;
     /**
      * 二级告警
      */
-    byte MIDDLE_LEVEL = 2;
+    Integer MIDDLE_LEVEL = 2;
     /**
      * 三级告警
      */
-    byte LIGHT_LEVEL = 3;
+    Integer LIGHT_LEVEL = 3;
     /**
      * 信息通知
      */
-    byte MSG_LEVEL = 4;
+    Integer MSG_LEVEL = 4;
+    /**
+     * 未配制
+     */
+    Integer UN_CONFIG = 9;
 }

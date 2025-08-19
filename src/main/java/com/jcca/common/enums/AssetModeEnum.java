@@ -14,7 +14,7 @@ public enum AssetModeEnum {
     SERVER("服务器", AssetModeConst.SERVER), SWITCH("交换机", AssetModeConst.SWITCH),
 
     TERMINAL("终端", AssetModeConst.TERMINAL), IPC("工控机", AssetModeConst.IPC),
-    DB("数据库", AssetModeConst.ORACLE_DB), RAID("磁盘阵列", AssetModeConst.RAID);
+    DB("数据库", AssetModeConst.DB), RAID("磁盘阵列", AssetModeConst.RAID);
 
     String name;
 

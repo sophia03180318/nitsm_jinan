@@ -1098,8 +1098,8 @@ public class DataProcessManager {
         sensorHandler.handleRequest(entity, true);
     }
 
-    public void stationSystemTimeHandlerRequest(List<CollectStationSystemTimeEntity> list) throws Exception {
-        stationSystemTimeHandler.handleRequest(list.get(0), true);
+    public void stationSystemTimeHandlerRequest(CollectStationSystemTimeEntity collectStationSystemTimeEntity) throws Exception {
+        stationSystemTimeHandler.handleRequest(collectStationSystemTimeEntity, true);
     }
 
     public void systemTimeHandlerRequest(CollectSystemTimeEntity collectSystemTimeEntity) throws Exception {

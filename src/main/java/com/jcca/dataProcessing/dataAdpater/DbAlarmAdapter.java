@@ -54,13 +54,6 @@ public class DbAlarmAdapter extends AssetIpAdd implements  IAdapter<ReceiveAlarm
         collectDBEntity.setAssetId(receiveAlarmDto.getAssetId());
         collectDBEntity.setAssetIp(receiveAlarmDto.getAssetIp());
         collectDBEntity.setStatus((receiveAlarmDto.getFlag() ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode()).toString());
-        excutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
-
 
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override

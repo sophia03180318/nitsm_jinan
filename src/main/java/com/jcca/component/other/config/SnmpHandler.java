@@ -1,7 +1,6 @@
 package com.jcca.component.other.config;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.json.JSONUtil;
 import com.jcca.component.dto.ReceiveAlarmDto;
 import com.jcca.component.enums.ReceiveAlarmTypeEnum;
 import com.jcca.component.other.SnmpEventService;
@@ -87,7 +86,7 @@ public class SnmpHandler implements CommandResponder {
             log.info("【SNMP收到原始信息】：空的消息");
             return;
         }
-        log.info("【SNMP收到原始信息】：{}", JSONUtil.toJsonStr(event));
+//        log.info("【SNMP收到原始信息】：{}", JSONUtil.toJsonStr(event));
 
         Map<String, String> snmpMap = new HashMap<String, String>();
 

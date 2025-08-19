@@ -20,6 +20,8 @@ import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.common.service.OutService;
 
+import com.jcca.web2.entity.AssetMode;
+import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.vo.ManufacturerSpecResp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,6 +46,8 @@ public class CollectConfigControllerV2 {
     private PerformanceTargetService performanceTargetService;
     @Resource
     private OutService outService;
+    @Resource
+    private AssetModeService assetModeService;
 
     /**
      * 查询所有的基础配置列表
@@ -74,18 +78,32 @@ public class CollectConfigControllerV2 {
      */
     @GetMapping("/manufacturerSpec")
     @ApiOperation("查询厂商对应的采集列表")
-    public ResultVo<Object> manufacturerSpec(String manufacturerId,String image){
+    public ResultVo<Object> manufacturerSpec(String manufacturerId,String image,Integer assetMode){
         if(StrUtil.isEmpty(manufacturerId)||StrUtil.isEmpty(image)){
             return ResultVoUtil.error("请传入厂商ID和型号");
         }
+        //查询
+        if(Objects.nonNull(assetMode)){
+            AssetMode mode = assetModeService.getByCode(assetMode);
+            if(Objects.nonNull(mode)){
+                assetMode = mode.getAmode();
+            }else{
+                assetMode = -1;
+            }
+        }else{
+            assetMode = -1;
+        }
+
         QueryWrapper<SpecDictionary> query = new QueryWrapper<>();
         query.eq("MANUFACTURER_ID", manufacturerId);
+        query.eq("ASSET_MODE", assetMode);
         query.eq("ASSET_IMAGE", image);
         List<SpecDictionary> specDictList = specDictionaryService.list(query);
 
         if(specDictList.isEmpty()){
             QueryWrapper<SpecDictionary> query2 = new QueryWrapper<>();
             query2.eq("MANUFACTURER_ID", manufacturerId);
+            query2.eq("ASSET_MODE", assetMode);
             query2.eq("ASSET_IMAGE", "PUB");
             specDictList = specDictionaryService.list(query2);
         }

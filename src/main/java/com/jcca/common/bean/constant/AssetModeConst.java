@@ -50,7 +50,7 @@ public interface AssetModeConst {
     /**
      * 数据库
      */
-    Integer ORACLE_DB = 263;
+    Integer DB = 263;
 
     /**
      * 磁盘阵列

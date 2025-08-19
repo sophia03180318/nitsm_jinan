@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.bean.ResultVo;
-import com.jcca.common.enums.AlarmLevelEnum;
 import com.jcca.common.exception.common.VerifyException;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
@@ -26,7 +25,6 @@ import com.jcca.web2.entity.AlarmWhitelist;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
@@ -117,7 +115,7 @@ public class AlarmRepositoryServiceImpl extends ServiceImpl<AlarmRepositoryMappe
         //查询出所有此码的 命中关键字的更新
         QueryWrapper<AlarmEvent> queryWrapper = new QueryWrapper<AlarmEvent>();
         queryWrapper.eq("UNIQUE_CODE",copy.getAlarmCode());
-        queryWrapper.eq("EVENT_LEVEL",EventLevelEnum.UNKNOW.getCode());
+        queryWrapper.eq("EVENT_LEVEL",EventLevelEnum.UN_CONFIG.getCode());
         List<AlarmEvent> eventList = eventMapper.selectList(queryWrapper);
         for (AlarmEvent alarmEvent : eventList) {
             String eventMsg = alarmEvent.getEventMsg();

@@ -193,7 +193,7 @@ public class DataChangeMangerService implements IDataChangeManagerService {
             //未知事件typeId和repoId都是空
             if (Objects.isNull(event.getEventAlarmLevelBaseEntity().getAlarmLevel())) {
                 //没有级别  本应该置未空，但是为了满足现场条件，改为 9
-                alarmEvent.setEventLevel(EventLevelEnum.UNKNOW.getCode());
+                alarmEvent.setEventLevel(EventLevelEnum.UN_CONFIG.getCode());
             }
             alarmEvent.setEventTypeId(eventAlarmLevelBaseEntity.getEventTypeId());
             alarmEvent.setRepositoryId(eventAlarmLevelBaseEntity.getRepoId());

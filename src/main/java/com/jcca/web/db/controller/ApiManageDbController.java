@@ -14,7 +14,6 @@ import com.jcca.common.bean.constant.RedisCacheConst;
 import com.jcca.common.bean.constant.StatusConst;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.AssetModeEnum;
-import com.jcca.common.enums.DBTypeEnum;
 import com.jcca.common.enums.ThresholdAutoFlagEnum;
 import com.jcca.common.log.annotation.ActionLog;
 import com.jcca.common.log.constant.LogTypeConstant;
@@ -197,7 +196,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setPort(req.getPort());
         assetOutVo.setOsUser(EncryptUtil.aesEncryptHex(req.getUsername()));
         assetOutVo.setOsPassword(EncryptUtil.aesEncryptHex(req.getPassword()));
-        assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
+        assetOutVo.setAssetMode(AssetModeConst.DB);
         AssetCollectTestVo collectTest = outService.collectTest(assetOutVo);
         if (!"0".equals(collectTest.getCode())) {
             return ResultVoUtil.error(collectTest.getMsg());
@@ -291,7 +290,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setPort(req.getPort());
         assetOutVo.setOsUser(req.getUsername());
         assetOutVo.setOsPassword(pwd);
-        assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
+        assetOutVo.setAssetMode(AssetModeConst.DB);
         assetOutVo.setManufacturerId(req.getManufacturerId());
         assetOutVo.setAssetImage(req.getAssetImage());
         assetOutVo.setCollectionType(req.getDbProtocol());
@@ -408,7 +407,7 @@ public class ApiManageDbController extends ListenerManager {
         assetOutVo.setPort(dbEntity.getPort());
         assetOutVo.setOsUser(dbEntity.getUsername());
         assetOutVo.setOsPassword(pwd);
-        assetOutVo.setAssetMode(AssetModeConst.ORACLE_DB);
+        assetOutVo.setAssetMode(AssetModeConst.DB);
         assetOutVo.setManufacturerId(req.getManufacturerId());
         assetOutVo.setAssetImage(req.getAssetImage());
         assetOutVo.setCollectionType(req.getDbProtocol());
@@ -465,7 +464,7 @@ public class ApiManageDbController extends ListenerManager {
         asset.setPort(db.getPort());
         asset.setOsUser(db.getUsername());
         asset.setOsPassword(db.getPassword());
-        asset.setAssetMode(AssetModeConst.ORACLE_DB);
+        asset.setAssetMode(AssetModeConst.DB);
         asset.setCollectionType(db.getDbProtocol());
         asset.setManufacturerId(db.getManufacturerId());
         asset.setAssetImage(db.getAssetImage());
@@ -536,7 +535,7 @@ public class ApiManageDbController extends ListenerManager {
         thresholdAsset.setAssetId(db.getAssetId());
         thresholdAsset.setTablespace(threshold);
         thresholdAsset.setAutoFlag(ThresholdAutoFlagEnum.MODE_THRESHOLD.getCode());
-        thresholdAsset.setAssetMode(AssetModeConst.ORACLE_DB);
+        thresholdAsset.setAssetMode(AssetModeConst.DB);
 
         if (isOnce) {
             thresholdAssetService.save(thresholdAsset);

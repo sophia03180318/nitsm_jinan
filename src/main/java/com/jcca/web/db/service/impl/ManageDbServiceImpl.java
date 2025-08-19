@@ -97,7 +97,7 @@ public class ManageDbServiceImpl extends ServiceImpl<ManageDbMapper, ManageDb> i
         asset.setPort(db.getPort());
         asset.setOsUser(db.getUsername());
         asset.setOsPassword(db.getPassword());
-        asset.setAssetMode(AssetModeConst.ORACLE_DB);
+        asset.setAssetMode(AssetModeConst.DB);
         asset.setCollectionType(a.getCollectionType());
         asset.setManufacturerId(db.getManufacturerId());
         asset.setAssetImage(a.getAssetImage());

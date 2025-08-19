@@ -67,7 +67,7 @@ public class AlarmEventControllerV2 extends ListenerManager {
     @ApiOperation("分页查询事件列表")
     public ResultVo pageEventList(EventPageDto query) {
         if(Objects.nonNull(query.getEventType()) && 4==query.getEventType()){
-            query.setEventLevel(EventLevelEnum.UNKNOW.getCode());
+            query.setEventLevel(EventLevelEnum.UN_CONFIG.getCode());
             query.setEventType(null);
         }
         IPage<EventPageVo> pageResult = eventServ.pageEventListV2(query);

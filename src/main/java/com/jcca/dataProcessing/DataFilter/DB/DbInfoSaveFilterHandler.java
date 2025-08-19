@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.DB;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.utils.EntityBeanUtil;
@@ -57,12 +58,24 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         entity.setAssetId(info.getAssetId());
         entity.setCollectCode(info.getCollectTime().toString());
         entity.setCollectTime(date);
-        entity.setCacheHitRate(Double.valueOf(info.getCacheLibrary()));
-        entity.setDbBusynessRate(Double.valueOf(info.getDbBusynessRate()));
-        entity.setDbSessionUsedRate(Double.valueOf(info.getDbSessionUsedRate()));
-        entity.setDbCachePoolhit(Double.valueOf(info.getCacheLibrary()));
-        entity.setDbLockUsedRate(Double.valueOf(info.getDbLockUsedRate()));
-        entity.setDbLockWaitRate(Double.valueOf(info.getDbLockWaitRate()));
+        if(StrUtil.isNotEmpty(info.getCacheLibrary())){
+            entity.setCacheHitRate(Double.valueOf(info.getCacheLibrary()));
+        }
+        if(StrUtil.isNotEmpty(info.getDbBusynessRate())){
+            entity.setDbBusynessRate(Double.valueOf(info.getDbBusynessRate()));
+        }
+        if(StrUtil.isNotEmpty(info.getDbSessionUsedRate())){
+            entity.setDbSessionUsedRate(Double.valueOf(info.getDbSessionUsedRate()));
+        }
+        if(StrUtil.isNotEmpty(info.getCacheLibrary())){
+            entity.setDbCachePoolhit(Double.valueOf(info.getCacheLibrary()));
+        }
+        if(StrUtil.isNotEmpty(info.getDbLockUsedRate())){
+            entity.setDbLockUsedRate(Double.valueOf(info.getDbLockUsedRate()));
+        }
+        if(StrUtil.isNotEmpty(info.getDbLockWaitRate())){
+            entity.setDbLockWaitRate(Double.valueOf(info.getDbLockWaitRate()));
+        }
 
         dbService.save(entity);
 

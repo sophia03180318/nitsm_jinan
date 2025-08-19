@@ -23,7 +23,6 @@ public class SysConfig {
 
     public static final String YES = "yes";
     public static final String NO = "no";
-    public static final Byte zero = 0;
 
     /**
      * 是否开启声音
@@ -78,8 +77,8 @@ public class SysConfig {
      *
      * @return
      */
-    public List<Byte> getConfigAlarmLevelList() {
-        List<Byte> levelList = new ArrayList<>();
+    public List<Integer> getConfigAlarmLevelList() {
+        List<Integer> levelList = new ArrayList<>();
         if (YES.equals(firstLevel)) {
             levelList.add(AlarmLevelEnum.LEVEL_ONE.getCode());
         }
@@ -163,11 +162,11 @@ public class SysConfig {
         } else {
             dto.setShowJcca(2);
         }
-        List<Byte> configAlarmLevelList = getConfigAlarmLevelList();
+        List<Integer> configAlarmLevelList = getConfigAlarmLevelList();
         if (Objects.isNull(configAlarmLevelList)) {
             configAlarmLevelList = new ArrayList<>();
+            configAlarmLevelList.add(-1);
         }
-        configAlarmLevelList.add(zero);
 
         dto.setAlarmLevelList(configAlarmLevelList);
 
