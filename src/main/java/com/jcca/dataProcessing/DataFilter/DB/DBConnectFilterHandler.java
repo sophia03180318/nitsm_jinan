@@ -11,6 +11,7 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * @author Zhaozheng
@@ -30,7 +31,7 @@ public class DBConnectFilterHandler extends IFilterHandler<CollectDBEntity> {
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_db_state.getCode());
 
         boolean flag= eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),changeInfo.getRedisKey(), changeInfo.getMapKey(),changeInfo.getValue());
-        if(flag){
+        if(flag && Objects.nonNull(changeInfo.getValue())){
             Integer status = changeInfo.getValue().toString().toLowerCase().equals("open") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String eventRedisKey = StatusInfoChangeTypeEnum.event_db_connect.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId();
