@@ -1,10 +1,7 @@
 package com.jcca.web2.entity;
 
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,12 +9,13 @@ import lombok.EqualsAndHashCode;
 import java.util.Date;
 
 /**
- * 日志配置采集
+ * king日志配置采集
  *
  *
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@TableName("COLLECT_DA_LOG_SETTING")
 public class CollectDbLogSetting extends Model<CollectDbLogSetting> {
 
 
