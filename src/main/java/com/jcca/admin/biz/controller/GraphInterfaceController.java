@@ -106,20 +106,7 @@ public class GraphInterfaceController {
     public Map<String, Object> portList(String assetId, String pcbId) {
         Map<String, Object> map = new HashMap<>();
         Asset asset = assetService.getById(assetId);
-        List<AssetPortVo> port = null;
-        if (assetService.isStationAsset(assetId) || AssetModeConst.B24.equals(asset.getAssetImage())) {
-            port = topoAssetPortService.selectAssetPort2(assetId, pcbId);
-        } else {
-            port = topoAssetPortService.selectAssetPort(assetId, pcbId);
-            if (Objects.isNull(port) || port.isEmpty()) {
-                port = topoAssetPortService.selectAssetPort2(assetId, pcbId);
-            }
-        }
-
-       /* if (port.isEmpty()) {
-            port = getCachePortData(assetId,pcbId);
-        }*/
-
+        List<AssetPortVo> port =  topoAssetPortService.selectAssetPort(assetId, pcbId);
 
         // 查询状态一小时之前是断则置为灰色
         for (AssetPortVo item : port) {

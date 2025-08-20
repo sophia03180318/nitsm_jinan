@@ -74,38 +74,6 @@
     </select>
 
 
-    <select id="selectAssetPort2" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
-        SELECT a.asset_id,
-        a.port_name,
-        a.port_index,
-        a.port_type,
-        t.point_x,
-        t.point_y,
-        t.port_mode,
-        t.node_id,
-        t.parent_id,
-        a.status,
-        t.update_date,
-        t.rotation,
-        t.port_sort_type,
-        t.TEMP_PORT_NAME
-        from (SELECT *
-        FROM COLLECT_INTERFACES b
-        WHERE b.COLLECT_CODE = (SELECT MAX(to_number(c.COLLECT_CODE)) AS code
-        FROM COLLECT_INTERFACES c
-        where c.asset_id = #{assetId})
-        order by b.PORT_INDEX_RANK) a
-        LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
-        where (a.port_type = 6 or a.port_type = 18 or a.port_type = 22 or a.port_type = 23 or a.port_type = 39 or
-        a.port_type = 56)
-        and a.port_index not like concat(concat('%', '.'), '%')
-        <if test="pcbId != null  and pcbId != ''">
-            and t.PCB_ID = #{pcbId}
-        </if>
-
-        order by t.point_x asc ,t.point_y asc
-    </select>
-
     <select id="selectSonList" resultType="com.jcca.admin.system.vo.AssetPortVo" parameterType="java.lang.String">
         SELECT a.asset_id,
                a.port_name,

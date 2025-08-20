@@ -58,8 +58,6 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             return;
         }
 
-
-
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {

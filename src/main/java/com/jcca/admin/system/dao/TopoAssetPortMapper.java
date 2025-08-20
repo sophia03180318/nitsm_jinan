@@ -20,7 +20,7 @@ public interface TopoAssetPortMapper extends BaseMapper<TopoAssetPort> {
      * @param assetId
      * @return
      */
-    List<AssetPortVo> selectAssetPort(@Param("assetId") String assetId,@Param("pcbId") String pcbId,@Param("portLinkType")String portLinkType);
+    List<AssetPortVo> selectAssetPort(@Param("assetId") String assetId,@Param("pcbId") String pcbId);
 
     /**
      * 查询设备端口配置

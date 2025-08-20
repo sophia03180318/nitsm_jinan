@@ -29,15 +29,6 @@ public interface TopoAssetPortService extends IService<TopoAssetPort> {
      */
     List<AssetPortVo> selectAssetPort(String assetId, String pcbId);
 
-    /**
-     * 为光纤交换机服务
-     *
-     * @param assetId
-     * @param pcbId
-     * @return
-     */
-    List<AssetPortVo> selectAssetPort2(String assetId, String pcbId);
-
     List<AssetPortVo> selectAssetPortQuery(String assetId);
 
     //查询所有端口（包括虚拟口子）

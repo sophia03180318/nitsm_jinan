@@ -78,19 +78,11 @@ public class TopoAssetPortServiceImpl extends ServiceImpl<TopoAssetPortMapper, T
 
     @Override
     public List<AssetPortVo> selectAssetPort(String assetId, String pcbId) {
-        List<AssetPortVo> assetPortVos = topoAssetPortMapper.selectAssetPort(assetId, pcbId, "1");
-        if(assetPortVos.isEmpty()){
-            //可能是光交
-            assetPortVos = topoAssetPortMapper.selectAssetPort(assetId, pcbId, "0");
-        }
+        List<AssetPortVo> assetPortVos = topoAssetPortMapper.selectAssetPort(assetId, pcbId);
 
         return assetPortVos;
     }
 
-    @Override
-    public List<AssetPortVo> selectAssetPort2(String assetId, String pcbId) {
-        return topoAssetPortMapper.selectAssetPort2(assetId, pcbId);
-    }
 
     @Override
     public List<AssetPortVo> selectAssetPortQuery(String assetId) {
