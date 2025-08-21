@@ -129,9 +129,9 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         if(Objects.nonNull(databasesInfoList) && !databasesInfoList.isEmpty()){
             List<CollectDatabasesInfo> collectDatabasesInfos = EntityBeanUtil.copyList(databasesInfoList, CollectDatabasesInfo.class);
             for (CollectDatabasesInfo databasesBeanEntity : collectDatabasesInfos) {
+                databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink()?1:-1);
                 databasesBeanEntity.setId(MyIdUtil.getId());
                 databasesBeanEntity.setCollectDbId(dbId);
-                databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink()?1:-1);
                 databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate()?1:-1);
             }
             //更新采集数据
@@ -165,7 +165,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         //处理数据库锁信息
         List<DbLockInfoEntity> lockInfoList = info.getLockInfoList();
         if(Objects.nonNull(lockInfoList) && !lockInfoList.isEmpty()){
-            List<CollectDbLockInfo> collectDbLockList = EntityBeanUtil.copyList(processLockList, CollectDbLockInfo.class);
+            List<CollectDbLockInfo> collectDbLockList = EntityBeanUtil.copyList(lockInfoList, CollectDbLockInfo.class);
             for (CollectDbLockInfo collectDbLock : collectDbLockList) {
                 collectDbLock.setId(MyIdUtil.getId());
                 collectDbLock.setCollectDbId(dbId);

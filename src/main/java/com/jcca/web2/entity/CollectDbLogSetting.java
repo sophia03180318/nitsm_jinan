@@ -48,12 +48,6 @@ public class CollectDbLogSetting extends Model<CollectDbLogSetting> {
     @TableField("UNIT")
     private String unit;
     /**
-     * 数据库ID
-     * M_DB表的ID
-     */
-    @TableField("DB_ID")
-    private String dbId;
-    /**
      * 创建时间
      */
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)

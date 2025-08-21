@@ -46,35 +46,21 @@ public class CollectDatabasesInfo  extends Model<CollectDatabasesInfo> {
     private Integer permitAgentLinkStatus;
     @TableField(exist = false)
     private Boolean permitAgentLink;
-    /**
-     * 是否是模板库
-     * 1是 -1不是
-     */
-    @TableField("IS_TEMPLATE")
-    private Boolean isTemplate;
+
     /**
      * 是否是模板库
      * 1是 -1不是
      */
     @TableField("IS_TEMPLATE_FLAG")
     private Integer isTemplateFlag;
+    @TableField(exist = false)
+    private Boolean isTemplate;
+
     /**
      * 排序规则
      */
     @TableField("DATA_COLLATE")
     private String dataCollate;
-    /**
-     * 数据库类型
-     */
-    @TableField("TYPE")
-    private String type;
-    /**
-     * 数据库ID
-     * M_DB表的ID
-     */
-    @TableField("DB_ID")
-    private String dbId;
-
     /**
      * 创建时间
      */
