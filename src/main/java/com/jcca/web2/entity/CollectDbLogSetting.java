@@ -21,6 +21,9 @@ public class CollectDbLogSetting extends Model<CollectDbLogSetting> {
 
     @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
+
+    @TableField("COLLECT_DB_ID")
+    private String collectDbId;
     /**
      * 配置名称
      * archive_mode:控制是否启用 WAL 日志归档

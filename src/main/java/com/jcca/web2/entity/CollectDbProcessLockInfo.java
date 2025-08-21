@@ -19,6 +19,9 @@ public class CollectDbProcessLockInfo extends Model<CollectDbProcessLockInfo> {
 
     @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
+
+    @TableField("COLLECT_DB_ID")
+    private String collectDbId;
     /**
      * 等待进程ID
      */

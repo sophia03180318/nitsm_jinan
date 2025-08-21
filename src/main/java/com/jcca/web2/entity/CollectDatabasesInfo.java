@@ -20,6 +20,9 @@ public class CollectDatabasesInfo  extends Model<CollectDatabasesInfo> {
 
     @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
+
+    @TableField("COLLECT_DB_ID")
+    private String collectDbId;
     /**
      * 数据库名称
      */
