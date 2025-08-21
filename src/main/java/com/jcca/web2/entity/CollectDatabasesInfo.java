@@ -40,14 +40,24 @@ public class CollectDatabasesInfo  extends Model<CollectDatabasesInfo> {
     private String tableSpecName;
     /**
      * 是否允许客户端连接
+     * 1允许 -1不允许
      */
-    @TableField("PERMIT_AGENT_LINK")
+    @TableField("PERMIT_AGENT_LINK_STATUS")
+    private Integer permitAgentLinkStatus;
+    @TableField(exist = false)
     private Boolean permitAgentLink;
     /**
      * 是否是模板库
+     * 1是 -1不是
      */
     @TableField("IS_TEMPLATE")
     private Boolean isTemplate;
+    /**
+     * 是否是模板库
+     * 1是 -1不是
+     */
+    @TableField("IS_TEMPLATE_FLAG")
+    private Integer isTemplateFlag;
     /**
      * 排序规则
      */

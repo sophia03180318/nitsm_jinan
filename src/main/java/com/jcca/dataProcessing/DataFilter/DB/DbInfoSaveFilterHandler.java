@@ -131,6 +131,8 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDatabasesInfo databasesBeanEntity : collectDatabasesInfos) {
                 databasesBeanEntity.setId(MyIdUtil.getId());
                 databasesBeanEntity.setCollectDbId(dbId);
+                databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink()?1:-1);
+                databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate()?1:-1);
             }
             //更新采集数据
             databasesInfoService.updateCollectData(collectDatabasesInfos,dbId);
