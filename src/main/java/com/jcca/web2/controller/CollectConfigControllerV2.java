@@ -163,6 +163,16 @@ public class CollectConfigControllerV2 {
             throw new ResultException(ResultEnum.COLLECTOR_REMARK);
         }
 
+        //查询
+        if(Objects.nonNull(specDictionary.getAssetMode())){
+            AssetMode mode = assetModeService.getByCode(specDictionary.getAssetMode());
+            if(Objects.nonNull(mode)){
+                specDictionary.setAssetMode(mode.getAmode());
+            }
+        }else{
+            throw new ResultException(ResultEnum.COLLECTOR_NONENTITY);
+        }
+
         QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ASSET_MODE", specDictionary.getAssetMode());
         queryWrapper.eq("ASSET_IMAGE", specDictionary.getAssetImage());
