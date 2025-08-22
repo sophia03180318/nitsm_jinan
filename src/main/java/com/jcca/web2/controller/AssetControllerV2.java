@@ -1,5 +1,6 @@
 package com.jcca.web2.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,6 +15,7 @@ import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.EncryptUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.dataProcessing.dataAdpater.AssetIpAdd;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetTelnet;
 import com.jcca.web.asset.service.AssetService;
@@ -50,6 +52,8 @@ public class AssetControllerV2 {
 
     @Resource
     private AssetService assetServ;
+    @Resource
+    private AssetIpAdd assetIPadd;
 
     @ApiOperation("资产字段详细")
     @GetMapping("/content/{id}")
@@ -101,7 +105,9 @@ public class AssetControllerV2 {
     public ResultVo<Object> add(@Validated @RequestBody Asset asset) throws Exception {
 
         assetServ.saveAssetV2(asset);
-
+        if(StrUtil.isNotEmpty(asset.getId())){
+            assetIPadd.removeIpCatch(asset.getId());
+        }
         return ResultVoUtil.success();
     }
 
