@@ -13,6 +13,7 @@ import com.jcca.dataProcessing.support.IAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +44,8 @@ public class HardwareLinuxAdapter extends AssetIpAdd implements IAdapter<Receive
     @Override
     public void dispose(ReceiveAlarmDto alarmDto) {
         String content = alarmDto.getContent();
-        CollectHardwareBean bean = JSONUtil.toBean(content, CollectHardwareBean.class);
+        List<CollectHardwareBean> list = JSONUtil.toList(JSONUtil.parseArray(content), CollectHardwareBean.class);
+        CollectHardwareBean bean = list.get(0);
         //事件监控分类
         eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_hardware.getCode(), "monitor", true);
 
