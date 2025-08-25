@@ -160,5 +160,10 @@ public interface CollectConst {
      */
     String CPU_LINUX_LOAD_AVG = "2025070301";
 
+    /**
+     * 采集LINUX硬件信息
+     */
+    String LINUX_HARDWARE_CONFIG = "2025082501";
+
     String CollectNodeStatus = "78";
 }

@@ -161,6 +161,9 @@ public enum StatusInfoChangeTypeEnum {
     event_cpuLoad_normal("event:event_cpuLoad:normal", "cpu负载普通阈值事件", "CPU逻辑处理器数量：%s, 设定阈值：%s, CPU负载 %s", "CPU负载阈值状态", ""),
     event_appServer_link("event:event_appServer_link", "应用服务器连接事件", "服务端口 %s 与 %s(%s) 连接 %s！", "应用服务器状态", ""),
 
+    // 硬件信息
+    event_hardware("event:event_hardware", "硬件信息", "", "", ""),
+
     //数据库状态事件
     event_db("event:event_db", "数据库状态", "", "数据库巡检", "263"),
     event_db_connect("event:event_db:connect", "数据库连接事件", "检测到数据库连接%s！", "数据库状态", ""),

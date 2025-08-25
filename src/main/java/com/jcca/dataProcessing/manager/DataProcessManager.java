@@ -77,6 +77,8 @@ public class DataProcessManager {
     private IFilterHandler processGroupHandler;
     private IFilterHandler portNumberHandler;
 
+    private IFilterHandler hardwareInfoHandler;
+
     private IFilterHandler netHandler;
     private IFilterHandler interfaceHander;
     private IFilterHandler raidHandler;
@@ -252,6 +254,13 @@ public class DataProcessManager {
                 "appServerLinkSaveFilterHandler");
         cpuLoadHandler = createHandler(cpuLoadHandlerList, cpuLoadEventList, eventInfoListener);
 
+        // linux硬件配置信息
+        List<String> hardwareHandlerList = Arrays.asList(
+                "hardwareSaveFilterHandler",
+                "saveFilterHandler");
+        List<String> hardwareEventList = Arrays.asList(
+                "hardwareSaveFilterHandler");
+        hardwareInfoHandler = createHandler(hardwareHandlerList, hardwareEventList, eventInfoListener);
 
         List<String> stationSystemHandlerList = Arrays.asList(
                 "stationSystemRunTimeFilterHandler",
@@ -978,6 +987,16 @@ public class DataProcessManager {
      */
     public void cpuLoadHandlerRequest(CollectCpuLoadBean entity) throws Exception {
         cpuLoadHandler.handleRequest(entity, true);
+    }
+
+    /**
+     * 硬件信息
+     *
+     * @param entity
+     * @throws Exception
+     */
+    public void hardwareHandlerRequest(CollectHardwareBean entity) throws Exception {
+        hardwareInfoHandler.handleRequest(entity, true);
     }
 
     /**
