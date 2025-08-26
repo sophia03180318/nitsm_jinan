@@ -7,10 +7,7 @@ import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.service.AlarmInfoService;
-import com.jcca.web.asset.entity.Asset;
-import com.jcca.web.asset.entity.AssetAttach;
-import com.jcca.web.asset.entity.AssetHardwareFix;
-import com.jcca.web.asset.entity.CollectAIXAdapter;
+import com.jcca.web.asset.entity.*;
 import com.jcca.web.asset.service.*;
 import com.jcca.web.asset.service.bean.AddAssetException;
 import com.jcca.web.broken.service.BrokenRecordService;
@@ -110,6 +107,8 @@ public class NotifyDelAssetImpl {
     private InspectRecordService inspectRecordService;
     @Resource
     private AssetAppServerService appServerService;
+    @Resource
+    private CollectHardwareService collectHardwareService;
 
     /**
      * OutConst
@@ -214,6 +213,7 @@ public class NotifyDelAssetImpl {
         if (asset.getServiceType() != null) {
             appServerService.deleteServerPort(assetId, null);
         }
+
         // ============================================所有要删除数据应该在删除资产前操作==================================
         // 删除资产
         assetService.removeById(assetId);
@@ -274,5 +274,9 @@ public class NotifyDelAssetImpl {
         QueryWrapper<CollectVlan> vlanReq = new QueryWrapper<CollectVlan>();
         vlanReq.eq("ASSET_ID", assetId);
         vlanServ.remove(vlanReq);
+        // 删除资产硬件信息
+        QueryWrapper<CollectHardware> query = Wrappers.query();
+        query.eq("ASSET_ID", assetId);
+        collectHardwareService.remove(query);
     }
 }
