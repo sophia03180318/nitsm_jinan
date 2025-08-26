@@ -34,6 +34,10 @@ public class CollectHardware extends Model<CollectCpuLoad> {
      */
     private String osVersion;
     /**
+     * 操作系统序列号
+     */
+    private String osSerial;
+    /**
      * 主机厂商
      */
     private String hostManufacture;
@@ -41,6 +45,10 @@ public class CollectHardware extends Model<CollectCpuLoad> {
      * cpu物理核心数
      */
     private String cpuNum;
+    /**
+     * cpu核心数
+     */
+    private String cpuCoreNum;
     /**
      * cpu型号
      */

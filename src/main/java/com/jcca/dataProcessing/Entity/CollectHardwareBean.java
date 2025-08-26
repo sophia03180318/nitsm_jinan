@@ -22,6 +22,10 @@ public class CollectHardwareBean extends CommonEntity {
      */
     private String osVersion;
     /**
+     * 操作系统序列号
+     */
+    private String osSerial;
+    /**
      * 主机厂商
      */
     private String hostManufacture;
@@ -29,6 +33,10 @@ public class CollectHardwareBean extends CommonEntity {
      * cpu物理核心数
      */
     private String cpuNum;
+    /**
+     * cpu核心数
+     */
+    private String cpuCoreNum;
     /**
      * cpu型号
      */
