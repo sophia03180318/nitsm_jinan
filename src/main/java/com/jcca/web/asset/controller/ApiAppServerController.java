@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author: hhw
@@ -165,15 +166,14 @@ public class ApiAppServerController {
     @ApiOperation(value = "回显配置数据")
     public ResultVo<Object> portView(@RequestParam String assetId) {
 
-        StringBuilder sb = new StringBuilder();
         List<AssetAppServer> list = assetAppServerService.findByAssetIdNullLink(assetId);
-        for (AssetAppServer appServer : list) {
-            sb.append(appServer.getServerPort()).append(",");
-        }
+        Set<Integer> collect = list.stream().map(AssetAppServer::getServerPort).collect(Collectors.toSet());
+        String portStr = collect.stream().map(String::valueOf).collect(Collectors.joining(","));
+
         ThresholdAssetVo threshold = thresholdAssetService.findAssetThreshold(assetId);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("serverPort", sb.toString());
+        map.put("serverPort", portStr);
         map.put("cpuLoad", 1);
         if (Objects.nonNull(threshold)) {
             map.put("cpuLoad", threshold.getCpuLoad() == null ? 1D : threshold.getCpuLoad());
