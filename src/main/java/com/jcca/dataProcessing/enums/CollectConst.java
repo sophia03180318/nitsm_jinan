@@ -161,4 +161,35 @@ public interface CollectConst {
     String CPU_LINUX_LOAD_AVG = "2025070301";
 
     String CollectNodeStatus = "78";
+
+
+    /**
+     * 风扇采集
+     */
+    String BHM_FAN="80";
+    /**
+     * 电源采集
+     */
+    String BHM_POWER="81";
+    /**
+     * PCIE采集
+     */
+    String BHM_PCIE="82";
+    /**
+     * CPU信息采集
+     */
+    String BHM_CPU_MSG="83";
+    /**
+     * 内存信息采集
+     */
+    String BHM_MEMORY_MSG="84";
+    /**
+     * 存储信息采集
+     */
+    String BHM_STORAGE_MSG="85";
+    /**
+     * 温度信息采集
+     */
+    String BHM_TEMP_MSG="86";
+
 }

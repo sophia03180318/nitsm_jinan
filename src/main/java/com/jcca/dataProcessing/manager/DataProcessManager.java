@@ -110,6 +110,14 @@ public class DataProcessManager {
 
     private IFilterHandler collectNodeStatusHandler;
 
+    private IFilterHandler collectBhmCpuHandler;
+    private IFilterHandler collectBhmFanHandler;
+    private IFilterHandler collectBhmMemoryHandler;
+    private IFilterHandler collectBhmPcieHandler;
+    private IFilterHandler collectBhmPowerHandler;
+    private IFilterHandler collectBhmStorageHandler;
+    private IFilterHandler collectBhmTempHandler;
+
 
     /**
      * 创建执行器
@@ -214,6 +222,12 @@ public class DataProcessManager {
         //初始化监听事件
         eventInfoListener = this.getListener("eventInfoListener");
         alarmListener = this.getListener("alarmListener");
+
+
+        //2025-09-01 服务器BHM的CPU信息
+        List<String> bhmCpuHandlerList = Arrays.asList("bhmCpuSaveHandler");
+        IFilterHandler bhmCpuHandler = createHandler(bhmCpuHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmCpuHandler = bhmCpuHandler;
 
 
         List<String> cpuHandlerList = Arrays.asList(
@@ -1260,5 +1274,57 @@ public class DataProcessManager {
     public void collectNodeStatus(CollectNodeEntity infoEntity) throws Exception {
         collectNodeStatusHandler.handleRequest(infoEntity, true);
 
+    }
+
+    /**
+     * 处理BHM的cpu信息
+     * @param list
+     */
+    public void bhmCpuHandlerRequest(List<CollectBhmCpuEntity> list) throws Exception {
+        collectBhmCpuHandler.handleRequest(list, true);
+    }
+    /**
+     * 处理BHM的风扇信息
+     * @param item
+     */
+    public void bhmFanHandlerRequest(CollectBhmFanEntity item) throws Exception {
+        collectBhmFanHandler.handleRequest(item, true);
+    }
+
+    /**
+     * 处理BHM的内存信息
+     * @param item
+     */
+    public void bhmMemoryHandlerRequest(CollectBhmMemoryEntity item) throws Exception {
+        collectBhmMemoryHandler.handleRequest(item, true);
+    }
+
+    /**
+     * 处理BHM的PCIE信息
+     * @param item
+     */
+    public void bhmPcieHandlerRequest(CollectBhmPcieEntity item) throws Exception {
+        collectBhmPcieHandler.handleRequest(item, true);
+    }
+    /**
+     * 处理BHM的电源信息
+     * @param item
+     */
+    public void bhmPowerHandlerRequest(CollectBhmPowerEntity item) throws Exception {
+        collectBhmPowerHandler.handleRequest(item, true);
+    }
+    /**
+     * 处理BHM的存储信息
+     * @param item
+     */
+    public void bhmStorageHandlerRequest(CollectBhmStorageEntity item) throws Exception {
+        collectBhmStorageHandler.handleRequest(item, true);
+    }
+    /**
+     * 处理BHM的温度信息
+     * @param item
+     */
+    public void bhmTempHandlerRequest(CollectBhmTempEntity item) throws Exception {
+        collectBhmTempHandler.handleRequest(item, true);
     }
 }
