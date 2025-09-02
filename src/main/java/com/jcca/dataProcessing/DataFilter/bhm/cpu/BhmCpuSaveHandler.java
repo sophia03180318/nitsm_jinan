@@ -55,11 +55,12 @@ public class BhmCpuSaveHandler extends IFilterHandler<List<CollectBhmCpuEntity>>
 
         //删除原有的插入新的
         cpuService.updateAssetCpuInfoBatch(infoList);
+
         return true;
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

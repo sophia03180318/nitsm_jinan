@@ -22,7 +22,7 @@ public class CollectBhmCpuInfo  extends Model<CollectBhmCpuInfo> {
     /**
      * 资产ID
      */
-    @TableField("ASSET_ID")
+    @TableField("c")
     private String assetId;
     /**
      * CPU 在服务器内的本地标识 ID，通常与物理插槽编号对应。

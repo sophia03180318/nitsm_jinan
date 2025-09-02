@@ -48,7 +48,7 @@ public class DongHuanNotifyHandler extends IFilterHandler<DongHuanEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

@@ -28,7 +28,7 @@ public class SaveFilterHandler extends IFilterHandler<CommonEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

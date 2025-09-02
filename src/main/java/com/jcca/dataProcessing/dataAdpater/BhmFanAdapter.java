@@ -43,23 +43,22 @@ public class BhmFanAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
 
     @Override
     public void dispose(JSONArray data) {
-        List<CollectBhmFanEntity> cpuList = JSONUtil.toList(data, CollectBhmFanEntity.class);
+        List<CollectBhmFanEntity> fanList = JSONUtil.toList(data, CollectBhmFanEntity.class);
 
-        if(Objects.isNull(cpuList)||cpuList.isEmpty()){
+        if(Objects.isNull(fanList)||fanList.isEmpty()){
             return ;
         }
 
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                CountDownLatch cdh = new CountDownLatch(cpuList.size());
+                CountDownLatch cdh = new CountDownLatch(fanList.size());
                 String collectCode = MyIdUtil.getId();
-                for (CollectBhmFanEntity item : cpuList) {
+                for (CollectBhmFanEntity item : fanList) {
                     thresholdDisposePool.execute(() -> {
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
-                            dataProcessManager.bhmFanHandlerRequest(item);
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
@@ -69,6 +68,7 @@ public class BhmFanAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 }
                 try {
                     cdh.await();
+                    dataProcessManager.bhmFanHandlerRequest(fanList);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -79,7 +79,7 @@ public class BhmFanAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
 
 
 
-        if(cpuList.get(0).getInspectRecordId()!=null&&!"".equals(cpuList.get(0).getInspectRecordId())){
+        if(fanList.get(0).getInspectRecordId()!=null&&!"".equals(fanList.get(0).getInspectRecordId())){
             try {
                 future.get();
             } catch (InterruptedException e) {

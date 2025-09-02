@@ -102,7 +102,7 @@ public class OpticalTemperatureFilterHandler extends IFilterHandler<OpticalSwitc
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

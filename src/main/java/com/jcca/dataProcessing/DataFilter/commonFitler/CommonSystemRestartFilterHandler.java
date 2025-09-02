@@ -77,7 +77,7 @@ public class CommonSystemRestartFilterHandler extends IFilterHandler<CommonEntit
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

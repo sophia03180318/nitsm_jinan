@@ -47,7 +47,7 @@ public class RaidVSaveFilterHandler extends IFilterHandler<DiskEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

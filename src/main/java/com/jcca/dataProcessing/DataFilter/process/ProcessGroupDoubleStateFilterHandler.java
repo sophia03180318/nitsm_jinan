@@ -125,7 +125,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

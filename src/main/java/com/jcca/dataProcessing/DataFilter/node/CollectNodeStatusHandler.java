@@ -59,7 +59,7 @@ public class CollectNodeStatusHandler extends IFilterHandler<CollectNodeEntity> 
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 }

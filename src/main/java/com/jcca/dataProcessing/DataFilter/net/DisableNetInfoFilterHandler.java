@@ -38,7 +38,7 @@ public class DisableNetInfoFilterHandler extends IFilterHandler<CollectNetworkCa
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

@@ -64,7 +64,7 @@ public class ClusterAbStatusFilterHandler extends IFilterHandler<CollectClusterE
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

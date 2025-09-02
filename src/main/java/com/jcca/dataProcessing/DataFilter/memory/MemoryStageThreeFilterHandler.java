@@ -81,7 +81,7 @@ public class MemoryStageThreeFilterHandler extends IFilterHandler<CollectMemoryE
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         //如果需要下层处理需要返回true
         return true;
     }

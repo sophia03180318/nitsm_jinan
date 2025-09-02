@@ -87,7 +87,7 @@ public class PortNumberUdpFilterHandler extends IFilterHandler<CollectPortUsedNu
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

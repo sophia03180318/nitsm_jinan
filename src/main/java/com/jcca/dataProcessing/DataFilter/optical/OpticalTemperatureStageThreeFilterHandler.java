@@ -87,7 +87,7 @@ public class OpticalTemperatureStageThreeFilterHandler extends IFilterHandler<Op
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return true;
     }
 

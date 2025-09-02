@@ -84,7 +84,7 @@ public class InterfaceLosePacketsOutFilterHandler extends IFilterHandler<Collect
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 
