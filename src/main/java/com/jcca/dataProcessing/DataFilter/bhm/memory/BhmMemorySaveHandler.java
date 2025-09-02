@@ -37,6 +37,7 @@ public class BhmMemorySaveHandler  extends IFilterHandler<List<CollectBhmMemoryE
             copy.setHealth(status.getHealth());
             copy.setState(status.getState());
             copy.setId(MyIdUtil.getId());
+            copy.setMemoryId(item.getId());
             copy.setAssetId(item.getAssetId());
             copy.setCreateTime(new Date());
 
