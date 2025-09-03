@@ -1,5 +1,6 @@
 package com.jcca.web2.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
@@ -8,6 +9,7 @@ import com.jcca.dataProcessing.Entity.ReadFishDiskEntity;
 import com.jcca.dataProcessing.Entity.ReadFishStatusEntity;
 import com.jcca.dataProcessing.Entity.ReadFishStorageControllersEntity;
 import com.jcca.web2.dao.CollectBhmStorageInfoMapper;
+import com.jcca.web2.entity.CollectBhmPowerInfo;
 import com.jcca.web2.entity.CollectBhmStorageControllersInfo;
 import com.jcca.web2.entity.CollectBhmStorageDiskInfo;
 import com.jcca.web2.entity.CollectBhmStorageInfo;
@@ -41,6 +43,8 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
         }
         List<CollectBhmStorageInfo> storageList = new ArrayList<>();
         List<CollectBhmStorageDiskInfo> storageDiskList = new ArrayList<>();
+        List<CollectBhmStorageControllersInfo> storageControllersList = new ArrayList<>();
+
         for (CollectBhmStorageEntity item : infoList) {
             String storageId = MyIdUtil.getId();
             CollectBhmStorageInfo storage = new CollectBhmStorageInfo();
@@ -78,14 +82,55 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
             if(Objects.nonNull(storageControllers)){
                 for (ReadFishStorageControllersEntity controllerInfo : storageControllers) {
                     ReadFishStatusEntity status = controllerInfo.getStatus();
-                    CollectBhmStorageControllersInfo copy = EntityBeanUtil.copy(status, CollectBhmStorageControllersInfo.class);
+                    CollectBhmStorageControllersInfo controllers = EntityBeanUtil.copy(status, CollectBhmStorageControllersInfo.class);
+                    if(Objects.nonNull(status)){
+                        controllers.setHealth(status.getHealth());
+                        controllers.setState(status.getState());
+                    }
+                    if(Objects.nonNull(controllerInfo.getSupportedDeviceProtocols())){
+                        controllers.setSupportedDeviceProtocols(controllerInfo.toString());
+                    }
+                    controllers.setId(MyIdUtil.getId());
+                    controllers.setStorageId(storageId);
+                    controllers.setAssetId(item.getAssetId());
+                    controllers.setCreateTime(new Date());
 
+                    storageControllersList.add(controllers);
                 }
             }
 
 
         }
+        if(!storageList.isEmpty()){
+            //更新存储组信息
+            CollectBhmStorageInfo collectBhmInfo = storageList.get(0);
 
+            QueryWrapper<CollectBhmStorageInfo> deleteMapper = new QueryWrapper<>();
+            deleteMapper.eq("ASSET_ID", collectBhmInfo.getAssetId());
+
+            remove(deleteMapper);
+            saveBatch(storageList);
+        }
+        if(!storageDiskList.isEmpty()){
+            //更新磁盘信息
+            CollectBhmStorageDiskInfo collectBhmInfo = storageDiskList.get(0);
+
+            QueryWrapper<CollectBhmStorageDiskInfo> deleteMapper = new QueryWrapper<>();
+            deleteMapper.eq("ASSET_ID", collectBhmInfo.getAssetId());
+
+            diskInfoService.remove(deleteMapper);
+            diskInfoService.saveBatch(storageDiskList);
+        }
+        if(!storageControllersList.isEmpty()){
+            //更新存储控制器信息
+            CollectBhmStorageControllersInfo collectBhmInfo = storageControllersList.get(0);
+
+            QueryWrapper<CollectBhmStorageControllersInfo> deleteMapper = new QueryWrapper<>();
+            deleteMapper.eq("ASSET_ID", collectBhmInfo.getAssetId());
+
+            controllersInfoService.remove(deleteMapper);
+            controllersInfoService.saveBatch(storageControllersList);
+        }
 
     }
 
