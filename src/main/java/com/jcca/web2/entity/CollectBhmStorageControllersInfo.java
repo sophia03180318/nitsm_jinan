@@ -14,7 +14,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("COLLECT_BHM_STORAGE_DISK_INFO")
+@TableName("COLLECT_BHM_STORAGE_CONTROLLERS_INFO")
 public class CollectBhmStorageControllersInfo extends Model<CollectBhmStorageControllersInfo> {
 
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
