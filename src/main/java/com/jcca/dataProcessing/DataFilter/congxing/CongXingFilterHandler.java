@@ -13,7 +13,6 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Date;
 
 /**
  * @author Zhaozheng
@@ -72,7 +71,7 @@ public class CongXingFilterHandler extends IFilterHandler<ItsmQueueEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

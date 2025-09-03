@@ -77,7 +77,7 @@ public class CommonMasterFilterHandler extends IFilterHandler<ItsmQueueEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

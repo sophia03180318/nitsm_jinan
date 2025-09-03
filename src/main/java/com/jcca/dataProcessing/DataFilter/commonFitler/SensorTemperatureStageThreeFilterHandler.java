@@ -80,7 +80,7 @@ public class SensorTemperatureStageThreeFilterHandler extends IFilterHandler<Col
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return true;
     }
 

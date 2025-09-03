@@ -74,7 +74,7 @@ public class OpticalPowerFilterHandler extends IFilterHandler<OpticalSwitchEntit
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

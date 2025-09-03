@@ -1,6 +1,7 @@
 package com.jcca.dataProcessing.listener.eventInfoHandler;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.listener.alarmHandler.AlarmEventHandler;
@@ -40,16 +41,20 @@ public class EventSaveAlarmHandler extends IFilterHandler<IEvent> {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean handler(IEvent info) {
+
         synchronized (AlarmEventHandler.obj){
             try {
                 redisTransactionTemplate.multi();
                 //改缓存(性能数据)
                 ChangeInfo changeInfo = (ChangeInfo) info.getInfo();
-                if (changeInfo.getRedisKey() != null) {
+                if (StrUtil.isNotEmpty(changeInfo.getRedisKey())) {
                     HashOperations<String, Object, Object> hash = redisTransactionTemplate.opsForHash();
                     hash.put(changeInfo.getRedisKey(), changeInfo.getMapKey(), changeInfo.getValue());
                 }
-                Object obj = eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
+                Object obj = null;
+                if(StrUtil.isNotEmpty(info.getEventRedisKey()) && StrUtil.isNotEmpty(info.getMapKey())){
+                    obj = eventInfoManagerService.getStateValue(info.getEventRedisKey(), info.getMapKey());
+                }
                 //推送的是恢复事件或者是异常事件需要保存事件
                 if ((obj != null && info.getStatus() != obj) || (obj == null && info.getStatus() == EventLevelEnum.ABNORMAL.getCode())) {
                     dataChangeManagerService.saveEvent(info);
@@ -66,7 +71,7 @@ public class EventSaveAlarmHandler extends IFilterHandler<IEvent> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

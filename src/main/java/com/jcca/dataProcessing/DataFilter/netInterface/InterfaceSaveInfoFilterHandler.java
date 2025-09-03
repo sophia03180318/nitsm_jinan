@@ -1,8 +1,6 @@
 package com.jcca.dataProcessing.DataFilter.netInterface;
 
 import cn.hutool.core.util.StrUtil;
-import com.jcca.common.enums.ResultEnum;
-import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectInterfaceEntity;
@@ -69,7 +67,7 @@ public class InterfaceSaveInfoFilterHandler extends IFilterHandler<CollectInterf
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

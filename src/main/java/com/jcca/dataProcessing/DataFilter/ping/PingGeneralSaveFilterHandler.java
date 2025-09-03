@@ -46,7 +46,7 @@ public class PingGeneralSaveFilterHandler extends IFilterHandler<ReceiveAlarmEnt
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

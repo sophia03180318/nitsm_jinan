@@ -3,7 +3,6 @@ package com.jcca.dataProcessing.DataFilter;
 import com.jcca.dataProcessing.Entity.CommonEntity;
 import com.jcca.dataProcessing.manager.impl.DataChangeMangerService;
 import com.jcca.dataProcessing.support.IFilterHandler;
-import com.jcca.dataProcessing.support.XunjianEvent;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -28,7 +27,7 @@ public class SaveFilterHandler extends IFilterHandler<CommonEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

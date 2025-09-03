@@ -80,7 +80,7 @@ public class CpuStageThreeFilterHandler extends IFilterHandler<CollectCpuEntity>
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         //如果需要下层处理需要返回true
         return true;
     }

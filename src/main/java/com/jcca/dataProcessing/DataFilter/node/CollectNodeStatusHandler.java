@@ -1,7 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.node;
 
-import cn.hutool.json.JSONUtil;
-import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.bean.CollectNodesMsg;
@@ -59,7 +57,7 @@ public class CollectNodeStatusHandler extends IFilterHandler<CollectNodeEntity> 
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 }

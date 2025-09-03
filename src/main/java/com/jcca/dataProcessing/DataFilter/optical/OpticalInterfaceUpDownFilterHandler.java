@@ -87,7 +87,7 @@ public class OpticalInterfaceUpDownFilterHandler extends IFilterHandler<OpticalS
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

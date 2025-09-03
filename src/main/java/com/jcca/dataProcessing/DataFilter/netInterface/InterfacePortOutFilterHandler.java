@@ -84,7 +84,7 @@ public class InterfacePortOutFilterHandler extends IFilterHandler<CollectInterfa
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

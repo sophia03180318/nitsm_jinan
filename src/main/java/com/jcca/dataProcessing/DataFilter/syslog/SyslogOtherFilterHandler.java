@@ -70,7 +70,7 @@ public class SyslogOtherFilterHandler extends IFilterHandler<SyslogEventInfoEnti
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 
