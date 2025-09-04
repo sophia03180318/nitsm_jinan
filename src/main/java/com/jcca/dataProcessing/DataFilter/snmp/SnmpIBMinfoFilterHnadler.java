@@ -1,6 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.snmp;
 
-import cn.hutool.log.Log;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.EventInfo;
 import com.jcca.dataProcessing.Entity.SnmpEventInfoEntity;

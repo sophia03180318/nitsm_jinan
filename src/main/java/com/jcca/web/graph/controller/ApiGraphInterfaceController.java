@@ -212,7 +212,7 @@ public class ApiGraphInterfaceController {
             topoPortInfoVo.setPhyAddress(topoPortIndexReq.getPortName());
             topoPortInfoVo.setStatus(1);
             topoPortInfoVo.setPortIndexRank(1);
-            if (Objects.isNull(networkCard)) {
+            if (Objects.nonNull(networkCard)) {
                 topoPortInfoVo.setStatus(networkCard.getStatus().intValue());
                 topoPortInfoVo.setPhyAddress(networkCard.getMacAddress());
             }

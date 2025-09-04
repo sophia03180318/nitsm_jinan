@@ -1,7 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.commonFitler;
 
-import com.jcca.component.casco.enums.HostRunStatusEnum;
-import com.jcca.component.casco.enums.LinkStatusEnum;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;

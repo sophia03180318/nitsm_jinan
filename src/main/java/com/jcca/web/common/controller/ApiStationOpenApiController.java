@@ -265,6 +265,7 @@ public class ApiStationOpenApiController {
             ItsmAlarmRuleResp itsmAlarmRuleResp = catchMap.get(assetId);
             if(Objects.isNull(itsmAlarmRuleResp)){
                 itsmAlarmRuleResp = new ItsmAlarmRuleResp();
+                itsmAlarmRuleResp.setAssetId(assetId);
             }
 
             List<ItsmThresholdConf> thresholdConfList = itsmAlarmRuleResp.getThresholdConfList();
