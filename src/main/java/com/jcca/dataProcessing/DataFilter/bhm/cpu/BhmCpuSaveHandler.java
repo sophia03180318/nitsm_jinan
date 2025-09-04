@@ -44,11 +44,11 @@ public class BhmCpuSaveHandler extends IFilterHandler<List<CollectBhmCpuEntity>>
             if(Objects.nonNull(status)){
                 copy.setHealth(status.getHealth());
                 copy.setState(status.getState());
-                copy.setId(MyIdUtil.getId());
-                copy.setCpuId(info.getId());
-                copy.setAssetId(info.getAssetId());
-                copy.setCreateTime(new Date());
             }
+            copy.setId(MyIdUtil.getId());
+            copy.setCpuId(info.getId());
+            copy.setAssetId(info.getAssetId());
+            copy.setCreateTime(new Date());
             infoList.add(copy);
         }
 

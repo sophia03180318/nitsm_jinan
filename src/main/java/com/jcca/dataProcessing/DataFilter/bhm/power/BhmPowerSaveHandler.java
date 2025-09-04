@@ -34,10 +34,11 @@ public class BhmPowerSaveHandler  extends IFilterHandler<List<CollectBhmPowerEnt
         List<CollectBhmPowerInfo> saveList = new ArrayList<>();
         for (CollectBhmPowerEntity item : infoList) {
             ReadFishStatusEntity status = item.getStatus();
-
             CollectBhmPowerInfo copy = EntityBeanUtil.copy(item, CollectBhmPowerInfo.class);
-            copy.setHealth(status.getHealth());
-            copy.setState(status.getState());
+            if(Objects.nonNull(status)){
+                copy.setHealth(status.getHealth());
+                copy.setState(status.getState());
+            }
             copy.setId(MyIdUtil.getId());
             copy.setAssetId(item.getAssetId());
             copy.setCreateTime(new Date());

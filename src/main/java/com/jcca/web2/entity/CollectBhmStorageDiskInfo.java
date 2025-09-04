@@ -13,7 +13,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("COLLECT_BHM_STORAGE_DISK_INFO")
+@TableName("COLLECT_BHM_S_DISK_INFO")
 public class CollectBhmStorageDiskInfo extends Model<CollectBhmStorageDiskInfo> {
 
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
@@ -61,7 +61,7 @@ public class CollectBhmStorageDiskInfo extends Model<CollectBhmStorageDiskInfo> 
     /**
      * 硬盘型号
      */
-    @TableField("MODEL")
+    @TableField("DISK_MODEL")
     private String model;
     /**
      * 实际协商的传输速度（Gb/s）

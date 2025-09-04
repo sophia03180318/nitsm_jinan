@@ -1,5 +1,6 @@
 package com.jcca.web2.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.utils.EntityBeanUtil;
@@ -47,6 +48,8 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
 
         for (CollectBhmStorageEntity item : infoList) {
             String storageId = MyIdUtil.getId();
+            String collectCode = item.getCollectCode();
+
             CollectBhmStorageInfo storage = new CollectBhmStorageInfo();
             storage.setId(storageId);
             storage.setAssetId(item.getAssetId());
@@ -70,6 +73,8 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
                         disk.setState(status.getState());
                     }
                     disk.setId(MyIdUtil.getId());
+                    disk.setCollectCode(collectCode);
+                    disk.setDiskId(diskInfo.getId());
                     disk.setStorageId(storageId);
                     disk.setAssetId(item.getAssetId());
                     disk.setCreateTime(new Date());
@@ -82,14 +87,21 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
             if(Objects.nonNull(storageControllers)){
                 for (ReadFishStorageControllersEntity controllerInfo : storageControllers) {
                     ReadFishStatusEntity status = controllerInfo.getStatus();
-                    CollectBhmStorageControllersInfo controllers = EntityBeanUtil.copy(status, CollectBhmStorageControllersInfo.class);
+                    CollectBhmStorageControllersInfo controllers = EntityBeanUtil.copy(controllerInfo, CollectBhmStorageControllersInfo.class);
                     if(Objects.nonNull(status)){
                         controllers.setHealth(status.getHealth());
                         controllers.setState(status.getState());
                     }
                     if(Objects.nonNull(controllerInfo.getSupportedDeviceProtocols())){
+                        StringBuilder stringBuilder = new StringBuilder("支持的设备协议：");
+                        for (String supportedDeviceProtocol : controllerInfo.getSupportedDeviceProtocols()) {
+                            stringBuilder.append("[");
+                            stringBuilder.append(supportedDeviceProtocol);
+                            stringBuilder.append("]");
+                        }
                         controllers.setSupportedDeviceProtocols(controllerInfo.toString());
                     }
+                    controllers.setCollectCode(collectCode);
                     controllers.setId(MyIdUtil.getId());
                     controllers.setStorageId(storageId);
                     controllers.setAssetId(item.getAssetId());

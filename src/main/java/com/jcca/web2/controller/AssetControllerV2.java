@@ -48,12 +48,10 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v2/asset")
 @Api(tags = "资产相关接口V2")
-public class AssetControllerV2 {
+public class AssetControllerV2 extends AssetIpAdd{
 
     @Resource
     private AssetService assetServ;
-    @Resource
-    private AssetIpAdd assetIPadd;
 
     @ApiOperation("资产字段详细")
     @GetMapping("/content/{id}")
@@ -106,7 +104,7 @@ public class AssetControllerV2 {
 
         assetServ.saveAssetV2(asset);
         if(StrUtil.isNotEmpty(asset.getId())){
-            assetIPadd.removeIpCatch(asset.getId());
+            removeIpCatch(asset.getId());
         }
         return ResultVoUtil.success();
     }

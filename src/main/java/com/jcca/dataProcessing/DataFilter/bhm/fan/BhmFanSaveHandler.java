@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Objects;
 
 
 @Component("bhmFanSaveHandler")
@@ -37,11 +37,13 @@ public class BhmFanSaveHandler extends IFilterHandler<List<CollectBhmFanEntity>>
         List<CollectBhmFanInfo> saveList = new ArrayList<>();
 
         for (CollectBhmFanEntity info : infoList) {
-            ReadFishStatusEntity status = info.getStatus();
-
             CollectBhmFanInfo copy = EntityBeanUtil.copy(info, CollectBhmFanInfo.class);
-            copy.setHealth(status.getHealth());
-            copy.setState(status.getState());
+
+            ReadFishStatusEntity status = info.getStatus();
+            if(Objects.nonNull(status)){
+                copy.setHealth(status.getHealth());
+                copy.setState(status.getState());
+            }
             copy.setId(MyIdUtil.getId());
             copy.setAssetId(info.getAssetId());
             copy.setCreateTime(new Date());

@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Objects;
 
 
 @Component("bhmPcieSaveHandler")
@@ -34,10 +34,11 @@ public class BhmPcieSaveHandler extends IFilterHandler<List<CollectBhmPcieEntity
         List<CollectBhmPcieInfo> saveList = new ArrayList<>();
         for (CollectBhmPcieEntity item : infoList) {
             ReadFishStatusEntity status = item.getStatus();
-
             CollectBhmPcieInfo copy = EntityBeanUtil.copy(item, CollectBhmPcieInfo.class);
-            copy.setHealth(status.getHealth());
-            copy.setState(status.getState());
+            if(Objects.nonNull(status)){
+                copy.setHealth(status.getHealth());
+                copy.setState(status.getState());
+            }
             copy.setId(MyIdUtil.getId());
             copy.setPcieId(item.getId());
             copy.setAssetId(item.getAssetId());

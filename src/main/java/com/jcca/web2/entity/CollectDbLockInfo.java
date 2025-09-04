@@ -15,7 +15,7 @@ import java.util.Date;
 public class CollectDbLockInfo extends Model<CollectDbLockInfo> {
 
 
-    @TableId(value = "id", type = IdType.ID_WORKER_STR)
+    @TableId(value = "ID", type = IdType.ID_WORKER_STR)
     private String id;
 
     @TableField("COLLECT_DB_ID")
@@ -71,7 +71,7 @@ public class CollectDbLockInfo extends Model<CollectDbLockInfo> {
      * 最强的锁模式，完全阻止其他事务对该对象的任何访问（包括 SELECT）。
      * 由 DROP TABLE、TRUNCATE 等破坏性操作获取。
      */
-    @TableField("MODE")
+    @TableField("LOCK_MODE")
     private String mode;
     /**
      * 总请求数

@@ -31,11 +31,12 @@ public class BhmMemorySaveHandler  extends IFilterHandler<List<CollectBhmMemoryE
         }
         List<CollectBhmMemoryInfo> infoList = new ArrayList<>();
         for (CollectBhmMemoryEntity item : info) {
-            ReadFishStatusEntity status = item.getStatus();
-
             CollectBhmMemoryInfo copy = EntityBeanUtil.copy(item, CollectBhmMemoryInfo.class);
-            copy.setHealth(status.getHealth());
-            copy.setState(status.getState());
+            ReadFishStatusEntity status = item.getStatus();
+            if(Objects.nonNull(status)){
+                copy.setHealth(status.getHealth());
+                copy.setState(status.getState());
+            }
             copy.setId(MyIdUtil.getId());
             copy.setMemoryId(item.getId());
             copy.setAssetId(item.getAssetId());

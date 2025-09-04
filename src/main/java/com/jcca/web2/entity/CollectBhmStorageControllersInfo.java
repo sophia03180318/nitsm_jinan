@@ -14,7 +14,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("COLLECT_BHM_STORAGE_CONTROLLERS_INFO")
+@TableName("COLLECT_BHM_S_CONTROLLERS")
 public class CollectBhmStorageControllersInfo extends Model<CollectBhmStorageControllersInfo> {
 
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
@@ -61,7 +61,7 @@ public class CollectBhmStorageControllersInfo extends Model<CollectBhmStorageCon
     /**
      * 型号（同 CardModel）
      */
-    @TableField("MODEL")
+    @TableField("CONTROLLERS_MODEL")
     private String model;
     /**
      * 控制器显示名称
