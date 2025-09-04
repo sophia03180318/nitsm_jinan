@@ -50,10 +50,11 @@ public class ThresholdInfoReceiver {
                 IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
                 if(Objects.isNull(adapter)){
                     AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER,"阈值处理调度被中断，缺少对应的数据处理类型",dto.getCategory());
+                }else{
+                    adapter.dispose(result);
+                    //获取当前处理数量
+                    adapter.dataProcess();
                 }
-                adapter.dispose(result);
-                //获取当前处理数量
-                adapter.dataProcess();
             } catch (JedisConnectionException | RedisConnectionFailureException e1) {
                 AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER, "redis 网络断线……", e1);
                 try {
