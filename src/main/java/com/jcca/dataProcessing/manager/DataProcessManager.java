@@ -112,6 +112,14 @@ public class DataProcessManager {
 
     private IFilterHandler collectNodeStatusHandler;
 
+    private IFilterHandler collectBhmCpuHandler;
+    private IFilterHandler collectBhmFanHandler;
+    private IFilterHandler collectBhmMemoryHandler;
+    private IFilterHandler collectBhmPcieHandler;
+    private IFilterHandler collectBhmPowerHandler;
+    private IFilterHandler collectBhmStorageHandler;
+    private IFilterHandler collectBhmTempHandler;
+
 
     /**
      * 创建执行器
@@ -216,6 +224,36 @@ public class DataProcessManager {
         //初始化监听事件
         eventInfoListener = this.getListener("eventInfoListener");
         alarmListener = this.getListener("alarmListener");
+
+
+        //2025-09-01 服务器BHM的CPU信息
+        List<String> bhmCpuHandlerList = Arrays.asList("bhmCpuSaveHandler");
+        IFilterHandler bhmCpuHandler = createHandler(bhmCpuHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmCpuHandler = bhmCpuHandler;
+        //2025-09-01 服务器BHM的Fan信息
+        List<String> bhmFanHandlerList = Arrays.asList("bhmFanSaveHandler");
+        IFilterHandler bhmFanHandler = createHandler(bhmFanHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmFanHandler = bhmFanHandler;
+        //2025-09-01 服务器BHM的Memory信息
+        List<String> bhmMemoryHandlerList = Arrays.asList("bhmMemorySaveHandler");
+        IFilterHandler bhmMemoryHandler = createHandler(bhmMemoryHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmMemoryHandler = bhmMemoryHandler;
+        //2025-09-01 服务器BHM的PCIE信息
+        List<String> bhmPcieHandlerList = Arrays.asList("bhmPcieSaveHandler");
+        IFilterHandler bhmPcieHandler = createHandler(bhmPcieHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmPcieHandler = bhmPcieHandler;
+        //2025-09-01 服务器BHM的Power信息
+        List<String> bhmPowerHandlerList = Arrays.asList("bhmPowerSaveHandler");
+        IFilterHandler bhmPowerHandler = createHandler(bhmPowerHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmPowerHandler = bhmPowerHandler;
+        //2025-09-01 服务器BHM的存储信息
+        List<String> bhmStorageHandlerList = Arrays.asList("bhmStorageSaveHandler");
+        IFilterHandler bhmStorageHandler = createHandler(bhmStorageHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmStorageHandler = bhmStorageHandler;
+        //2025-09-01 服务器BHM的温度信息
+        List<String> bhmTempHandlerList = Arrays.asList("bhmTempSaveHandler");
+        IFilterHandler bhmTempHandler = createHandler(bhmTempHandlerList, new ArrayList<>(), eventInfoListener);
+        collectBhmTempHandler = bhmTempHandler;
 
 
         List<String> cpuHandlerList = Arrays.asList(
@@ -1279,5 +1317,57 @@ public class DataProcessManager {
     public void collectNodeStatus(CollectNodeEntity infoEntity) throws Exception {
         collectNodeStatusHandler.handleRequest(infoEntity, true);
 
+    }
+
+    /**
+     * 处理BHM的cpu信息
+     * @param list
+     */
+    public void bhmCpuHandlerRequest(List<CollectBhmCpuEntity> list) throws Exception {
+        collectBhmCpuHandler.handleRequest(list, true);
+    }
+    /**
+     * 处理BHM的风扇信息
+     * @param item
+     */
+    public void bhmFanHandlerRequest(List<CollectBhmFanEntity> item) throws Exception {
+        collectBhmFanHandler.handleRequest(item, true);
+    }
+
+    /**
+     * 处理BHM的内存信息
+     * @param item
+     */
+    public void bhmMemoryHandlerRequest(List<CollectBhmMemoryEntity> item) throws Exception {
+        collectBhmMemoryHandler.handleRequest(item, true);
+    }
+
+    /**
+     * 处理BHM的PCIE信息
+     * @param item
+     */
+    public void bhmPcieHandlerRequest(List<CollectBhmPcieEntity> item) throws Exception {
+        collectBhmPcieHandler.handleRequest(item, true);
+    }
+    /**
+     * 处理BHM的电源信息
+     * @param item
+     */
+    public void bhmPowerHandlerRequest(List<CollectBhmPowerEntity> item) throws Exception {
+        collectBhmPowerHandler.handleRequest(item, true);
+    }
+    /**
+     * 处理BHM的存储信息
+     * @param item
+     */
+    public void bhmStorageHandlerRequest(List<CollectBhmStorageEntity> item) throws Exception {
+        collectBhmStorageHandler.handleRequest(item, true);
+    }
+    /**
+     * 处理BHM的温度信息
+     * @param item
+     */
+    public void bhmTempHandlerRequest(List<CollectBhmTempEntity> item) throws Exception {
+        collectBhmTempHandler.handleRequest(item, true);
     }
 }

@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
-import com.jcca.dataProcessing.Entity.CollectDBEntity;
-import com.jcca.dataProcessing.Entity.CollectTablespaceEntity;
+import com.jcca.dataProcessing.Entity.*;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.collect.entity.CollectDB;
 import com.jcca.web.collect.entity.CollectDBfile;
@@ -14,6 +13,14 @@ import com.jcca.web.collect.entity.CollectTablespace;
 import com.jcca.web.collect.service.CollectDBService;
 import com.jcca.web.collect.service.CollectDBfileService;
 import com.jcca.web.collect.service.CollectTablespaceService;
+import com.jcca.web2.entity.CollectDatabasesInfo;
+import com.jcca.web2.entity.CollectDbLockInfo;
+import com.jcca.web2.entity.CollectDbLogSetting;
+import com.jcca.web2.entity.CollectDbProcessLockInfo;
+import com.jcca.web2.service.CollectDatabasesInfoService;
+import com.jcca.web2.service.CollectDbLockInfoService;
+import com.jcca.web2.service.CollectDbLogSettingService;
+import com.jcca.web2.service.CollectDbProcessLockInfoService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +28,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Zhaozheng
@@ -38,6 +46,16 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
     private CollectDBService dbService;
     @Resource
     private CollectDBfileService dBfileService;
+    @Resource
+    private CollectDatabasesInfoService databasesInfoService;
+    @Resource
+    private CollectDbLogSettingService collectDbLogSettingService;
+    @Resource
+    private CollectDbProcessLockInfoService processLockInfoService;
+    @Resource
+    private CollectDbLockInfoService dbLockInfoService;
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -105,6 +123,57 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             dbFile.setCollectDbId(dbId);
         }
         dBfileService.saveBatch(dbFiles);
+
+        //处理数据库基础信息
+        List<DatabasesBeanEntity> databasesInfoList = info.getDatabasesInfoList();
+        if(Objects.nonNull(databasesInfoList) && !databasesInfoList.isEmpty()){
+            List<CollectDatabasesInfo> collectDatabasesInfos = EntityBeanUtil.copyList(databasesInfoList, CollectDatabasesInfo.class);
+            for (CollectDatabasesInfo databasesBeanEntity : collectDatabasesInfos) {
+                databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink()?1:-1);
+                databasesBeanEntity.setId(MyIdUtil.getId());
+                databasesBeanEntity.setCollectDbId(dbId);
+                databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate()?1:-1);
+            }
+            //更新采集数据
+            databasesInfoService.updateCollectData(collectDatabasesInfos,dbId);
+        }
+
+        //处理日志配置信息
+        List<DbLogSettingEntity> logSettingList = info.getLogSettingList();
+        if(Objects.nonNull(logSettingList) && !logSettingList.isEmpty()){
+            List<CollectDbLogSetting> collectDbLogSettingList = EntityBeanUtil.copyList(logSettingList, CollectDbLogSetting.class);
+            for (CollectDbLogSetting collectDbLogSetting : collectDbLogSettingList) {
+                collectDbLogSetting.setId(MyIdUtil.getId());
+                collectDbLogSetting.setCollectDbId(dbId);
+            }
+
+            collectDbLogSettingService.updateCollectData(collectDbLogSettingList,dbId);
+        }
+
+        //处理数据库进程锁
+        List<DbProcessLockEntity> processLockList = info.getProcessLockList();
+        if(Objects.nonNull(processLockList) && !processLockList.isEmpty()){
+            List<CollectDbProcessLockInfo> collectProcessLockList = EntityBeanUtil.copyList(processLockList, CollectDbProcessLockInfo.class);
+            for (CollectDbProcessLockInfo collectProcessLock : collectProcessLockList) {
+                collectProcessLock.setId(MyIdUtil.getId());
+                collectProcessLock.setCollectDbId(dbId);
+            }
+
+            processLockInfoService.updateCollectData(collectProcessLockList,dbId);
+        }
+
+        //处理数据库锁信息
+        List<DbLockInfoEntity> lockInfoList = info.getLockInfoList();
+        if(Objects.nonNull(lockInfoList) && !lockInfoList.isEmpty()){
+            List<CollectDbLockInfo> collectDbLockList = EntityBeanUtil.copyList(lockInfoList, CollectDbLockInfo.class);
+            for (CollectDbLockInfo collectDbLock : collectDbLockList) {
+                collectDbLock.setId(MyIdUtil.getId());
+                collectDbLock.setCollectDbId(dbId);
+            }
+
+            dbLockInfoService.updateCollectData(collectDbLockList,dbId);
+        }
+
 
         return true;
     }

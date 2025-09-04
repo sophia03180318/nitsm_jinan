@@ -118,6 +118,7 @@ public enum ResultEnum implements ResultInterface {
     COLLECTOR_NONE(1309, "信息已被删除，刷新重试"),
     COLLECTOR_NULL_ID(1310, "主键不可为空"),
     COLLECTOR_NULL_STATUS(1311, "状态不可为空"),
+    COLLECTOR_NONENTITY(1312, "此类型代码不存在"),
 
     /**
      * 巡检管理

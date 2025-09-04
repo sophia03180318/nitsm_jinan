@@ -30,7 +30,18 @@ public class AssetIpAdd {
     @Resource
     AssetService assetService;
 
-    private Map<String, String> ipMap = new ConcurrentHashMap<>(256);
+    public Map<String, String> ipMap = new ConcurrentHashMap<>(256);
+
+
+    /**
+     * 变更IP的时候删除缓存
+     */
+    public void removeIpCatch(String assetId){
+        String ip = ipMap.get(assetId);
+        if(StrUtil.isNotEmpty(ip)){
+            ipMap.remove(assetId);
+        }
+    }
 
     /**
      * 通用资产Ip的添加功能

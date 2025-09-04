@@ -124,5 +124,71 @@ public class CollectDBEntity extends CommonEntity {
      */
     private List<CollectTablespaceEntity> tablespace;
 
+    /**
+     * 数据库信息列表、
+     * 2025-08-14
+     */
+    private List<DatabasesBeanEntity> databasesInfoList;
+    /**
+     * 数据库日志归档配置信息
+     * 2025-08-14
+     */
+    private List<DbLogSettingEntity> logSettingList;
+
+    /**
+     * 共享内存：共享缓冲区大小
+     * 2025-08-14
+     */
+    private String sharedBuffers;
+    /**
+     * 共享内存：使用率
+     * 2025-08-14
+     */
+    private String sharedBuffersUsedRate;
+
+    /**
+     * 当前锁列表
+     * 2025-08-14
+     */
+    private List<DbProcessLockEntity> processLockList;
+    /**
+     * 内部锁列表信息
+     */
+    private List<DbLockInfoEntity> lockInfoList;
+    /**
+     * 是否存在死锁
+     * 2025-08-14
+     */
+    private Boolean blockedLock;
+    /**
+     * 死锁描述
+     * 2025-08-14
+     */
+    private String blockedLockMsg;
+
+    /**
+     * 每秒逻辑块读次数
+     * 2025-08-15
+     */
+    private String LogicalReadsPerSecond;
+
+    /**
+     * 每秒逻辑块写次
+     * 2025-08-15
+     */
+    private String LogicalWrPerSecond;
+
+    /**
+     * 每秒物理块读
+     * 2025-08-15
+     */
+    private String physicalBlockReads;
+
+    /**
+     * 每秒物理块写
+     * 2025-08-15
+     */
+    private String physicalBlockWr;
+
 
 }
