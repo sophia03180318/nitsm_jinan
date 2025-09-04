@@ -10,7 +10,6 @@ import com.jcca.dataProcessing.support.IFilterHandler;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Date;
 
 /**
  * @author Zhaozheng
@@ -48,7 +47,7 @@ public class DongHuanNotifyHandler extends IFilterHandler<DongHuanEntity> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

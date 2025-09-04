@@ -101,7 +101,7 @@ public class PingGroupOtherDownFilterHandler extends IFilterHandler<ReceiveAlarm
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return true;
     }
 

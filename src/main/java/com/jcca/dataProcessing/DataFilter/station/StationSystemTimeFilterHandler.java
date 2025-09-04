@@ -93,7 +93,7 @@ public class StationSystemTimeFilterHandler extends IFilterHandler<CollectStatio
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

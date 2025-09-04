@@ -45,7 +45,7 @@ public class ConnectSaveFilterHandler extends IFilterHandler<CollectConnectEntit
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

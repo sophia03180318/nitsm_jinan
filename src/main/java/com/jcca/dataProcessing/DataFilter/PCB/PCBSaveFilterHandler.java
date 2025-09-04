@@ -49,7 +49,7 @@ public class PCBSaveFilterHandler extends IFilterHandler<List<CollectPcbEntity>>
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

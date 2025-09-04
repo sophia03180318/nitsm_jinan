@@ -77,7 +77,7 @@ public class RaidDsStorageControllerFitlerHandler extends IFilterHandler<DSEntit
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

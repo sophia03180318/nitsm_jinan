@@ -87,7 +87,7 @@ public class InterfacePortInStageTwoFilterHandler extends IFilterHandler<Collect
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

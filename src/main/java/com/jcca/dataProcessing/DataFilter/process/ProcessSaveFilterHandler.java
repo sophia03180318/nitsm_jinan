@@ -1,6 +1,5 @@
 package com.jcca.dataProcessing.DataFilter.process;
 
-import com.jcca.common.enums.StatusEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.MyIdUtil;
@@ -8,7 +7,6 @@ import com.jcca.dataProcessing.Entity.CollectProcessEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.asset.entity.ThresholdProcess;
 import com.jcca.web.asset.service.ThresholdProcessService;
-import com.jcca.web.asset.utils.enums.ProcessHostModeEnum;
 import com.jcca.web.collect.entity.CollectProcess;
 import com.jcca.web.collect.service.CollectProcessService;
 import org.springframework.stereotype.Component;
@@ -82,7 +80,7 @@ public class ProcessSaveFilterHandler extends IFilterHandler<CollectProcessEntit
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

@@ -79,7 +79,7 @@ public class DbTableSpaceStageThreeFilterHandler extends IFilterHandler<CollectT
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

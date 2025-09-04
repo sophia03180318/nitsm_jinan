@@ -62,7 +62,7 @@ public class CpuLoadSaveFilterHandler extends IFilterHandler<CollectCpuLoadBean>
      * @return 返回true则需要下层处理，返回false不需要下层处理，并且不会保存缓存
      */
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 }

@@ -88,7 +88,7 @@ public class InterfaceRxPowerTwoFilterHandler extends IFilterHandler<CollectInte
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

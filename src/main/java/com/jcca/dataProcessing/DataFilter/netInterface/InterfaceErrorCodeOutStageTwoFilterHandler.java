@@ -89,7 +89,7 @@ public class InterfaceErrorCodeOutStageTwoFilterHandler extends IFilterHandler<C
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 
