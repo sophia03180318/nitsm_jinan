@@ -21,7 +21,7 @@ public interface TopoAssetMarkMapper extends BaseMapper<TopoAssetMark> {
     @Delete("delete from TOPO_ASSET_MARK where ASSET_ID=#{assetId} and NODE_TYPE=#{nodeType}")
     Boolean deleteNetWorkAssetMark(@Param("assetId") String assetId, @Param("nodeType") String nodeType);
 
-    @Select("select * from TOPO_ASSET_MARK where ORG_ID=#{orgId} and NODE_TYPE=#{nodeType} order by id desc")
+    @Select("select * from TOPO_ASSET_MARK where ORG_ID=#{orgId} and NODE_TYPE=#{nodeType} order by id")
     List<TopoAssetMark> queryAssetMark(@Param("orgId") String orgId, @Param("nodeType") String nodeType);
 
 
