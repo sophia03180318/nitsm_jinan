@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface CollectBhmTempInfoService extends IService<CollectBhmTempInfo> {
 
-    void updateAssetPcieInfoBatch(List<CollectBhmTempInfo> saveList);
+    void updateAssetTempInfoBatch(List<CollectBhmTempInfo> saveList);
 }

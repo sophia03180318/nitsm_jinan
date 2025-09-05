@@ -18,7 +18,7 @@ public class CollectBhmTempInfoServiceImpl extends ServiceImpl<CollectBhmTempInf
 
 
     @Override
-    public void updateAssetPcieInfoBatch(List<CollectBhmTempInfo> saveList) {
+    public void updateAssetTempInfoBatch(List<CollectBhmTempInfo> saveList) {
         if(Objects.isNull(saveList) || saveList.isEmpty()){
             return ;
         }

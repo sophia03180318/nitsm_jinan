@@ -3,12 +3,10 @@ package com.jcca.dataProcessing.DataFilter.bhm.temp;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
-import com.jcca.dataProcessing.Entity.CollectBhmStorageEntity;
 import com.jcca.dataProcessing.Entity.CollectBhmTempEntity;
 import com.jcca.dataProcessing.Entity.ReadFishStatusEntity;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web2.entity.CollectBhmTempInfo;
-import com.jcca.web2.service.CollectBhmStorageInfoService;
 import com.jcca.web2.service.CollectBhmTempInfoService;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +39,7 @@ public class BhmTempSaveHandler extends IFilterHandler<List<CollectBhmTempEntity
             copy.setCreateTime(new Date());
             saveList.add(copy);
         }
-        collectBhmService.updateAssetPcieInfoBatch(saveList);
+        collectBhmService.updateAssetTempInfoBatch(saveList);
 
         return true;
     }
