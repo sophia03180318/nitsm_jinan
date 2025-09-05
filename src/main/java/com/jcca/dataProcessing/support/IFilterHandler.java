@@ -67,7 +67,9 @@ public abstract class IFilterHandler<T> extends ListenerManager {
         if (isNeedHandle) {
             try {
                 flag = handler(info);
-            } catch (Exception exception) {
+            }catch (ResultException r1){
+                AppLogUtils.buildLogInfo(LogFunctionEnum.ALARM_HANDLE, "", r1.getMessage());
+            }catch (Exception exception) {
                 AppLogUtils.buildLogError(LogFunctionEnum.ALARM_HANDLE, JSONUtil.toJsonStr(info), exception);
             }
         }
