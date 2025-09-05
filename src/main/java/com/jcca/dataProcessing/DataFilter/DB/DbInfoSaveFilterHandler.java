@@ -126,6 +126,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         //保存各类文件数据
         List<CollectDBfile> dbFiles = info.getDbFiles();
         for (CollectDBfile dbFile : dbFiles) {
+            dbFile.setId(MyIdUtil.getId());
             dbFile.setAssetId(entity.getAssetId());
             dbFile.setCollectDbId(entity.getId());
             dbFile.setCollectTime(date);
