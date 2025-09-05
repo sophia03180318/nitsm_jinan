@@ -91,7 +91,7 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
 
     @Override
     public String getCode() {
-        return CollectConst.BHM_STORAGE_MSG;
+        return CollectConst.BHM_TEMP_MSG;
     }
 
     @Override

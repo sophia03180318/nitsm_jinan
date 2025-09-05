@@ -38,7 +38,7 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateAssetPcieInfoBatch(List<CollectBhmStorageEntity> infoList) {
+    public void updateAssetStorageInfoBatch(List<CollectBhmStorageEntity> infoList) {
         if(Objects.isNull(infoList) || infoList.isEmpty()){
             return ;
         }

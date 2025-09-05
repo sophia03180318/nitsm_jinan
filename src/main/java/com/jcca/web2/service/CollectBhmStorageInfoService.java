@@ -10,5 +10,5 @@ import java.util.List;
 public interface CollectBhmStorageInfoService extends IService<CollectBhmStorageInfo> {
 
 
-    void updateAssetPcieInfoBatch(List<CollectBhmStorageEntity> infoList);
+    void updateAssetStorageInfoBatch(List<CollectBhmStorageEntity> infoList);
 }
