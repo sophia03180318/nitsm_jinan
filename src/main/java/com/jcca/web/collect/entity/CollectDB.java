@@ -2,6 +2,8 @@ package com.jcca.web.collect.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.jcca.web2.entity.CollectDbSlowSql;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -155,20 +157,78 @@ public class CollectDB extends Model<CollectDB> {
      */
     @TableField("REDO_LOG_BUFFER")
     private String redoLogBuffer;
+
+
     /**
-     * 缓冲库命中率
+     * 共享内存：共享缓冲区大小
+     * 2025-08-14
      */
-    @TableField(exist = false)
+    @TableField("SHARED_BUFFERS")
+    private String sharedBuffers;
+    /**
+     * 共享内存：使用率
+     * 2025-08-14
+     */
+    @TableField("SHARED_BUFFERS_USED_RATE")
+    private String sharedBuffersUsedRate;
+
+    /**
+     * 是否存在死锁
+     * 1存在-1 不存在
+     * 2025-08-14
+     */
+    @TableField("BLOCKED_LOCK")
+    private Integer blockedLock;
+    /**
+     * 死锁描述
+     * 2025-08-14
+     */
+    @TableField("BLOCKED_LOCK_MSG")
+    private String blockedLockMsg;
+
+    /**
+     * 每秒逻辑块读次数
+     * 2025-08-15
+     */
+    @TableField("LOGICAL_READS_PER_SECOND")
+    private String logicalReadsPerSecond;
+
+    /**
+     * 每秒逻辑块写次
+     * 2025-08-15
+     */
+    @TableField("LOGICAL_WR_PER_SECOND")
+    private String logicalWrPerSecond;
+
+    /**
+     * 每秒物理块读
+     * 2025-08-15
+     */
+    @TableField("PHYSICAL_BLOCK_READS")
+    private String physicalBlockReads;
+
+    /**
+     * 每秒物理块写
+     * 2025-08-15
+     */
+    @TableField("PHYSICAL_BLOCK_WR")
+    private String physicalBlockWr;
+
+    /**
+     * 缓冲库命中率 又称
+     * 库高速缓存命中率
+     */
+    @TableField("CACHE_LIBRARY")
     private String cacheLibrary;
     /**
      * 数据库连接数
      */
-    @TableField(exist = false)
+    @TableField("DB_CONNECTION")
     private String dbConnection;
     /**
      * 数据库活动连接数
      */
-    @TableField(exist = false)
+    @TableField("DB_ACTIVE")
     private String dbActive;
 
     /**
@@ -182,4 +242,14 @@ public class CollectDB extends Model<CollectDB> {
      */
     @TableField(exist = false)
     private List<CollectTablespace> tablespace;
+
+
+    /**
+     * 慢sql
+     * 2025-08-15
+     */
+    @TableField(exist = false)
+    private List<CollectDbSlowSql> slowSqlList;
+
+
 }

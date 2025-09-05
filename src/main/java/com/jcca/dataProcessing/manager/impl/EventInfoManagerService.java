@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.manager.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IEventInfoManagerService;
@@ -154,10 +155,14 @@ public class EventInfoManagerService implements IEventInfoManagerService {
      * @param info
      */
     public void saveRedisChange(IEvent info, RedisTemplate redisTemplate) {
-        if (info.getStatus() == EventLevelEnum.NORMAL.getCode()) {//如果事件正常删除事件缓存
-            HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
-            hash.delete(info.getEventRedisKey(), info.getMapKey());
-        } else {//如果事件缓存事件信息
+        if (info.getStatus() == EventLevelEnum.NORMAL.getCode()) {
+            //如果事件正常删除事件缓存
+            if(StrUtil.isNotEmpty(info.getEventRedisKey()) && StrUtil.isNotEmpty(info.getMapKey())){
+                HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
+                hash.delete(info.getEventRedisKey(), info.getMapKey());
+            }
+        } else if(StrUtil.isNotEmpty(info.getEventRedisKey()) && StrUtil.isNotEmpty(info.getMapKey())){
+            //如果事件缓存事件信息
             HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
             hash.put(info.getEventRedisKey(), info.getMapKey(), info.getStatus());
         }

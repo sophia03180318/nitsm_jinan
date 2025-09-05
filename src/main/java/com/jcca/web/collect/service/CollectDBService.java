@@ -34,5 +34,4 @@ public interface CollectDBService extends IService<CollectDB> {
      * @return
      */
     Boolean removeBeforeData(Integer hour);
-
 }

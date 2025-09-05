@@ -93,7 +93,7 @@ public class AixIoCardIFilterHandlerHandler extends IFilterHandler<CollectAixSys
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

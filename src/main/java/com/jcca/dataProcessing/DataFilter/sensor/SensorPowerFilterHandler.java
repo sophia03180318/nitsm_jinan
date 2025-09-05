@@ -47,7 +47,7 @@ public class SensorPowerFilterHandler extends IFilterHandler<CollectSensorEntity
             info.getMaps().put(mapKey1, changeInfo);
             String eventRedisKey = StatusInfoChangeTypeEnum.event_power_state.getCode();
             String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getSerialNumberName();
-            List<String> normalStatusList = Arrays.asList("0", "1");
+            List<String> normalStatusList = Arrays.asList("0", "1","正常");
             Integer status = normalStatusList.contains(info.getStatus()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String str = status == EventLevelEnum.ABNORMAL.getCode() ? "异常。" : "恢复。";
             AlarmTempReq alarmTempReq = new AlarmTempReq();
@@ -71,7 +71,7 @@ public class SensorPowerFilterHandler extends IFilterHandler<CollectSensorEntity
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

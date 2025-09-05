@@ -86,7 +86,7 @@ public class InterfaceErrorCodeInFilterHandler extends IFilterHandler<CollectInt
 
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 }

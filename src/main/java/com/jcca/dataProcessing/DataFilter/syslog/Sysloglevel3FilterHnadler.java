@@ -195,7 +195,7 @@ public class Sysloglevel3FilterHnadler extends IFilterHandler<SyslogEventInfoEnt
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

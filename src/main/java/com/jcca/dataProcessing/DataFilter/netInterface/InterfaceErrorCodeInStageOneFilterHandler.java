@@ -87,7 +87,7 @@ public class InterfaceErrorCodeInStageOneFilterHandler extends IFilterHandler<Co
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

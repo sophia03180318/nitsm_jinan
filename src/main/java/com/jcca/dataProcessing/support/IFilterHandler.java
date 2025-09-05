@@ -39,7 +39,7 @@ public abstract class IFilterHandler<T> extends ListenerManager {
      * @param flag
      * @return 返回true则需要下层处理，返回false不需要下层处理，并且不会保存缓存
      */
-    public abstract boolean isNeedNexthandle(Boolean flag);
+    public abstract boolean isNeedNextHandle(Boolean flag);
 
 
     /**
@@ -66,13 +66,13 @@ public abstract class IFilterHandler<T> extends ListenerManager {
         if (isNeedHandle) {
             try {
                 flag = handler(info);
-            } catch (ResultException exception) {
+            } catch (Exception exception) {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.ALARM_HANDLE, "", exception.getMessage());
             }
         }
         if (next != null) {
             //下一个继续处理
-            next.handleRequest(info, isNeedNexthandle(flag));
+            next.handleRequest(info, isNeedNextHandle(flag));
         }
     }
 

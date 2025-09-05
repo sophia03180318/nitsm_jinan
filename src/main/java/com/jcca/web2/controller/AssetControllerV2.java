@@ -1,5 +1,6 @@
 package com.jcca.web2.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,6 +15,7 @@ import com.jcca.common.log.constant.LogTypeConstant;
 import com.jcca.common.utils.EncryptUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
+import com.jcca.dataProcessing.dataAdpater.AssetIpAdd;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetTelnet;
 import com.jcca.web.asset.service.AssetService;
@@ -46,7 +48,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v2/asset")
 @Api(tags = "资产相关接口V2")
-public class AssetControllerV2 {
+public class AssetControllerV2 extends AssetIpAdd{
 
     @Resource
     private AssetService assetServ;
@@ -101,7 +103,9 @@ public class AssetControllerV2 {
     public ResultVo<Object> add(@Validated @RequestBody Asset asset) throws Exception {
 
         assetServ.saveAssetV2(asset);
-
+        if(StrUtil.isNotEmpty(asset.getId())){
+            removeIpCatch(asset.getId());
+        }
         return ResultVoUtil.success();
     }
 

@@ -129,7 +129,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 }

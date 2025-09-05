@@ -51,7 +51,7 @@ public class SensorTemperatureFilterHandler extends IFilterHandler<CollectSensor
             info.getMaps().put(mapKey1, changeInfo1);
             String eventRedisKey1 = StatusInfoChangeTypeEnum.event_temp_state.getCode();
             String eventMapKey1 = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getSerialNumberName();
-            List<String> normalStatusList = Arrays.asList("0", "1");
+            List<String> normalStatusList = Arrays.asList("0", "1","正常");
             Integer status1 = normalStatusList.contains(info.getStatus()) ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
             String str = status1 == EventLevelEnum.ABNORMAL.getCode() ? "异常。" : "恢复。";
             AlarmTempReq alarmTempReq = new AlarmTempReq();
@@ -123,7 +123,7 @@ public class SensorTemperatureFilterHandler extends IFilterHandler<CollectSensor
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

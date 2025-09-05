@@ -9,6 +9,7 @@ import com.jcca.web.collect.dao.CollectDBMapper;
 import com.jcca.web.collect.entity.CollectDB;
 import com.jcca.web.collect.service.CollectDBService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Calendar;

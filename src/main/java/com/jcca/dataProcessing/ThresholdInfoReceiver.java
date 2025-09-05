@@ -23,6 +23,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 
 @Component
@@ -47,9 +48,13 @@ public class ThresholdInfoReceiver {
                 String content = dto.getContent();
                 JSONArray result = JSONUtil.parseArray(content);
                 IAdapter adapter = dataProcessManager.getAdapter(dto.getCategory());
-                adapter.dispose(result);
-                //获取当前处理数量
-                adapter.dataProcess();
+                if(Objects.isNull(adapter)){
+                    AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER,"阈值处理调度被中断，缺少对应的数据处理类型",dto.getCategory());
+                }else{
+                    adapter.dispose(result);
+                    //获取当前处理数量
+                    adapter.dataProcess();
+                }
             } catch (JedisConnectionException | RedisConnectionFailureException e1) {
                 AppLogUtils.buildLogError(LogFunctionEnum.COLLECT_DATA_PARSER, "redis 网络断线……", e1);
                 try {

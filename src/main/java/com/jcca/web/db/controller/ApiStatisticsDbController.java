@@ -37,6 +37,14 @@ import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.db.vo.AllBrokenLineVo;
 import com.jcca.web.db.vo.BrokenLineVo;
 import com.jcca.web.db.vo.StatisticsDbBaseMsgVo;
+import com.jcca.web2.entity.CollectDatabasesInfo;
+import com.jcca.web2.entity.CollectDbLockInfo;
+import com.jcca.web2.entity.CollectDbLogSetting;
+import com.jcca.web2.entity.CollectDbSlowSql;
+import com.jcca.web2.service.CollectDatabasesInfoService;
+import com.jcca.web2.service.CollectDbLockInfoService;
+import com.jcca.web2.service.CollectDbLogSettingService;
+import com.jcca.web2.service.CollectDbSlowSqlService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +82,15 @@ public class ApiStatisticsDbController {
     private CollectTablespaceService collectTablespaceService;
     @Resource
     private CollectDBfileService dBfileService;
+
+    @Resource
+    private CollectDatabasesInfoService databasesInfoService;
+    @Resource
+    private CollectDbLockInfoService lockInfoService;
+    @Resource
+    private CollectDbLogSettingService logSettingService;
+    @Resource
+    private CollectDbSlowSqlService collectDbSlowSqlService;
 
     /**
      * 分页查询数据库
@@ -115,6 +132,68 @@ public class ApiStatisticsDbController {
         return ResultVoUtil.success(pageBean);
     }
 
+
+    @ApiOperation(value = "数据库列表信息")
+    @GetMapping("/getDbInfo")
+    ResultVo<?> getDbInfo(String id) {
+        if(StrUtil.isEmpty(id)){
+            return ResultVoUtil.error("缺少数据库ID");
+        }
+        QueryWrapper<CollectDatabasesInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("COLLECT_DB_ID", id);
+        queryWrapper.orderByAsc("NAME");
+        List<CollectDatabasesInfo> list = databasesInfoService.list(queryWrapper);
+
+        return ResultVoUtil.success(list);
+    }
+
+
+    @ApiOperation(value = "数据库慢sql")
+    @GetMapping("/getSlowSql")
+    ResultVo<?> getSlowSql(String id) {
+        if(StrUtil.isEmpty(id)){
+            return ResultVoUtil.error("缺少数据库ID");
+        }
+        QueryWrapper<CollectDbSlowSql> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("COLLECT_DB_ID", id);
+        queryWrapper.orderByAsc("DATABASES_NAME");
+        List<CollectDbSlowSql> list = collectDbSlowSqlService.list(queryWrapper);
+
+        return ResultVoUtil.success(list);
+    }
+
+
+
+
+    @ApiOperation(value = "数据库锁信息")
+    @GetMapping("/getLockInfo")
+    ResultVo<?> getLockInfo(String id) {
+        if(StrUtil.isEmpty(id)){
+            return ResultVoUtil.error("缺少数据库ID");
+        }
+        QueryWrapper<CollectDbLockInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("COLLECT_DB_ID", id);
+        queryWrapper.orderByAsc("LOCK_TYPE");
+        List<CollectDbLockInfo> list = lockInfoService.list(queryWrapper);
+
+        return ResultVoUtil.success(list);
+    }
+
+    @ApiOperation(value = "数据库备份配置信息")
+    @GetMapping("/getBackupsConfig")
+    ResultVo<?> getBackupsConfig(String id) {
+        if(StrUtil.isEmpty(id)){
+            return ResultVoUtil.error("缺少数据库ID");
+        }
+        QueryWrapper<CollectDbLogSetting> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("COLLECT_DB_ID", id);
+        queryWrapper.orderByAsc("SETTING_NAME");
+        List<CollectDbLogSetting> list = logSettingService.list(queryWrapper);
+
+        return ResultVoUtil.success(list);
+    }
+
+
     /**
      * 数据库详情--基础信息查询
      *
@@ -135,6 +214,7 @@ public class ApiStatisticsDbController {
         List<CollectDB> collectDbList = collectDbServ.getRealTimeData(db.getAssetId());
 
         StatisticsDbBaseMsgVo vo = new StatisticsDbBaseMsgVo();
+        vo.setDbProtocol(db.getDbProtocol());
         vo.setAssetIp(asset.getIp());
         vo.setName(db.getName());
         vo.setDbName(db.getDbName());

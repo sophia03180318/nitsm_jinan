@@ -122,7 +122,7 @@ public class RaidDsStorageLogicDriverFilterHandler extends IFilterHandler<DSEnti
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 

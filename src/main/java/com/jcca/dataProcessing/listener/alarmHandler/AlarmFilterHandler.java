@@ -3,23 +3,10 @@ package com.jcca.dataProcessing.listener.alarmHandler;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcca.common.enums.AlarmLevelEnum;
-import com.jcca.common.enums.AlarmStateEnum;
-import com.jcca.common.redis.service.RedisService;
-import com.jcca.dataProcessing.Entity.ChangeInfo;
-import com.jcca.dataProcessing.manager.IDataChangeManagerService;
-import com.jcca.dataProcessing.manager.bean.SaveAlarmResp;
-import com.jcca.dataProcessing.manager.impl.EventInfoManagerService;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
-import com.jcca.web.alarm.entity.AlarmInfo;
-import com.jcca.web.alarm.service.AlarmInfoService;
-import com.jcca.web.asset.entity.Asset;
-import com.jcca.web.asset.service.AssetService;
-import com.jcca.web.event.entity.AlarmEvent;
-import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web2.entity.AlarmWhitelist;
 import com.jcca.web2.service.AlarmWhitelistService;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +55,7 @@ public class AlarmFilterHandler extends IFilterHandler<IEvent> {
     }
 
     @Override
-    public boolean isNeedNexthandle(Boolean flag) {
+    public boolean isNeedNextHandle(Boolean flag) {
         return flag;
     }
 
