@@ -97,6 +97,9 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             entity.setRedoLogBuffer(info.getRedoLogBuffer());
         }
 
+        QueryWrapper<CollectDB> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ASSET_ID", entity.getAssetId());
+        dbService.remove(queryWrapper);
         dbService.save(entity);
 
         //处理表空间
@@ -134,6 +137,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink() ? 1 : -1);
                 databasesBeanEntity.setId(MyIdUtil.getId());
                 databasesBeanEntity.setCollectDbId(dbId);
+                databasesBeanEntity.setAssetId(entity.getAssetId());
                 databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate() ? 1 : -1);
             }
             //更新采集数据
@@ -147,6 +151,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbLogSetting collectDbLogSetting : collectDbLogSettingList) {
                 collectDbLogSetting.setId(MyIdUtil.getId());
                 collectDbLogSetting.setCollectDbId(dbId);
+                collectDbLogSetting.setAssetId(entity.getAssetId());
             }
 
             collectDbLogSettingService.updateCollectData(collectDbLogSettingList, dbId);
@@ -159,6 +164,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbProcessLockInfo collectProcessLock : collectProcessLockList) {
                 collectProcessLock.setId(MyIdUtil.getId());
                 collectProcessLock.setCollectDbId(dbId);
+                collectProcessLock.setAssetId(entity.getAssetId());
             }
 
             processLockInfoService.updateCollectData(collectProcessLockList, dbId);
@@ -171,6 +177,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbLockInfo collectDbLock : collectDbLockList) {
                 collectDbLock.setId(MyIdUtil.getId());
                 collectDbLock.setCollectDbId(dbId);
+                collectDbLock.setAssetId(entity.getAssetId());
             }
 
             dbLockInfoService.updateCollectData(collectDbLockList, dbId);
@@ -183,6 +190,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbSlowSql collectDbSlowSql : collectSlowList) {
                 collectDbSlowSql.setId(MyIdUtil.getId());
                 collectDbSlowSql.setCollectDbId(dbId);
+                collectDbSlowSql.setAssetId(entity.getAssetId());
             }
             slowSqlService.updateCollectData(collectSlowList, dbId);
         }
