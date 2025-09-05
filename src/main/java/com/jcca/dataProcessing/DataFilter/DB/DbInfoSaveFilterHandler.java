@@ -13,14 +13,8 @@ import com.jcca.web.collect.entity.CollectTablespace;
 import com.jcca.web.collect.service.CollectDBService;
 import com.jcca.web.collect.service.CollectDBfileService;
 import com.jcca.web.collect.service.CollectTablespaceService;
-import com.jcca.web2.entity.CollectDatabasesInfo;
-import com.jcca.web2.entity.CollectDbLockInfo;
-import com.jcca.web2.entity.CollectDbLogSetting;
-import com.jcca.web2.entity.CollectDbProcessLockInfo;
-import com.jcca.web2.service.CollectDatabasesInfoService;
-import com.jcca.web2.service.CollectDbLockInfoService;
-import com.jcca.web2.service.CollectDbLogSettingService;
-import com.jcca.web2.service.CollectDbProcessLockInfoService;
+import com.jcca.web2.entity.*;
+import com.jcca.web2.service.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +48,8 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
     private CollectDbProcessLockInfoService processLockInfoService;
     @Resource
     private CollectDbLockInfoService dbLockInfoService;
+    @Resource
+    private CollectDbSlowSqlService slowSqlService;
 
 
 
@@ -93,6 +89,9 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         }
         if(StrUtil.isNotEmpty(info.getDbLockWaitRate())){
             entity.setDbLockWaitRate(Double.valueOf(info.getDbLockWaitRate()));
+        }
+        if(Objects.nonNull(info.getBlockedLock())){
+            entity.setBlockedLock(info.getBlockedLock()?1:-1);
         }
 
         dbService.save(entity);
@@ -173,7 +172,17 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
 
             dbLockInfoService.updateCollectData(collectDbLockList,dbId);
         }
+        //处理数据库慢sql
+        List<CollectDbSlowSql> slowSqlList = info.getSlowSqlList();
+        if(Objects.nonNull(slowSqlList) && !slowSqlList.isEmpty()){
+            List<CollectDbSlowSql> collectSlowList = EntityBeanUtil.copyList(slowSqlList, CollectDbSlowSql.class);
 
+            for (CollectDbSlowSql collectDbSlowSql : collectSlowList) {
+                collectDbSlowSql.setId(MyIdUtil.getId());
+                collectDbSlowSql.setCollectDbId(dbId);
+            }
+            slowSqlService.updateCollectData(collectSlowList,dbId);
+        }
 
         return true;
     }

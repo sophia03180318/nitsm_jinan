@@ -95,6 +95,8 @@ public class StatisticsDbBaseMsgVo implements Serializable {
      * */
     private String language;
 
+    private Integer dbProtocol;
+
     /**
      * 数据文件
      */

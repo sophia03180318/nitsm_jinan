@@ -2,6 +2,7 @@ package com.jcca.web2.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -64,6 +65,7 @@ public class CollectDatabasesInfo  extends Model<CollectDatabasesInfo> {
     /**
      * 创建时间
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     private Date createTime;
 

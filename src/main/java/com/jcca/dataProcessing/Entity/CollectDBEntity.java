@@ -1,6 +1,7 @@
 package com.jcca.dataProcessing.Entity;
 
 import com.jcca.web.collect.entity.CollectDBfile;
+import com.jcca.web2.entity.CollectDbSlowSql;
 import lombok.Data;
 
 import java.util.List;
@@ -170,13 +171,13 @@ public class CollectDBEntity extends CommonEntity {
      * 每秒逻辑块读次数
      * 2025-08-15
      */
-    private String LogicalReadsPerSecond;
+    private String logicalReadsPerSecond;
 
     /**
      * 每秒逻辑块写次
      * 2025-08-15
      */
-    private String LogicalWrPerSecond;
+    private String logicalWrPerSecond;
 
     /**
      * 每秒物理块读
@@ -189,6 +190,10 @@ public class CollectDBEntity extends CommonEntity {
      * 2025-08-15
      */
     private String physicalBlockWr;
-
+    /**
+     * 慢sql
+     * 2025-08-15
+     */
+    private List<CollectDbSlowSql> slowSqlList;
 
 }
