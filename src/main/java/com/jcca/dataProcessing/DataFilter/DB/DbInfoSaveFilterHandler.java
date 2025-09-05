@@ -141,7 +141,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate() ? 1 : -1);
             }
             //更新采集数据
-            databasesInfoService.updateCollectData(collectDatabasesInfos, dbId);
+            databasesInfoService.updateCollectData(collectDatabasesInfos, entity.getAssetId());
         }
 
         //处理日志配置信息
@@ -154,7 +154,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 collectDbLogSetting.setAssetId(entity.getAssetId());
             }
 
-            collectDbLogSettingService.updateCollectData(collectDbLogSettingList, dbId);
+            collectDbLogSettingService.updateCollectData(collectDbLogSettingList, entity.getAssetId());
         }
 
         //处理数据库进程锁
@@ -167,7 +167,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 collectProcessLock.setAssetId(entity.getAssetId());
             }
 
-            processLockInfoService.updateCollectData(collectProcessLockList, dbId);
+            processLockInfoService.updateCollectData(collectProcessLockList, entity.getAssetId());
         }
 
         //处理数据库锁信息
@@ -180,7 +180,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 collectDbLock.setAssetId(entity.getAssetId());
             }
 
-            dbLockInfoService.updateCollectData(collectDbLockList, dbId);
+            dbLockInfoService.updateCollectData(collectDbLockList, entity.getAssetId());
         }
         //处理数据库慢sql
         List<CollectDbSlowSql> slowSqlList = info.getSlowSqlList();
@@ -192,7 +192,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 collectDbSlowSql.setCollectDbId(dbId);
                 collectDbSlowSql.setAssetId(entity.getAssetId());
             }
-            slowSqlService.updateCollectData(collectSlowList, dbId);
+            slowSqlService.updateCollectData(collectSlowList, entity.getAssetId());
         }
 
         return true;
