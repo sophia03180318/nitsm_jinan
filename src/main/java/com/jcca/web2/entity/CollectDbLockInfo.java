@@ -10,9 +10,10 @@ import lombok.EqualsAndHashCode;
 import java.util.Date;
 
 
-@TableName("COLLECT_DB_LOCK_INFO")
+
 @EqualsAndHashCode(callSuper = true)
 @Data
+@TableName("COLLECT_DB_LOCK_INFO")
 public class CollectDbLockInfo extends Model<CollectDbLockInfo> {
 
 

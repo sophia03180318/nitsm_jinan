@@ -130,7 +130,7 @@ public class ApiStatisticsDbController {
 
 
     @ApiOperation(value = "数据库列表信息")
-    @GetMapping("/api/stdb/getDbInfo")
+    @GetMapping("/getDbInfo")
     ResultVo<?> getDbInfo(String id) {
         if(StrUtil.isEmpty(id)){
             return ResultVoUtil.error("缺少数据库ID");
@@ -145,7 +145,7 @@ public class ApiStatisticsDbController {
 
 
     @ApiOperation(value = "数据库锁信息")
-    @GetMapping("/api/stdb/getLockInfo")
+    @GetMapping("/getLockInfo")
     ResultVo<?> getLockInfo(String id) {
         if(StrUtil.isEmpty(id)){
             return ResultVoUtil.error("缺少数据库ID");
@@ -159,7 +159,7 @@ public class ApiStatisticsDbController {
     }
 
     @ApiOperation(value = "数据库备份配置信息")
-    @GetMapping("/api/stdb/getBackupsConfig")
+    @GetMapping("/getBackupsConfig")
     ResultVo<?> getBackupsConfig(String id) {
         if(StrUtil.isEmpty(id)){
             return ResultVoUtil.error("缺少数据库ID");
