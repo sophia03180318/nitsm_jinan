@@ -218,17 +218,17 @@ public class CollectDB extends Model<CollectDB> {
      * 缓冲库命中率 又称
      * 库高速缓存命中率
      */
-    @TableField(exist = false)
+    @TableField("CACHE_LIBRARY")
     private String cacheLibrary;
     /**
      * 数据库连接数
      */
-    @TableField(exist = false)
+    @TableField("DB_CONNECTION")
     private String dbConnection;
     /**
      * 数据库活动连接数
      */
-    @TableField(exist = false)
+    @TableField("DB_ACTIVE")
     private String dbActive;
 
     /**

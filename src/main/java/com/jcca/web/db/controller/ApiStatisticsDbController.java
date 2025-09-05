@@ -40,9 +40,11 @@ import com.jcca.web.db.vo.StatisticsDbBaseMsgVo;
 import com.jcca.web2.entity.CollectDatabasesInfo;
 import com.jcca.web2.entity.CollectDbLockInfo;
 import com.jcca.web2.entity.CollectDbLogSetting;
+import com.jcca.web2.entity.CollectDbSlowSql;
 import com.jcca.web2.service.CollectDatabasesInfoService;
 import com.jcca.web2.service.CollectDbLockInfoService;
 import com.jcca.web2.service.CollectDbLogSettingService;
+import com.jcca.web2.service.CollectDbSlowSqlService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +89,8 @@ public class ApiStatisticsDbController {
     private CollectDbLockInfoService lockInfoService;
     @Resource
     private CollectDbLogSettingService logSettingService;
+    @Resource
+    private CollectDbSlowSqlService collectDbSlowSqlService;
 
     /**
      * 分页查询数据库
@@ -142,6 +146,23 @@ public class ApiStatisticsDbController {
 
         return ResultVoUtil.success(list);
     }
+
+
+    @ApiOperation(value = "数据库慢sql")
+    @GetMapping("/getSlowSql")
+    ResultVo<?> getSlowSql(String id) {
+        if(StrUtil.isEmpty(id)){
+            return ResultVoUtil.error("缺少数据库ID");
+        }
+        QueryWrapper<CollectDbSlowSql> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("COLLECT_DB_ID", id);
+        queryWrapper.orderByAsc("DATABASES_NAME");
+        List<CollectDbSlowSql> list = collectDbSlowSqlService.list(queryWrapper);
+
+        return ResultVoUtil.success(list);
+    }
+
+
 
 
     @ApiOperation(value = "数据库锁信息")
