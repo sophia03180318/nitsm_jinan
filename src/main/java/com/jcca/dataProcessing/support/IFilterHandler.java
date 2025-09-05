@@ -1,6 +1,7 @@
 package com.jcca.dataProcessing.support;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.jcca.common.exception.ResultException;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
@@ -58,7 +59,7 @@ public abstract class IFilterHandler<T> extends ListenerManager {
      * @param info
      * @param isNeedHandle
      */
-    public void handleRequest(T info, boolean isNeedHandle) throws ResultException, Exception {
+    public void handleRequest(T info, boolean isNeedHandle) throws Exception {
         //是否需要下一个处理
         boolean flag = isNeedHandle;
 
@@ -67,7 +68,7 @@ public abstract class IFilterHandler<T> extends ListenerManager {
             try {
                 flag = handler(info);
             } catch (Exception exception) {
-                AppLogUtils.buildLogInfo(LogFunctionEnum.ALARM_HANDLE, "", exception.getMessage());
+                AppLogUtils.buildLogError(LogFunctionEnum.ALARM_HANDLE, JSONUtil.toJsonStr(info), exception);
             }
         }
         if (next != null) {
