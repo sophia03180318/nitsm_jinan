@@ -2,6 +2,8 @@ package com.jcca.dataProcessing.DataFilter.bhm.memory;
 
 import com.jcca.common.exception.ResultException;
 
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectBhmMemoryEntity;
@@ -29,6 +31,8 @@ public class BhmMemorySaveHandler  extends IFilterHandler<List<CollectBhmMemoryE
         if(info.isEmpty()){
             return false;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口内存数据", info.get(0).getAssetIp());
+
         List<CollectBhmMemoryInfo> infoList = new ArrayList<>();
         for (CollectBhmMemoryEntity item : info) {
             CollectBhmMemoryInfo copy = EntityBeanUtil.copy(item, CollectBhmMemoryInfo.class);

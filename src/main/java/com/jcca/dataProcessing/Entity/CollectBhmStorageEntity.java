@@ -14,7 +14,7 @@ public class CollectBhmStorageEntity extends CommonEntity implements Serializabl
 
     private String id;
 
-    private String Name;
+    private String name;
 
     /**
      * RAID组内的硬盘列表

@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.bhm.temp;
 
 import com.jcca.common.exception.ResultException;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectBhmTempEntity;
@@ -28,6 +30,10 @@ public class BhmTempSaveHandler extends IFilterHandler<List<CollectBhmTempEntity
         if(infoList.isEmpty()){
             return false;
         }
+
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口温度数据", infoList.get(0).getAssetIp());
+
+
         List<CollectBhmTempInfo> saveList = new ArrayList<>();
         for (CollectBhmTempEntity collectBhmTempEntity : infoList) {
             CollectBhmTempInfo copy = EntityBeanUtil.copy(collectBhmTempEntity, CollectBhmTempInfo.class);

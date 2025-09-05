@@ -1,6 +1,8 @@
 package com.jcca.dataProcessing.DataFilter.bhm.storage;
 
 import com.jcca.common.exception.ResultException;
+import com.jcca.common.log.enums.LogFunctionEnum;
+import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.dataProcessing.Entity.CollectBhmPowerEntity;
@@ -32,6 +34,7 @@ public class BhmStorageSaveHandler extends IFilterHandler<List<CollectBhmStorage
         if(infoList.isEmpty()){
             return false;
         }
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口存储数据", infoList.get(0).getAssetIp());
 
         collectBhmStorageInfoService.updateAssetPcieInfoBatch(infoList);
 
