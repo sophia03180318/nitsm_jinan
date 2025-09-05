@@ -13,6 +13,8 @@ import com.jcca.web.collect.entity.CollectTablespace;
 import com.jcca.web.collect.service.CollectDBService;
 import com.jcca.web.collect.service.CollectDBfileService;
 import com.jcca.web.collect.service.CollectTablespaceService;
+import com.jcca.web.db.entity.ManageDb;
+import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web2.entity.*;
 import com.jcca.web2.service.*;
 import org.springframework.stereotype.Component;
@@ -50,24 +52,34 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
     private CollectDbLockInfoService dbLockInfoService;
     @Resource
     private CollectDbSlowSqlService slowSqlService;
+    @Resource
+    private ManageDbService dbManagerService;
 
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean handler(CollectDBEntity info) {
+        QueryWrapper<ManageDb> mdbQuery = new QueryWrapper<>();
+        mdbQuery.eq("ASSET_ID", info.getAssetId());
+        List<ManageDb> list = dbManagerService.list(mdbQuery);
+        if(list.size() !=1 ){
+            //录入的数据库可能已经被删除 或者存在重复的数据库信息
+            return false;
+        }
+
+
         Date date = new Date();
         date.setTime(info.getCollectTime());
         CollectDB entity = EntityBeanUtil.copy(info, CollectDB.class);
         List<CollectTablespaceEntity> tableSpace = info.getTablespace();
         List<CollectTablespace> lists = new ArrayList<>();
 
-        String dbId = MyIdUtil.getId();
 
         List<CollectDBfile> dBfiles = entity.getDbFiles();
         for (CollectDBfile dBfile : dBfiles) {
             dBfile.setCollectTime(date);
         }
-        entity.setId(dbId);
+        entity.setId(list.get(0).getId());
         entity.setAssetId(info.getAssetId());
         entity.setCollectCode(info.getCollectTime().toString());
         entity.setCollectTime(date);
@@ -97,17 +109,15 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             entity.setRedoLogBuffer(info.getRedoLogBuffer());
         }
 
-        QueryWrapper<CollectDB> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("ASSET_ID", entity.getAssetId());
-        dbService.remove(queryWrapper);
-        dbService.save(entity);
+        //这里必须保证ID不变，不然关联数据在做迭代的时候 界面查询会出问题
+        dbService.saveOrUpdate(entity);
 
         //处理表空间
         for (CollectTablespaceEntity tablespace : tableSpace) {
 
             CollectTablespace tablespace1 = EntityBeanUtil.copy(tablespace, CollectTablespace.class);
             tablespace1.setCollectTime(date);
-            tablespace1.setCollectDbId(dbId);
+            tablespace1.setCollectDbId(entity.getId());
             tablespace1.setAssetId(entity.getAssetId());
             lists.add(tablespace1);
         }
@@ -125,7 +135,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         for (CollectDBfile dbFile : dbFiles) {
             dbFile.setAssetId(info.getAssetId());
             dbFile.setCollectTime(date);
-            dbFile.setCollectDbId(dbId);
+            dbFile.setCollectDbId(entity.getId());
         }
         dBfileService.saveBatch(dbFiles);
 
@@ -136,7 +146,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDatabasesInfo databasesBeanEntity : collectDatabasesInfos) {
                 databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink() ? 1 : -1);
                 databasesBeanEntity.setId(MyIdUtil.getId());
-                databasesBeanEntity.setCollectDbId(dbId);
+                databasesBeanEntity.setCollectDbId(entity.getId());
                 databasesBeanEntity.setAssetId(entity.getAssetId());
                 databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate() ? 1 : -1);
             }
@@ -150,7 +160,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             List<CollectDbLogSetting> collectDbLogSettingList = EntityBeanUtil.copyList(logSettingList, CollectDbLogSetting.class);
             for (CollectDbLogSetting collectDbLogSetting : collectDbLogSettingList) {
                 collectDbLogSetting.setId(MyIdUtil.getId());
-                collectDbLogSetting.setCollectDbId(dbId);
+                collectDbLogSetting.setCollectDbId(entity.getId());
                 collectDbLogSetting.setAssetId(entity.getAssetId());
             }
 
@@ -163,7 +173,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             List<CollectDbProcessLockInfo> collectProcessLockList = EntityBeanUtil.copyList(processLockList, CollectDbProcessLockInfo.class);
             for (CollectDbProcessLockInfo collectProcessLock : collectProcessLockList) {
                 collectProcessLock.setId(MyIdUtil.getId());
-                collectProcessLock.setCollectDbId(dbId);
+                collectProcessLock.setCollectDbId(entity.getId());
                 collectProcessLock.setAssetId(entity.getAssetId());
             }
 
@@ -176,7 +186,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             List<CollectDbLockInfo> collectDbLockList = EntityBeanUtil.copyList(lockInfoList, CollectDbLockInfo.class);
             for (CollectDbLockInfo collectDbLock : collectDbLockList) {
                 collectDbLock.setId(MyIdUtil.getId());
-                collectDbLock.setCollectDbId(dbId);
+                collectDbLock.setCollectDbId(entity.getId());
                 collectDbLock.setAssetId(entity.getAssetId());
             }
 
@@ -189,7 +199,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
 
             for (CollectDbSlowSql collectDbSlowSql : collectSlowList) {
                 collectDbSlowSql.setId(MyIdUtil.getId());
-                collectDbSlowSql.setCollectDbId(dbId);
+                collectDbSlowSql.setCollectDbId(entity.getId());
                 collectDbSlowSql.setAssetId(entity.getAssetId());
             }
             slowSqlService.updateCollectData(collectSlowList, entity.getAssetId());
