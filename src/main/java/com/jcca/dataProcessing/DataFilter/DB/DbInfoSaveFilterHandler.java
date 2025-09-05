@@ -52,7 +52,6 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
     private CollectDbSlowSqlService slowSqlService;
 
 
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean handler(CollectDBEntity info) {
@@ -72,26 +71,29 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         entity.setAssetId(info.getAssetId());
         entity.setCollectCode(info.getCollectTime().toString());
         entity.setCollectTime(date);
-        if(StrUtil.isNotEmpty(info.getCacheLibrary())){
+        if (StrUtil.isNotEmpty(info.getCacheLibrary())) {
             entity.setCacheHitRate(Double.valueOf(info.getCacheLibrary()));
         }
-        if(StrUtil.isNotEmpty(info.getDbBusynessRate())){
+        if (StrUtil.isNotEmpty(info.getDbBusynessRate())) {
             entity.setDbBusynessRate(Double.valueOf(info.getDbBusynessRate()));
         }
-        if(StrUtil.isNotEmpty(info.getDbSessionUsedRate())){
+        if (StrUtil.isNotEmpty(info.getDbSessionUsedRate())) {
             entity.setDbSessionUsedRate(Double.valueOf(info.getDbSessionUsedRate()));
         }
-        if(StrUtil.isNotEmpty(info.getCacheLibrary())){
+        if (StrUtil.isNotEmpty(info.getCacheLibrary())) {
             entity.setDbCachePoolhit(Double.valueOf(info.getCacheLibrary()));
         }
-        if(StrUtil.isNotEmpty(info.getDbLockUsedRate())){
+        if (StrUtil.isNotEmpty(info.getDbLockUsedRate())) {
             entity.setDbLockUsedRate(Double.valueOf(info.getDbLockUsedRate()));
         }
-        if(StrUtil.isNotEmpty(info.getDbLockWaitRate())){
+        if (StrUtil.isNotEmpty(info.getDbLockWaitRate())) {
             entity.setDbLockWaitRate(Double.valueOf(info.getDbLockWaitRate()));
         }
-        if(Objects.nonNull(info.getBlockedLock())){
-            entity.setBlockedLock(info.getBlockedLock()?1:-1);
+        if (Objects.nonNull(info.getBlockedLock())) {
+            entity.setBlockedLock(info.getBlockedLock() ? 1 : -1);
+        }
+        if (StrUtil.isNotEmpty(info.getRedoLogBuffer())) {
+            entity.setRedoLogBuffer(info.getRedoLogBuffer());
         }
 
         dbService.save(entity);
@@ -125,63 +127,63 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
 
         //处理数据库基础信息
         List<DatabasesBeanEntity> databasesInfoList = info.getDatabasesInfoList();
-        if(Objects.nonNull(databasesInfoList) && !databasesInfoList.isEmpty()){
+        if (Objects.nonNull(databasesInfoList) && !databasesInfoList.isEmpty()) {
             List<CollectDatabasesInfo> collectDatabasesInfos = EntityBeanUtil.copyList(databasesInfoList, CollectDatabasesInfo.class);
             for (CollectDatabasesInfo databasesBeanEntity : collectDatabasesInfos) {
-                databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink()?1:-1);
+                databasesBeanEntity.setPermitAgentLinkStatus(databasesBeanEntity.getPermitAgentLink() ? 1 : -1);
                 databasesBeanEntity.setId(MyIdUtil.getId());
                 databasesBeanEntity.setCollectDbId(dbId);
-                databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate()?1:-1);
+                databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate() ? 1 : -1);
             }
             //更新采集数据
-            databasesInfoService.updateCollectData(collectDatabasesInfos,dbId);
+            databasesInfoService.updateCollectData(collectDatabasesInfos, dbId);
         }
 
         //处理日志配置信息
         List<DbLogSettingEntity> logSettingList = info.getLogSettingList();
-        if(Objects.nonNull(logSettingList) && !logSettingList.isEmpty()){
+        if (Objects.nonNull(logSettingList) && !logSettingList.isEmpty()) {
             List<CollectDbLogSetting> collectDbLogSettingList = EntityBeanUtil.copyList(logSettingList, CollectDbLogSetting.class);
             for (CollectDbLogSetting collectDbLogSetting : collectDbLogSettingList) {
                 collectDbLogSetting.setId(MyIdUtil.getId());
                 collectDbLogSetting.setCollectDbId(dbId);
             }
 
-            collectDbLogSettingService.updateCollectData(collectDbLogSettingList,dbId);
+            collectDbLogSettingService.updateCollectData(collectDbLogSettingList, dbId);
         }
 
         //处理数据库进程锁
         List<DbProcessLockEntity> processLockList = info.getProcessLockList();
-        if(Objects.nonNull(processLockList) && !processLockList.isEmpty()){
+        if (Objects.nonNull(processLockList) && !processLockList.isEmpty()) {
             List<CollectDbProcessLockInfo> collectProcessLockList = EntityBeanUtil.copyList(processLockList, CollectDbProcessLockInfo.class);
             for (CollectDbProcessLockInfo collectProcessLock : collectProcessLockList) {
                 collectProcessLock.setId(MyIdUtil.getId());
                 collectProcessLock.setCollectDbId(dbId);
             }
 
-            processLockInfoService.updateCollectData(collectProcessLockList,dbId);
+            processLockInfoService.updateCollectData(collectProcessLockList, dbId);
         }
 
         //处理数据库锁信息
         List<DbLockInfoEntity> lockInfoList = info.getLockInfoList();
-        if(Objects.nonNull(lockInfoList) && !lockInfoList.isEmpty()){
+        if (Objects.nonNull(lockInfoList) && !lockInfoList.isEmpty()) {
             List<CollectDbLockInfo> collectDbLockList = EntityBeanUtil.copyList(lockInfoList, CollectDbLockInfo.class);
             for (CollectDbLockInfo collectDbLock : collectDbLockList) {
                 collectDbLock.setId(MyIdUtil.getId());
                 collectDbLock.setCollectDbId(dbId);
             }
 
-            dbLockInfoService.updateCollectData(collectDbLockList,dbId);
+            dbLockInfoService.updateCollectData(collectDbLockList, dbId);
         }
         //处理数据库慢sql
         List<CollectDbSlowSql> slowSqlList = info.getSlowSqlList();
-        if(Objects.nonNull(slowSqlList) && !slowSqlList.isEmpty()){
+        if (Objects.nonNull(slowSqlList) && !slowSqlList.isEmpty()) {
             List<CollectDbSlowSql> collectSlowList = EntityBeanUtil.copyList(slowSqlList, CollectDbSlowSql.class);
 
             for (CollectDbSlowSql collectDbSlowSql : collectSlowList) {
                 collectDbSlowSql.setId(MyIdUtil.getId());
                 collectDbSlowSql.setCollectDbId(dbId);
             }
-            slowSqlService.updateCollectData(collectSlowList,dbId);
+            slowSqlService.updateCollectData(collectSlowList, dbId);
         }
 
         return true;
