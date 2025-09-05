@@ -20,15 +20,15 @@ public class CollectDbLockInfoServiceImpl extends ServiceImpl<CollectDbLockInfoM
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateCollectData(List<CollectDbLockInfo> collectDbLockList, String dbId) {
-        if (StrUtil.isBlank(dbId)) {
-            throw new IllegalArgumentException("dbId cannot be blank");
+    public void updateCollectData(List<CollectDbLockInfo> collectDbLockList, String assetId) {
+        if (StrUtil.isBlank(assetId)) {
+            throw new IllegalArgumentException("assetId cannot be blank");
         }
         if (CollectionUtils.isEmpty(collectDbLockList)) {
             return ;
         }
         QueryWrapper<CollectDbLockInfo> delQuery = new QueryWrapper<>();
-        delQuery.eq("COLLECT_DB_ID", dbId);
+        delQuery.eq("ASSET_ID", assetId);
         remove(delQuery);
 
         saveBatch(collectDbLockList);

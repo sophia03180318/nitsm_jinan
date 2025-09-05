@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("COLLECT_DATABASES_INFO")
+@TableName("COLLECT_DB_DATABASES_INFO")
 public class CollectDatabasesInfo  extends Model<CollectDatabasesInfo> {
 
 
@@ -24,6 +24,10 @@ public class CollectDatabasesInfo  extends Model<CollectDatabasesInfo> {
 
     @TableField("COLLECT_DB_ID")
     private String collectDbId;
+
+    @TableField("ASSET_ID")
+    private String assetId;
+
     /**
      * 数据库名称
      */

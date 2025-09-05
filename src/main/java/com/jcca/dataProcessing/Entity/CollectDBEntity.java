@@ -109,7 +109,10 @@ public class CollectDBEntity extends CommonEntity {
      * */
     private String language;
 
-
+    /**
+     * 缓存命中率
+     */
+    private String cacheHitRate;
     /**
      * 告警文件地址
      * */

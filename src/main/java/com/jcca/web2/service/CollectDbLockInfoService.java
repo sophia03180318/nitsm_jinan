@@ -9,5 +9,5 @@ import java.util.List;
 public interface CollectDbLockInfoService extends IService<CollectDbLockInfo> {
 
 
-    void updateCollectData(List<CollectDbLockInfo> collectDbLockList, String dbId);
+    void updateCollectData(List<CollectDbLockInfo> collectDbLockList, String assetId);
 }

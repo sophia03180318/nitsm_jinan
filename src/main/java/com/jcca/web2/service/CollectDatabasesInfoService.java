@@ -16,6 +16,6 @@ public interface CollectDatabasesInfoService  extends IService<CollectDatabasesI
      * @param collectDatabasesInfos
      * @param dbId
      */
-    void updateCollectData(List<CollectDatabasesInfo> collectDatabasesInfos, String dbId);
+    void updateCollectData(List<CollectDatabasesInfo> collectDatabasesInfos, String assetId);
 
 }

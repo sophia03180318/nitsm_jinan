@@ -20,15 +20,15 @@ public class CollectDbProcessLockInfoServiceImpl extends ServiceImpl<CollectDbPr
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateCollectData(List<CollectDbProcessLockInfo> collectProcessLockList, String dbId) {
-        if (StrUtil.isBlank(dbId)) {
-            throw new IllegalArgumentException("dbId cannot be blank");
+    public void updateCollectData(List<CollectDbProcessLockInfo> collectProcessLockList, String assetId) {
+        if (StrUtil.isBlank(assetId)) {
+            throw new IllegalArgumentException("assetId cannot be blank");
         }
         if (CollectionUtils.isEmpty(collectProcessLockList)) {
             return ;
         }
         QueryWrapper<CollectDbProcessLockInfo> delQuery = new QueryWrapper<>();
-        delQuery.eq("COLLECT_DB_ID", dbId);
+        delQuery.eq("ASSET_ID", assetId);
         remove(delQuery);
 
         saveBatch(collectProcessLockList);

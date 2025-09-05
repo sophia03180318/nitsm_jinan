@@ -12,6 +12,6 @@ public interface CollectDbLogSettingService extends IService<CollectDbLogSetting
 
 
 
-    void updateCollectData(List<CollectDbLogSetting> collectDbLogSettingList, String dbId);
+    void updateCollectData(List<CollectDbLogSetting> collectDbLogSettingList, String assetId);
 
 }

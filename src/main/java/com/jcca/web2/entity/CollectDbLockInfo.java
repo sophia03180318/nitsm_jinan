@@ -21,6 +21,8 @@ public class CollectDbLockInfo extends Model<CollectDbLockInfo> {
 
     @TableField("COLLECT_DB_ID")
     private String collectDbId;
+    @TableField("ASSET_ID")
+    private String assetId;
     /**
      * 锁类型
      * relation

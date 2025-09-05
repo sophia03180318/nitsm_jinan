@@ -16,7 +16,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("COLLECT_DA_LOG_SETTING")
+@TableName("COLLECT_DB_LOG_SETTING")
 public class CollectDbLogSetting extends Model<CollectDbLogSetting> {
 
 
@@ -25,6 +25,8 @@ public class CollectDbLogSetting extends Model<CollectDbLogSetting> {
 
     @TableField("COLLECT_DB_ID")
     private String collectDbId;
+    @TableField("ASSET_ID")
+    private String assetId;
     /**
      * 配置名称
      * archive_mode:控制是否启用 WAL 日志归档

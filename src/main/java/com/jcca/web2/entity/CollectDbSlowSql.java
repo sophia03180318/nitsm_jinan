@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("COLLECT_SLOW_SQL")
+@TableName("COLLECT_DB_SLOW_SQL")
 public class CollectDbSlowSql extends Model<CollectDbSlowSql> implements java.io.Serializable {
 
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
@@ -20,6 +20,8 @@ public class CollectDbSlowSql extends Model<CollectDbSlowSql> implements java.io
 
     @TableField("COLLECT_DB_ID")
     private String collectDbId;
+    @TableField("ASSET_ID")
+    private String assetId;
     /**
      * 慢sql
      */

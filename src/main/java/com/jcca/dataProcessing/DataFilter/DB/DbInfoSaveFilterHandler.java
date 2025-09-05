@@ -72,9 +72,10 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         entity.setAssetId(info.getAssetId());
         entity.setCollectCode(info.getCollectTime().toString());
         entity.setCollectTime(date);
-        if(StrUtil.isNotEmpty(info.getCacheLibrary())){
+        if(StrUtil.isNotEmpty(info.getCacheHitRate())){
             entity.setCacheHitRate(Double.valueOf(info.getCacheLibrary()));
         }
+
         if(StrUtil.isNotEmpty(info.getDbBusynessRate())){
             entity.setDbBusynessRate(Double.valueOf(info.getDbBusynessRate()));
         }
@@ -93,7 +94,15 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         if(Objects.nonNull(info.getBlockedLock())){
             entity.setBlockedLock(info.getBlockedLock()?1:-1);
         }
+        if(StrUtil.isNotEmpty(info.getCacheLibrary())){
+            entity.setCacheLibrary(info.getCacheLibrary());
+        }
 
+
+        QueryWrapper<CollectDB> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ASSET_ID", entity.getAssetId());
+
+        dbService.remove(queryWrapper);
         dbService.save(entity);
 
         //处理表空间
@@ -106,13 +115,13 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             lists.add(tablespace1);
         }
         QueryWrapper<CollectTablespace> query = Wrappers.query();
-        query.eq("asset_id", info.getAssetId());
+        query.eq("asset_id", entity.getAssetId());
         collectTablespaceService.remove(query);
         collectTablespaceService.saveBatch(lists);
 
         // 删除文件数据
         QueryWrapper<CollectDBfile> fileQuery = Wrappers.query();
-        fileQuery.eq("asset_id", info.getAssetId());
+        fileQuery.eq("asset_id", entity.getAssetId());
         dBfileService.remove(fileQuery);
         //保存各类文件数据
         List<CollectDBfile> dbFiles = info.getDbFiles();
@@ -134,7 +143,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
                 databasesBeanEntity.setIsTemplateFlag(databasesBeanEntity.getIsTemplate()?1:-1);
             }
             //更新采集数据
-            databasesInfoService.updateCollectData(collectDatabasesInfos,dbId);
+            databasesInfoService.updateCollectData(collectDatabasesInfos,entity.getAssetId());
         }
 
         //处理日志配置信息
@@ -144,9 +153,10 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbLogSetting collectDbLogSetting : collectDbLogSettingList) {
                 collectDbLogSetting.setId(MyIdUtil.getId());
                 collectDbLogSetting.setCollectDbId(dbId);
+                collectDbLogSetting.setAssetId(entity.getAssetId());
             }
 
-            collectDbLogSettingService.updateCollectData(collectDbLogSettingList,dbId);
+            collectDbLogSettingService.updateCollectData(collectDbLogSettingList,entity.getAssetId());
         }
 
         //处理数据库进程锁
@@ -156,9 +166,10 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbProcessLockInfo collectProcessLock : collectProcessLockList) {
                 collectProcessLock.setId(MyIdUtil.getId());
                 collectProcessLock.setCollectDbId(dbId);
+                collectProcessLock.setAssetId(entity.getAssetId());
             }
 
-            processLockInfoService.updateCollectData(collectProcessLockList,dbId);
+            processLockInfoService.updateCollectData(collectProcessLockList,entity.getAssetId());
         }
 
         //处理数据库锁信息
@@ -168,9 +179,10 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbLockInfo collectDbLock : collectDbLockList) {
                 collectDbLock.setId(MyIdUtil.getId());
                 collectDbLock.setCollectDbId(dbId);
+                collectDbLock.setAssetId(entity.getAssetId());
             }
 
-            dbLockInfoService.updateCollectData(collectDbLockList,dbId);
+            dbLockInfoService.updateCollectData(collectDbLockList,entity.getAssetId());
         }
         //处理数据库慢sql
         List<CollectDbSlowSql> slowSqlList = info.getSlowSqlList();
@@ -180,8 +192,9 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             for (CollectDbSlowSql collectDbSlowSql : collectSlowList) {
                 collectDbSlowSql.setId(MyIdUtil.getId());
                 collectDbSlowSql.setCollectDbId(dbId);
+                collectDbSlowSql.setAssetId(entity.getAssetId());
             }
-            slowSqlService.updateCollectData(collectSlowList,dbId);
+            slowSqlService.updateCollectData(collectSlowList,entity.getAssetId());
         }
 
         return true;

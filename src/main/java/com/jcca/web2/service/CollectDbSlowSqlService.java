@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface CollectDbSlowSqlService  extends IService<CollectDbSlowSql> {
 
-    void updateCollectData(List<CollectDbSlowSql> collectSlowList, String dbId);
+    void updateCollectData(List<CollectDbSlowSql> collectSlowList, String assetId);
 }

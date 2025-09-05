@@ -17,15 +17,15 @@ public class CollectDbSlowSqlServiceImpl extends ServiceImpl<CollectDbSlowSqlMap
 
 
     @Override
-    public void updateCollectData(List<CollectDbSlowSql> collectSlowList, String dbId) {
-        if (StrUtil.isBlank(dbId)) {
-            throw new IllegalArgumentException("dbId cannot be blank");
+    public void updateCollectData(List<CollectDbSlowSql> collectSlowList, String assetId) {
+        if (StrUtil.isBlank(assetId)) {
+            throw new IllegalArgumentException("assetId cannot be blank");
         }
         if (CollectionUtils.isEmpty(collectSlowList)) {
             return ;
         }
         QueryWrapper<CollectDbSlowSql> delQuery = new QueryWrapper<>();
-        delQuery.eq("COLLECT_DB_ID", dbId);
+        delQuery.eq("ASSET_ID", assetId);
         remove(delQuery);
 
         saveBatch(collectSlowList);

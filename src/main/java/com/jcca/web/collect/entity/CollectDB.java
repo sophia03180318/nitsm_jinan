@@ -215,7 +215,8 @@ public class CollectDB extends Model<CollectDB> {
     private String physicalBlockWr;
 
     /**
-     * 缓冲库命中率
+     * 缓冲库命中率 又称
+     * 库高速缓存命中率
      */
     @TableField(exist = false)
     private String cacheLibrary;

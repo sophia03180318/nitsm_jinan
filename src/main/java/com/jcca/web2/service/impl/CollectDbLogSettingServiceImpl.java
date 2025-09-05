@@ -20,15 +20,15 @@ public class CollectDbLogSettingServiceImpl extends ServiceImpl<CollectDbLogSett
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateCollectData(List<CollectDbLogSetting> collectDbLogSettingList, String dbId) {
-        if (StrUtil.isBlank(dbId)) {
-            throw new IllegalArgumentException("dbId cannot be blank");
+    public void updateCollectData(List<CollectDbLogSetting> collectDbLogSettingList, String assetId) {
+        if (StrUtil.isBlank(assetId)) {
+            throw new IllegalArgumentException("assetId cannot be blank");
         }
         if (CollectionUtils.isEmpty(collectDbLogSettingList)) {
             return ;
         }
         QueryWrapper<CollectDbLogSetting> delQuery = new QueryWrapper<>();
-        delQuery.eq("COLLECT_DB_ID", dbId);
+        delQuery.eq("ASSET_ID", assetId);
         remove(delQuery);
 
         saveBatch(collectDbLogSettingList);

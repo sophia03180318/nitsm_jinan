@@ -14,7 +14,7 @@ import java.util.Date;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@TableName("COLLECT_DA_PROCESS_LOCK_INFO")
+@TableName("COLLECT_DB_PROCESS_LOCK_INFO")
 public class CollectDbProcessLockInfo extends Model<CollectDbProcessLockInfo> {
 
 
@@ -23,6 +23,8 @@ public class CollectDbProcessLockInfo extends Model<CollectDbProcessLockInfo> {
 
     @TableField("COLLECT_DB_ID")
     private String collectDbId;
+    @TableField("ASSET_ID")
+    private String assetId;
     /**
      * 等待进程ID
      */

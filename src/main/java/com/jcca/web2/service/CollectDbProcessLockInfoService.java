@@ -11,5 +11,5 @@ import java.util.List;
 public interface CollectDbProcessLockInfoService extends IService<CollectDbProcessLockInfo> {
 
 
-    void updateCollectData(List<CollectDbProcessLockInfo> collectProcessLockList, String dbId);
+    void updateCollectData(List<CollectDbProcessLockInfo> collectProcessLockList, String assetId);
 }

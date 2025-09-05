@@ -24,15 +24,15 @@ public class CollectDatabasesInfoServiceImpl extends ServiceImpl<CollectDatabase
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateCollectData(List<CollectDatabasesInfo> collectDatabasesInfos, String dbId) {
-        if (StrUtil.isBlank(dbId)) {
-            throw new IllegalArgumentException("dbId cannot be blank");
+    public void updateCollectData(List<CollectDatabasesInfo> collectDatabasesInfos, String assetId) {
+        if (StrUtil.isBlank(assetId)) {
+            throw new IllegalArgumentException("assetId cannot be blank");
         }
         if (CollectionUtils.isEmpty(collectDatabasesInfos)) {
             return ;
         }
         QueryWrapper<CollectDatabasesInfo> delQuery = new QueryWrapper<>();
-        delQuery.eq("COLLECT_DB_ID", dbId);
+        delQuery.eq("asset_id", assetId);
         remove(delQuery);
 
         saveBatch(collectDatabasesInfos);
