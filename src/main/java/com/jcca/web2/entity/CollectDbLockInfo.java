@@ -76,7 +76,7 @@ public class CollectDbLockInfo extends Model<CollectDbLockInfo> {
      * 由 DROP TABLE、TRUNCATE 等破坏性操作获取。
      */
     @TableField("LOCK_MODE")
-    private String mode;
+    private String lockMode;
     /**
      * 总请求数
      */
