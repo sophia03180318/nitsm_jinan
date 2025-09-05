@@ -107,4 +107,52 @@ public class StatisticsDbBaseMsgVo implements Serializable {
      * 表空间信息
      */
     private List<CollectTablespace> tablespaceList;
+
+
+    /**
+     * 共享内存：共享缓冲区大小
+     * 2025-08-14
+     */
+    private String sharedBuffers;
+    /**
+     * 共享内存：使用率
+     * 2025-08-14
+     */
+    private String sharedBuffersUsedRate;
+
+    /**
+     * 是否存在死锁
+     * 1存在-1 不存在
+     * 2025-08-14
+     */
+    private Integer blockedLock;
+    /**
+     * 死锁描述
+     * 2025-08-14
+     */
+    private String blockedLockMsg;
+
+    /**
+     * 每秒逻辑块读次数
+     * 2025-08-15
+     */
+    private String logicalReadsPerSecond;
+
+    /**
+     * 每秒逻辑块写次
+     * 2025-08-15
+     */
+    private String logicalWrPerSecond;
+
+    /**
+     * 每秒物理块读
+     * 2025-08-15
+     */
+    private String physicalBlockReads;
+
+    /**
+     * 每秒物理块写
+     * 2025-08-15
+     */
+    private String physicalBlockWr;
 }

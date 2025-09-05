@@ -163,11 +163,13 @@ public class CollectDB extends Model<CollectDB> {
      * 共享内存：共享缓冲区大小
      * 2025-08-14
      */
+    @TableField("SHARED_BUFFERS")
     private String sharedBuffers;
     /**
      * 共享内存：使用率
      * 2025-08-14
      */
+    @TableField("SHARED_BUFFERS_USED_RATE")
     private String sharedBuffersUsedRate;
 
     /**
@@ -175,35 +177,41 @@ public class CollectDB extends Model<CollectDB> {
      * 1存在-1 不存在
      * 2025-08-14
      */
+    @TableField("BLOCKED_LOCK")
     private Integer blockedLock;
     /**
      * 死锁描述
      * 2025-08-14
      */
+    @TableField("BLOCKED_LOCK_MSG")
     private String blockedLockMsg;
 
     /**
      * 每秒逻辑块读次数
      * 2025-08-15
      */
+    @TableField("LOGICAL_READS_PER_SECOND")
     private String logicalReadsPerSecond;
 
     /**
      * 每秒逻辑块写次
      * 2025-08-15
      */
+    @TableField("LOGICAL_WR_PER_SECOND")
     private String logicalWrPerSecond;
 
     /**
      * 每秒物理块读
      * 2025-08-15
      */
+    @TableField("PHYSICAL_BLOCK_READS")
     private String physicalBlockReads;
 
     /**
      * 每秒物理块写
      * 2025-08-15
      */
+    @TableField("PHYSICAL_BLOCK_WR")
     private String physicalBlockWr;
 
     /**
