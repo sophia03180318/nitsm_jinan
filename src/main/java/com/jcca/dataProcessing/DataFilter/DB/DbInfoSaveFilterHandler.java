@@ -66,19 +66,12 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
             //录入的数据库可能已经被删除 或者存在重复的数据库信息
             return false;
         }
-
-
         Date date = new Date();
         date.setTime(info.getCollectTime());
         CollectDB entity = EntityBeanUtil.copy(info, CollectDB.class);
         List<CollectTablespaceEntity> tableSpace = info.getTablespace();
         List<CollectTablespace> lists = new ArrayList<>();
 
-
-        List<CollectDBfile> dBfiles = entity.getDbFiles();
-        for (CollectDBfile dBfile : dBfiles) {
-            dBfile.setCollectTime(date);
-        }
         entity.setId(list.get(0).getId());
         entity.setAssetId(info.getAssetId());
         entity.setCollectCode(info.getCollectTime().toString());
@@ -128,14 +121,14 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
 
         // 删除文件数据
         QueryWrapper<CollectDBfile> fileQuery = Wrappers.query();
-        fileQuery.eq("asset_id", info.getAssetId());
+        fileQuery.eq("asset_id", entity.getAssetId());
         dBfileService.remove(fileQuery);
         //保存各类文件数据
         List<CollectDBfile> dbFiles = info.getDbFiles();
         for (CollectDBfile dbFile : dbFiles) {
-            dbFile.setAssetId(info.getAssetId());
-            dbFile.setCollectTime(date);
+            dbFile.setAssetId(entity.getAssetId());
             dbFile.setCollectDbId(entity.getId());
+            dbFile.setCollectTime(date);
         }
         dBfileService.saveBatch(dbFiles);
 
