@@ -1,0 +1,10 @@
+/target/
+.DS_Store
+.project
+.classpath
+/.settings/
+/nitsm.iml
+/FFDC/
+/.factorypath
+.idea
+/src/main/resourcesgit.properties
