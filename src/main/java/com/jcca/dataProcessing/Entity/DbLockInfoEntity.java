@@ -58,7 +58,7 @@ public class DbLockInfoEntity {
      * 最强的锁模式，完全阻止其他事务对该对象的任何访问（包括 SELECT）。
      * 由 DROP TABLE、TRUNCATE 等破坏性操作获取。
      */
-    private String mode;
+    private String lockMode;
     /**
      * 总请求数
      */
