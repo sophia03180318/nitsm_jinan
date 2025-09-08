@@ -167,7 +167,7 @@ public class ApiAppServerController {
     public ResultVo<Object> portView(@RequestParam String assetId) {
 
         List<AssetAppServer> list = assetAppServerService.findByAssetIdNullLink(assetId);
-        Set<Integer> collect = list.stream().map(AssetAppServer::getServerPort).collect(Collectors.toSet());
+        List<Integer> collect = list.stream().map(AssetAppServer::getServerPort).collect(Collectors.toList());
         String portStr = collect.stream().map(String::valueOf).collect(Collectors.joining(","));
 
         ThresholdAssetVo threshold = thresholdAssetService.findAssetThreshold(assetId);
