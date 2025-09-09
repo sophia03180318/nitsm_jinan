@@ -163,6 +163,8 @@ public enum StatusInfoChangeTypeEnum {
 
     // 硬件信息
     event_hardware("event:event_hardware", "硬件信息", "", "", ""),
+    // 硬件性能事件
+    event_hardware_performance("event:event_hardware_performance", "硬件性能信息", "", "", ""),
 
     //数据库状态事件
     event_db("event:event_db", "数据库状态", "", "数据库巡检", "263"),

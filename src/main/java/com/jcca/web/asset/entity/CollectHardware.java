@@ -17,7 +17,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("COLLECT_HARDWARE")
-public class CollectHardware extends Model<CollectCpuLoad> {
+public class CollectHardware extends Model<CollectHardware> {
 
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
     private String id;

@@ -78,6 +78,7 @@ public class DataProcessManager {
     private IFilterHandler portNumberHandler;
 
     private IFilterHandler hardwareInfoHandler;
+    private IFilterHandler hardwarePerformanceInfoHandler;
 
     private IFilterHandler netHandler;
     private IFilterHandler interfaceHander;
@@ -299,6 +300,14 @@ public class DataProcessManager {
         List<String> hardwareEventList = Arrays.asList(
                 "hardwareSaveFilterHandler");
         hardwareInfoHandler = createHandler(hardwareHandlerList, hardwareEventList, eventInfoListener);
+
+        // linux硬件配置信息
+        List<String> hardwarePerformanceHandlerList = Arrays.asList(
+                "hardwarePerformanceSaveFilterHandler",
+                "saveFilterHandler");
+        List<String> hardwarePerformanceEventList = Arrays.asList(
+                "hardwarePerformanceSaveFilterHandler");
+        hardwarePerformanceInfoHandler = createHandler(hardwarePerformanceHandlerList, hardwarePerformanceEventList, eventInfoListener);
 
         List<String> stationSystemHandlerList = Arrays.asList(
                 "stationSystemRunTimeFilterHandler",
@@ -1038,6 +1047,16 @@ public class DataProcessManager {
     }
 
     /**
+     * 硬件性能数据
+     *
+     * @param entity
+     * @throws Exception
+     */
+    public void hardwarePerformanceHandlerRequest(CollectPerformanceBean entity) throws Exception {
+        hardwarePerformanceInfoHandler.handleRequest(entity, true);
+    }
+
+    /**
      * 数据库
      *
      * @param db
@@ -1321,13 +1340,16 @@ public class DataProcessManager {
 
     /**
      * 处理BHM的cpu信息
+     *
      * @param list
      */
     public void bhmCpuHandlerRequest(List<CollectBhmCpuEntity> list) throws Exception {
         collectBhmCpuHandler.handleRequest(list, true);
     }
+
     /**
      * 处理BHM的风扇信息
+     *
      * @param item
      */
     public void bhmFanHandlerRequest(List<CollectBhmFanEntity> item) throws Exception {
@@ -1336,6 +1358,7 @@ public class DataProcessManager {
 
     /**
      * 处理BHM的内存信息
+     *
      * @param item
      */
     public void bhmMemoryHandlerRequest(List<CollectBhmMemoryEntity> item) throws Exception {
@@ -1344,27 +1367,34 @@ public class DataProcessManager {
 
     /**
      * 处理BHM的PCIE信息
+     *
      * @param item
      */
     public void bhmPcieHandlerRequest(List<CollectBhmPcieEntity> item) throws Exception {
         collectBhmPcieHandler.handleRequest(item, true);
     }
+
     /**
      * 处理BHM的电源信息
+     *
      * @param item
      */
     public void bhmPowerHandlerRequest(List<CollectBhmPowerEntity> item) throws Exception {
         collectBhmPowerHandler.handleRequest(item, true);
     }
+
     /**
      * 处理BHM的存储信息
+     *
      * @param item
      */
     public void bhmStorageHandlerRequest(List<CollectBhmStorageEntity> item) throws Exception {
         collectBhmStorageHandler.handleRequest(item, true);
     }
+
     /**
      * 处理BHM的温度信息
+     *
      * @param item
      */
     public void bhmTempHandlerRequest(List<CollectBhmTempEntity> item) throws Exception {

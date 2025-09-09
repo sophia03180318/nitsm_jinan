@@ -164,6 +164,10 @@ public interface CollectConst {
      * 采集LINUX硬件信息
      */
     String LINUX_HARDWARE_CONFIG = "2025082501";
+    /**
+     * 采集LINUX硬件性能信息
+     */
+    String LINUX_HARDWARE_PERFORMANCE = "2025090801";
 
     String CollectNodeStatus = "78";
 
