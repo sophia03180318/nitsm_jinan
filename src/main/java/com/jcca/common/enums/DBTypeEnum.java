@@ -14,6 +14,8 @@ public enum DBTypeEnum {
 
     MYSQL((byte) 2),
 
+    DMV8((byte) 4),
+
     KING((byte) 3);
 
     private Byte code;
