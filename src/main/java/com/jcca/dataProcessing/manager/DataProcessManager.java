@@ -230,49 +230,49 @@ public class DataProcessManager {
 
 
         //2025-09-01 服务器BHM的CPU信息
-        List<String> bhmCpuHandlerList = Arrays.asList("bhmCpuSaveHandler","bhmCpuInfoUpdate","bhmCpuStatusFilterHandler");
+        List<String> bhmCpuHandlerList = Arrays.asList("bhmCpuSaveHandler","bhmCpuInfoUpdate","bhmCpuStatusFilterHandler", "saveArrayFilterHandler");
         List<String> bhmCpuEventList = Arrays.asList("bhmCpuStatusFilterHandler");
         IFilterHandler bhmCpuHandler = createHandler(bhmCpuHandlerList, bhmCpuEventList, eventInfoListener);
         collectBhmCpuHandler = bhmCpuHandler;
 
         //2025-09-01 服务器BHM的Fan信息
-        List<String> bhmFanHandlerList = Arrays.asList("bhmFanSaveHandler","bhmFanStatusFilterHandler");
+        List<String> bhmFanHandlerList = Arrays.asList("bhmFanSaveHandler","bhmFanStatusFilterHandler", "saveArrayFilterHandler");
         List<String> fanEventList = Arrays.asList("bhmFanStatusFilterHandler");
         IFilterHandler bhmFanHandler = createHandler(bhmFanHandlerList,fanEventList , eventInfoListener);
         collectBhmFanHandler = bhmFanHandler;
 
         //2025-09-01 服务器BHM的Memory信息
-        List<String> bhmMemoryHandlerList = Arrays.asList("bhmMemorySaveHandler","bhmMemoryInfoUpdate","bhmMemoryStatusFilterHandler");
+        List<String> bhmMemoryHandlerList = Arrays.asList("bhmMemorySaveHandler","bhmMemoryInfoUpdate","bhmMemoryStatusFilterHandler", "saveArrayFilterHandler");
         List<String> memEventList = Arrays.asList("bhmMemoryStatusFilterHandler");
         IFilterHandler bhmMemoryHandler = createHandler(bhmMemoryHandlerList, memEventList, eventInfoListener);
         collectBhmMemoryHandler = bhmMemoryHandler;
 
         //2025-09-01 服务器BHM的PCIE信息
-        List<String> bhmPcieHandlerList = Arrays.asList("bhmPcieSaveHandler","bhmPcieStatusFilterHandler");
+        List<String> bhmPcieHandlerList = Arrays.asList("bhmPcieSaveHandler","bhmPcieStatusFilterHandler", "saveArrayFilterHandler");
         List<String> pcieEventList = Arrays.asList("bhmPcieStatusFilterHandler");
         IFilterHandler bhmPcieHandler = createHandler(bhmPcieHandlerList, pcieEventList, eventInfoListener);
         collectBhmPcieHandler = bhmPcieHandler;
 
         //2025-09-01 服务器BHM的Power信息
-        List<String> bhmPowerHandlerList = Arrays.asList("bhmPowerSaveHandler","bhmPowerInfoUpdate","bhmPowerStatusFilterHandler");
+        List<String> bhmPowerHandlerList = Arrays.asList("bhmPowerSaveHandler","bhmPowerInfoUpdate","bhmPowerStatusFilterHandler", "saveArrayFilterHandler");
         List<String> powerEventList = Arrays.asList("bhmPowerStatusFilterHandler");
         IFilterHandler bhmPowerHandler = createHandler(bhmPowerHandlerList, powerEventList, eventInfoListener);
         collectBhmPowerHandler = bhmPowerHandler;
 
         //2025-09-01 服务器BHM的存储信息
-        List<String> bhmStorageHandlerList = Arrays.asList("bhmStorageSaveHandler","bhmDiskInfoUpdate","bhmDiskStatusFilterHandler");
+        List<String> bhmStorageHandlerList = Arrays.asList("bhmStorageSaveHandler","bhmDiskInfoUpdate","bhmDiskStatusFilterHandler", "saveArrayFilterHandler");
         List<String> diskEventList = Arrays.asList("bhmDiskStatusFilterHandler");
         IFilterHandler bhmStorageHandler = createHandler(bhmStorageHandlerList,diskEventList, eventInfoListener);
         collectBhmStorageHandler = bhmStorageHandler;
 
         //2025-09-01 服务器BHM的温度信息
-        List<String> bhmTempHandlerList = Arrays.asList("bhmTempSaveHandler");
+        List<String> bhmTempHandlerList = Arrays.asList("bhmTempSaveHandler", "saveArrayFilterHandler");
         IFilterHandler bhmTempHandler = createHandler(bhmTempHandlerList,new ArrayList<>(), eventInfoListener);
         collectBhmTempHandler = bhmTempHandler;
 
 
         //2025-09-01 服务器BHM的温度信息
-        List<String> bhmTempThresholdHandlerList = Arrays.asList("sensorTemperatureFilterHandler","sensorTemperatureStageOneFilterHandler","sensorTemperatureStageTwoFilterHandler","sensorTemperatureStageThreeFilterHandler");
+        List<String> bhmTempThresholdHandlerList = Arrays.asList("sensorTemperatureFilterHandler","sensorTemperatureStageOneFilterHandler","sensorTemperatureStageTwoFilterHandler","sensorTemperatureStageThreeFilterHandler", "saveArrayFilterHandler");
         List<String> tempThresholdEventList = Arrays.asList("sensorTemperatureFilterHandler","sensorTemperatureStageOneFilterHandler","sensorTemperatureStageTwoFilterHandler","sensorTemperatureStageThreeFilterHandler");
 
         IFilterHandler bhmTempThresholdHandler = createHandler(bhmTempThresholdHandlerList,tempThresholdEventList, eventInfoListener);
