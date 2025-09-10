@@ -35,7 +35,7 @@ public class SensorPowerFilterHandler extends IFilterHandler<CollectSensorEntity
             return true;
         }
         String redisKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + StatusInfoChangeTypeEnum.status_power.getCode() + ":" + info.getSerialNumberName();
-        String mapKey1 = StatusInfoChangeTypeEnum.status_power_state.getCode();
+        String mapKey1 = StatusInfoChangeTypeEnum.status_powerState.getCode();
         boolean flag1 = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey1, info.getStatus());
         if (flag1) {
             ChangeInfo changeInfo = new ChangeInfo();

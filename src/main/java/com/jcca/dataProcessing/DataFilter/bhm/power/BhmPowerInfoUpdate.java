@@ -50,7 +50,7 @@ public class BhmPowerInfoUpdate  extends IFilterHandler<List<CollectBhmPowerEnti
         asset.setPowerModel(str.toString());
         asset.setPowerTotal(info.size());
 
-
+        assetService.updateById(asset);
 
         return true;
     }

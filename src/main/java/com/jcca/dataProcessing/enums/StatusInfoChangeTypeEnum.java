@@ -224,9 +224,54 @@ public enum StatusInfoChangeTypeEnum {
     event_fan_state("event:event_fan:state", "风扇状态事件", "风扇%s状态%s", "风扇状态", ""),
     //    event_fan_unknown("event:event_fan:unknown", "风扇未知状态事件", "", "", ""),
     //风扇事件对应的状态信息
-    status_fan("status:fan", "", "", "", ""),
+    status_fan("status:fan", "风扇状态", "", "", ""),
     status_fanvalue("fanValue", "风扇转速", "", "", ""),
     status_fanStatus("fanStatus", "风扇状态", "", "", ""),
+    status_fanMaxReadingRange("fanMaxReadingRange", "风扇最大转速", "", "", ""),
+    status_fanMinReadingRange("fanMinReadingRange", "风扇最大转速", "", "", ""),
+
+
+    //cpu管理口状态
+    event_bhmCpu("event:event_bhmCpu", "CPU硬件状态", "", "CPU硬件状态", "183"),
+    event_bhmCpu_state("event:event_bhmCpu:state", "CPU硬件状态事件", "CPU硬件%s状态%s", "风扇状态", ""),
+    //CPU状态信息
+    status_bhmCpu("status:bhmCpu", "CPU硬件状态", "", "", ""),
+    status_bhmCpuStatus("bhmCpuStatus", "CPU硬件状态", "", "", ""),
+    status_bhmCpuManufacturer("bhmCpuManufacturer", "CPU厂家", "", "", ""),
+    status_bhmCpuModel("bhmCpuModel", "CPU型号", "", "", ""),
+    status_bhmCpuInstructionSet("bhmCpuInstructionSet", "指令集架构", "", "", ""),
+    status_bhmCpuProcessorArchitecture("bhmCpuProcessorArchitecture", "处理器架构", "", "", ""),
+    status_bhmCpuTotalCores("bhmCpuTotalCores", "物理核心总数", "", "", ""),
+    status_bhmCpuTotalThreads("bhmCpuTotalThreads", "逻辑线程总数", "", "", ""),
+    status_bhmCpuMaxSpeedMHz("bhmCpuMaxSpeedMHz", "单核最高睿频速度", "", "", ""),
+
+
+    //内存管理口状态
+    event_bhmMemory("event:event_bhmMemory", "内存硬件状态", "", "内存硬件状态", "183"),
+    event_bhmMemory_state("event:event_bhmMemory:state", "管理口内存状态事件", "内存硬件%s状态%s", "内存状态", ""),
+    //内存状态信息
+    status_bhmMemory("status:bhmMemory", "内存硬件状态", "", "", ""),
+    status_bhmMemoryStatus("bhmMemoryStatus", "内存硬件状态", "", "", ""),
+    status_bhmMemoryManufacturer("bhmMemoryManufacturer", "内存厂家", "", "", ""),
+
+    //磁盘管理口状态
+    event_bhmDisk("event:event_bhmDisk", "磁盘硬件状态", "", "磁盘硬件状态", "183"),
+    event_bhmDisk_state("event:event_bhmDisk:state", "管理口磁盘状态事件", "磁盘硬件%s状态%s", "磁盘状态", ""),
+    //磁盘状态信息
+    status_bhmDisk("status:bhmDisk", "磁盘硬件状态", "", "", ""),
+    status_bhmDiskStatus("bhmDiskStatus", "磁盘硬件状态", "", "", ""),
+    status_bhmDiskManufacturer("bhmDiskManufacturer", "磁盘厂家", "", "", ""),
+
+
+
+
+    //PCIE管理口状态
+    event_bhmPcie("event:event_bhmPcie", "PCIE硬件状态", "", "CPU硬件状态", "183"),
+    event_bhmPcie_state("event:event_bhmPcie:state", "PCIE硬件状态事件", "CPU硬件%s状态%s", "风扇状态", ""),
+    //PCIE状态信息
+    status_bhmPcie("status:bhmPcie", "PCIE硬件状态", "", "", ""),
+    status_bhmPcieStatus("bhmPcieStatus", "PCIE硬件状态", "", "", ""),
+    status_bhmPcieManufacturer("bhmPcieManufacturer", "内存厂家", "", "", ""),
 
 
     //指示灯事件
@@ -242,7 +287,8 @@ public enum StatusInfoChangeTypeEnum {
     event_power_state("event:event_power:state", "电源状态事件", "电源%s状态%s", "电源状态", ""),
     //电源事件对应的状态信息
     status_power("status:power", "电源状态", "", "", ""),
-    status_power_state("power_state", "电源状态", "", "", ""),
+    status_powerState("powerState", "电源状态", "", "", ""),
+    status_PowerManufacturer("powerManufacturer", "厂家", "", "", ""),
 
     //IPMI事件
     event_ipmi("event:ipmi", "管理口状态", "", "", ""),
@@ -266,6 +312,7 @@ public enum StatusInfoChangeTypeEnum {
     event_temp_state_sectionOne("event:event_temp:sectionOne", "温度传感器一阶阈值事件", getLevelThresholdMsg("温度传感器%s", "温度", "一阶", "℃"), "温度一阶状态", ""),
     event_temp_state_sectionTwo("event:event_temp:sectionTwo", "温度传感器二阶阈值事件", getLevelThresholdMsg("温度传感器%s", "温度", "二阶", "℃"), "温度二阶状态", ""),
     event_temp_state_sectionThree("event:event_temp:sectionThree", "温度传感器三阶阈值事件", getLevelThresholdMsg("温度传感器%s", "温度", "三阶", "℃"), "温度三阶状态", ""),
+
     //温度事件对应的状态信息
     status_temp("status:temp", "温度", "", "", ""),
     status_tempValue("tempValue", "温度值", "", "", ""),

@@ -1,15 +1,18 @@
 package com.jcca.dataProcessing.dataAdpater;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
 import com.jcca.common.log.constant.LogFunctionConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
+import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.Entity.CollectBhmStorageEntity;
 import com.jcca.dataProcessing.Entity.CollectBhmTempEntity;
+import com.jcca.dataProcessing.Entity.CollectSensorEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
@@ -57,6 +60,12 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
 
+                            if(Objects.nonNull(item.getReadingCelsius())){
+                                CollectSensorEntity copy = EntityBeanUtil.copy(item, CollectSensorEntity.class);
+                                copy.setValue(item.getReadingCelsius().toString());
+                                copy.setName(item.getName()+"_"+item.getMemberId());
+                                dataProcessManager.bhmTempThresholdHandlerRequest(copy);
+                            }
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
