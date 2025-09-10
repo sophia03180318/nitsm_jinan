@@ -65,6 +65,7 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                                 CollectSensorEntity copy = EntityBeanUtil.copy(item, CollectSensorEntity.class);
                                 copy.setValue(item.getReadingCelsius().toString());
                                 copy.setName(item.getName()+"_"+item.getMemberId());
+                                copy.setStatus(item.getStatus().getHealth());
                                 dataProcessManager.bhmTempThresholdHandlerRequest(copy);
                             }
                         } catch (Exception e) {
