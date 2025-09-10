@@ -155,4 +155,10 @@ public class StatisticsDbBaseMsgVo implements Serializable {
      * 2025-08-15
      */
     private String physicalBlockWr;
+
+    private String cacheLibrary;
+    private Double dbLockWaitRate;
+    private Double dbLockUsedRate;
+    private Double cacheHitRate;
+
 }

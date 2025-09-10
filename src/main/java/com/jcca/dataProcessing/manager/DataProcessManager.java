@@ -228,7 +228,7 @@ public class DataProcessManager {
 
 
         //2025-09-01 服务器BHM的CPU信息
-        List<String> bhmCpuHandlerList = Arrays.asList("bhmCpuSaveHandler");
+        List<String> bhmCpuHandlerList = Arrays.asList("bhmCpuSaveHandler","bhmCpuInfoUpdate");
         IFilterHandler bhmCpuHandler = createHandler(bhmCpuHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmCpuHandler = bhmCpuHandler;
         //2025-09-01 服务器BHM的Fan信息
@@ -248,7 +248,7 @@ public class DataProcessManager {
         IFilterHandler bhmPowerHandler = createHandler(bhmPowerHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmPowerHandler = bhmPowerHandler;
         //2025-09-01 服务器BHM的存储信息
-        List<String> bhmStorageHandlerList = Arrays.asList("bhmStorageSaveHandler");
+        List<String> bhmStorageHandlerList = Arrays.asList("bhmStorageSaveHandler","bhmDiskInfoUpdate");
         IFilterHandler bhmStorageHandler = createHandler(bhmStorageHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmStorageHandler = bhmStorageHandler;
         //2025-09-01 服务器BHM的温度信息
