@@ -77,7 +77,7 @@ public class DbInfoSaveFilterHandler extends IFilterHandler<CollectDBEntity> {
         entity.setCollectCode(info.getCollectTime().toString());
         entity.setCollectTime(date);
         if (StrUtil.isNotEmpty(info.getCacheHitRate())) {
-            entity.setCacheHitRate(Double.valueOf(info.getCacheLibrary()));
+            entity.setCacheHitRate(Double.valueOf(info.getCacheHitRate()));
         }
 
         if (StrUtil.isNotEmpty(info.getDbBusynessRate())) {
