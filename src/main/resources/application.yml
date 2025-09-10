@@ -59,9 +59,9 @@ spring:
       enabled: true
   datasource:
     druid:
-      url: jdbc:oracle:thin:@192.168.51.10:1521/itsm
-      username: jnv3
-      password: jnv3
+      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
+      username: jinanv2
+      password: jinanv2
 
       type: com.alibaba.druid.pool.DruidDataSource
       initialSize: 5
@@ -97,11 +97,11 @@ spring:
 
 jcca:
   redis:
-    host: 192.168.73.66
+    host: 192.168.73.26
     port: 6379
     password: jcca@123
     timeout: 5000
-    database: 8
+    database: 7
 
     jedis:
       pool1:

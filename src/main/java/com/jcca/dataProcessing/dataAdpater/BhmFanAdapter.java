@@ -59,6 +59,7 @@ public class BhmFanAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
+                            dataProcessManager.bhmFanHandlerRequest(item);
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
@@ -68,7 +69,6 @@ public class BhmFanAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 }
                 try {
                     cdh.await();
-                    dataProcessManager.bhmFanHandlerRequest(fanList);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -54,7 +54,8 @@ public class BhmPowerAdapter  extends AssetIpAdd implements IAdapter<JSONArray> 
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
-
+                            item.setCount(queueList.size());
+                            dataProcessManager.bhmPowerHandlerRequest(item);
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
@@ -64,7 +65,6 @@ public class BhmPowerAdapter  extends AssetIpAdd implements IAdapter<JSONArray> 
                 }
                 try {
                     cdh.await();
-                    dataProcessManager.bhmPowerHandlerRequest(queueList);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

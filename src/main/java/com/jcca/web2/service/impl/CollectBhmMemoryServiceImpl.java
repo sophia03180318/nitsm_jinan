@@ -33,4 +33,20 @@ public class CollectBhmMemoryServiceImpl extends ServiceImpl<CollectBhmMemoryMap
         remove(deleteMapper);
         saveBatch(infoList);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateAssetFanInfo(CollectBhmMemoryInfo copy) {
+        if(Objects.isNull(copy)){
+            return ;
+        }
+
+        QueryWrapper<CollectBhmMemoryInfo> deleteMapper = new QueryWrapper<>();
+        deleteMapper.eq("ASSET_ID", copy.getAssetId());
+        deleteMapper.eq("MEMORY_ID", copy.getMemoryId());
+
+        remove(deleteMapper);
+        save(copy);
+
+    }
 }

@@ -34,4 +34,18 @@ public class CollectBhmFanInfoServiceImpl extends ServiceImpl<CollectBhmFanInfoM
         remove(deleteMapper);
         saveBatch(infoList);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateAssetFanInfo(CollectBhmFanInfo copy) {
+        if(Objects.isNull(copy)){
+            return ;
+        }
+        QueryWrapper<CollectBhmFanInfo> deleteMapper = new QueryWrapper<>();
+        deleteMapper.eq("ASSET_ID", copy.getAssetId());
+        deleteMapper.eq("MEMBER_ID", copy.getMemberId());
+
+        remove(deleteMapper);
+        save(copy);
+    }
 }

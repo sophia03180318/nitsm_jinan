@@ -9,4 +9,6 @@ import java.util.List;
 public interface CollectBhmTempInfoService extends IService<CollectBhmTempInfo> {
 
     void updateAssetTempInfoBatch(List<CollectBhmTempInfo> saveList);
+
+    void updateAssetTempInfo(CollectBhmTempInfo copy);
 }

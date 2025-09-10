@@ -59,4 +59,6 @@ public class CommonEntity implements Serializable {
      */
     private String inspectRecordId;
 
+
+
 }

@@ -147,4 +147,107 @@ public class CollectBhmStorageInfoServiceImpl extends ServiceImpl<CollectBhmStor
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateAssetStorageInfo(CollectBhmStorageEntity item) {
+        if (Objects.isNull(item)) {
+            return;
+        }
+        List<CollectBhmStorageDiskInfo> storageDiskList = new ArrayList<>();
+        List<CollectBhmStorageControllersInfo> storageControllersList = new ArrayList<>();
+
+
+        String storageId = MyIdUtil.getId();
+        String collectCode = item.getCollectCode();
+
+        CollectBhmStorageInfo storage = new CollectBhmStorageInfo();
+        storage.setId(storageId);
+        storage.setAssetId(item.getAssetId());
+
+        storage.setNumberId(item.getId());
+        storage.setName(item.getName());
+
+        storage.setCollectCode(item.getCollectCode());
+        storage.setCreateTime(new Date());
+
+        List<ReadFishDiskEntity> diskInfos = item.getDiskInfos();
+        if (Objects.nonNull(diskInfos)) {
+            for (ReadFishDiskEntity diskInfo : diskInfos) {
+                ReadFishStatusEntity status = diskInfo.getStatus();
+                CollectBhmStorageDiskInfo disk = EntityBeanUtil.copy(diskInfo, CollectBhmStorageDiskInfo.class);
+
+                if (Objects.nonNull(status)) {
+                    disk.setHealth(status.getHealth());
+                    disk.setState(status.getState());
+                }
+                disk.setId(MyIdUtil.getId());
+                disk.setCollectCode(collectCode);
+                disk.setDiskId(diskInfo.getId());
+                disk.setStorageId(storageId);
+                disk.setAssetId(item.getAssetId());
+                disk.setCreateTime(new Date());
+
+                storageDiskList.add(disk);
+            }
+        }
+
+        List<ReadFishStorageControllersEntity> storageControllers = item.getStorageControllers();
+        if (Objects.nonNull(storageControllers)) {
+            for (ReadFishStorageControllersEntity controllerInfo : storageControllers) {
+                ReadFishStatusEntity status = controllerInfo.getStatus();
+                CollectBhmStorageControllersInfo controllers = EntityBeanUtil.copy(controllerInfo, CollectBhmStorageControllersInfo.class);
+                if (Objects.nonNull(status)) {
+                    controllers.setHealth(status.getHealth());
+                    controllers.setState(status.getState());
+                }
+                if (Objects.nonNull(controllerInfo.getSupportedDeviceProtocols())) {
+                    StringBuilder stringBuilder = new StringBuilder("支持的设备协议：");
+                    for (String supportedDeviceProtocol : controllerInfo.getSupportedDeviceProtocols()) {
+                        stringBuilder.append("[");
+                        stringBuilder.append(supportedDeviceProtocol);
+                        stringBuilder.append("]");
+                    }
+                    controllers.setSupportedDeviceProtocols(controllerInfo.toString());
+                }
+                controllers.setCollectCode(collectCode);
+                controllers.setId(MyIdUtil.getId());
+                controllers.setStorageId(storageId);
+                controllers.setAssetId(item.getAssetId());
+                controllers.setCreateTime(new Date());
+
+                storageControllersList.add(controllers);
+            }
+        }
+        //更新存储组信息
+        QueryWrapper<CollectBhmStorageInfo> deleteMapper1 = new QueryWrapper<>();
+        deleteMapper1.eq("ASSET_ID", storage.getAssetId());
+        deleteMapper1.eq("NUMBER_ID", storage.getNumberId());
+
+        remove(deleteMapper1);
+        save(storage);
+
+
+        if (!storageDiskList.isEmpty()) {
+            //更新磁盘信息
+            CollectBhmStorageDiskInfo collectBhmInfo = storageDiskList.get(0);
+
+            QueryWrapper<CollectBhmStorageDiskInfo> deleteMapper = new QueryWrapper<>();
+            deleteMapper.eq("ASSET_ID", collectBhmInfo.getAssetId());
+
+            diskInfoService.remove(deleteMapper);
+            diskInfoService.saveBatch(storageDiskList);
+        }
+        if (!storageControllersList.isEmpty()) {
+            //更新存储控制器信息
+            CollectBhmStorageControllersInfo collectBhmInfo = storageControllersList.get(0);
+
+            QueryWrapper<CollectBhmStorageControllersInfo> deleteMapper = new QueryWrapper<>();
+            deleteMapper.eq("ASSET_ID", collectBhmInfo.getAssetId());
+
+            controllersInfoService.remove(deleteMapper);
+            controllersInfoService.saveBatch(storageControllersList);
+        }
+    }
+
+
 }

@@ -25,5 +25,5 @@ public class CollectBhmStorageEntity extends CommonEntity implements Serializabl
      */
     private List<ReadFishStorageControllersEntity> storageControllers;
 
-
+    private Integer count;
 }

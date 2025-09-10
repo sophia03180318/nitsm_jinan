@@ -12,4 +12,6 @@ public interface CollectBhmPowerInfoService extends IService<CollectBhmPowerInfo
 
 
     void updateAssetPcieInfoBatch(List<CollectBhmPowerInfo> saveList);
+
+    void updateAssetPcieInfo(CollectBhmPowerInfo copy);
 }

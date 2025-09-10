@@ -16,4 +16,6 @@ public interface CollectBhmFanInfoService extends IService<CollectBhmFanInfo> {
      * @param saveList
      */
     void updateAssetFanInfoBatch(List<CollectBhmFanInfo> saveList);
+
+    void updateAssetFanInfo(CollectBhmFanInfo copy);
 }

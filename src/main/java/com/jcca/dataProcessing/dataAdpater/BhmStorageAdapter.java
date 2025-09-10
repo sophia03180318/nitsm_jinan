@@ -10,6 +10,7 @@ import com.jcca.common.utils.MyIdUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 
 import com.jcca.dataProcessing.Entity.CollectBhmStorageEntity;
+import com.jcca.dataProcessing.Entity.ReadFishDiskEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
@@ -48,14 +49,23 @@ public class BhmStorageAdapter  extends AssetIpAdd implements IAdapter<JSONArray
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
+                int count = 0;
+                for (CollectBhmStorageEntity collectBhmStorageEntity : queueList) {
+                    List<ReadFishDiskEntity> diskInfos = collectBhmStorageEntity.getDiskInfos();
+                    if(Objects.nonNull(diskInfos)){
+                        count = count+diskInfos.size();
+                    }
+                }
                 CountDownLatch cdh = new CountDownLatch(queueList.size());
                 String collectCode = MyIdUtil.getId();
                 for (CollectBhmStorageEntity item : queueList) {
+                    item.setCount(count);
+
                     thresholdDisposePool.execute(() -> {
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
-
+                            dataProcessManager.bhmStorageHandlerRequest(item);
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
@@ -65,7 +75,6 @@ public class BhmStorageAdapter  extends AssetIpAdd implements IAdapter<JSONArray
                 }
                 try {
                     cdh.await();
-                    dataProcessManager.bhmStorageHandlerRequest(queueList);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

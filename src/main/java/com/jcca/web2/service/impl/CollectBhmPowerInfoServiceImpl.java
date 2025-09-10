@@ -31,4 +31,20 @@ public class CollectBhmPowerInfoServiceImpl extends ServiceImpl<CollectBhmPowerI
         remove(deleteMapper);
         saveBatch(saveList);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateAssetPcieInfo(CollectBhmPowerInfo copy) {
+        if(Objects.isNull(copy)){
+            return ;
+        }
+
+        QueryWrapper<CollectBhmPowerInfo> deleteMapper = new QueryWrapper<>();
+        deleteMapper.eq("ASSET_ID", copy.getAssetId());
+        deleteMapper.eq("MEMBER_ID", copy.getMemberId());
+
+        remove(deleteMapper);
+        save(copy);
+
+    }
 }

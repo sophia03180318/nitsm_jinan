@@ -57,6 +57,8 @@ public class BhmCpuAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
+                            item.setCount(cpuList.size());
+                            dataProcessManager.bhmCpuHandlerRequest(item);
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
@@ -66,7 +68,6 @@ public class BhmCpuAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 }
                 try {
                     cdh.await();
-                    dataProcessManager.bhmCpuHandlerRequest(cpuList);
                 } catch (InterruptedException e) {
                     log.error(e.getMessage(), e);
                 }

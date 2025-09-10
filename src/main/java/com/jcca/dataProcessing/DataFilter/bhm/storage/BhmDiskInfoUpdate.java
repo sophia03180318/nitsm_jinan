@@ -14,29 +14,20 @@ import java.util.List;
 import java.util.Objects;
 
 @Component("bhmDiskInfoUpdate")
-public class BhmDiskInfoUpdate extends IFilterHandler<List<CollectBhmStorageEntity>> {
+public class BhmDiskInfoUpdate extends IFilterHandler<CollectBhmStorageEntity> {
 
     @Resource
     private AssetService assetService;
 
     @Override
-    public boolean handler(List<CollectBhmStorageEntity> info) throws ResultException, Exception {
-        if(Objects.isNull(info)||info.isEmpty()){
+    public boolean handler(CollectBhmStorageEntity collectBhmStorageEntity) throws ResultException, Exception {
+        if(Objects.isNull(collectBhmStorageEntity)){
             return true;
         }
-        String assetId = info.get(0).getAssetId();
+        String assetId = collectBhmStorageEntity.getAssetId();
         Asset asset = assetService.getById(assetId);
 
-        int diskCount=0;
-        for (CollectBhmStorageEntity collectBhmStorageEntity : info) {
-            List<ReadFishDiskEntity> diskInfos = collectBhmStorageEntity.getDiskInfos();
-            if(Objects.isNull(diskInfos) || diskInfos.isEmpty()){
-                continue;
-            }
-            diskCount =diskCount+ diskInfos.size();
-        }
-
-        asset.setDiskTotal(diskCount);
+        asset.setDiskTotal(collectBhmStorageEntity.getCount());
         assetService.updateById(asset);
         return true;
     }

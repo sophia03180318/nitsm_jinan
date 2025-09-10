@@ -55,6 +55,7 @@ public class BhmPcieAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
+                            dataProcessManager.bhmPcieHandlerRequest(item);
                         } catch (Exception e) {
                             AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + item.getAssetIp() + "interfaceHandlerRequest 抛出异常", e);
                         } finally {
@@ -64,7 +65,6 @@ public class BhmPcieAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                 }
                 try {
                     cdh.await();
-                    dataProcessManager.bhmPcieHandlerRequest(queueList);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

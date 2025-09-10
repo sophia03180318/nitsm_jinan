@@ -16,9 +16,10 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Component("bhmTempSaveHandler")
-public class BhmTempSaveHandler extends IFilterHandler<List<CollectBhmTempEntity>> {
+public class BhmTempSaveHandler extends IFilterHandler<CollectBhmTempEntity> {
 
 
     @Resource
@@ -26,26 +27,22 @@ public class BhmTempSaveHandler extends IFilterHandler<List<CollectBhmTempEntity
 
 
     @Override
-    public boolean handler(List<CollectBhmTempEntity> infoList) throws ResultException, Exception {
-        if(infoList.isEmpty()){
+    public boolean handler(CollectBhmTempEntity collectBhmTempEntity) throws ResultException, Exception {
+        if(Objects.isNull(collectBhmTempEntity)){
             return false;
         }
 
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口温度数据", infoList.get(0).getAssetIp());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口温度数据", collectBhmTempEntity.getAssetIp());
 
+        CollectBhmTempInfo copy = EntityBeanUtil.copy(collectBhmTempEntity, CollectBhmTempInfo.class);
+        ReadFishStatusEntity status = collectBhmTempEntity.getStatus();
 
-        List<CollectBhmTempInfo> saveList = new ArrayList<>();
-        for (CollectBhmTempEntity collectBhmTempEntity : infoList) {
-            CollectBhmTempInfo copy = EntityBeanUtil.copy(collectBhmTempEntity, CollectBhmTempInfo.class);
-            ReadFishStatusEntity status = collectBhmTempEntity.getStatus();
+        copy.setHealth(status.getHealth());
+        copy.setState(status.getState());
+        copy.setId(MyIdUtil.getId());
+        copy.setCreateTime(new Date());
 
-            copy.setHealth(status.getHealth());
-            copy.setState(status.getState());
-            copy.setId(MyIdUtil.getId());
-            copy.setCreateTime(new Date());
-            saveList.add(copy);
-        }
-        collectBhmService.updateAssetTempInfoBatch(saveList);
+        collectBhmService.updateAssetTempInfo(copy);
 
         return true;
     }

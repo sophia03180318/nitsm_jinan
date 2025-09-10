@@ -21,40 +21,34 @@ import java.util.List;
 import java.util.Objects;
 
 @Component("bhmPowerSaveHandler")
-public class BhmPowerSaveHandler  extends IFilterHandler<List<CollectBhmPowerEntity>> {
+public class BhmPowerSaveHandler  extends IFilterHandler<CollectBhmPowerEntity> {
 
     @Resource
     private CollectBhmPowerInfoService collectBhmPowerInfoService;
 
 
     @Override
-    public boolean handler(List<CollectBhmPowerEntity> infoList) throws ResultException, Exception {
-        if(infoList.isEmpty()){
+    public boolean handler(CollectBhmPowerEntity item) throws ResultException, Exception {
+        if(Objects.isNull(item)){
             return false;
         }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口电源数据", infoList.get(0).getAssetIp());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口电源数据", item.getAssetIp());
 
-        List<CollectBhmPowerInfo> saveList = new ArrayList<>();
-        for (CollectBhmPowerEntity item : infoList) {
-            ReadFishStatusEntity status = item.getStatus();
-            CollectBhmPowerInfo copy = EntityBeanUtil.copy(item, CollectBhmPowerInfo.class);
-            if(Objects.nonNull(status)){
-                copy.setHealth(status.getHealth());
-                copy.setState(status.getState());
-            }
-            copy.setId(MyIdUtil.getId());
-            copy.setAssetId(item.getAssetId());
-            copy.setCreateTime(new Date());
-            if(Objects.nonNull(item.getPresent())){
-                copy.setPresent(item.getPresent()?"已安装":"未安装");
-            }
-
-            saveList.add(copy);
+        ReadFishStatusEntity status = item.getStatus();
+        CollectBhmPowerInfo copy = EntityBeanUtil.copy(item, CollectBhmPowerInfo.class);
+        if(Objects.nonNull(status)){
+            copy.setHealth(status.getHealth());
+            copy.setState(status.getState());
+        }
+        copy.setId(MyIdUtil.getId());
+        copy.setAssetId(item.getAssetId());
+        copy.setCreateTime(new Date());
+        if(Objects.nonNull(item.getPresent())){
+            copy.setPresent(item.getPresent()?"已安装":"未安装");
         }
 
 
-
-        collectBhmPowerInfoService.updateAssetPcieInfoBatch(saveList);
+        collectBhmPowerInfoService.updateAssetPcieInfo(copy);
 
         return true;
     }

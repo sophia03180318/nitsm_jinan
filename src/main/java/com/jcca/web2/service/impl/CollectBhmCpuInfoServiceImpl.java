@@ -36,4 +36,19 @@ public class CollectBhmCpuInfoServiceImpl extends ServiceImpl<CollectBhmCpuInfoM
         remove(deleteMapper);
         saveBatch(infoList);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateAssetCpuInfo(CollectBhmCpuInfo info) {
+        if(Objects.isNull(info)){
+            return ;
+        }
+        QueryWrapper<CollectBhmCpuInfo> deleteMapper = new QueryWrapper<>();
+        deleteMapper.eq("ASSET_ID", info.getAssetId());
+        deleteMapper.eq("CPU_ID", info.getCpuId());
+        remove(deleteMapper);
+        save(info);
+
+
+    }
 }

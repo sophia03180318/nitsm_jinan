@@ -57,6 +57,9 @@ public class CollectBhmCpuEntity extends CommonEntity implements Serializable {
     private Integer maxSpeedMHz;
 
     private ReadFishStatusEntity status;
-
+    /**
+     * 总个数
+     */
+    private Integer count;
 
 }

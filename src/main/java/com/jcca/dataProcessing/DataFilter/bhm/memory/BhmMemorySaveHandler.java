@@ -21,45 +21,43 @@ import java.util.Objects;
 
 
 @Component("bhmMemorySaveHandler")
-public class BhmMemorySaveHandler  extends IFilterHandler<List<CollectBhmMemoryEntity>> {
+public class BhmMemorySaveHandler  extends IFilterHandler<CollectBhmMemoryEntity> {
 
     @Resource
     private CollectBhmMemoryService collectBhmMemoryService;
 
     @Override
-    public boolean handler(List<CollectBhmMemoryEntity> info) throws ResultException, Exception {
-        if(info.isEmpty()){
+    public boolean handler(CollectBhmMemoryEntity item) throws ResultException, Exception {
+        if(Objects.isNull(item)){
             return false;
         }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口内存数据", info.get(0).getAssetIp());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口内存数据", item.getAssetIp());
 
-        List<CollectBhmMemoryInfo> infoList = new ArrayList<>();
-        for (CollectBhmMemoryEntity item : info) {
-            CollectBhmMemoryInfo copy = EntityBeanUtil.copy(item, CollectBhmMemoryInfo.class);
-            ReadFishStatusEntity status = item.getStatus();
-            if(Objects.nonNull(status)){
-                copy.setHealth(status.getHealth());
-                copy.setState(status.getState());
-            }
-            copy.setId(MyIdUtil.getId());
-            copy.setMemoryId(item.getId());
-            copy.setAssetId(item.getAssetId());
-            copy.setCreateTime(new Date());
 
-            List<Integer> allowedSpeedsMHz = item.getAllowedSpeedsMHz();
-            if(Objects.nonNull(allowedSpeedsMHz) && allowedSpeedsMHz.size()>0){
-                copy.setAllowedSpeedsMHz(allowedSpeedsMHz.toString());
-            }
-            if(Objects.nonNull(item.getIsRankSpareEnabled())){
-                copy.setIsRankSpareEnabled(item.getIsRankSpareEnabled()?"已启用":"未启用");
-            }
-            if(Objects.nonNull(item.getIsSpareDeviceEnabled())){
-                copy.setIsSpareDeviceEnabled(item.getIsSpareDeviceEnabled()?"已启用":"未启用");
-            }
-            infoList.add(copy);
+        CollectBhmMemoryInfo copy = EntityBeanUtil.copy(item, CollectBhmMemoryInfo.class);
+        ReadFishStatusEntity status = item.getStatus();
+        if(Objects.nonNull(status)){
+            copy.setHealth(status.getHealth());
+            copy.setState(status.getState());
+        }
+        copy.setId(MyIdUtil.getId());
+        copy.setMemoryId(item.getId());
+        copy.setAssetId(item.getAssetId());
+        copy.setCreateTime(new Date());
+
+        List<Integer> allowedSpeedsMHz = item.getAllowedSpeedsMHz();
+        if(Objects.nonNull(allowedSpeedsMHz) && allowedSpeedsMHz.size()>0){
+            copy.setAllowedSpeedsMHz(allowedSpeedsMHz.toString());
+        }
+        if(Objects.nonNull(item.getIsRankSpareEnabled())){
+            copy.setIsRankSpareEnabled(item.getIsRankSpareEnabled()?"已启用":"未启用");
+        }
+        if(Objects.nonNull(item.getIsSpareDeviceEnabled())){
+            copy.setIsSpareDeviceEnabled(item.getIsSpareDeviceEnabled()?"已启用":"未启用");
         }
 
-        collectBhmMemoryService.updateAssetFanInfoBatch(infoList);
+
+        collectBhmMemoryService.updateAssetFanInfo(copy);
 
         return true;
     }

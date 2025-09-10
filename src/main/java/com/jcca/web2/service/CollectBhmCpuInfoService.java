@@ -16,4 +16,10 @@ public interface CollectBhmCpuInfoService extends IService<CollectBhmCpuInfo> {
      * @param infoList
      */
     void updateAssetCpuInfoBatch(List<CollectBhmCpuInfo> infoList);
+
+    /**
+     * 保存新的cpu数据删除老的
+     * @param info
+     */
+    void updateAssetCpuInfo(CollectBhmCpuInfo info);
 }

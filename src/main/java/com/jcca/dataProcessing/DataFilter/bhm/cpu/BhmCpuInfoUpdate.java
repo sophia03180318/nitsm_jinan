@@ -16,38 +16,37 @@ import java.util.Objects;
  * 更新资产中的CPU硬件信息
  */
 @Component("bhmCpuInfoUpdate")
-public class BhmCpuInfoUpdate extends IFilterHandler<List<CollectBhmCpuEntity>> {
+public class BhmCpuInfoUpdate extends IFilterHandler<CollectBhmCpuEntity> {
 
     @Resource
     private AssetService assetService;
 
 
     @Override
-    public boolean handler(List<CollectBhmCpuEntity> info) throws ResultException, Exception {
-        if(Objects.isNull(info)||info.isEmpty()){
+    public boolean handler(CollectBhmCpuEntity info) throws ResultException, Exception {
+        if(Objects.isNull(info)){
             return true;
         }
-        CollectBhmCpuEntity collectBhmCpuEntity = info.get(0);
-        String assetId = collectBhmCpuEntity.getAssetId();
+        String assetId = info.getAssetId();
         Asset asset = assetService.getById(assetId);
         if(Objects.isNull(asset)){
             return true;
         }
 
-        asset.setCpuNumber(info.size());
-        asset.setCpuCoreNumber(collectBhmCpuEntity.getTotalCores());
-        if(Objects.nonNull(collectBhmCpuEntity.getMaxSpeedMHz())){
-            asset.setCpuFrequency(collectBhmCpuEntity.getMaxSpeedMHz().toString());
+        asset.setCpuNumber(info.getCount());
+        asset.setCpuCoreNumber(info.getTotalCores());
+        if(Objects.nonNull(info.getMaxSpeedMHz())){
+            asset.setCpuFrequency(info.getMaxSpeedMHz().toString());
         }
 
         StringBuilder str = new StringBuilder("");
-        if(StrUtil.isNotEmpty(collectBhmCpuEntity.getManufacturer())){
+        if(StrUtil.isNotEmpty(info.getManufacturer())){
             str.append("厂商：");
-            str.append(collectBhmCpuEntity.getManufacturer());
+            str.append(info.getManufacturer());
         }
-        if(StrUtil.isNotEmpty(collectBhmCpuEntity.getModel())){
+        if(StrUtil.isNotEmpty(info.getModel())){
             str.append("型号：");
-            str.append(collectBhmCpuEntity.getModel());
+            str.append(info.getModel());
         }
         asset.setCpuModel(str.toString());
 

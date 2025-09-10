@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 @Component("bhmStorageSaveHandler")
-public class BhmStorageSaveHandler extends IFilterHandler<List<CollectBhmStorageEntity>> {
+public class BhmStorageSaveHandler extends IFilterHandler<CollectBhmStorageEntity> {
 
 
     @Resource
@@ -20,14 +21,14 @@ public class BhmStorageSaveHandler extends IFilterHandler<List<CollectBhmStorage
 
 
     @Override
-    public boolean handler(List<CollectBhmStorageEntity> infoList) throws ResultException, Exception {
+    public boolean handler(CollectBhmStorageEntity info) throws ResultException, Exception {
 
-        if(infoList.isEmpty()){
+        if(Objects.isNull(info)){
             return false;
         }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口存储数据", infoList.get(0).getAssetIp());
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口存储数据", info.getAssetIp());
 
-        collectBhmStorageInfoService.updateAssetStorageInfoBatch(infoList);
+        collectBhmStorageInfoService.updateAssetStorageInfo(info);
 
         return true;
     }

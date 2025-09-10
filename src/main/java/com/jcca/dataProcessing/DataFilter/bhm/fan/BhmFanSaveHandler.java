@@ -23,35 +23,30 @@ import java.util.Objects;
 
 
 @Component("bhmFanSaveHandler")
-public class BhmFanSaveHandler extends IFilterHandler<List<CollectBhmFanEntity>> {
+public class BhmFanSaveHandler extends IFilterHandler<CollectBhmFanEntity> {
 
     @Resource
     private CollectBhmFanInfoService collectBhmFanInfoService;
 
     @Override
-    public boolean handler(List<CollectBhmFanEntity> infoList) throws ResultException, Exception {
-        if(infoList.isEmpty()){
+    public boolean handler(CollectBhmFanEntity info) throws ResultException, Exception {
+        if(Objects.isNull(info)){
             return false;
         }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口Fan数据", infoList.get(0).getAssetIp());
-        List<CollectBhmFanInfo> saveList = new ArrayList<>();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口Fan数据", info.getAssetIp());
 
-        for (CollectBhmFanEntity info : infoList) {
-            CollectBhmFanInfo copy = EntityBeanUtil.copy(info, CollectBhmFanInfo.class);
+        CollectBhmFanInfo copy = EntityBeanUtil.copy(info, CollectBhmFanInfo.class);
 
-            ReadFishStatusEntity status = info.getStatus();
-            if(Objects.nonNull(status)){
-                copy.setHealth(status.getHealth());
-                copy.setState(status.getState());
-            }
-            copy.setId(MyIdUtil.getId());
-            copy.setAssetId(info.getAssetId());
-            copy.setCreateTime(new Date());
-
-            saveList.add(copy);
+        ReadFishStatusEntity status = info.getStatus();
+        if(Objects.nonNull(status)){
+            copy.setHealth(status.getHealth());
+            copy.setState(status.getState());
         }
+        copy.setId(MyIdUtil.getId());
+        copy.setAssetId(info.getAssetId());
+        copy.setCreateTime(new Date());
 
-        collectBhmFanInfoService.updateAssetFanInfoBatch(saveList);
+        collectBhmFanInfoService.updateAssetFanInfo(copy);
 
         return true;
     }

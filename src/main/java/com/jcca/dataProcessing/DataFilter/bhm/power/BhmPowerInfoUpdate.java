@@ -17,38 +17,41 @@ import java.util.Objects;
  * 电源信息安装
  */
 @Component("bhmPowerInfoUpdate")
-public class BhmPowerInfoUpdate  extends IFilterHandler<List<CollectBhmPowerEntity>> {
+public class BhmPowerInfoUpdate  extends IFilterHandler<CollectBhmPowerEntity> {
 
     @Resource
     private AssetService assetService;
 
 
     @Override
-    public boolean handler(List<CollectBhmPowerEntity> info) throws ResultException, Exception {
-        if(Objects.isNull(info)|| info.isEmpty()){
+    public boolean handler(CollectBhmPowerEntity info) throws ResultException, Exception {
+        if(Objects.isNull(info)){
             return true;
         }
-        String assetId = info.get(0).getAssetId();
+        String assetId = info.getAssetId();
         Asset asset = assetService.getById(assetId);
 
         if(Objects.isNull(asset)){
             return true;
         }
-
         StringBuilder str = new StringBuilder("");
-        for (CollectBhmPowerEntity collectBhmPowerEntity : info) {
-            if(StrUtil.isNotEmpty(collectBhmPowerEntity.getName())){
-                str.append(collectBhmPowerEntity.getName());
-            }
-            if(StrUtil.isNotEmpty(collectBhmPowerEntity.getManufacturer())){
-                str.append(collectBhmPowerEntity.getManufacturer());
-            }
-            if(StrUtil.isNotEmpty(collectBhmPowerEntity.getModel())){
-                str.append(collectBhmPowerEntity.getModel());
-            }
+        if(StrUtil.isNotEmpty(info.getName())){
+            str.append(info.getName());
         }
-        asset.setPowerModel(str.toString());
-        asset.setPowerTotal(info.size());
+        if(StrUtil.isNotEmpty(info.getManufacturer())){
+            str.append(info.getManufacturer());
+        }
+        if(StrUtil.isNotEmpty(info.getModel())){
+            str.append(info.getModel());
+        }
+        String modelStr = str.toString();
+        String powerModel = asset.getPowerModel();
+        if(StrUtil.isNotEmpty(powerModel)){
+            asset.setPowerModel(modelStr);
+        }else if(!powerModel.contains(modelStr)){
+            asset.setPowerModel(powerModel+"|"+modelStr);
+        }
+        asset.setPowerTotal(info.getCount());
 
         assetService.updateById(asset);
 

@@ -59,6 +59,7 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                         try {
                             item.setCollectCode(collectCode);
                             setAssetIp(item);
+                            dataProcessManager.bhmTempHandlerRequest(item);
 
                             if(Objects.nonNull(item.getReadingCelsius())){
                                 CollectSensorEntity copy = EntityBeanUtil.copy(item, CollectSensorEntity.class);
@@ -75,7 +76,6 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                 }
                 try {
                     cdh.await();
-                    dataProcessManager.bhmTempHandlerRequest(queueList);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

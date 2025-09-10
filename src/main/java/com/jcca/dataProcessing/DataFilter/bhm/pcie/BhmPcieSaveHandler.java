@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 @Component("bhmPcieSaveHandler")
-public class BhmPcieSaveHandler extends IFilterHandler<List<CollectBhmPcieEntity>> {
+public class BhmPcieSaveHandler extends IFilterHandler<CollectBhmPcieEntity> {
 
 
     @Resource
@@ -28,31 +28,23 @@ public class BhmPcieSaveHandler extends IFilterHandler<List<CollectBhmPcieEntity
 
 
     @Override
-    public boolean handler(List<CollectBhmPcieEntity> infoList) throws ResultException, Exception {
-        if(infoList.isEmpty()){
+    public boolean handler(CollectBhmPcieEntity item) throws ResultException, Exception {
+        if(Objects.isNull(item)){
             return false;
         }
-        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口PCIE数据", infoList.get(0).getAssetIp());
-
-        List<CollectBhmPcieInfo> saveList = new ArrayList<>();
-        for (CollectBhmPcieEntity item : infoList) {
-            ReadFishStatusEntity status = item.getStatus();
-            CollectBhmPcieInfo copy = EntityBeanUtil.copy(item, CollectBhmPcieInfo.class);
-            if(Objects.nonNull(status)){
-                copy.setHealth(status.getHealth());
-                copy.setState(status.getState());
-            }
-            copy.setId(MyIdUtil.getId());
-            copy.setPcieId(item.getId());
-            copy.setAssetId(item.getAssetId());
-            copy.setCreateTime(new Date());
-
-            saveList.add(copy);
+        AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_SINGLE, "保存管理口PCIE数据", item.getAssetIp());
+        ReadFishStatusEntity status = item.getStatus();
+        CollectBhmPcieInfo copy = EntityBeanUtil.copy(item, CollectBhmPcieInfo.class);
+        if(Objects.nonNull(status)){
+            copy.setHealth(status.getHealth());
+            copy.setState(status.getState());
         }
+        copy.setId(MyIdUtil.getId());
+        copy.setPcieId(item.getId());
+        copy.setAssetId(item.getAssetId());
+        copy.setCreateTime(new Date());
 
-
-
-        bhmPcieInfoService.updateAssetPcieInfoBatch(saveList);
+        bhmPcieInfoService.updateAssetPcieInfo(copy);
 
         return true;
     }

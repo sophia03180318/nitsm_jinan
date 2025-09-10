@@ -102,5 +102,7 @@ public class CollectBhmPowerEntity extends CommonEntity implements Serializable 
      */
     private ReadFishStatusEntity status;
 
+    private Integer count;
+
 
 }

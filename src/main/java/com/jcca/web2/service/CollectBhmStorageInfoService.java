@@ -11,4 +11,6 @@ public interface CollectBhmStorageInfoService extends IService<CollectBhmStorage
 
 
     void updateAssetStorageInfoBatch(List<CollectBhmStorageEntity> infoList);
+
+    void updateAssetStorageInfo(CollectBhmStorageEntity info);
 }
