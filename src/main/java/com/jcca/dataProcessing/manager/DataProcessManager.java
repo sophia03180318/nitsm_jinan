@@ -236,7 +236,7 @@ public class DataProcessManager {
         IFilterHandler bhmFanHandler = createHandler(bhmFanHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmFanHandler = bhmFanHandler;
         //2025-09-01 服务器BHM的Memory信息
-        List<String> bhmMemoryHandlerList = Arrays.asList("bhmMemorySaveHandler");
+        List<String> bhmMemoryHandlerList = Arrays.asList("bhmMemorySaveHandler","bhmMemoryInfoUpdate");
         IFilterHandler bhmMemoryHandler = createHandler(bhmMemoryHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmMemoryHandler = bhmMemoryHandler;
         //2025-09-01 服务器BHM的PCIE信息
@@ -244,7 +244,7 @@ public class DataProcessManager {
         IFilterHandler bhmPcieHandler = createHandler(bhmPcieHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmPcieHandler = bhmPcieHandler;
         //2025-09-01 服务器BHM的Power信息
-        List<String> bhmPowerHandlerList = Arrays.asList("bhmPowerSaveHandler");
+        List<String> bhmPowerHandlerList = Arrays.asList("bhmPowerSaveHandler","bhmPowerInfoUpdate");
         IFilterHandler bhmPowerHandler = createHandler(bhmPowerHandlerList, new ArrayList<>(), eventInfoListener);
         collectBhmPowerHandler = bhmPowerHandler;
         //2025-09-01 服务器BHM的存储信息
