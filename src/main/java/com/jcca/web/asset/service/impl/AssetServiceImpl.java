@@ -2149,18 +2149,21 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             queryWrapper.eq("ASSET_ID", assetId);
             queryWrapper.like("NAME", "Temp");
             List<CollectBhmTempInfo> list = collectBhmTempInfoService.list(queryWrapper);
-            AssetStatusItmVo vo = new AssetStatusItmVo();
-            vo.setStatus(1);
-            for (CollectBhmTempInfo collectBhmTempInfo : list) {
-                String health = collectBhmTempInfo.getHealth();
-                if(!CollectBhmTempInfo.NORMAL_HEALTH.equals(health)){
-                    vo.setStatus(-1);
-                    break;
+
+            if(!list.isEmpty()){
+                AssetStatusItmVo vo = new AssetStatusItmVo();
+                vo.setStatus(1);
+                for (CollectBhmTempInfo collectBhmTempInfo : list) {
+                    String health = collectBhmTempInfo.getHealth();
+                    if(!CollectBhmTempInfo.NORMAL_HEALTH.equals(health)){
+                        vo.setStatus(-1);
+                        break;
+                    }
                 }
+                vo.setCode(AssetStatusItmVo.SERVER_TEMP);
+                vo.setTitle("温度健康状态");
+                assetStatusItmVos.add(vo);
             }
-            vo.setCode(AssetStatusItmVo.SERVER_TEMP);
-            vo.setTitle("温度健康状态");
-            assetStatusItmVos.add(vo);
         }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
