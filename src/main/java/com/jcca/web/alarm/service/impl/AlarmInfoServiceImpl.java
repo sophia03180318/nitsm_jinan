@@ -1107,7 +1107,7 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
                     alarmPageStatisticsVo.setCode("");
                 } else {
                     alarmPageStatisticsVo.setCode(key);
-                    alarmPageStatisticsVo.setKey(AlarmLevelEnum.getMsg(Byte.valueOf(key)));
+                    alarmPageStatisticsVo.setKey(AlarmLevelEnum.getMsg(Integer.valueOf(key)));
                 }
             }
         }

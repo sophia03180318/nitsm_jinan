@@ -115,7 +115,7 @@ public class AlarmRepositoryController extends ListenerManager {
         List<AlarmRepositoryVo> voList = new ArrayList<AlarmRepositoryVo>();
         for (AlarmRepository body : records) {
             AlarmRepositoryVo vo = EntityBeanUtil.copy(body, AlarmRepositoryVo.class);
-            vo.setAlarmLevelStr(AlarmLevelEnum.getMsg(new Byte(body.getAlarmLevel().toString())));
+            vo.setAlarmLevelStr(AlarmLevelEnum.getMsg(new Integer(body.getAlarmLevel().toString())));
             if (Objects.nonNull(body.getFlagType())) {
                 vo.setFlagTypeStr(EventLevelEnum.getMsgByCode(body.getFlagType()));
             }
@@ -167,7 +167,7 @@ public class AlarmRepositoryController extends ListenerManager {
     @ActionLog(name = "修改知识库记录", title = "知识库", key = LogTypeConstant.MODIFY)
     ResultVo<String> update(@RequestBody UpdateAlarmRepoReq req) {
         Integer alarmLevel = req.getAlarmLevel();
-        String alarmLevelStr = AlarmLevelEnum.getMsg(new Byte(alarmLevel.toString()));
+        String alarmLevelStr = AlarmLevelEnum.getMsg(new Integer(alarmLevel.toString()));
 
         if (StrUtil.equals(alarmLevelStr, alarmLevel.toString())) {
             return ResultVoUtil.paramError("请选择正确的告警级别", String.class);

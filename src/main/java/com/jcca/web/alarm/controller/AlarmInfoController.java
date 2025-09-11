@@ -566,7 +566,7 @@ public class AlarmInfoController extends ListenerManager {
         for (AlarmInfo alarmInfo : records) {
             AlarmInfoVo vo = new AlarmInfoVo();
             BeanUtil.copyProperties(alarmInfo, vo);
-            vo.setLevelStr(AlarmLevelEnum.getMsg(alarmInfo.getAlarmLevel()));
+            vo.setLevelStr(AlarmLevelEnum.getMsg(alarmInfo.getAlarmLevel().intValue()));
             vo.setStatusStr(AlarmStatusEnum.getMsg(alarmInfo.getStatus()));
             vo.setTypeStr(AlarmTypeEnum.getMsg(alarmInfo.getType()));
             vo.setOccurTimeStr(DateUtil.format(alarmInfo.getOccurTime(), "yyyy-MM-dd HH:mm:ss"));

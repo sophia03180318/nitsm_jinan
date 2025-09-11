@@ -448,7 +448,7 @@ public class ApiBrokenRecordController {
             if (item.getAlarmLevel() == null) {
                 itemList.add("");
             } else {
-                itemList.add(AlarmLevelEnum.getMsg(item.getAlarmLevel()));
+                itemList.add(AlarmLevelEnum.getMsg(item.getAlarmLevel().intValue()));
             }
             itemList.add(AlarmStatusEnum.getMsg(item.getStatus()));
             itemList.add(BrokenOriginEnum.getMsg(item.getOrigin()));

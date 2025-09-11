@@ -28,7 +28,7 @@ public enum AlarmLevelEnum {
         this.msg = msg;
     }
 
-    public static String getMsg(Byte code) {
+    public static String getMsg(Integer code) {
         AlarmLevelEnum[] values = AlarmLevelEnum.values();
         for (AlarmLevelEnum item : values) {
             Integer code2 = item.getCode();

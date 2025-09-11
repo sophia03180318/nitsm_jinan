@@ -402,7 +402,7 @@ public class AlarmControllerV2 {
             AlarmExportVo copy = EntityBeanUtil.copy(alarmPageVo, AlarmExportVo.class);
             copy.setStatus(AlarmStatusEnum.getMsg(alarmPageVo.getStatus().byteValue()));
             copy.setAlarmStatus(AlarmStateEnum.getMsg(alarmPageVo.getAlarmState().byteValue()));
-            copy.setAlarmLevel(AlarmLevelEnum.getMsg(alarmPageVo.getAlarmLevel().byteValue()));
+            copy.setAlarmLevel(AlarmLevelEnum.getMsg(alarmPageVo.getAlarmLevel()));
             if (Objects.nonNull(alarmPageVo.getAlarmType())) {
                 copy.setAlarmType(AlarmTypeEnum.getMsg(alarmPageVo.getAlarmType().intValue()));
             }
