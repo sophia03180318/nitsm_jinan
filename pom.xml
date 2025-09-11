@@ -388,16 +388,6 @@
 
     <!-- 其他配置 -->
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <!-- 排除 logback.xml -->
-                    <exclude>logback-spring.xml</exclude>
-                    <!-- 子目录排除写法同上 -->
-                </excludes>
-            </resource>
-        </resources>
         <finalName>nitsm</finalName>
         <plugins>
             <plugin>
