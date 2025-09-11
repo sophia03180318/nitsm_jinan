@@ -2,6 +2,7 @@ package com.jcca.web.collect.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.jcca.common.annotation.WebField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -44,6 +45,7 @@ public class CollectNetworkCard extends Model<CollectNetworkCard> {
     /**
      * 网卡名称
      */
+    @WebField(title = "网卡名称")
     @TableField("NAME")
     private String name;
     /**
@@ -54,11 +56,13 @@ public class CollectNetworkCard extends Model<CollectNetworkCard> {
     /**
      * mac地址
      */
+    @WebField(title = "MAC地址")
     @TableField("MAC_ADDRESS")
     private String macAddress;
     /**
      * ip地址
      */
+    @WebField(title = "IP地址")
     @TableField("IP")
     private String ip;
     /**
@@ -99,6 +103,7 @@ public class CollectNetworkCard extends Model<CollectNetworkCard> {
      * 状态翻译后的文字
      *
      */
+    @WebField(title = "状态")
     @TableField(exist = false)
     private String statusStr;
 }

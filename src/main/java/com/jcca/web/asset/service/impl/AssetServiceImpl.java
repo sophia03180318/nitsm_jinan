@@ -66,10 +66,7 @@ import com.jcca.web.ip.entity.IpInfo;
 import com.jcca.web.ip.enums.IpPingStatusEnum;
 import com.jcca.web.ip.service.IpInfoService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
-import com.jcca.web2.entity.AssetManufacturer;
-import com.jcca.web2.entity.AssetMode;
-import com.jcca.web2.entity.CollectBhmTempInfo;
-import com.jcca.web2.entity.ThresholdManage;
+import com.jcca.web2.entity.*;
 import com.jcca.web2.enums.AssetMonitorEnum;
 import com.jcca.web2.service.*;
 import com.jcca.web2.service.notify.NotifyDelAssetImpl;
@@ -162,8 +159,14 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private AssetManufacturerService assetManufacturerService;
     @Resource
     private AssetAppServerService appServerService;
+
     @Resource
     private CollectBhmTempInfoService collectBhmTempInfoService;
+    @Resource
+    private CollectBhmFanInfoService collectBhmFanInfoService;
+    @Resource
+    private CollectBhmPowerInfoService collectBhmPowerInfoService;
+
 
 
     @Value("${project.upload.static-url}")
@@ -2174,7 +2177,24 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         List<CollectSensor> fanList = sensotList.stream()
                 .filter(item -> SensorTypeEnum.FAN.name().equals(item.getSensorType())).collect(Collectors.toList());
-        if (!fanList.isEmpty()) {
+
+        if (fanList.isEmpty()) {
+            QueryWrapper<CollectBhmFanInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("ASSET_ID", assetId);
+            List<CollectBhmFanInfo> list = collectBhmFanInfoService.list(queryWrapper);
+            AssetStatusItmVo vo = new AssetStatusItmVo();
+            vo.setStatus(1);
+            for (CollectBhmFanInfo fanInfo : list) {
+                String health = fanInfo.getHealth();
+                if(!CollectBhmFanInfo.NORMAL_HEALTH.equals(health)){
+                    vo.setStatus(-1);
+                    break;
+                }
+            }
+            vo.setCode(AssetStatusItmVo.SERVER_FAN);
+            vo.setTitle("风扇健康状态");
+            assetStatusItmVos.add(vo);
+        }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
             for (CollectSensor collectSensor : fanList) {
@@ -2190,7 +2210,24 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
 
         List<CollectSensor> powerList = sensotList.stream()
                 .filter(item -> SensorTypeEnum.POWER.name().equals(item.getSensorType())).collect(Collectors.toList());
-        if (!powerList.isEmpty()) {
+
+        if (powerList.isEmpty()) {
+            QueryWrapper<CollectBhmPowerInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("ASSET_ID", assetId);
+            List<CollectBhmPowerInfo> list = collectBhmPowerInfoService.list(queryWrapper);
+            AssetStatusItmVo vo = new AssetStatusItmVo();
+            vo.setStatus(1);
+            for (CollectBhmPowerInfo collectBhmPowerInfo : list) {
+                String health = collectBhmPowerInfo.getHealth();
+                if(!CollectBhmPowerInfo.NORMAL_HEALTH.equals(health)){
+                    vo.setStatus(-1);
+                    break;
+                }
+            }
+            vo.setCode(AssetStatusItmVo.SERVER_POWER);
+            vo.setTitle("电源健康状态");
+            assetStatusItmVos.add(vo);
+        }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
             for (CollectSensor collectSensor : powerList) {
@@ -2224,21 +2261,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     errorList.add(realTimeDatum);
                 }
             }
-            JSONObject name = new JSONObject();
-            name.put("property", "name");
-            name.put("title", "网卡名称");
-            JSONObject titleIp = new JSONObject();
-            titleIp.put("property", "ip");
-            titleIp.put("title", "ip地址");
-            JSONObject titleMac = new JSONObject();
-            titleMac.put("property", "macAddress");
-            titleMac.put("title", "物理地址");
-            JSONObject titleStatus = new JSONObject();
-            titleStatus.put("property", "statusStr");
-            titleStatus.put("title", "网卡状态");
+
+            List<JSONObject> titleList = WebTitleUtils.getWebTitleList(CollectNetworkCard.class);
 
             errorList.addAll(normalList);
-            vo.setTitleList(Arrays.asList(name, titleIp, titleMac, titleStatus));
+            vo.setTitleList(titleList);
             vo.setDataList(errorList);
         } else if (AssetStatusItmVo.SERVER_PROCESS.equals(code)) {
             QueryWrapper<ThresholdProcess> queryWrapper = new QueryWrapper<>();
@@ -2256,24 +2283,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 }
             }
 
-            JSONObject name = new JSONObject();
-            name.put("property", "processName");
-            name.put("title", "关键进程");
-            JSONObject codeTitle = new JSONObject();
-            codeTitle.put("property", "processId");
-            codeTitle.put("title", "进程号");
-            JSONObject cpuTitle = new JSONObject();
-            cpuTitle.put("property", "cpuRate");
-            cpuTitle.put("title", "cpu使用率");
-            JSONObject memTitle = new JSONObject();
-            memTitle.put("property", "memoryRate");
-            memTitle.put("title", "内存使用率");
-            JSONObject statusTitle = new JSONObject();
-            statusTitle.put("property", "collectStatusStr");
-            statusTitle.put("title", "状态");
+            List<JSONObject> webTitleList = WebTitleUtils.getWebTitleList(ThresholdProcess.class);
 
             errorList.addAll(normalList);
-            vo.setTitleList(Arrays.asList(name, codeTitle, cpuTitle, memTitle, statusTitle));
+            vo.setTitleList(webTitleList);
             vo.setDataList(errorList);
 
         } else if (AssetStatusItmVo.SERVER_TEMP.equals(code)) {
@@ -2298,18 +2311,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 List<CollectBhmTempInfo> list = collectBhmTempInfoService.list(queryWrapper);
 
                 if(Objects.nonNull(list) && !list.isEmpty()){
+                    List<JSONObject> titleList = WebTitleUtils.getWebTitleList(CollectBhmTempInfo.class);
 
-                    JSONObject name = new JSONObject();
-                    name.put("property", "name");
-                    name.put("title", "名称");
-                    JSONObject titleValue = new JSONObject();
-                    titleValue.put("property", "readingCelsius");
-                    titleValue.put("title", "温度");
-                    JSONObject titleStatus = new JSONObject();
-                    titleStatus.put("property", "health");
-                    titleStatus.put("title", "状态");
-
-                    vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
+                    vo.setTitleList(titleList);
                     vo.setDataList(list);
                 }
             }else{
@@ -2333,18 +2337,30 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             List<CollectSensor> fanList = sensotList.stream()
                     .filter(item -> SensorTypeEnum.FAN.name().equals(item.getSensorType())).collect(Collectors.toList());
 
-            JSONObject name = new JSONObject();
-            name.put("property", "serialNumberName");
-            name.put("title", "序列号");
-            JSONObject titleValue = new JSONObject();
-            titleValue.put("property", "value");
-            titleValue.put("title", "转速");
-            JSONObject titleStatus = new JSONObject();
-            titleStatus.put("property", "statusStr");
-            titleStatus.put("title", "状态");
+            if(fanList.isEmpty()){
+                QueryWrapper<CollectBhmFanInfo> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("ASSET_ID", assetId);
+                List<CollectBhmFanInfo> list = collectBhmFanInfoService.list(queryWrapper);
+                if(Objects.nonNull(list) && !list.isEmpty()){
+                    List<JSONObject> titleList = WebTitleUtils.getWebTitleList(CollectBhmFanInfo.class);
 
-            vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
-            vo.setDataList(fanList);
+                    vo.setTitleList(titleList);
+                    vo.setDataList(list);
+                }
+            }else{
+                JSONObject name = new JSONObject();
+                name.put("property", "serialNumberName");
+                name.put("title", "序列号");
+                JSONObject titleValue = new JSONObject();
+                titleValue.put("property", "value");
+                titleValue.put("title", "转速");
+                JSONObject titleStatus = new JSONObject();
+                titleStatus.put("property", "statusStr");
+                titleStatus.put("title", "状态");
+
+                vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
+                vo.setDataList(fanList);
+            }
 
         } else if (AssetStatusItmVo.SERVER_POWER.equals(code)) {
             // 电源
@@ -2352,18 +2368,31 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             List<CollectSensor> powerList = sensotList.stream()
                     .filter(item -> SensorTypeEnum.POWER.name().equals(item.getSensorType())).collect(Collectors.toList());
 
-            JSONObject name = new JSONObject();
-            name.put("property", "serialNumberName");
-            name.put("title", "序列号");
-            JSONObject titleValue = new JSONObject();
-            titleValue.put("property", "value");
-            titleValue.put("title", "电压");
-            JSONObject titleStatus = new JSONObject();
-            titleStatus.put("property", "statusStr");
-            titleStatus.put("title", "状态");
+            if(powerList.isEmpty()){
+                QueryWrapper<CollectBhmPowerInfo> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("ASSET_ID", assetId);
+                List<CollectBhmPowerInfo> list = collectBhmPowerInfoService.list(queryWrapper);
 
-            vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
-            vo.setDataList(powerList);
+                if(Objects.nonNull(list) && !list.isEmpty()){
+                    List<JSONObject> fieldJson = WebTitleUtils.getWebTitleList(CollectBhmPowerInfo.class);
+
+                    vo.setTitleList(fieldJson);
+                    vo.setDataList(list);
+                }
+            }else{
+                JSONObject name = new JSONObject();
+                name.put("property", "serialNumberName");
+                name.put("title", "序列号");
+                JSONObject titleValue = new JSONObject();
+                titleValue.put("property", "value");
+                titleValue.put("title", "电压");
+                JSONObject titleStatus = new JSONObject();
+                titleStatus.put("property", "statusStr");
+                titleStatus.put("title", "状态");
+
+                vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
+                vo.setDataList(powerList);
+            }
         } else if (AssetStatusItmVo.SERVER_PORT.equals(code)) {
             //端口
             List<AssetPortVo> ports = topoAssetPortService.selectPortListByAsset(assetId);

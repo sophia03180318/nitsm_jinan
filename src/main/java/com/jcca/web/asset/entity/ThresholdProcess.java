@@ -3,6 +3,7 @@ package com.jcca.web.asset.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jcca.common.annotation.WebField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
@@ -36,11 +37,13 @@ public class ThresholdProcess extends Model<ThresholdProcess> {
     /**
      * 进程配置名称
      */
+    @WebField(title = "关键进程")
     @TableField("PROCESS_NAME")
     private String processName;
     /**
      * 进程ID
      */
+    @WebField(title = "进程ID")
     @TableField("PROCESS_ID")
     private String processId;
     /**
@@ -63,11 +66,13 @@ public class ThresholdProcess extends Model<ThresholdProcess> {
     /**
      * 当前cpu使用率
      */
+    @WebField(title = "CPU使用率")
     @TableField("CPU_RATE")
     private String cpuRate;
     /**
      * 当前内存使用率
      */
+    @WebField(title = "内存使用率")
     @TableField("MEMORY_RATE")
     private String memoryRate;
     /**
@@ -84,6 +89,7 @@ public class ThresholdProcess extends Model<ThresholdProcess> {
     /**
      * 进程别名
      */
+    @WebField(title = "进程别名")
     @TableField("REMARK")
     private String remark;
     /**

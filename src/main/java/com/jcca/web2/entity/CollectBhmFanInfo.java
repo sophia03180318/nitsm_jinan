@@ -3,6 +3,7 @@ package com.jcca.web2.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.jcca.common.annotation.WebField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,6 +17,7 @@ import java.util.Date;
 @TableName("COLLECT_BHM_FAN_INFO")
 public class CollectBhmFanInfo  extends Model<CollectBhmFanInfo> {
 
+    public static final String NORMAL_HEALTH = "OK";
 
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
     private String id;
@@ -25,33 +27,39 @@ public class CollectBhmFanInfo  extends Model<CollectBhmFanInfo> {
     /**
      * 名称
      */
+    @WebField(title = "名称")
     @TableField("NAME")
     private String name;
     /**
      * 成员ID 代表风扇的槽位
      * 第几个风扇
      */
+    @WebField(title = "槽位")
     @TableField("MEMBER_ID")
     private String memberId;
     /**
      * 部件编号
      */
+    @WebField(title = "部件编号")
     @TableField("PART_NUMBER")
     private String partNumber;
     /**
      * 当前转速
      */
+    @WebField(title = "当前转速")
     @TableField("READING")
     private Integer reading;
     /**
      * 转速单位
      */
+    @WebField(title = "转速单位")
     @TableField("READING_UNITS")
     private String readingUnits;
     /**
      * 最大转速
      *  "RPM"(转 / 分钟)
      */
+    @WebField(title = "最大转速")
     @TableField("MAX_READING_RANGE")
     private Integer maxReadingRange;
     /**
@@ -63,12 +71,14 @@ public class CollectBhmFanInfo  extends Model<CollectBhmFanInfo> {
     /**
      * 健康状态
      */
+    @WebField(title = "健康状态")
     @TableField("HEALTH")
     private String health;
     /**
      * 是否启用
      * Enabled 启用
      */
+    @WebField(title = "启用状态")
     @TableField("STATE")
     private String state;
 

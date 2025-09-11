@@ -2,6 +2,7 @@ package com.jcca.web2.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.jcca.common.annotation.WebField;
 import com.jcca.dataProcessing.Entity.ReadFishStatusEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,23 +27,27 @@ public class CollectBhmTempInfo extends Model<CollectBhmTempInfo> {
     /**
      * 名称
      */
+    @WebField(title = "名称")
     @TableField("NAME")
     private String name;
     /**
      * 代表第几个
      */
+    @WebField(title = "槽位")
     @TableField("MEMBER_ID")
     private String memberId;
     /**
      * 物理场景定义
      * "Room"，表示基于机房环境基准监控（非密闭空间）
      */
+    @WebField(title = "位置")
     @TableField("PHYSICAL_CONTEXT")
     private String physicalContext;
     /**
      * 温度 可空
      * 摄氏度
      */
+    @WebField(title = "温度(摄氏度)")
     @TableField("READING_CELSIUS")
     private Double readingCelsius;
     /**
@@ -50,6 +55,7 @@ public class CollectBhmTempInfo extends Model<CollectBhmTempInfo> {
      * 用于定位物理传感器在主板上的焊接 / 部署位置
      * （如 SensorNumber=1 对应进风口传感器）
      */
+    @WebField(title = "传感编号")
     @TableField("SENSOR_NUMBER")
     private String sensorNumber;
     /**
@@ -71,12 +77,14 @@ public class CollectBhmTempInfo extends Model<CollectBhmTempInfo> {
     /**
      * 健康状态
      */
+    @WebField(title = "健康状态")
     @TableField("HEALTH")
     private String health;
     /**
      * 是否启用
      * Enabled 启用
      */
+    @WebField(title = "是否启用")
     @TableField("STATE")
     private String state;
 
