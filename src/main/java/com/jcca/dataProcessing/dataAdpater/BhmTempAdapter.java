@@ -16,6 +16,7 @@ import com.jcca.dataProcessing.Entity.CollectSensorEntity;
 import com.jcca.dataProcessing.enums.CollectConst;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
+import com.jcca.web.collect.enums.SensorTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +67,7 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                                 copy.setValue(item.getReadingCelsius().toString());
                                 copy.setName(item.getName()+"_"+item.getMemberId());
                                 copy.setStatus(item.getStatus().getHealth());
+                                copy.setSensorType(SensorTypeEnum.GAUGE.name());
                                 dataProcessManager.bhmTempThresholdHandlerRequest(copy);
                             }
                         } catch (Exception e) {
