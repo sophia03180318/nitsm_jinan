@@ -16,6 +16,8 @@ import java.util.Date;
 @TableName("COLLECT_BHM_TEMP_INFO")
 public class CollectBhmTempInfo extends Model<CollectBhmTempInfo> {
 
+    public static final String NORMAL_HEALTH = "OK";
+
     @TableId(value = "ID", type = IdType.ID_WORKER_STR)
     private String id;
 

@@ -68,12 +68,10 @@ import com.jcca.web.ip.service.IpInfoService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.entity.AssetManufacturer;
 import com.jcca.web2.entity.AssetMode;
+import com.jcca.web2.entity.CollectBhmTempInfo;
 import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.enums.AssetMonitorEnum;
-import com.jcca.web2.service.AssetManufacturerService;
-import com.jcca.web2.service.AssetModeService;
-import com.jcca.web2.service.AssetNotifyService;
-import com.jcca.web2.service.CacheDataService;
+import com.jcca.web2.service.*;
 import com.jcca.web2.service.notify.NotifyDelAssetImpl;
 import com.jcca.web2.vo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -164,6 +162,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     private AssetManufacturerService assetManufacturerService;
     @Resource
     private AssetAppServerService appServerService;
+    @Resource
+    private CollectBhmTempInfoService collectBhmTempInfoService;
+
 
     @Value("${project.upload.static-url}")
     private String staticUrl;
@@ -2130,6 +2131,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         List<CollectSensor> sensotList = sensorServ.getRealTimeData(assetId);
         List<CollectSensor> gaugeListTemp = sensotList.stream()
                 .filter(item -> SensorTypeEnum.GAUGE.name().equals(item.getSensorType())).collect(Collectors.toList());
+
         List<CollectSensor> gaugeList = new ArrayList<>();
         for (CollectSensor collectSensor : gaugeListTemp) {
             String value = collectSensor.getValue();
@@ -2139,7 +2141,23 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 }
             }
         }
-        if (!gaugeList.isEmpty()) {
+        if (gaugeList.isEmpty()) {
+            QueryWrapper<CollectBhmTempInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("ASSET_ID", assetId);
+            List<CollectBhmTempInfo> list = collectBhmTempInfoService.list(queryWrapper);
+            AssetStatusItmVo vo = new AssetStatusItmVo();
+            vo.setStatus(1);
+            for (CollectBhmTempInfo collectBhmTempInfo : list) {
+                String health = collectBhmTempInfo.getHealth();
+                if(!CollectBhmTempInfo.NORMAL_HEALTH.equals(health)){
+                    vo.setStatus(-1);
+                    break;
+                }
+            }
+            vo.setCode(AssetStatusItmVo.SERVER_TEMP);
+            vo.setTitle("温度健康状态");
+            assetStatusItmVos.add(vo);
+        }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
             for (CollectSensor collectSensor : gaugeList) {
@@ -2271,18 +2289,41 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                     }
                 }
             }
-            JSONObject name = new JSONObject();
-            name.put("property", "serialNumberName");
-            name.put("title", "序列号");
-            JSONObject titleValue = new JSONObject();
-            titleValue.put("property", "value");
-            titleValue.put("title", "温度");
-            JSONObject titleStatus = new JSONObject();
-            titleStatus.put("property", "statusStr");
-            titleStatus.put("title", "状态");
 
-            vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
-            vo.setDataList(gaugeList);
+            if(gaugeList.isEmpty()){
+                QueryWrapper<CollectBhmTempInfo> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("ASSET_ID", assetId);
+                List<CollectBhmTempInfo> list = collectBhmTempInfoService.list(queryWrapper);
+
+                if(Objects.nonNull(list) && !list.isEmpty()){
+
+                    JSONObject name = new JSONObject();
+                    name.put("property", "name");
+                    name.put("title", "名称");
+                    JSONObject titleValue = new JSONObject();
+                    titleValue.put("property", "readingCelsius");
+                    titleValue.put("title", "温度");
+                    JSONObject titleStatus = new JSONObject();
+                    titleStatus.put("property", "health");
+                    titleStatus.put("title", "状态");
+
+                    vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
+                    vo.setDataList(list);
+                }
+            }else{
+                JSONObject name = new JSONObject();
+                name.put("property", "serialNumberName");
+                name.put("title", "序列号");
+                JSONObject titleValue = new JSONObject();
+                titleValue.put("property", "value");
+                titleValue.put("title", "温度");
+                JSONObject titleStatus = new JSONObject();
+                titleStatus.put("property", "statusStr");
+                titleStatus.put("title", "状态");
+
+                vo.setTitleList(Arrays.asList(name, titleValue, titleStatus));
+                vo.setDataList(gaugeList);
+            }
 
         } else if (AssetStatusItmVo.SERVER_FAN.equals(code)) {
             // 风扇
