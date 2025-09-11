@@ -62,7 +62,7 @@ public class BhmTempAdapter  extends AssetIpAdd implements IAdapter<JSONArray> {
                             setAssetIp(item);
                             dataProcessManager.bhmTempHandlerRequest(item);
 
-                            if(Objects.nonNull(item.getReadingCelsius())){
+                            if(Objects.nonNull(item.getReadingCelsius()) && item.getName().contains("Temp")){
                                 CollectSensorEntity copy = EntityBeanUtil.copy(item, CollectSensorEntity.class);
                                 copy.setValue(item.getReadingCelsius().toString());
                                 copy.setName(item.getName()+"_"+item.getMemberId());

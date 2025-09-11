@@ -2144,6 +2144,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
         if (gaugeList.isEmpty()) {
             QueryWrapper<CollectBhmTempInfo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("ASSET_ID", assetId);
+            queryWrapper.like("NAME", "Temp");
             List<CollectBhmTempInfo> list = collectBhmTempInfoService.list(queryWrapper);
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
@@ -2293,6 +2294,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             if(gaugeList.isEmpty()){
                 QueryWrapper<CollectBhmTempInfo> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("ASSET_ID", assetId);
+                queryWrapper.like("NAME", "Temp");
                 List<CollectBhmTempInfo> list = collectBhmTempInfoService.list(queryWrapper);
 
                 if(Objects.nonNull(list) && !list.isEmpty()){
