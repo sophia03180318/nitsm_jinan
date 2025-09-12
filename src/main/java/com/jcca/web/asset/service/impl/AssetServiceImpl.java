@@ -2160,7 +2160,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
             vo.setCode(AssetStatusItmVo.SERVER_TEMP);
             vo.setTitle("温度健康状态");
-            assetStatusItmVos.add(vo);
+            if(!list.isEmpty()){
+                assetStatusItmVos.add(vo);
+            }
         }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
@@ -2193,7 +2195,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
             vo.setCode(AssetStatusItmVo.SERVER_FAN);
             vo.setTitle("风扇健康状态");
-            assetStatusItmVos.add(vo);
+
+            if(!list.isEmpty()){
+                assetStatusItmVos.add(vo);
+            }
         }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
@@ -2226,7 +2231,10 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
             vo.setCode(AssetStatusItmVo.SERVER_POWER);
             vo.setTitle("电源健康状态");
-            assetStatusItmVos.add(vo);
+
+            if(!list.isEmpty()){
+                assetStatusItmVos.add(vo);
+            }
         }else{
             AssetStatusItmVo vo = new AssetStatusItmVo();
             vo.setStatus(1);
