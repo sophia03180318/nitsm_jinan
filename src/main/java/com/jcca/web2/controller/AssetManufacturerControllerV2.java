@@ -83,7 +83,9 @@ public class AssetManufacturerControllerV2 {
 
         List<SpecDictionary> specs = specDictionaryService.findByManufacturerId(id);
         if (!CollectionUtils.isEmpty(specs)) {
-            return ResultVoUtil.error(ResultEnum.DATA_DELETE.getCode(), "有在用厂商指标数据不能删除");
+            QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("MANUFACTURER_ID", id);
+            specDictionaryService.remove(queryWrapper);
         }
 
         manufacturerService.removeById(id);
