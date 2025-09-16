@@ -216,7 +216,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             }
 
 
-            report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel()));
+            report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel().intValue()));
             report1.setAlarmStatusStr(AlarmStatusEnum.getMsg(report1.getAlarmStatus()));
             List<String> infos = map.get(report1.getAlarmCode());
             if (infos == null) {
