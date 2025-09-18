@@ -95,6 +95,17 @@ spring:
     prefix: classpath:/templates
     suffix: .html
 
+mybatis-plus:
+  type-aliases-package: com.jcca.**.entity
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    enable-sql-runner: true
+  configuration:
+    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+
 jcca:
   redis:
     host: 192.168.73.26
@@ -124,14 +135,6 @@ jcca:
         timeBetweenEvictionRunsMillis: 20000    # 20s检查一次
 
 
-mybatis-plus:
-  type-aliases-package: com.jcca.**.entity
-  mapper-locations: classpath:/mapper/**/*.xml
-  global-config:
-    enable-sql-runner: true
-  configuration:
-    map-underscore-to-camel-case: true
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 logging:
   config: classpath:logback-spring.xml

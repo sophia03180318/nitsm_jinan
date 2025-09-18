@@ -1,6 +1,7 @@
 package com.jcca.dataProcessing.listener.alarmHandler;
 
 import cn.hutool.core.util.StrUtil;
+import com.jcca.common.bean.constant.AlarmBlankConst;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
@@ -12,6 +13,7 @@ import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
+import com.jcca.web.construction.service.ConstructionRecordService;
 import com.jcca.web.event.entity.AlarmEvent;
 import com.jcca.web.event.enums.EventLevelEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +51,8 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
     private AlarmInfoService alarmInfoService;
     @Resource(name = "redisTransactionTemplate")
     private RedisTemplate redisTransactionTemplate;
+    @Resource
+    private ConstructionRecordService constructionRecordServ;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -117,6 +121,9 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
                     //更新告警
                     boolean abnormal = info.getStatus().equals(EventLevelEnum.ABNORMAL.getCode());
                     if (abnormal) {
+                        Boolean blank = constructionRecordServ.isBlank(info.getAssetId(), info.getCollectTime());
+                        alarmInfo.setBlank(blank ? AlarmBlankConst.BLANK : AlarmBlankConst.NORMARL);
+
                         alarmInfo.setContent(alarmInfo.getContent().replace("【-已恢复-】", ""));
                         alarmInfo.setIsShowRecover(-1);
                     } else if (!alarmInfo.getContent().contains("【-已恢复-】")) {
