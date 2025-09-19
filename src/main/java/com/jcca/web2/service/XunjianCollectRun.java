@@ -179,6 +179,8 @@ public class XunjianCollectRun implements ApplicationRunner {
         // 巡检设备及指标数量
         if (!assetTotalMap.containsKey(inspectRecordId)) {
             List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
+            Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
+            assetTotalMap.put(inspectRecordId, assetCollect.size());
             targetNameMap.put(inspectRecordId, new HashMap<>());
             for (InspectAsset asset : assetList) {
                 targetNameMap.get(inspectRecordId).put(asset.getTargetItem(), asset.getTargetName());
@@ -206,8 +208,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 assetIdEventTypeMap.put(inspectRecordId, map);
             }
 
-            Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
-            assetTotalMap.put(inspectRecordId, assetCollect.size());
             targetTotalMap.put(inspectRecordId, assetList.size());
 
             Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getEventTypeId, Collectors.counting()));

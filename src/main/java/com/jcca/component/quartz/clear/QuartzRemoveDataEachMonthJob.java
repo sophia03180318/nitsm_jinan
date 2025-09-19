@@ -31,7 +31,7 @@ public class QuartzRemoveDataEachMonthJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         if(once){
-            once = false;
+//            once = false;
             return;
         }
         sysActionLogService.remove5000(DataTransferController.tables, -365, recoverPath);
