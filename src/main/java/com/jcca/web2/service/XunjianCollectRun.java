@@ -181,6 +181,11 @@ public class XunjianCollectRun implements ApplicationRunner {
             List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
             Map<String, List<InspectAsset>> assetCollect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getAssetId));
             assetTotalMap.put(inspectRecordId, assetCollect.size());
+            targetTotalMap.put(inspectRecordId, assetList.size());
+            inspectAssetMap.put(inspectRecordId, assetList);
+            Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getEventTypeId, Collectors.counting()));
+            totalTargetMap.put(inspectRecordId, collect);
+
             targetNameMap.put(inspectRecordId, new HashMap<>());
             for (InspectAsset asset : assetList) {
                 targetNameMap.get(inspectRecordId).put(asset.getTargetItem(), asset.getTargetName());
@@ -189,9 +194,6 @@ public class XunjianCollectRun implements ApplicationRunner {
             if (!set.contains(targetItem)) {
                 return;
             }
-
-            inspectAssetMap.put(inspectRecordId, assetList);
-
             for (InspectAsset inspectAsset : assetList) {
                 assetIdName.put(inspectAsset.getAssetId(), inspectAsset.getAssetName());
                 Map<String, Set<String>> map = assetIdEventTypeMap.get(inspectRecordId);
@@ -207,11 +209,6 @@ public class XunjianCollectRun implements ApplicationRunner {
                 map.put(inspectAsset.getAssetId(), eventTypeSet);
                 assetIdEventTypeMap.put(inspectRecordId, map);
             }
-
-            targetTotalMap.put(inspectRecordId, assetList.size());
-
-            Map<String, Long> collect = assetList.stream().collect(Collectors.groupingBy(InspectAsset::getEventTypeId, Collectors.counting()));
-            totalTargetMap.put(inspectRecordId, collect);
         }
 
         if (xunjianIsFinish != null && xunjianIsFinish == 1) {
