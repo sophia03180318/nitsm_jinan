@@ -46,7 +46,7 @@ public class BhmPowerInfoUpdate  extends IFilterHandler<CollectBhmPowerEntity> {
         }
         String modelStr = str.toString();
         String powerModel = asset.getPowerModel();
-        if(StrUtil.isNotEmpty(powerModel)){
+        if(StrUtil.isEmpty(powerModel)){
             asset.setPowerModel(modelStr);
         }else if(!powerModel.contains(modelStr)){
             asset.setPowerModel(powerModel+"|"+modelStr);
