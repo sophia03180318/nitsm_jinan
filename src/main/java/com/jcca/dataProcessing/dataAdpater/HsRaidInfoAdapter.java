@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.dataAdpater;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
@@ -96,7 +97,9 @@ public class HsRaidInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray>
                     diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
                     diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
                     diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
-
+                    if(StrUtil.isNotEmpty(collectRaidSystemFattenEntity.getInspectRecordId())){
+                        diskEntity.setInspectRecordId(collectRaidSystemFattenEntity.getInspectRecordId());
+                    }
                     thresholdDisposePool.execute(() -> {
                         try {
                             setAssetIp(diskEntity);
@@ -116,7 +119,9 @@ public class HsRaidInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray>
                     diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
                     diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
                     diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
-
+                    if(StrUtil.isNotEmpty(collectRaidSystemFattenEntity.getInspectRecordId())){
+                        diskEntity.setInspectRecordId(collectRaidSystemFattenEntity.getInspectRecordId());
+                    }
                     thresholdDisposePool.execute(() -> {
                         try {
                             setAssetIp(diskEntity);
@@ -136,7 +141,9 @@ public class HsRaidInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray>
                     diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
                     diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
                     diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
-
+                    if(StrUtil.isNotEmpty(collectRaidSystemFattenEntity.getInspectRecordId())){
+                        diskEntity.setInspectRecordId(collectRaidSystemFattenEntity.getInspectRecordId());
+                    }
                     thresholdDisposePool.execute(() -> {
                         try {
                             setAssetIp(diskEntity);
@@ -157,6 +164,9 @@ public class HsRaidInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray>
                     diskEntity.setAssetId(collectRaidSystemFattenEntity.getAssetId());
                     diskEntity.setAssetIp(collectRaidSystemFattenEntity.getAssetIp());
                     diskEntity.setCollectCode(collectRaidSystemFattenEntity.getCollectCode());
+                    if(StrUtil.isNotEmpty(collectRaidSystemFattenEntity.getInspectRecordId())){
+                        diskEntity.setInspectRecordId(collectRaidSystemFattenEntity.getInspectRecordId());
+                    }
                     thresholdDisposePool.execute(() -> {
                         try {
                             setAssetIp(diskEntity);

@@ -1,6 +1,7 @@
 package com.jcca.dataProcessing.dataAdpater;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
@@ -86,11 +87,14 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 if (controllers != null && controllers.size() > 0) {
                     for (int i = 0; i < controllers.size(); i++) {
                         DSEntity dsEntity = controllers.get(i);
+                        dsEntity.setAssetId(ds.getAssetId());
+                        dsEntity.setAssetIp(ds.getAssetIp());
+                        setAssetIp(dsEntity);
+                        if(StrUtil.isNotEmpty(ds.getInspectRecordId())){
+                            dsEntity.setInspectRecordId(ds.getInspectRecordId());
+                        }
                         thresholdDisposePool.execute(() -> {
                             try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
-                                setAssetIp(dsEntity);
                                 dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
                             } catch (Exception e) {
                                 log.error("ds存储处理错误", e);
@@ -106,10 +110,13 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 if (arrays != null && arrays.size() > 0) {
                     for (int i = 0; i < arrays.size(); i++) {
                         DSEntity dsEntity = arrays.get(i);
+                        dsEntity.setAssetId(ds.getAssetId());
+                        dsEntity.setAssetIp(ds.getAssetIp());
+                        if(StrUtil.isNotEmpty(ds.getInspectRecordId())){
+                            dsEntity.setInspectRecordId(ds.getInspectRecordId());
+                        }
                         thresholdDisposePool.execute(() -> {
                             try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
                                 setAssetIp(dsEntity);
                                 dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
                             } catch (Exception e) {
@@ -126,10 +133,13 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 if (logicalDrivers != null && logicalDrivers.size() > 0) {
                     for (int i = 0; i < logicalDrivers.size(); i++) {
                         DSEntity dsEntity = logicalDrivers.get(i);
+                        dsEntity.setAssetId(ds.getAssetId());
+                        dsEntity.setAssetIp(ds.getAssetIp());
+                        if(StrUtil.isNotEmpty(ds.getInspectRecordId())){
+                            dsEntity.setInspectRecordId(ds.getInspectRecordId());
+                        }
                         thresholdDisposePool.execute(() -> {
                             try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
                                 setAssetIp(dsEntity);
                                 dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
                             } catch (Exception e) {
@@ -146,10 +156,13 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                     for (int i = 0; i < drivers.size(); i++) {
 
                         DSEntity dsEntity = drivers.get(i);
+                        dsEntity.setAssetId(ds.getAssetId());
+                        dsEntity.setAssetIp(ds.getAssetIp());
+                        if(StrUtil.isNotEmpty(ds.getInspectRecordId())){
+                            dsEntity.setInspectRecordId(ds.getInspectRecordId());
+                        }
                         thresholdDisposePool.execute(() -> {
                             try {
-                                dsEntity.setAssetId(ds.getAssetId());
-                                dsEntity.setAssetIp(ds.getAssetIp());
                                 setAssetIp(dsEntity);
                                 dataProcessManager.raidDsInfoHandlerRequest(dsEntity);
                             } catch (Exception e) {
@@ -167,6 +180,9 @@ public class DsInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                         RaidCommonLogEntity dsEntity = new RaidCommonLogEntity();
                         dsEntity.setAssetId(ds.getAssetId());
                         dsEntity.setAssetIp(ds.getAssetIp());
+                        if(StrUtil.isNotEmpty(ds.getInspectRecordId())){
+                            dsEntity.setInspectRecordId(ds.getInspectRecordId());
+                        }
                         setAssetIp(dsEntity);
                         dsEntity.setLog(logs.get(i));
                         thresholdDisposePool.execute(() -> {
