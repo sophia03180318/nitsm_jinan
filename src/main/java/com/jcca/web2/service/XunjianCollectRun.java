@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -53,7 +53,7 @@ public class XunjianCollectRun implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianExecutor);
+        Executor executor = (Executor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
         executor.execute(this::go);
     }
 
@@ -164,7 +164,7 @@ public class XunjianCollectRun implements ApplicationRunner {
     // 当前巡检资产
     public static final Map<String, String> currentAssetIdMap = new ConcurrentHashMap<>();
 
-    private synchronized void send2Web(XunjianDataDto dto) {
+    private void send2Web(XunjianDataDto dto) {
         String inspectRecordId = dto.getInspectRecordId();
         XunjianSchedule schedule = xunjianScheduleMap.get(inspectRecordId);
         String operator = schedule.getOperator();
@@ -250,7 +250,10 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
 
         // 保存巡检详情
-        this.saveDetail(dto);
+        Executor executor = (Executor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
+        executor.execute(() -> {
+            this.saveDetail(dto);
+        });
 
         // 过滤重复指标
         Set<String> targets = repeatTargetMap.get(inspectRecordId);
