@@ -81,4 +81,6 @@ public interface SysMenuService extends IService<SysMenu> {
      * @return: java.util.Set<java.lang.String>
      **/
     Set<String> getDirsByUserIdV2(String userId);
+
+    void freezeMenu(Map<String, Object> map);
 }

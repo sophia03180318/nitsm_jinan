@@ -134,7 +134,7 @@ public enum ResultEnum implements ResultInterface {
     INSPECT_COLLECT_ERROR(1409, "巡检采集异常"),
 
     // 菜单、角色、组织共用的删除更新
-    DATA_DELETE(1501, "请先删除下级数据"),
+    DATA_DELETE(1501, "请先处理下级数据"),
     UPDATE_FAIL(1502, "更新失败，请检查后再操作"),
     ID_PID_EQUAL(1503, "上级不能是自己"),
 

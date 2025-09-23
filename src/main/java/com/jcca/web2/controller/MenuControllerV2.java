@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author HanHW
@@ -54,6 +55,17 @@ public class MenuControllerV2 {
     public ResultVo<Object> delMenu(@PathVariable String id) {
 
         menuService.delMenuV2(id);
+
+        return ResultVoUtil.success();
+    }
+
+    @PostMapping("/freeze")
+    @ApiOperation("冻结菜单")
+    @RequiresPermissions("api:v2:menu:delete")
+    @ActionLog(name = "冻结菜单", title = "菜单管理", key = LogTypeConstant.MODIFY)
+    public ResultVo<Object> freezeMenu(@RequestBody Map<String, Object> map) {
+
+        menuService.freezeMenu(map);
 
         return ResultVoUtil.success();
     }

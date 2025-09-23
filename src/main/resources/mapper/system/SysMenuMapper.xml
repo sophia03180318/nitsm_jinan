@@ -59,7 +59,7 @@
         from sys_menu m
                  left join sys_role_menu rm on m.id = rm.menu_id
                  left join sys_user_role ur on rm.role_id = ur.role_id
-        where m.status = 1
+        where m.status in (1, 2)
         group by m.perms
     </select>
 </mapper>

@@ -40,7 +40,6 @@ public class AssetModeControllerV2 {
 
     @PostMapping("/index")
     @ApiOperation("获取类型列表")
-    @RequiresPermissions("api:assetMode:index")
     public ResultVo<Object> index(@RequestBody AssetMode mode) {
         QueryWrapper<AssetMode> queryWrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(mode.getName())) {

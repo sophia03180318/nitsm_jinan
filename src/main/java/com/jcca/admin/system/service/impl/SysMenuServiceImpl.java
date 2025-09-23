@@ -79,14 +79,14 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             menuMapper.updateById(menu);
         });
 
-        return treeMenus.size() > 0;
+        return !treeMenus.isEmpty();
     }
 
     @Override
     public List<SysMenu> getListByPid(String pid, String notId) {
         QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
         wrapper.eq("pid", pid);
-        wrapper.ne("status", StatusEnum.DELETE.getCode());
+        wrapper.in("status", Arrays.asList(StatusEnum.OK.getCode(), StatusEnum.FREEZED.getCode()));
         wrapper.ne("id", notId);
         return menuMapper.selectList(wrapper);
     }
@@ -112,7 +112,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
 
         if (menu.getStatus() == null) {
-            wrapper.eq("status", StatusEnum.OK.getCode());
+            wrapper.in("status", Arrays.asList(StatusEnum.OK.getCode(), StatusEnum.FREEZED.getCode()));
         } else {
             wrapper.eq("status", menu.getStatus());
         }
@@ -165,7 +165,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
         wrapper.eq("pid", pid);
         wrapper.ne("id", notId);
-        wrapper.eq("status", StatusEnum.OK.getCode());
+        wrapper.in("status", Arrays.asList(StatusEnum.OK.getCode(), StatusEnum.FREEZED.getCode()));
         wrapper.orderByAsc("sort");
         List<SysMenu> levelMenu = this.list(wrapper);
 
@@ -189,7 +189,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
 
         List<SysMenu> children = this.getListByPid(one.getId(), one.getId());
-        if (children.size() > 0) {
+        if (!children.isEmpty()) {
             throw new ResultException(ResultEnum.DATA_DELETE);
         }
         one.setStatus(StatusEnum.DELETE.getCode());
@@ -203,7 +203,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
         QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
         wrapper.eq("pid", pid);
-        wrapper.eq("status", StatusEnum.OK.getCode());
+        wrapper.in("status", Arrays.asList(StatusEnum.OK.getCode(), StatusEnum.FREEZED.getCode()));
         wrapper.ne("id", notId);
         wrapper.orderByAsc("sort");
         List<SysMenu> levelMenu = this.list(wrapper);
@@ -227,5 +227,28 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     public Set<String> getDirsByUserIdV2(String userId) {
 
         return menuMapper.getDirsByUserId(userId);
+    }
+
+    @Override
+    public void freezeMenu(Map<String, Object> map) {
+        Object id = map.get("id");
+        Object status = map.get("status");
+        if (Objects.isNull(id) || Objects.isNull(status)) {
+            throw new ResultException(ResultEnum.PARAM_ERROR);
+        }
+        SysMenu one = this.getById(id.toString());
+        if (Objects.isNull(one)) {
+            throw new ResultException(ResultEnum.CANNOT_FIND);
+        }
+
+        one.setStatus(Byte.parseByte(status.toString()));
+        this.updateById(one);
+
+        List<SysMenu> children = this.getListByPid(one.getId(), one.getId());
+        for (SysMenu child : children) {
+            map.put("id", child.getId());
+            map.put("status", status);
+            this.freezeMenu(map);
+        }
     }
 }
