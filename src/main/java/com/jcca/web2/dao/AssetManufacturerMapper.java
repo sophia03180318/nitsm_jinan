@@ -11,6 +11,5 @@ import org.apache.ibatis.annotations.Select;
  **/
 public interface AssetManufacturerMapper extends BaseMapper<AssetManufacturer> {
 
-    @Select("SELECT MAX(ID) FROM ASSET_MANUFACTURER ")
     Long getMaxId();
 }

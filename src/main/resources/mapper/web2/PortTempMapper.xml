@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.PortTempMapper">
+
+    <!-- 查询网络设备模型 -->
+    <select id="getNetworkDevices" resultType="com.jcca.web2.dto.PortModelTemp">
+        SELECT id,
+               model AS name,
+               path,
+               ASSET_UNIT AS unit
+        FROM ASSET_MODEL
+        WHERE ASSET_MODE_ID IN (
+            SELECT id FROM asset_mode WHERE code = '201' OR code = '42'
+        )
+        ORDER BY name
+    </select>
+
+    <!-- 根据资产ID获取端口模板 -->
+    <select id="getTemplateByAssetId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.PortTemp">
+        SELECT *
+        FROM PORT_TEMPLATE
+        WHERE MODEL_ID IN (
+            SELECT id
+            FROM ASSET_MODEL
+            WHERE model = (
+                SELECT ASSET_IMAGE FROM asset WHERE id = #{assetId}
+            )
+        )
+    </select>
+
+</mapper>

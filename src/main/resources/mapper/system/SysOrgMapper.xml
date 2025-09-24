@@ -40,7 +40,7 @@
             and u.id = #{userId}
         </if>
         <if test="title != null and title != ''">
-            and REGEXP_LIKE(o.title, #{title})
+            and REGEXP_INSTR(o.title, #{title})>0
         </if>
         <if test="pid != null and pid != ''">
             and o.pid = #{pid}
@@ -112,6 +112,37 @@
         from SYS_ORG
         where pid = #{pId}
           and status = 1
+    </select>
+
+
+    <!-- 获取最大的排序数 -->
+    <select id="getSortMax" parameterType="string" resultType="byte">
+        SELECT MAX(sort)
+        FROM sys_menu m
+        WHERE m.pid = #{pid}
+          AND m.status &lt;&gt; 0
+    </select>
+
+    <!-- 获取组织名称列表 -->
+    <select id="getOrgByName" resultType="string">
+        SELECT TITLE
+        FROM SYS_ORG
+        WHERE status = 1
+    </select>
+
+    <!-- 根据父ID获取组织ID -->
+    <select id="getIdByline" parameterType="string" resultType="string">
+        SELECT id
+        FROM sys_org
+        WHERE pid = #{id}
+    </select>
+
+    <!-- 根据线路ID获取车站组织ID -->
+    <select id="getStationOrgIdByLineId" parameterType="string" resultType="string">
+        SELECT id
+        FROM sys_org
+        WHERE pid = #{id}
+          AND TYPE = 4
     </select>
 
 </mapper>

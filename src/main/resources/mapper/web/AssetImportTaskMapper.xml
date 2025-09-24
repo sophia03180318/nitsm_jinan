@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.AssetImportTaskMapper">
+
+    <!-- 查询最新一条任务的ID -->
+    <select id="getLastOneId" resultType="java.lang.String">
+        select id
+        from ASSET_TASK
+        where CREATE_TIME = (
+            select max(CREATE_TIME)
+            from ASSET_TASK
+        )
+    </select>
+
+    <!-- 更新最新任务的状态 -->
+    <update id="setLastStatus">
+        UPDATE ASSET_TASK
+        SET STATUS = #{status}
+        where CREATE_TIME = (
+            select max(CREATE_TIME)
+            from ASSET_TASK
+        )
+    </update>
+
+    <!-- 根据任务ID查询状态 -->
+    <select id="getStatusById" resultType="int">
+        select STATUS
+        from ASSET_TASK
+        where ID = #{id}
+    </select>
+
+</mapper>

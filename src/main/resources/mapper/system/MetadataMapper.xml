@@ -4,20 +4,66 @@
 
 
     <select id="taskMenu" parameterType="java.lang.String" resultType="java.lang.String">
-       select url from SYS_MENU where status =1 order by id
+        select url
+        from SYS_MENU
+        where status = 1
+        order by id
     </select>
 
     <select id="taskAlarm" parameterType="java.lang.String" resultType="java.lang.String">
-       select CONCAT(CONCAT(ALARM_CODE, ',,'), FLAG_TYPE) from ALARM_REPOSITORY order by id
+        select CONCAT(CONCAT(ALARM_CODE, ',,'), FLAG_TYPE)
+        from ALARM_REPOSITORY
+        order by id
     </select>
 
 
     <select id="task" parameterType="java.lang.String" resultType="java.lang.String">
-        select ${columnName} from ${tableName} order by id
+        select ${columnName}
+        from ${tableName}
+        order by id
     </select>
 
     <select id="taskSql" parameterType="java.lang.String" resultType="java.lang.String">
-      ${sql}
+        ${sql}
     </select>
+
+
+    <!-- 查询所有表名 -->
+    <select id="getTables" resultType="java.lang.String">
+        SELECT table_name
+        FROM user_tables
+        ORDER BY table_name
+    </select>
+
+    <!-- 查询某个表的列名 -->
+    <select id="getComments" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT COLUMN_NAME
+        FROM user_col_comments
+        WHERE table_name = #{tableName}
+    </select>
+
+    <!-- 查询所有表及列的注释 -->
+    <select id="getAllComments" resultType="com.jcca.admin.biz.entity.MetadataTable">
+        SELECT TABLE_NAME  AS tName,
+               COLUMN_NAME AS cName
+        FROM user_col_comments
+        WHERE table_name NOT LIKE 'BIN%'
+    </select>
+
+    <!-- 查询列的字段类型和长度 -->
+    <select id="getCommentType" parameterType="java.lang.String" resultType="com.jcca.admin.biz.entity.MetadataTable">
+        SELECT column_name AS cName,
+               data_type   AS cType,
+               data_length AS cLenght
+        FROM user_tab_columns
+        WHERE table_name = UPPER(#{tableName})
+    </select>
+
+    <!-- 查询建表DDL语句 -->
+    <select id="getCreatTable" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT dbms_metadata.get_ddl('TABLE', #{tableName})
+        FROM dual
+    </select>
+
 </mapper>
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.AssetAttachMapper">
+
+    <!-- 根据 assetId 查询 AssetAttach -->
+    <select id="getByAssetId" resultType="com.jcca.web.asset.entity.AssetAttach">
+        SELECT *
+        FROM ASSET_ATTACH
+        WHERE ASSET_ID = #{assetId}
+    </select>
+
+</mapper>

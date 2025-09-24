@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.ThresholdMapper">
+
+    <!-- 根据资产类型查询运行时长偏差（去重） -->
+    <select id="findRuntimeByAssetMode" resultType="java.lang.Integer">
+        select RUNNINGTIME_DEVIATION
+        from THRESHOLD_ASSET
+        where RUNNINGTIME_DEVIATION is not null
+          and asset_mode = #{assetMode}
+        group by RUNNINGTIME_DEVIATION
+    </select>
+
+</mapper>

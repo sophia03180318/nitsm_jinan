@@ -20,7 +20,6 @@ public interface HourInterfacesItemMapper extends BaseMapper<HourInterfacesItem>
      *
      * @return
      */
-    @Select("SELECT MAX(CREATE_TIME) FROM HOUR_INTERFACES_ITEM")
     Date maxCreateDate();
 
 
@@ -30,8 +29,6 @@ public interface HourInterfacesItemMapper extends BaseMapper<HourInterfacesItem>
      * @param assetId
      * @return
      */
-    @Select("select * from ( select round(port_in_count/8/1024/1024,2) as value ,COLLECT_TIME as endTime from COLLECT_INTERFACES" +
-            " where ASSET_ID = #{assetId} and port_index= #{portName} order by COLLECT_TIME desc) where rownum<30")
     List<StatisticsInfoVo> portIns(String assetId, String portName);
 
     /**
@@ -40,33 +37,27 @@ public interface HourInterfacesItemMapper extends BaseMapper<HourInterfacesItem>
      * @param assetId
      * @return
      */
-    @Select("select * from( select round(port_out_count/8/1024/1024,2) as value ,COLLECT_TIME as endTime from COLLECT_INTERFACES" +
-            " where ASSET_ID = #{assetId} and port_index= #{portName} order by COLLECT_TIME desc) where rownum<30")
     List<StatisticsInfoVo> portOuts(String assetId, String portName);
 
     /**
      * 端口流入丢包数
      */
-    @Select("select * from( select LOSE_PACKETS_IN_RATE as value ,COLLECT_TIME as endTime from COLLECT_INTERFACES where ASSET_ID = #{assetId} and port_index= #{portName} order by COLLECT_TIME desc) where rownum<30")
     List<StatisticsInfoVo> discardPackageIns(String assetId, String portName);
 
 
     /**
      * 端口流出丢包数
      */
-    @Select(" select * from (select LOSE_PACKETS_OUT_RATE as value ,COLLECT_TIME as endTime from COLLECT_INTERFACES where ASSET_ID = #{assetId} and port_index= #{portName} order by COLLECT_TIME desc) where  rownum<30")
     List<StatisticsInfoVo> discardPackageOuts(String assetId, String portName);
 
     /**
      * 端口流入误码数
      */
-    @Select("select * from  (select ERRO_CODE_IN_RATE as value ,COLLECT_TIME as endTime from COLLECT_INTERFACES where ASSET_ID = #{assetId} and port_index= #{portName} order by COLLECT_TIME desc) where  rownum<30")
     List<StatisticsInfoVo> errorCodeIns(String assetId, String portName);
 
     /**
      * 端口流出误码数
      */
-    @Select(" select * from  (select ERRO_CODE_OUT_RATE as value ,COLLECT_TIME as endTime from COLLECT_INTERFACES where ASSET_ID = #{assetId} and port_index= #{portName} order by COLLECT_TIME desc) where  rownum<30")
     List<StatisticsInfoVo> errorCodeOuts(String assetId, String portName);
 
 }

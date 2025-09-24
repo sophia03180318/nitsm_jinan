@@ -30,7 +30,6 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * @param pid
      * @return
      */
-    @Select(value = "select max(sort) from sys_menu m where m.pid = #{pid} and m.status <> " + StatusConst.DELETE)
     Byte getMenuSortMax(String pid);
 
     /**

@@ -63,7 +63,7 @@
         </foreach>
         and IS_DEL=1
         <if test="name != null and name != ''">
-            and REGEXP_LIKE(t.name, #{name})
+            and REGEXP_INSTR(t.name, #{name})>0
         </if>
         order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
@@ -86,7 +86,7 @@
 
         and IS_DEL=1
         <if test="name != null and name != ''">
-            and REGEXP_LIKE(t.name, #{name})
+            and REGEXP_INSTR(t.name, #{name})>0
         </if>
         order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
@@ -103,7 +103,7 @@
         where t.ORG_ID = #{orgId}
         and t.ASSET_MODE = #{mode1} and t.DESK=1831 and IS_DEL=1
         <if test="name != null and name != ''">
-            and REGEXP_LIKE(t.name, #{name})
+            and REGEXP_INSTR(t.name, #{name})>0
         </if>
         order by CASE WHEN v.name IS NULL THEN 1 ELSE 0 END, v.name
     </select>
@@ -628,5 +628,205 @@
            order by v.name
     </select>
 
+
+    <!-- 删除机构下的拓扑节点 -->
+    <delete id="deleteTopoVertex" parameterType="map">
+        delete from TOPO_VERTEX
+        where NODE_TYPE = #{nodeType}
+          and ORG_ID = #{orgId}
+    </delete>
+
+    <!-- 删除资产下的拓扑节点 -->
+    <delete id="deleteNetWorkAssetTopoVertex" parameterType="map">
+        delete from TOPO_VERTEX
+        where NODE_TYPE = #{nodeType}
+          and CORE_ASSET_ID = #{assetId}
+    </delete>
+
+    <!-- 查询线下车站路由器 -->
+    <select id="selectLineRoutNetTopo" parameterType="string"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT V.*, t.show_core as showCore,
+               T.NAME AS assetName, T.ID AS assetId, T.ORG_ID AS assetOrgId, ASSET_MODE AS assetMode
+        FROM ASSET T
+                 LEFT JOIN TOPO_VERTEX V ON T.ID = V.ASSET_ID AND #{reqID} = V.ORG_ID
+        WHERE T.ORG_ID IN (SELECT ID FROM SYS_ORG WHERE PID = #{reqID})
+          AND T.ASSET_MODE = 42
+          AND T.SHOW_TOPO = 1
+          AND T.IS_DEL = 1
+    </select>
+
+    <!-- 查询线下车站交换机 -->
+    <select id="selectLineSwitchNetTopo" parameterType="string"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT V.*, t.show_core as showCore,
+               T.NAME AS assetName, T.ID AS assetId, T.ORG_ID AS assetOrgId, ASSET_MODE AS assetMode
+        FROM ASSET T
+                 LEFT JOIN TOPO_VERTEX V ON T.ID = V.ASSET_ID AND #{reqID} = V.ORG_ID
+        WHERE T.ORG_ID IN (SELECT ID FROM SYS_ORG WHERE PID = #{reqID})
+          AND T.ASSET_MODE = 201
+          AND T.SHOW_TOPO = 1
+          AND T.IS_DEL = 1
+    </select>
+
+    <!-- 查询线上中心核心网络设备 -->
+    <select id="selectLineCenterTopo" parameterType="string"
+            resultType="com.jcca.web.graph.vo.TopoVertexVo">
+        SELECT V.*, t.show_core as showCore,
+               T.NAME AS assetName, T.ID AS assetId, T.ORG_ID AS assetOrgId, ASSET_MODE AS assetMode
+        FROM (
+                 SELECT * FROM ASSET
+                 WHERE ORG_ID = (SELECT PID FROM SYS_ORG WHERE ID = #{reqID})
+                   AND ASSET_MODE IN (42,201)
+                   AND SHOW_CORE = 'SHOW_TOPO_@_SHOW'
+                   AND SHOW_TOPO = 1
+                   AND IS_DEL = 1
+             ) t
+                 LEFT JOIN TOPO_VERTEX V ON T.ID = V.ASSET_ID AND #{reqID} = V.ORG_ID
+        ORDER BY V.NAME
+    </select>
+
+    <!-- 前端线路TOPO加载-车站路由器告警级别 -->
+    <select id="selectLineRoutNetTopoAlarmLevel" parameterType="string"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        select a.aLevel AS alarmLevel, v.*,
+               t.name as assetName, t.id as assetId, t.show_core as showCore,
+               t.org_id as assetOrgId, t.asset_image as assetImage, t.watch, asset_mode as assetMode
+        from topo_vertex v
+                 left join (
+            select asset.* from asset
+                                    join sys_org on asset.org_id = sys_org.id
+            where sys_org.type = 4
+        ) t on t.id = v.asset_id
+                 left join (
+            select asset_id, MIN(alarm_level) as aLevel
+            from alarm_info
+            where BLANK = 1 and (STATUS = 1 OR ALARM_STATE = 1)
+            group by asset_id
+        ) a on a.asset_id = t.id
+        where v.org_id = #{reqID}
+          and t.asset_mode = 42
+          and t.show_topo = 1
+          and t.is_del = 1
+        order by v.name
+    </select>
+
+    <!-- 前端线路TOPO加载-车站交换机告警级别 -->
+    <select id="selectLineSwitchNetTopoAlarmLevel" parameterType="string"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        select a.aLevel AS alarmLevel, v.*,
+               t.name as assetName, t.id as assetId, t.show_core as showCore,
+               t.org_id as assetOrgId, t.asset_image as assetImage, t.watch, asset_mode as assetMode
+        from topo_vertex v
+                 left join (
+            select asset.* from asset
+                                    join sys_org on asset.org_id = sys_org.id
+            where sys_org.type = 4
+        ) t on t.id = v.asset_id
+                 left join (
+            select asset_id, MIN(alarm_level) as aLevel
+            from alarm_info
+            where BLANK = 1 and (STATUS = 1 OR ALARM_STATE = 1)
+            group by asset_id
+        ) a on a.asset_id = t.id
+        where v.org_id = #{reqID}
+          and t.asset_mode = 201
+          and t.show_topo = 1
+          and t.is_del = 1
+        order by v.name
+    </select>
+
+    <!-- 前端线路TOPO加载-中心网络设备告警级别 -->
+    <select id="selectLineCenterTopoAlarmLevel" parameterType="string"
+            resultType="com.jcca.web.graph.vo.TopoVertexAlarmLevelVo">
+        select a.aLevel AS alarmLevel, v.*,
+               t.name as assetName, t.id as assetId, t.show_core as showCore,
+               t.org_id as assetOrgId, t.asset_image as assetImage, t.watch, asset_mode as assetMode
+        from topo_vertex v
+                 left join (
+            select asset.* from asset
+                                    join sys_org on asset.org_id = sys_org.id
+            where sys_org.type = 2
+        ) t on t.id = v.asset_id
+                 left join (
+            select asset_id, MIN(alarm_level) as aLevel
+            from alarm_info
+            where BLANK = 1 and (STATUS = 1 OR ALARM_STATE = 1)
+            group by asset_id
+        ) a on a.asset_id = t.id
+        where v.org_id = #{reqID}
+          and t.asset_mode in (42,201)
+          and t.show_topo = 1
+          and t.is_del = 1
+        order by v.name
+    </select>
+
+    <!-- 查询异常端口 -->
+    <select id="findDownPort" parameterType="map"
+            resultType="com.jcca.web.graph.vo.TopoPortStatus">
+        select v.asset_id as assetId, v.node_id as nodeId, a.status as status
+        from topo_vertex v
+                 left join topo_asset_port a
+                           on v.asset_id = a.asset_id
+                               and v.port_index = a.port_index
+        where v.org_id = #{orgId}
+          and v.node_type = #{nodeType}
+          and a.status = 2
+          and v.is_port = 1
+    </select>
+
+    <!-- 查询中心机柜节点 -->
+    <select id="selectNodeByCenterCabinetV2" parameterType="string"
+            resultType="com.jcca.web2.vo.CabinetTopoVo">
+        SELECT t.*, v.*
+        FROM (
+                 select r.id as roomId, r.name roomName,
+                        c.id as cabinetId, c.name as cabinetName,
+                        c.row_index, c.column_index
+                 from cabinet c
+                          right join room r on c.room_id = r.id
+                 where r.org_id = #{orgId}
+             ) t
+                 left join topo_vertex v on v.asset_id = t.cabinetId
+        order by row_index, column_index
+    </select>
+
+    <!-- 查询中心机柜告警 -->
+    <select id="selectAlarmByCenterCabinetV2" parameterType="string"
+            resultType="com.jcca.web2.vo.CabinetTopoVo">
+        SELECT a.cabinet_id, MIN(i.alarm_level) alarmLevel
+        FROM asset_attach a
+                 LEFT JOIN alarm_info i ON a.asset_id = i.asset_id
+        WHERE (i.status = 1 OR i.alarm_state = 1)
+          AND i.blank = 1
+          AND i.alarm_level > 0
+          AND a.org_id = #{orgId}
+          AND a.cabinet_id IS NOT NULL
+        GROUP BY a.cabinet_id
+    </select>
+
+    <!-- 查询中心机柜 -->
+    <select id="selectCenterCabinetByOrgV2" parameterType="string"
+            resultType="com.jcca.web2.vo.CabinetTopoVo">
+        select r.id as roomId, r.name roomName,
+               c.id as cabinetId, c.name as cabinetName,
+               c.row_index as rowIndex, c.column_index as columnIndex
+        from cabinet c
+                 right join room r on c.room_id = r.id
+        where r.org_id = #{orgId}
+          and c.id is not null
+    </select>
+
+    <!-- 查询业务中心TOPO -->
+    <select id="findTopoCenterQuery" parameterType="map"
+            resultType="com.jcca.web2.vo.BizTopoCenterVo">
+        select a.id assetId, a.name assetName, a.ip assetIp, a.org_id orgId,
+               a.service_type_id, b.alarm_status, b.host_type
+        from asset a
+                 left join broker_topo_business b on a.id = b.asset_id
+        where a.service_type_id is not null
+          and a.org_id = #{orgId}
+          and a.service_type_id = #{serviceTypeId}
+    </select>
 
 </mapper>

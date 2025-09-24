@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.collect.dao.CollectMemoryMapper">
+
+    <!-- 查询资产当前对应最新数据 -->
+    <select id="selectAssetNewMemory" resultType="com.jcca.web.collect.entity.CollectMemory">
+        SELECT *
+        FROM COLLECT_MEMORY b
+        WHERE b.COLLECT_CODE = (
+            SELECT MAX(to_number(COLLECT_CODE)) AS code
+            FROM COLLECT_MEMORY
+            WHERE ASSET_ID = #{assetId}
+        )
+    </select>
+
+    <!-- 根据 assetId 进行分组汇总 -->
+    <select id="statisticsGroupByAssetId" resultType="com.jcca.web.collect.entity.CollectMemory">
+        SELECT MAX(ID) AS ID,
+               MAX(COLLECT_TIME) AS COLLECT_TIME,
+               MAX(to_number(COLLECT_CODE)) AS COLLECT_CODE,
+               ASSET_ID,
+               ROUND(AVG(MEM_TOTAL)) AS MEM_TOTAL,
+               ROUND(AVG(MEM_USED)) AS MEM_USED,
+               ROUND(AVG(MEM_USED_RATE), 2) AS MEM_USED_RATE,
+               ROUND(AVG(SWAP_TOTAL)) AS SWAP_TOTAL,
+               ROUND(AVG(SWAP_USED)) AS SWAP_USED,
+               ROUND(AVG(SWAP_USED_RATE), 2) AS SWAP_USED_RATE,
+               MAX(CREATE_TIME)
+        FROM COLLECT_MEMORY
+        WHERE COLLECT_TIME BETWEEN #{startDate} AND #{endDate}
+        GROUP BY ASSET_ID
+    </select>
+
+</mapper>

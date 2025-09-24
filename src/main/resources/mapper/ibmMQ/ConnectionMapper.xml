@@ -29,4 +29,20 @@
 
     </select>
 
+    <!-- 通过连接名查询 -->
+    <select id="findByName" parameterType="string"
+            resultType="com.jcca.web.ibmMQ.entity.IBMConnection">
+        select *
+        from IBMMQ_QMGR_CONNECTION a
+        where a.connect_name = #{connectionName}
+    </select>
+
+    <!-- 通过 host 和 port 查询 -->
+    <select id="findByHostAndPort" parameterType="map"
+            resultType="com.jcca.web.ibmMQ.entity.IBMConnection">
+        select *
+        from IBMMQ_QMGR_CONNECTION
+        where connect_host = #{host}
+          and connect_port = #{port}
+    </select>
 </mapper>

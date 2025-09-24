@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.MaintenancePlanMapper">
+
+    <select id="statistics" parameterType="int" resultType="com.jcca.web2.vo.MaintenanceStatisticsVo">
+        SELECT type,
+               occur_month AS month,
+               COUNT(type) AS count
+        FROM MAINTENANCE_PLAN
+        WHERE occur_year = #{year}
+        GROUP BY occur_month, type
+        ORDER BY occur_month
+    </select>
+
+    <select id="getTypeList" parameterType="int" resultType="java.lang.String">
+        SELECT type
+        FROM MAINTENANCE_PLAN
+        WHERE occur_year = #{year}
+        GROUP BY type
+    </select>
+
+</mapper>

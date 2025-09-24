@@ -14,10 +14,8 @@ import java.util.List;
  **/
 public interface TopoAssetPortPicMapper extends BaseMapper<TopoAssetPortPic> {
 
-    @Delete("delete from TOPO_ASSET_PORT_PIC where ASSET_ID=#{assetId}")
     Boolean deleteAssetPortPic(String assetId);
 
 
-    @Select("select * from TOPO_ASSET_PORT_PIC where ASSET_ID=#{assetId}")
     List<TopoAssetPortPic> queryAssetPortPic(String assetId);
 }

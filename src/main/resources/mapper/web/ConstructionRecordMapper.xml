@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.construction.dao.ConstructionRecordMapper">
+
+    <!-- 根据告警ID查询施工记录 -->
+    <select id="getConstructionRecord" parameterType="java.lang.String"
+            resultType="com.jcca.web.construction.entity.ConstructionRecord">
+        SELECT c.*
+        FROM construction_record c
+                 JOIN alarm_info a ON a.id = #{alarmId}
+        WHERE c.influence LIKE '%' || a.asset_id || '%'
+          AND a.occur_time BETWEEN c.start_time AND c.end_time
+        ORDER BY c.modify_time DESC
+    </select>
+
+</mapper>

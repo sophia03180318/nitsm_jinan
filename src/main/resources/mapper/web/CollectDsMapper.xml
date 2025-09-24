@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.collect.dao.CollectDsMapper">
+
+    <!-- 查询指定资产指定类型的最新采集数据 -->
+    <select id="findByType" resultType="com.jcca.web.collect.entity.CollectDS">
+        select a.*
+        from COLLECT_DS a
+        where COLLECT_CODE = (
+            select MAX(to_number(COLLECT_CODE)) AS code
+            from COLLECT_DS
+            where ASSET_ID = #{assetId}
+              and TYPE = #{type}
+        )
+          and ASSET_ID = #{assetId}
+          and TYPE = #{type}
+    </select>
+
+    <!-- 查询指定资产最新一次采集时间 -->
+    <select id="findLastTime" resultType="java.util.Date">
+        SELECT MAX(COLLECT_TIME) AS code
+        from COLLECT_DS
+        where ASSET_ID = #{assetId}
+    </select>
+
+    <!-- 查询指定阵列的采集数据 (type=2) -->
+    <select id="findByArray" resultType="com.jcca.web.collect.entity.CollectDS">
+        select a.*
+        from COLLECT_DS a
+        where PARENT_ORG_ID = #{arrayId}
+          and type = 2
+    </select>
+
+    <!-- 查询指定资产指定类型下指定驱动的最新采集数据 -->
+    <select id="findByDrives" resultType="com.jcca.web.collect.entity.CollectDS">
+        select a.*
+        from COLLECT_DS a
+        where COLLECT_CODE = (
+            select MAX(to_number(COLLECT_CODE)) AS code
+            from COLLECT_DS
+            where ASSET_ID = #{assetId}
+              and TYPE = #{type}
+        )
+          and ASSET_ID = #{assetId}
+          and TYPE = #{type}
+          and Y_INDEX = #{index}
+    </select>
+
+</mapper>

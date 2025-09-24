@@ -16,7 +16,6 @@ public interface ImportTemplateMapper extends BaseMapper<ImportTemplate> {
 
 
     /*根据名称查询模板*/
-    @Select("select * from import_template where TEMPLATE_NAME = #{templateName}")
     List<ImportTemplate> selectByTemplateName(@Param("templateName") String templateName);
 
 

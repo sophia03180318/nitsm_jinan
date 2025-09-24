@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.event.dao.AlarmEventRelMapper">
+
+    <!-- 根据告警ID查询事件关联记录 -->
+    <select id="selectByAlarmId" parameterType="java.lang.String"
+            resultType="com.jcca.web.event.entity.AlarmEventRel">
+        SELECT *
+        FROM ALARM_EVENT_REL e
+        WHERE e.ALARM_ID = #{alarmId}
+        ORDER BY ID DESC
+    </select>
+
+    <!-- 根据告警ID查询事件ID列表 -->
+    <select id="selectEventIdByAlarmId" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        SELECT EVENT_ID
+        FROM ALARM_EVENT_REL e
+        WHERE e.ALARM_ID = #{alarmId}
+    </select>
+
+</mapper>

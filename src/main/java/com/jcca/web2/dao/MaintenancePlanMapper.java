@@ -14,9 +14,7 @@ import java.util.List;
  **/
 public interface MaintenancePlanMapper extends BaseMapper<MaintenancePlan> {
 
-    @Select("select type, occur_month month, count(type) count from MAINTENANCE_PLAN where occur_year = #{year} group by occur_month, type order by occur_month")
     List<MaintenanceStatisticsVo> statistics(int year);
 
-    @Select("select type from MAINTENANCE_PLAN where occur_year = #{year} group by type")
     List<String> getTypeList(int year);
 }

@@ -15,15 +15,11 @@ import java.util.List;
  **/
 public interface TopicDataMapper extends BaseMapper<IBMTopicData> {
 
-    @Delete("delete from IBMMQ_TOPIC_DATA where monitor_id=#{monitorId} and captureTime=#{captureTime}")
     Boolean removeExpiredStatistics(String monitorId, Date captureTime);
 
-    @Select("select * from (select * from IBMMQ_TOPIC_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where rownum=1")
     IBMTopicData queryLastDate(String monitorId);
 
-    @Select("select * from (select * from IBMMQ_TOPIC_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where rownum<=50")
     List<IBMTopicData> queryDetailData(String monitorId);
 
-    @Delete("delete from IBMMQ_TOPIC_DATA where monitor_id=#{monitorId}")
     Boolean removeStatistics(String monitorId);
 }

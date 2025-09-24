@@ -53,18 +53,14 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      * @param assetId
      * @return
      */
-    @Select("select * from ALARM_INFO where (STATUS=1 or ALARM_STATE =1) and ASSET_ID=#{assetId} and CORRELATION_ID=#{corrElationId} and ALARM_CODE = #{alarmCode}")
     List<AlarmInfo> selectValidAlarmByCorrElationIdAndAlarmCode(@Param("corrElationId") String corrElationId, @Param("assetId") String assetId, @Param("alarmCode") String alarmCode);
 
-    @Select("select * from ALARM_INFO where (STATUS=1 or ALARM_STATE =1) and ASSET_ID=#{assetId} and CORRELATION_ID=#{corrElationId}")
     List<AlarmInfo> selectValidAlarmByCorrElationId(@Param("corrElationId") String corrElationId, @Param("assetId") String assetId);
 
     List<String> listTitle(@Param("showJcca") Integer showJcca);
 
-    @Select("select min(ALARM_LEVEL) from ALARM_INFO where (STATUS = 1 OR (STATUS = 2 AND ALARM_STATE = 1)) and BLANK=1 and ASSET_ID=#{assetId}")
     Byte queryMaxAlarmLevel(@Param("assetId") String assetId);
 
-    @Select("select a.ORG_ID,a.OCCUR_TIME,o.TYPE  from SYS_ORG o RIGHT join (select ORG_ID,max(OCCUR_TIME) as OCCUR_TIME from ALARM_INFO a where  STATUS=1 and ALARM_LEVEL =1 and ALARM_STATE=1 and BLANK!=2 group BY ORG_ID) a on a.ORG_ID=o.ID")
     List<AlarmInfo> getOccurTime();
 
     /**
@@ -73,10 +69,8 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      * @param id
      * @return
      */
-    @Select("select DISTINCT r.PLAN_STR from ALARM_INFO a LEFT JOIN ALARM_EVENT_REL e ON a.ID = e.ALARM_ID LEFT JOIN ALARM_EVENT t ON e.EVENT_ID = t.id and t.EVENT_LEVEL != 1 LEFT JOIN ALARM_REPOSITORY r ON r.id = t.REPOSITORY_ID where a.ID = #{id} and r.PLAN_STR is not NULL")
     List<String> queryDescriptionList(@Param("id") String id);
 
-    @Select("select min(ALARM_LEVEL) FROM ALARM_INFO WHERE (ALARM_STATE = 1 OR STATUS = 1) AND BLANK = 1 AND ORG_ID = #{orgId}")
     Integer queryMaxAlarmLevelByOrgId(@Param("orgId") String orgId);
 
     Integer queryMaxAlarmLevelByOrgIds(@Param("orgIds") List<String> orgIds);
@@ -100,16 +94,10 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     /**
      * 批量恢复未确认或者未恢复的告警
      */
-    @Update("<script> update ALARM_INFO a set a.STATUS = 2,a.ALARM_STATE=2,a.IS_SHOW_RECOVER=1,a.CONTENT=(a.CONTENT || '--事件类型被修改，系统自动确认恢复历史告警') where (a.STATUS=1 or a.ALARM_STATE=1) and ID in "
-            + "<foreach item='item' index='index' collection='alarmIdListItem' open='(' separator=',' close=')'>"
-            + "#{item} "
-            + "</foreach></script>")
     int batchRecoverAlarm(@Param("alarmIdListItem") List<String> alarmIdListItem);
 
-    @Select("select * from ALARM_INFO where STATUS =1 and ALARM_STATE=1 and ALARM_LEVEL=#{level} and OCCUR_TIME < to_date(#{date},'yyyy-mm-dd hh24:mi:ss')")
     List<AlarmInfo> findKeepAlarm(int level, String date);
 
-    @Select("select * from  (select ASSET_ID as assetId,count(*) as num from ALARM_INFO where OCCUR_TIME > to_date(#{date},'yyyy-mm-dd hh24:mi:ss')and  TITLE in (select name from ALARM_EVENT_GROUP where EVENT_TYPE_IDS in (select DISTINCT(EVENT_TYPE_ID) from ALARM_REPOSITORY where ALARM_CODE in ('RESTART','PROCESS_STOP')))  GROUP BY ASSET_ID) where num >#{num}")
     List<UnhealthyAsset> findUnHealthyAsset(int num, String date);
 
     /**
@@ -117,20 +105,16 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      *
      * @return
      */
-    @Select("select * from ALARM_INFO where STATUS = 1")
     List<AlarmInfo> selectUnAscertainAlarm();
 
-    @Update("UPDATE ALARM_INFO  set STATUS=2, ALARM_STATE=2,IS_SHOW_RECOVER=1,CONTENT=concat(CONTENT,'--取消阈值监控默认恢复')  where CONTENT like concat(concat('%进程%',#{processName}),'%') and (STATUS=1 or ALARM_STATE=1)  and asset_id=#{assetId}")
     void recoverProcess(String processName,String assetId);
 
     List<AlarmUnconfirmVo> findBizAlarm(AssetAlarmReq req);
 
-    @Select("UPDATE ALARM_INFO  set STATUS=2, ALARM_STATE=2,IS_SHOW_RECOVER=1,CONTENT=concat(CONTENT,'--取消阈值监控默认恢复')  where (STATUS = 1 or ALARM_STATE = 1) and DESCRIPTION like concat(concat('%',#{msg}),'%') and asset_id=#{assetId}")
     Integer recoverAlarm(@Param("msg") String msg, @Param("assetId") String assetId);
 
     List<AlarmInfo> broadcastAlarmList(SysConfig sysConfig);
 
-    @Select("UPDATE ALARM_INFO  set STATUS=2, ALARM_STATE=2,IS_SHOW_RECOVER=1,CONTENT=concat(CONTENT,'--取消阈值监控默认恢复')  where (STATUS = 1 or ALARM_STATE = 1) and DESCRIPTION like concat(concat('%',#{msg}),'%')")
     Integer recoverAlarmByMsg(@Param("msg") String msg);
 
     /**
@@ -154,7 +138,6 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     /**
      * 查3D页面告警列表
      *
-     * @param query
      * @return
      * @author SOPHIA
      */
@@ -173,7 +156,6 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     AlarmInfo getAssetAlarmV2(@Param("alarmCode") String alarmCode, @Param("assetId") String assetId, @Param("alarmFlag") String alarmFlag);
 
 
-    @Select("select i.id as id,I.ASSET_ID AS assetId ,i.ALARM_LEVEL as \"level\" ,i.ALARM_STATE as isRecover,i.STATUS as isVerify from (select asset_id from ASSET_ATTACH where ROOM_ID=#{roomId1} or ROOM_ID =#{roomId2})a join ALARM_INFO i on a.asset_id=i.ASSET_ID where (i.STATUS=1)")
     List<ThreeDAlarmReq> getThreeDAlarm(String roomId1, String roomId2);
 
     /**
@@ -218,10 +200,8 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      *
      * @return
      */
-    @Select("select * from ALARM_INFO where (STATUS = 1 or ALARM_STATE = 1) and ALARM_CODE =#{alarmCode}")
     AlarmInfo selectUnOverAlarm(@Param("alarmCode") String alarmCode);
 
-    @Select("select min(ALARM_LEVEL) as alarmLevel ,ASSET_ID as assetId from ALARM_INFO where ORG_ID =#{orgId}  group by ASSET_ID")
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
 
     AlarmCountDto countAlarm(AlarmPageDto req);
@@ -230,9 +210,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
 
     List<AlarmUnhandledDto> find5TimesUp(AlarmPageDto req);
 
-    @Select("SELECT REMARK FROM ALARM_INFO WHERE ALARM_CODE = #{alarmCode} AND REMARK IS NOT NULL ORDER BY MODIFY_TIME DESC")
     List<String> getRemarksByAlarmCode(String alarmCode);
 
-    @Select("select title, ALARM_STATE  as alarmState,DESCRIPTION as description,OCCUR_TIME as occurTime FROM ALARM_INFO WHERE (ALARM_STATE = 1 OR STATUS = 1) AND BLANK = 1 AND ASSET_ID = #{assetId}")
     List<AlarmVo> findAiAlarm(String assetId);
 }

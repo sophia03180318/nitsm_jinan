@@ -15,17 +15,13 @@ import java.util.List;
  **/
 public interface ListenerDataMapper extends BaseMapper<IBMListenerData> {
 
-    @Delete("delete from IBMMQ_LISTENER_DATA where monitor_id=#{monitorId} and captureTime<#{captureTime}")
     Boolean removeExpiredStatistics(String monitorId, Date captureTime);
 
-    @Select("select * from (select * from IBMMQ_LISTENER_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where rownum=1")
     IBMListenerData queryLastDate(String monitorId);
 
 
-    @Select("select * from (select * from IBMMQ_LISTENER_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where  rownum<=50")
     List<IBMListenerData> queryDetailData(String monitorId);
 
-    @Delete("delete from IBMMQ_LISTENER_DATA where monitor_id=#{monitorId}")
     Boolean removeStatistics(String monitorId);
 
 }

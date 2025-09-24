@@ -22,7 +22,6 @@ public interface CollectDBMapper extends BaseMapper<CollectDB> {
      * @param assetId
      * @return
      */
-    @Select("SELECT * FROM COLLECT_DB b WHERE ASSET_ID=#{assetId} and b.COLLECT_CODE=(SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_DB WHERE ASSET_ID=#{assetId})")
     List<CollectDB> selectRealTimeData(@Param("assetId") String assetId);
 
 

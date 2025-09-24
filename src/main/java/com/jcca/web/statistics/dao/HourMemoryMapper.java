@@ -24,16 +24,11 @@ public interface HourMemoryMapper extends BaseMapper<HourMemory> {
      *
      * @return
      */
-    @Select("SELECT MAX(CREATE_TIME) FROM HOUR_MEMORY")
     Date maxCreateDate();
 
-    @Select("SELECT MEM_USED_RATE memUsedRate, SWAP_USED_RATE swapUsedRate, END_TIME collectTime FROM HOUR_MEMORY " +
-            "WHERE ASSET_ID = #{assetId} AND END_TIME BETWEEN #{startDate} AND #{endDate} ORDER BY END_TIME")
     List<AssetHistoryVo> findLineByDate(String assetId, Date startDate, Date endDate);
 
-    @Select("SELECT MEM_USED memUsedRate , END_TIME collectDate FROM HOUR_MEMORY where  ASSET_ID = #{assetId}  and END_TIME>= #{day}order by collectDate desc")
     List<MemoryVo> findDataByDay(String assetId, Date day);
 
-    @Select("SELECT SWAP_USED_RATE swapUsedRate , END_TIME collectDate FROM HOUR_MEMORY where  ASSET_ID = #{assetId}  and END_TIME>= #{day}  order by collectDate desc")
     List<SwapVo> findSwapByDay(String assetId, Date day);
 }

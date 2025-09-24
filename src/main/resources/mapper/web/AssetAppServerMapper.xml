@@ -14,9 +14,10 @@
         from asset a
                  left join asset_app_server p on a.id = p.asset_id
                  left join alarm_info i
-                           on a.id = i.asset_id and i.alarm_flag like ('%_' || p.server_port || '_' || p.link_ip) and
-                              i.status = 1 and
-                              i.alarm_state = 1
+                           on a.id = i.asset_id
+                              and i.alarm_flag like CONCAT(CONCAT('%_' , TO_CHAR(p.server_port)), CONCAT('_', p.link_ip))
+                               and i.status = 1
+                               and i.alarm_state = 1
         where a.watch = 1
           and a.is_del = 1
           and a.asset_mode = 183
@@ -36,15 +37,63 @@
         from asset a
                  left join asset_app_server p on a.id = p.asset_id
                  left join alarm_info i
-                           on a.id = i.asset_id and i.alarm_flag like ('%_' || p.server_port || '_' || p.link_ip) and
-                              i.status = 1 and
-                              i.alarm_state = 1
+                           on a.id = i.asset_id
+                               and i.alarm_flag like CONCAT(CONCAT(CONCAT('%_', TO_CHAR(p.server_port)), '_'), p.link_ip)
+                               and i.status = 1
+                               and i.alarm_state = 1
         where a.watch = 1
           and a.is_del = 1
           and a.asset_mode = 183
           and a.service_type = 1
           and a.collection_type = 0
           and a.id = #{assetId}
+    </select>
+
+    <!-- 根据 assetId 和 serverPort 查询，link_status IS NULL -->
+    <select id="findByAssetIdAndServerPort" resultType="com.jcca.web.asset.entity.AssetAppServer">
+        SELECT *
+        FROM ASSET_APP_SERVER
+        WHERE ASSET_ID = #{assetId}
+          AND SERVER_PORT = #{serverPort}
+          AND LINK_STATUS IS NULL
+        ORDER BY SERVER_PORT
+    </select>
+
+    <!-- 根据 assetId 查询，link_status IS NULL -->
+    <select id="findByAssetIdNullLink" resultType="com.jcca.web.asset.entity.AssetAppServer">
+        SELECT *
+        FROM ASSET_APP_SERVER
+        WHERE ASSET_ID = #{assetId}
+          AND LINK_STATUS IS NULL
+        ORDER BY SERVER_PORT
+    </select>
+
+    <!-- 根据 assetId 查询应用服务器列表 -->
+    <select id="getAppServerListByAssetId" resultType="com.jcca.web.asset.vo.AssetAppServerVo">
+        select P.*, p.asset_name as itemName
+        from asset_app_server p
+        where p.asset_id = #{assetId}
+        order by p.server_port
+    </select>
+
+    <!-- 根据 assetId 和 serverPort 查询，link_status IS NOT NULL -->
+    <select id="findByAssetIdAndServerPort2" resultType="com.jcca.web.asset.entity.AssetAppServer">
+        SELECT *
+        FROM ASSET_APP_SERVER
+        WHERE ASSET_ID = #{assetId}
+          AND SERVER_PORT = #{serverPort}
+          AND LINK_STATUS IS NOT NULL
+        ORDER BY SERVER_PORT
+    </select>
+
+    <!-- 根据 assetId、serverPort 和 linkIp 查询，link_status IS NOT NULL -->
+    <select id="findOneLinkData" resultType="com.jcca.web.asset.entity.AssetAppServer">
+        SELECT *
+        FROM ASSET_APP_SERVER
+        WHERE ASSET_ID = #{assetId}
+          AND SERVER_PORT = #{serverPort}
+          AND LINK_IP = #{linkIp}
+          AND LINK_STATUS IS NOT NULL
     </select>
 
 </mapper>

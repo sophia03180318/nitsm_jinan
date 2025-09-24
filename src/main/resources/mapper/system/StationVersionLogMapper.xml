@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.admin.biz.dao.StationVersionLogMapper">
+
+    <!-- 查询最后一条升级记录 -->
+    <select id="selectLasterLogByStationId" parameterType="java.lang.String" resultType="com.jcca.admin.biz.entity.StationVersionLog">
+        SELECT *
+        FROM M_STATION_VERSION_LOG
+        WHERE id = (
+            SELECT MAX(id)
+            FROM M_STATION_VERSION_LOG
+            WHERE STATION_ID = #{orgId}
+        )
+    </select>
+
+    <!-- 查询车站ID通过版本号 -->
+    <select id="selectOrgIdByVersion" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT e.STATION_ID
+        FROM M_STATION_VERSION_LOG e
+        WHERE e.VERSION = #{version}
+    </select>
+
+    <!-- 查看车站是否有正在进行的升级任务 -->
+    <select id="selectLoadingJob" parameterType="java.lang.String" resultType="com.jcca.admin.biz.entity.StationVersionLog">
+        SELECT *
+        FROM M_STATION_VERSION_LOG e
+        WHERE e.STATION_ID = #{stationId}
+          AND e.STATUS != 'UPDATE_SUCCESS'
+    </select>
+
+    <!-- 查询更新过的jar 的名字 -->
+    <select id="listJarName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT JAR_NAME
+        FROM M_STATION_VERSION_LOG e
+        WHERE e.STATION_ID = #{stationId}
+          AND e.STATUS = 'UPDATE_SUCCESS'
+        GROUP BY JAR_NAME
+    </select>
+
+    <!-- 查询jar最后一次更新记录 -->
+    <select id="lastLog" resultType="com.jcca.admin.biz.entity.StationVersionLog">
+        SELECT *
+        FROM M_STATION_VERSION_LOG e
+        WHERE id = (
+            SELECT MAX(id)
+            FROM M_STATION_VERSION_LOG t
+            WHERE t.STATION_ID = #{stationId}
+              AND t.STATUS = 'UPDATE_SUCCESS'
+              AND t.JAR_NAME = #{jarName}
+        )
+    </select>
+
+    <!-- 查询是否有此版本成功的记录 -->
+    <select id="selectBySuccessLog" resultType="com.jcca.admin.biz.entity.StationVersionLog">
+        SELECT *
+        FROM M_STATION_VERSION_LOG e
+        WHERE id = (
+            SELECT MAX(id)
+            FROM M_STATION_VERSION_LOG t
+            WHERE t.STATION_ID = #{stationId}
+              AND t.STATUS = 'UPDATE_SUCCESS'
+              AND t.VERSION_MSG_ID = #{versionMsgId}
+        )
+    </select>
+
+</mapper>

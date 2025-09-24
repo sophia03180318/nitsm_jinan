@@ -11,13 +11,11 @@ import org.apache.ibatis.annotations.Select;
  **/
 public interface AlarmTemplateMapper extends BaseMapper<AlarmTemplate> {
 
-
     /**
      * 通过类别查询模板
      *
      * @param category
      * @return
      */
-    @Select(value = "select * from alarm_template where category = #{category}")
     AlarmTemplate selectByCategory(String category);
 }

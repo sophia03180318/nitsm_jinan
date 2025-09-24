@@ -17,8 +17,14 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        ID,NAME,TITLE,VALUE,CATEGORY,REMARK,STATUS,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+        ID
+        ,NAME,TITLE,VALUE,CATEGORY,REMARK,STATUS,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
     </sql>
 
-
+    <!-- 通过类别查询模板 -->
+    <select id="selectByCategory" parameterType="java.lang.String" resultType="com.jcca.admin.biz.entity.AlarmTemplate">
+        SELECT *
+        FROM alarm_template
+        WHERE category = #{category}
+    </select>
 </mapper>

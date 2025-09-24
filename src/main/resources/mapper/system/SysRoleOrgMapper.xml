@@ -12,4 +12,18 @@
     </sql>
 
 
+    <!-- 根据 orgId 查询 roleId 列表 -->
+    <select id="findRoleIdsByOrgId" parameterType="string" resultType="string">
+        SELECT role_id
+        FROM sys_role_org
+        WHERE org_id = #{orgId}
+    </select>
+
+    <!-- 根据 roleId + orgId 查询记录 -->
+    <select id="getRoleByOrg" parameterType="map" resultType="com.jcca.admin.system.entity.SysRoleOrg">
+        SELECT *
+        FROM sys_role_org
+        WHERE role_id = #{roleId}
+          AND org_id = #{orgId}
+    </select>
 </mapper>

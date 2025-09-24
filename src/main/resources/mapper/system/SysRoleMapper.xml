@@ -29,4 +29,12 @@
           and r.status = 1
     </select>
 
+
+    <!-- 获取最大排序数 -->
+    <select id="getSortMax" parameterType="string" resultType="byte">
+        SELECT MAX(sort)
+        FROM sys_role r
+        WHERE r.pid = #{pid}
+          AND r.status &lt;&gt; 0
+    </select>
 </mapper>

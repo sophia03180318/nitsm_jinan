@@ -23,7 +23,6 @@ public interface CollectDiskMapper extends BaseMapper<CollectDisk> {
      * @param assetId
      * @return
      */
-    @Select("SELECT * FROM COLLECT_DISK b WHERE b.COLLECT_CODE=(SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_DISK WHERE ASSET_ID=#{assetId})")
     List<CollectDisk> selectRealTimeData(@Param("assetId") String assetId);
 
 }

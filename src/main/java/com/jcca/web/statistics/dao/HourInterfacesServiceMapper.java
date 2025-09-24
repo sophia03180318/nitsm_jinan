@@ -22,11 +22,9 @@ public interface HourInterfacesServiceMapper extends BaseMapper<HourInterfaces> 
      *
      * @return
      */
-    @Select("SELECT MAX(CREATE_TIME) FROM HOUR_INTERFACES")
     Date maxCreateDate();
 
-    @Select("SELECT PORT_IN, PORT_OUT,  END_TIME collectTime FROM HOUR_INTERFACES " +
-            "WHERE ASSET_ID = #{assetId} AND END_TIME BETWEEN #{startDate} AND #{endDate} ORDER BY END_TIME")
+
     List<AssetHistoryVo> findLineByDate(String assetId, Date startDate, Date endDate);
 
 

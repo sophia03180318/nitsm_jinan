@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.AssetImportMapper">
+
+    <!-- 删除所有数据 -->
+    <delete id="delectAllAsset">
+        delete from asset_import_record
+    </delete>
+
+    <!-- 获取所有资产 -->
+    <select id="selectAllAsset" resultType="com.jcca.web.asset.entity.AssetImportRecord">
+        select *
+        from asset_import_record
+    </select>
+
+    <!-- 获取所有资产条数 -->
+    <select id="countAll" resultType="int">
+        select count(*)
+        from asset_import_record
+    </select>
+
+    <!-- 根据名称查询组织是否存在 -->
+    <select id="estimateOrg" resultType="com.jcca.web.asset.entity.Org">
+        select *
+        from sys_org
+        where title = #{orgName}
+          and STATUS = 1
+    </select>
+
+    <!-- 根据名称查询机房是否存在 -->
+    <select id="estimateRoom" resultType="com.jcca.web.asset.entity.Room">
+        select *
+        from room
+        where name = #{roomName}
+    </select>
+
+    <!-- 根据名称查询机柜是否存在 -->
+    <select id="estimateCabinet" resultType="com.jcca.web.asset.entity.Cabinet">
+        select *
+        from cabinet
+        where name = #{cabinetName}
+    </select>
+
+    <!-- 判断组织机房机柜是否有满足从属关系 -->
+    <select id="estimateTreble" resultType="com.jcca.web.asset.entity.Cabinet">
+        select *
+        from CABINET c
+        where c.ROOM_ID = (
+            select id from ROOM
+            where ORG_ID = #{orgID}
+              and name = #{roomName}
+        )
+          and c.name = #{cabinetName}
+    </select>
+
+    <!-- 判断组织和机房是否满足从属关系 -->
+    <select id="estimateDouble" resultType="com.jcca.web.asset.entity.Room">
+        select *
+        from ROOM
+        where NAME = #{roomName}
+          and ORG_ID = #{orgID}
+    </select>
+
+</mapper>

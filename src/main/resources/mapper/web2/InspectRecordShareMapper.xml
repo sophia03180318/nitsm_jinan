@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.InspectRecordShareMapper">
+
+    <select id="findByViewer" parameterType="java.lang.String" resultType="com.jcca.web2.entity.XunjianSchedule">
+        SELECT DISTINCT x.*
+        FROM inspect_record_share s
+                 LEFT JOIN xunjian_schedule x ON s.job_id = x.job_id
+        WHERE s.viewer = #{username}
+          AND x.id IS NOT NULL
+    </select>
+
+    <select id="findShareRecord" resultType="com.jcca.web2.vo.InspectShareVo">
+        SELECT DISTINCT R.ID,
+                        R.INSPECT_TIME AS NAME,
+                        '2'            AS isShare
+        FROM INSPECT_RECORD R
+                 RIGHT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID
+        WHERE R.INSPECT_CODE = #{jobId}
+          AND S.VIEWER = #{username}
+        ORDER BY R.INSPECT_TIME DESC
+    </select>
+
+</mapper>

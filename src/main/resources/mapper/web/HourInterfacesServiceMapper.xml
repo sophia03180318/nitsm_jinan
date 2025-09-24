@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.statistics.dao.HourInterfacesServiceMapper">
+
+    <!-- 查询最大的创建时间 -->
+    <select id="maxCreateDate" resultType="java.util.Date">
+        SELECT MAX(CREATE_TIME)
+        FROM HOUR_INTERFACES
+    </select>
+
+    <!-- 查询端口历史数据 -->
+    <select id="findLineByDate" resultType="com.jcca.web.asset.vo.AssetHistoryVo">
+        SELECT PORT_IN,
+               PORT_OUT,
+               END_TIME AS collectTime
+        FROM HOUR_INTERFACES
+        WHERE ASSET_ID = #{assetId}
+          AND END_TIME BETWEEN #{startDate} AND #{endDate}
+        ORDER BY END_TIME
+    </select>
+
+</mapper>

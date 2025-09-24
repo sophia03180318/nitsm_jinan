@@ -23,13 +23,11 @@ public interface CollectSystemTimeMapper extends BaseMapper<CollectSystemTime> {
      * @param assetId
      * @return
      */
-    @Select("SELECT * FROM COLLECT_SYSTEM_TIME b WHERE ASSET_ID=#{assetId}")
     List<CollectSystemTime> selectAssetNewSystem(@Param("assetId") String assetId);
 
     /**
      * 获取设备运行时长
      */
-    @Select("select TIMEDURATION from collect_system_time where asset_id =#{assetId} ")
     List<Long> getRunTime(String assetId);
 
 

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jcca.web2.dao.InspectRecordMapper">
+
+    <select id="findCabinetInfo" parameterType="java.lang.String"
+            resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT CABINET_ID, CABINET_NAME, ASSET_ID, ASSET_NAME, ASSET_IP1, ASSET_IP2
+        FROM INSPECT_RECORD
+        WHERE CABINET_ID = #{cabinetId}
+        <if test="inspectType != null and inspectType != ''">
+            <if test="inspectType == 1">
+                AND ASSET_STATUS = 1 AND INSPECT_TYPE = 1
+            </if>
+            <if test="inspectType == 2">
+                AND TARGET_STATUS = 1 AND INSPECT_TYPE = 2
+            </if>
+        </if>
+        GROUP BY CABINET_ID, CABINET_NAME, ASSET_ID, ASSET_NAME, ASSET_IP1, ASSET_IP2
+        ORDER BY CABINET_NAME
+    </select>
+
+    <!--    <select id="findOrgList" parameterType="java.lang.String" resultType="com.jcca.web2.vo.InspectOrgAssetVo">-->
+    <!--        SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD WHERE ORG_ID IN-->
+    <!--        <foreach collection="orgIds" item="id" separator="," open="(" close=")">-->
+    <!--            #{id}-->
+    <!--        </foreach>-->
+    <!--        GROUP BY ORG_ID, ORG_NAME ORDER BY ORG_ID-->
+    <!--    </select>-->
+
+    <select id="findLastGroupByOrgId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD
+        <if test="inspectType != null and inspectType != ''">
+            <if test="inspectType == 1">
+                WHERE INSPECT_TYPE = 1 AND ASSET_STATUS = 1
+            </if>
+            <if test="inspectType == 2">
+                WHERE INSPECT_TYPE = 2 AND TARGET_STATUS = 1
+            </if>
+        </if>
+        GROUP BY ORG_ID, ORG_NAME ORDER BY ORG_ID
+    </select>
+
+    <select id="findLastGroupByCabinetId" parameterType="java.lang.String"
+            resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT CABINET_ID, CABINET_NAME, ORG_ID FROM INSPECT_RECORD
+        <if test="inspectType != null and inspectType != ''">
+            <if test="inspectType == 1">
+                WHERE ASSET_STATUS = 1 AND INSPECT_TYPE = 1
+            </if>
+            <if test="inspectType == 2">
+                WHERE TARGET_STATUS = 1 AND INSPECT_TYPE = 2
+            </if>
+        </if>
+        GROUP BY CABINET_ID, CABINET_NAME, ORG_ID ORDER BY CABINET_NAME
+    </select>
+
+    <select id="findCabinetState" parameterType="java.lang.String"
+            resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT cabinet_id, max(inspect_state) inspect_state
+        FROM INSPECT_RECORD
+        WHERE CABINET_ID = #{cabinetId}
+        <if test="inspectType != null and inspectType != ''">
+            <if test="inspectType == 1">
+                AND ASSET_STATUS = 1 AND INSPECT_TYPE = 1
+            </if>
+            <if test="inspectType == 2">
+                AND TARGET_STATUS = 1 AND INSPECT_TYPE = 2
+            </if>
+        </if>
+        group by cabinet_id
+    </select>
+
+    <select id="findAssetState" parameterType="java.lang.String"
+            resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT asset_id, inspect_code, max(inspect_state) inspect_state
+        FROM INSPECT_RECORD
+        WHERE ASSET_ID = #{assetId}
+        <if test="inspectType != null and inspectType != ''">
+            <if test="inspectType == 1">
+                AND ASSET_STATUS = 1 AND INSPECT_TYPE = 1
+            </if>
+            <if test="inspectType == 2">
+                AND TARGET_STATUS = 1 AND INSPECT_TYPE = 2
+            </if>
+        </if>
+        group by asset_id, inspect_code
+    </select>
+
+    <select id="findLineStations" parameterType="java.util.Set" resultType="com.jcca.web2.vo.InspectOrgAssetVo">
+        SELECT ORG_ID, ORG_NAME FROM INSPECT_RECORD WHERE ORG_ID IN
+        <foreach collection="stationids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        GROUP BY ORG_ID, ORG_NAME ORDER BY ORG_ID
+    </select>
+
+    <select id="findGroupByModeType" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT MODE_TYPE, MODE_NAME
+        FROM INSPECT_RECORD
+        GROUP BY MODE_TYPE, MODE_NAME
+        ORDER BY MODE_TYPE
+    </select>
+
+    <select id="findByModeType" parameterType="java.lang.String" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT TARGET_ITEM, TARGET_NAME, TARGET_STATUS
+        FROM INSPECT_RECORD
+        WHERE MODE_TYPE = #{modeType}
+        GROUP BY TARGET_ITEM, TARGET_NAME, TARGET_STATUS
+    </select>
+
+    <select id="findByModeTypeGroupByOrgId" parameterType="java.lang.String"
+            resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT ORG_ID, ORG_NAME
+        FROM INSPECT_RECORD
+        WHERE MODE_TYPE = #{modeType}
+        GROUP BY ORG_ID, ORG_NAME
+    </select>
+
+    <select id="findByModeTypeGroupByAssetId" parameterType="java.lang.String"
+            resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT ASSET_ID, ASSET_NAME, ORG_ID, MAX(ASSET_STATUS) assetStatus
+        FROM INSPECT_RECORD
+        WHERE MODE_TYPE = #{modeType}
+        GROUP BY ASSET_ID, ASSET_NAME, ORG_ID
+    </select>
+
+    <select id="findOneByAssetAndTarget" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT *
+        FROM INSPECT_RECORD
+        WHERE ASSET_ID = #{assetId}
+          AND MODE_TYPE = #{modeType}
+          AND TARGET_ITEM = #{targetItem}
+    </select>
+
+    <select id="findLastInspectCode" resultType="java.lang.String">
+        SELECT MAX(INSPECT_CODE)
+        FROM INSPECT_RECORD
+    </select>
+
+    <select id="countCheckedByModeType" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (SELECT ASSET_ID
+              FROM INSPECT_RECORD
+              WHERE ASSET_STATUS = 1
+                AND MODE_TYPE = #{modeType}
+              GROUP BY ASSET_ID)
+    </select>
+
+    <select id="findTargetState" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT *
+        FROM INSPECT_RECORD
+        WHERE ASSET_ID = #{assetId}
+          AND TARGET_ITEM = #{targetItem}
+          AND MODE_TYPE = #{modeType}
+    </select>
+
+    <select id="findAssetIdList" resultType="java.lang.String">
+        SELECT asset_id
+        FROM (SELECT asset_id
+              FROM INSPECT_RECORD
+              WHERE TARGET_STATUS = 1
+                AND ASSET_STATUS = 1
+              ORDER BY ORG_ID, CABINET_NAME, asset_id)
+        GROUP BY asset_id
+    </select>
+
+    <select id="findOrgList" resultType="com.jcca.web2.vo.InspectOrgAssetVo">
+        SELECT ORG_ID, ORG_NAME
+        FROM INSPECT_RECORD
+        GROUP BY ORG_ID, ORG_NAME
+        ORDER BY ORG_ID
+    </select>
+
+    <select id="findDeskListByOrgId" parameterType="java.lang.String" resultType="com.jcca.web2.vo.InspectOrgAssetVo">
+        SELECT ORG_ID, ASSET_DESK, DESK_NAME
+        FROM INSPECT_RECORD
+        WHERE ORG_ID = #{orgId}
+        GROUP BY ORG_ID, ASSET_DESK, DESK_NAME
+    </select>
+
+    <select id="findAssetListByOrgDesk" resultType="com.jcca.web2.vo.InspectOrgAssetVo">
+        SELECT ASSET_ID, ASSET_NAME, ORG_ID, ASSET_DESK, ASSET_STATUS
+        FROM INSPECT_RECORD
+        WHERE ORG_ID = #{orgId}
+          AND ASSET_DESK = #{assetDesk}
+        GROUP BY ASSET_ID, ASSET_NAME, ORG_ID, ASSET_DESK, ASSET_STATUS
+        ORDER BY ASSET_NAME
+    </select>
+
+    <select id="findCheckedAsset" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT *
+        FROM INSPECT_RECORD
+        WHERE ASSET_STATUS = 1
+    </select>
+
+    <select id="findCheckedTarget" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT *
+        FROM INSPECT_RECORD
+        WHERE TARGET_STATUS = 1
+    </select>
+
+    <update id="updateCheckedAsset">
+        UPDATE INSPECT_RECORD
+        SET INSPECT_TYPE = 1
+        WHERE ASSET_STATUS = 1
+    </update>
+
+    <update id="updateCheckedTarget">
+        UPDATE INSPECT_RECORD
+        SET INSPECT_TYPE = 2
+        WHERE TARGET_STATUS = 1
+    </update>
+
+    <select id="findNowInspectType" resultType="java.lang.String">
+        SELECT INSPECT_TYPE
+        FROM INSPECT_RECORD
+        GROUP BY INSPECT_TYPE
+    </select>
+
+    <delete id="deleteByOrgId" parameterType="java.lang.String">
+        DELETE
+        FROM INSPECT_RECORD
+        WHERE ORG_ID = #{orgId}
+    </delete>
+
+    <select id="findRecordByJobId" parameterType="java.lang.String" resultType="com.jcca.web2.vo.InspectShareVo">
+        SELECT DISTINCT R.ID,
+                        R.INSPECT_TIME AS NAME,
+                        '1'            AS isShare,
+                        S.OPERATOR
+        FROM INSPECT_RECORD R
+                 LEFT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID
+        WHERE R.INSPECT_CODE = #{jobId}
+        ORDER BY R.INSPECT_TIME DESC
+    </select>
+
+    <select id="findByJobId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.InspectRecord">
+        SELECT *
+        FROM INSPECT_RECORD
+        WHERE SCHEDULE_ID IN (SELECT ID FROM XUNJIAN_SCHEDULE WHERE JOB_ID = #{jobId})
+        ORDER BY ID DESC
+    </select>
+</mapper>

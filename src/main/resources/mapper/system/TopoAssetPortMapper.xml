@@ -111,7 +111,7 @@
                                       where c.asset_id = #{assetId})
               order by b.PORT_INDEX_RANK) a
                  LEFT JOIN topo_asset_port t ON a.port_index = t.port_index and a.asset_id = t.asset_id
-        where a.port_index like concat(concat('%E%', #{portIndex}), '%')
+        where a.port_index like '%E%' || #{portIndex} || '%'
     </select>
 
     <select id="selectAssetPortQuery" resultType="com.jcca.admin.system.vo.AssetPortVo"
@@ -177,5 +177,14 @@
          and port_index not like concat(concat('%', '.'), '%')
          and port_link_type =1
          order by PORT_INDEX_RANK
+    </select>
+
+
+    <!-- 查询设备端口 -->
+    <select id="findAssetPort" resultType="com.jcca.admin.system.entity.TopoAssetPort">
+        SELECT *
+        FROM topo_asset_port
+        WHERE asset_id = #{assetId}
+          AND port_index = #{portIndex}
     </select>
 </mapper>

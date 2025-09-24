@@ -29,6 +29,5 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
      * @param pid
      * @return
      */
-    @Select(value = "select max(sort) from sys_role r where r.pid = #{pid} and r.status <> " + StatusConst.DELETE)
     Byte getSortMax(String pid);
 }

@@ -15,9 +15,7 @@ public interface AssetModelMapper extends BaseMapper<AssetModel> {
 
 
 
-    @Select("SELECT * FROM ASSET_MODEL WHERE MANUFACTURER_ID = #{manufacturerId}")
     List<AssetModel> getByManufacturerId(String manufacturerId);
 
-    @Select("SELECT * FROM ASSET_MODEL WHERE MODEL = #{assetImage}")
     AssetModel getByName(String assetImage);
 }

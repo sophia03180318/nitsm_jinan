@@ -47,4 +47,17 @@
         </if>
         order by i.asset_id, i.port_index_rank
     </select>
+
+
+    <!-- 删除所有路由采集数据 -->
+    <delete id="deleteAll" parameterType="java.lang.Boolean">
+        delete from COLLECT_ROUTE
+    </delete>
+
+    <!-- 查询含有对端设备IP的信息 -->
+    <select id="getExistTarget" resultType="com.jcca.web.collect.entity.CollectRoute">
+        select *
+        from COLLECT_ROUTE
+        where at_net_address is not null
+    </select>
 </mapper>

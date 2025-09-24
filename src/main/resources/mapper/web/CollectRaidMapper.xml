@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.collect.dao.CollectRaidMapper">
+
+    <!-- 根据资产和磁盘类型查询最新数据 -->
+    <select id="findByType" resultType="com.jcca.web.collect.entity.CollectRaid">
+        select a.*
+        from COLLECT_RAID a
+        where COLLECT_CODE = (
+            SELECT MAX(to_number(COLLECT_CODE)) AS code
+            from COLLECT_RAID
+            where ASSET_ID = #{assetId}
+              and DISK_TYPE = #{type}
+        )
+          and ASSET_ID = #{assetId}
+          and DISK_TYPE = #{type}
+    </select>
+
+    <!-- 根据资产、组ID和磁盘类型查询最新数据 -->
+    <select id="findByGroup" resultType="com.jcca.web.collect.entity.CollectRaid">
+        select a.*
+        from COLLECT_RAID a
+        where COLLECT_CODE = (
+            SELECT MAX(to_number(COLLECT_CODE)) AS code
+            from COLLECT_RAID
+            where ASSET_ID = #{assetId}
+              and GROUP_ID = #{groupId}
+              and DISK_TYPE = #{type}
+        )
+          and ASSET_ID = #{assetId}
+          and DISK_TYPE = #{type}
+    </select>
+
+    <!-- 查询指定资产的最新采集时间 -->
+    <select id="findLastTime" resultType="java.util.Date">
+        SELECT MAX(COLLECT_TIME) AS code
+        from COLLECT_RAID
+        where ASSET_ID = #{assetId}
+    </select>
+
+    <!-- 查询指定资产的磁盘驱动器信息 (DISK_TYPE=4) -->
+    <select id="findDrive" resultType="com.jcca.web.collect.entity.CollectRaid">
+        select *
+        from COLLECT_RAID
+        where DISK_TYPE = 4
+          and COLLECT_CODE = (
+            SELECT MAX(to_number(COLLECT_CODE)) AS code
+            from COLLECT_RAID
+            where ASSET_ID = #{assetId}
+              and DISK_TYPE = 4
+        )
+          and PARENT_ORG_ID in (
+            select DISTINCT(REAL_ID)
+            from COLLECT_RAID
+            where ASSET_ID = #{assetId}
+              and DISK_TYPE = 1
+        )
+    </select>
+
+    <!-- 查询全表的最新采集时间 -->
+    <select id="getLastTime" resultType="java.util.Date">
+        SELECT MAX(COLLECT_TIME) AS code
+        from COLLECT_RAID
+    </select>
+
+</mapper>

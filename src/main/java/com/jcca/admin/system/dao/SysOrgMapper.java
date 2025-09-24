@@ -15,13 +15,11 @@ import java.util.Map;
  **/
 public interface SysOrgMapper extends BaseMapper<SysOrg> {
 
-
     /**
      * 获取最大的排序数
      *
      * @return
      */
-    @Select(value = "select max(sort) from sys_menu m where m.pid = #{pid} and m.status <> " + StatusConst.DELETE)
     Byte getSortMax(String pid);
 
     /**
@@ -77,10 +75,8 @@ public interface SysOrgMapper extends BaseMapper<SysOrg> {
      * */
     List<String> getTitleByOrgId(String pId);
 
-    @Select(value = "select TITLE  from SYS_ORG where status=1")
     List<String> getOrgByName();
 
-    @Select(value = "select id from sys_org where pid =#{id}")
     List<String> getIdByline(String id);
 
     /**
@@ -88,6 +84,5 @@ public interface SysOrgMapper extends BaseMapper<SysOrg> {
      * @param lineId
      * @return
      */
-    @Select(value = "select id from sys_org where pid = #{id} and TYPE = 4")
     List<String> getStationOrgIdByLineId(String lineId);
 }

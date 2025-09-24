@@ -30,4 +30,19 @@
         where c.num between ((#{pageIndex} - 1) * #{pageSize} + 1) and (#{pageIndex} * #{pageSize})
     </select>
 
+    <!-- 查询指定资产的系统时间相关信息 -->
+    <select id="selectAssetNewSystem" resultType="com.jcca.web.collect.entity.CollectSystemTime">
+        SELECT *
+        FROM COLLECT_SYSTEM_TIME b
+        WHERE ASSET_ID = #{assetId}
+    </select>
+
+    <!-- 查询设备运行时长 -->
+    <select id="getRunTime" resultType="java.lang.Long">
+        select TIMEDURATION
+        from collect_system_time
+        where asset_id = #{assetId}
+    </select>
+
+
 </mapper>

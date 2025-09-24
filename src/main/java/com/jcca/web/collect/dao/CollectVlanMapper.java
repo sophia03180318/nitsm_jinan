@@ -22,7 +22,6 @@ public interface CollectVlanMapper extends BaseMapper<CollectVlan> {
      * @param assetId
      * @return
      */
-    @Select("SELECT * FROM COLLECT_VLAN b WHERE b.COLLECT_CODE=(SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_VLAN WHERE ASSET_ID=#{assetId})")
     List<CollectVlan> selectRealTimeData(String assetId);
 
 }

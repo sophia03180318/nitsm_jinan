@@ -22,14 +22,6 @@ public interface TopoAssetPortMapper extends BaseMapper<TopoAssetPort> {
      */
     List<AssetPortVo> selectAssetPort(@Param("assetId") String assetId,@Param("pcbId") String pcbId);
 
-    /**
-     * 查询设备端口配置
-     * @param assetId
-     * @param pcbId
-     * @return
-     */
-    List<AssetPortVo> selectAssetPort2(@Param("assetId") String assetId,@Param("pcbId") String pcbId);
-
     List<AssetPortVo> selectAssetPortVlan(String assetId);
 
     List<AssetPortVo> selectAssetPortQuery(String assetId);
@@ -46,6 +38,5 @@ public interface TopoAssetPortMapper extends BaseMapper<TopoAssetPort> {
 
     List<AssetPortVo> selectPort(String assetId);
 
-    @Select("select * from topo_asset_port where asset_id = #{assetId} and port_index = #{portIndex}")
     List<TopoAssetPort> findAssetPort(String assetId, String portIndex);
 }

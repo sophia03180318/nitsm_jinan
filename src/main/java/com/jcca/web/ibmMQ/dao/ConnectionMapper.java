@@ -17,10 +17,8 @@ public interface ConnectionMapper extends BaseMapper<IBMConnection> {
 
     List<Connection> findConnections();
 
-    @Select("select * from IBMMQ_QMGR_CONNECTION a where a.connect_name = #{connectionName}")
     List<IBMConnection> findByName(@Param("connectionName") String connectionName);
 
-    @Select("select * from IBMMQ_QMGR_CONNECTION where connect_host = #{host} and connect_port= #{port}")
     List<IBMConnection> findByHostAndPort(@Param("host") String host, @Param("port") Integer port);
 
 

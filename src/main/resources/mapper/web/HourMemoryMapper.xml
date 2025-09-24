@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.statistics.dao.HourMemoryMapper">
+
+    <!-- 查询最大的创建时间 -->
+    <select id="maxCreateDate" resultType="java.util.Date">
+        SELECT MAX(CREATE_TIME)
+        FROM HOUR_MEMORY
+    </select>
+
+    <!-- 查询内存曲线 -->
+    <select id="findLineByDate" resultType="com.jcca.web.asset.vo.AssetHistoryVo">
+        SELECT MEM_USED_RATE AS memUsedRate,
+               SWAP_USED_RATE AS swapUsedRate,
+               END_TIME       AS collectTime
+        FROM HOUR_MEMORY
+        WHERE ASSET_ID = #{assetId}
+          AND END_TIME BETWEEN #{startDate} AND #{endDate}
+        ORDER BY END_TIME
+    </select>
+
+    <!-- 按天查询内存数据 -->
+    <select id="findDataByDay" resultType="com.jcca.web.ai.vo.MemoryVo">
+        SELECT MEM_USED       AS memUsedRate,
+               END_TIME       AS collectDate
+        FROM HOUR_MEMORY
+        WHERE ASSET_ID = #{assetId}
+          AND END_TIME >= #{day}
+        ORDER BY collectDate DESC
+    </select>
+
+    <!-- 按天查询 Swap 使用率 -->
+    <select id="findSwapByDay" resultType="com.jcca.web.ai.vo.SwapVo">
+        SELECT SWAP_USED_RATE AS swapUsedRate,
+               END_TIME       AS collectDate
+        FROM HOUR_MEMORY
+        WHERE ASSET_ID = #{assetId}
+          AND END_TIME >= #{day}
+        ORDER BY collectDate DESC
+    </select>
+
+</mapper>

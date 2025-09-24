@@ -15,18 +15,14 @@ import java.util.List;
  **/
 public interface TopoAssetGroupMapper extends BaseMapper<TopoAssetGroup> {
 
-    @Delete("delete from TOPO_ASSET_GROUP where ORG_ID=#{orgId} and NODE_TYPE=#{nodeType}")
     Boolean deleteAssetGroup(@Param("orgId") String orgId, @Param("nodeType") String nodeType);
 
 
-    @Delete("delete from TOPO_ASSET_GROUP where ASSET_ID=#{assetId} and NODE_TYPE=#{nodeType}")
     Boolean deleteNetWorkAssetGroup(@Param("assetId") String assetId, @Param("nodeType") String nodeType);
 
-    @Select("select * from TOPO_ASSET_GROUP where ORG_ID=#{orgId} and NODE_TYPE=#{nodeType} order by id desc")
     List<TopoAssetGroup> queryAssetGroup(@Param("orgId") String orgId, @Param("nodeType") String nodeType);
 
 
-    @Select("select * from TOPO_ASSET_GROUP where ASSET_ID=#{assetId} and NODE_TYPE=#{nodeType} order by id desc")
     List<TopoAssetGroup> queryNetWorkAssetGroup(@Param("assetId") String assetId, @Param("nodeType") String nodeType);
 
 

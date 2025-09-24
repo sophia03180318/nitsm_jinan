@@ -21,4 +21,12 @@
         from import_template i
         where i.type = #{type}
     </select>
+
+
+    <!-- 根据名称查询模板 -->
+    <select id="selectByTemplateName" resultType="com.jcca.admin.system.entity.ImportTemplate">
+        SELECT *
+        FROM import_template
+        WHERE TEMPLATE_NAME = #{templateName}
+    </select>
 </mapper>

@@ -15,11 +15,6 @@ import java.util.List;
  */
 public interface CollectHardwarePerformanceMapper extends BaseMapper<CollectHardwarePerformance> {
 
-    @Select("<script>" +
-            "SELECT * FROM COLLECT_HARDWARE_PERFORMANCE WHERE ASSET_ID = #{assetId} " +
-            "<if test = 'thresholdProcessId != null and thresholdProcessId != \"\"'> " +
-            "AND THRESHOLD_PROCESS_ID = #{thresholdProcessId} " +
-            "</if>" +
-            "</script>")
+
     List<CollectHardwarePerformance> findByAssetId(@Param("assetId") String assetId, @Param("thresholdProcessId") String thresholdProcessId);
 }

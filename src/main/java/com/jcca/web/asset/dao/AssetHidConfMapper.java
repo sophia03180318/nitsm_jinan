@@ -18,7 +18,6 @@ public interface AssetHidConfMapper extends BaseMapper<AssetHidConf> {
      * @param type
      * @return
      */
-    @Select("select flag from asset_hid_conf where asset_id=#{assetId} and type=#{type} ")
     List<AssetHidConf> getFlagListByAsset(@Param("assetId") String assetId,@Param("type") String type);
 
     /**
@@ -27,7 +26,6 @@ public interface AssetHidConfMapper extends BaseMapper<AssetHidConf> {
      * @param flag
      * @return
      */
-    @Select("select * from asset_hid_conf where asset_id=#{assetId} and FLAG = #{flag} ")
     List<AssetHidConf> selectListByAssetAndFlag(@Param("assetId") String assetId,@Param("flag") String flag);
 
 }

@@ -58,10 +58,10 @@
                 and a.EVENT_LEVEL is null
             </if>
             <if test="query.startTime !=null and query.startTime!=''">
-                and a.CREATE_TIME &gt;= to_date(#{query.startTime},'yyyy-MM-dd HH24:mi:ss')
+                and a.CREATE_TIME &gt;= to_date(#{query.startTime},'YYYY-MM-DD HH24:MI:SS')
             </if>
             <if test="query.endTime !=null and query.endTime!=''">
-                and a.CREATE_TIME &lt;= to_date(#{query.endTime},'yyyy-MM-dd HH24:mi:ss')
+                and a.CREATE_TIME &lt;= to_date(#{query.endTime},'YYYY-MM-DD HH24:MI:SS')
             </if>
         </where>
         <choose>
@@ -88,6 +88,116 @@
             a.REPOSITORY_ID=#{repositoryId}
         where a.UNIQUE_CODE = #{uniqueCode}
     </update>
+
+    <!-- 查询该事件明细最后一次告警 -->
+    <select id="selectLastLog" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
+        select *
+        from ALARM_EVENT
+        where id = (
+            select MAX(id)
+            from ALARM_EVENT
+            where ASSET_ID = #{assetId}
+              and EVENT_TYPE_ID = #{typeId}
+              and FLAG = #{flag}
+              and UNIQUE_CODE = #{uniqueCode}
+        )
+    </select>
+
+    <!-- 查询该事件最后一次告警 -->
+    <select id="selectTypeLastLog" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
+        select *
+        from ALARM_EVENT
+        where id = (
+            select MAX(id)
+            from ALARM_EVENT
+            where ASSET_ID = #{assetId}
+              and EVENT_TYPE_ID = #{typeId}
+              and FLAG = #{flag}
+        )
+    </select>
+
+    <!-- 查询该事件明细最后一次告警（不带flag） -->
+    <select id="selectLastLogExceptFlag" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
+        select *
+        from ALARM_EVENT
+        where id = (
+            select MAX(id)
+            from ALARM_EVENT
+            where ASSET_ID = #{assetId}
+              and EVENT_TYPE_ID = #{typeId}
+              and UNIQUE_CODE = #{uniqueCode}
+        )
+    </select>
+
+    <!-- 查询该事件最后一次告警（不带flag） -->
+    <select id="selectTypeLastLogExceptFlag" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
+        select *
+        from ALARM_EVENT
+        where id = (
+            select MAX(id)
+            from ALARM_EVENT
+            where ASSET_ID = #{assetId}
+              and EVENT_TYPE_ID = #{typeId}
+        )
+    </select>
+
+    <!-- 按告警编码分组查询 MatchFlag -->
+    <select id="groupMatchFlagByCode" parameterType="map" resultType="java.lang.String">
+        SELECT DISTINCT MATCH_FLAG
+        FROM ALARM_EVENT
+        WHERE UNIQUE_CODE in
+        <foreach item="item" index="index" collection="codeList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND MATCH_FLAG is not NULL
+        GROUP BY MATCH_FLAG
+    </select>
+
+    <!-- 查询最后一次 PING 日志 -->
+    <select id="getLastPingLog" parameterType="java.lang.String" resultType="com.jcca.web.event.entity.AlarmEvent">
+        select *
+        from ALARM_EVENT
+        where id = (
+            select MAX(id)
+            from ALARM_EVENT
+            where ASSET_ID = #{assetId}
+              and (UNIQUE_CODE = 'PING_ALL_STOP'
+                or UNIQUE_CODE = 'PING_OTHER_STOP'
+                or UNIQUE_CODE = 'PING_STOP')
+        )
+    </select>
+
+    <!-- 批量更新时间类型ID -->
+    <update id="batchUpdateTypeById" parameterType="map">
+        update ALARM_EVENT
+        set event_type_id = #{eventTypeId}
+        where REPOSITORY_ID = #{alarmRepoId}
+    </update>
+
+    <!-- 通过告警ID查询下属所有事件 -->
+    <select id="selectAllEventByAlarmId" parameterType="java.lang.String"
+            resultType="com.jcca.web.event.entity.AlarmEvent">
+        select e.*,
+               to_char(e.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') as createTimeStr
+        from ALARM_EVENT e
+        where id in (select l.event_id from ALARM_EVENT_REL l where l.ALARM_ID = #{alarmId})
+        order by e.CREATE_TIME desc
+    </select>
+
+    <!-- 查询 Syslog 日志 -->
+    <select id="listSyslog" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
+        SELECT temp.*
+        FROM (
+                 SELECT ROWNUM, t.*
+                 FROM ALARM_EVENT t
+                 WHERE ROWNUM &lt; #{end}
+                   AND t.ASSET_ID = #{assetId}
+                   AND t.UNIQUE_CODE LIKE 'event:log%'
+             ) temp
+        WHERE ROWNUM &gt;= #{start}
+    </select>
+
 
 </mapper>
 

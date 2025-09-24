@@ -29,4 +29,17 @@
         left join M_NET_WORK_ADDRESS b on a.id = b.ORG_ID where PID = #{lineOrgId} order BY a.id ASC,b.NAME ASC
     </select>
 
+
+
+    <!-- 查询所有网络地址 -->
+    <select id="findAll" resultType="com.jcca.web.ip.entity.NetWorkAddress">
+        SELECT * FROM M_NET_WORK_ADDRESS
+    </select>
+
+    <!-- 查询组织下面所有ip段 -->
+    <select id="selectIps" parameterType="string" resultType="com.jcca.web.ip.entity.NetWorkAddress">
+        SELECT * FROM M_NET_WORK_ADDRESS WHERE ORG_ID = #{id}
+    </select>
+
+
 </mapper>

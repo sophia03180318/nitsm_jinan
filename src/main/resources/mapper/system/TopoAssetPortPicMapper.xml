@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.admin.system.dao.TopoAssetPortPicMapper">
+
+    <!-- 删除资产端口图片 -->
+    <delete id="deleteAssetPortPic" parameterType="string">
+        DELETE FROM TOPO_ASSET_PORT_PIC WHERE ASSET_ID = #{assetId}
+    </delete>
+
+    <!-- 查询资产端口图片 -->
+    <select id="queryAssetPortPic" parameterType="string" resultType="com.jcca.admin.system.entity.TopoAssetPortPic">
+        SELECT *
+        FROM TOPO_ASSET_PORT_PIC
+        WHERE ASSET_ID = #{assetId}
+    </select>
+
+</mapper>

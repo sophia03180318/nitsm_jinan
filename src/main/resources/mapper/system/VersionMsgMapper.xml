@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.admin.system.dao.VersionMsgMapper">
+
+    <!-- 查询最新版本 -->
+    <select id="selectMaxVersion" resultType="com.jcca.admin.system.entity.VersionMsg">
+        SELECT *
+        FROM M_VERSION_MSG
+        WHERE id = (SELECT MAX(id) FROM M_VERSION_MSG)
+    </select>
+
+    <!-- 查询更新版本文件总大小 -->
+    <select id="selectFileSize" parameterType="string" resultType="int">
+        SELECT f.FILE_SIZE
+        FROM M_VERSION_MSG v
+                 JOIN SYS_FILE f ON v.SYS_FILE_ID = f.ID
+        WHERE v.ID = #{versionId}
+    </select>
+
+    <!-- 查询正在进行的版本任务 -->
+    <select id="getStatus" resultType="com.jcca.admin.system.entity.VersionMsg">
+        SELECT *
+        FROM M_STATION_VERSION_LOG
+        WHERE status IN ('AWAIT_UPLOADING', 'UPLOADING', 'UPDATEING')
+    </select>
+
+    <!-- 查询版本消息列表 -->
+    <select id="queryList" resultType="com.jcca.admin.system.entity.VersionMsg">
+        SELECT *
+        FROM M_VERSION_MSG
+        ORDER BY CREATE_DATE DESC
+    </select>
+
+</mapper>

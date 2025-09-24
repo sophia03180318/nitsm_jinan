@@ -21,7 +21,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        ID,TITLE,PID,PIDS,URL,PERMS,ICON,TYPE,SORT,STATUS,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
+        ID
+        ,TITLE,PID,PIDS,URL,PERMS,ICON,TYPE,SORT,STATUS,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
     </sql>
 
     <select id="findMenuByRoleId" resultMap="BaseResultMap" parameterType="java.lang.String">
@@ -62,4 +63,12 @@
         where m.status = 1
         group by m.perms
     </select>
+    <!-- 获取最大的排序数 -->
+    <select id="getMenuSortMax" parameterType="java.lang.String" resultType="java.lang.Byte">
+        SELECT MAX(sort)
+        FROM sys_menu m
+        WHERE m.pid = #{pid}
+          AND m.status &lt;&gt; 0
+    </select>
+
 </mapper>

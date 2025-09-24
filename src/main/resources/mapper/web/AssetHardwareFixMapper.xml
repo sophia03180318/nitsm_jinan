@@ -54,8 +54,8 @@
             and a.desk = #{assetMode}
         </if>
         <if test="startTime != null and endTime != null">
-            and h.FIX_TIME BETWEEN TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
-            AND TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+            and h.FIX_TIME BETWEEN TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+            AND TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
         </if>
         <if test="assetIdList != null">
             and h.asset_id IN
@@ -90,8 +90,8 @@
             and a.desk = #{assetMode}
         </if>
         <if test="startTime != null and endTime != null">
-            and h.FIX_TIME BETWEEN TO_DATE(#{startTime}, 'yyyy-MM-dd HH24:mi:ss')
-            AND TO_DATE(#{endTime}, 'yyyy-MM-dd HH24:mi:ss')
+            and h.FIX_TIME BETWEEN TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+            AND TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
         </if>
         <if test="assetIdList != null">
             and h.asset_id in
@@ -142,7 +142,7 @@
             and a.desk = #{assetMode}
         </if>
         <if test="month != null and month != ''">
-            and to_char(h.fix_time, 'yyyy-mm') = #{month}
+            and to_char(h.fix_time, 'YYYY-MM') = #{month}
         </if>
         <if test="assetIdList != null">
             and h.asset_id in
@@ -154,5 +154,13 @@
         WHERE tt.rowno &gt; #{start}
     </select>
 
+
+    <!-- 根据 assetId 查询硬件维保记录，按创建时间倒序 -->
+    <select id="getByListAssetId" resultType="com.jcca.web.asset.entity.AssetHardwareFix">
+        select *
+        from asset_hardware_fix
+        where asset_id = #{assetId}
+        order by CREATE_TIME desc
+    </select>
 
 </mapper>

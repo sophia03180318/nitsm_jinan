@@ -21,4 +21,64 @@
           and STATUS = #{seachStatus}
     </update>
 
+
+
+	<!-- 查询实时网卡信息 -->
+	<select id="selectRealTimeData" resultType="com.jcca.web.collect.entity.CollectNetworkCard">
+		SELECT *
+		FROM COLLECT_NETWORK_CARD b
+		WHERE b.COLLECT_CODE = (
+			SELECT MAX(to_number(COLLECT_CODE)) AS code
+			FROM COLLECT_NETWORK_CARD
+			WHERE ASSET_ID = #{assetId}
+		)
+	</select>
+
+	<!-- 通过 IP 查询最后一次记录 -->
+	<select id="findLasterMacAddressByIp" resultType="com.jcca.web.collect.entity.CollectNetworkCard">
+		SELECT *
+		FROM COLLECT_NETWORK_CARD b
+		WHERE b.COLLECT_CODE = (
+			SELECT MAX(to_number(COLLECT_CODE)) AS code
+			FROM COLLECT_NETWORK_CARD
+			WHERE IP = #{ip}
+		)
+		  AND ip = #{ip}
+	</select>
+
+	<!-- 通过 MAC 地址查询命中的最新记录 -->
+	<select id="selectByMacAddress" resultType="com.jcca.web.collect.entity.CollectNetworkCard">
+		SELECT *
+		FROM COLLECT_NETWORK_CARD b
+		WHERE b.id = (
+			SELECT MAX(id) AS code
+			FROM COLLECT_NETWORK_CARD
+			WHERE MAC_ADDRESS = #{atPhysAddress}
+		)
+	</select>
+
+	<!-- 通过 MAC 地址和资产ID查询命中的最新记录 -->
+	<select id="selectByMacAddressAndAssetId" resultType="com.jcca.web.collect.entity.CollectNetworkCard">
+		SELECT *
+		FROM COLLECT_NETWORK_CARD b
+		WHERE b.COLLECT_CODE = (
+			SELECT MAX(TO_NUMBER(COLLECT_CODE)) AS code
+			FROM COLLECT_NETWORK_CARD
+			WHERE MAC_ADDRESS = #{atPhysAddress}
+			  AND ASSET_ID = #{assetId}
+		)
+	</select>
+
+	<!-- 通过网卡名称查询指定资产的最新记录 -->
+	<select id="findByNetworkName" resultType="com.jcca.web.collect.entity.CollectNetworkCard">
+		SELECT *
+		FROM COLLECT_NETWORK_CARD b
+		WHERE b.id = (
+			SELECT MAX(id) AS code
+			FROM COLLECT_NETWORK_CARD
+			WHERE NAME = #{networkName}
+			  AND ASSET_ID = #{assetId}
+		)
+	</select>
+
 </mapper>

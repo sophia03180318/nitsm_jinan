@@ -13,7 +13,6 @@ import java.util.Date;
  **/
 public interface StatisticalDataMapper extends BaseMapper<IBMStatisticalData> {
 
-    @Delete("delete from ibmmq_statistics_data where monitor_id=#{monitorId} and captureTime<#{captureTime}")
     Boolean removeExpiredStatistics(String monitorId, Date captureTime);
 
 

@@ -9,12 +9,13 @@
         WHERE TABLE_NAME = UPPER(#{tabName})
     </select>
 
-    <select id="findMasterOrSlave" parameterType="java.lang.String" resultType="java.util.List">
+    <select id="findMasterOrSlave" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT HOST_TYPE
         from BROKER_TOPO_BUSINESS
         where ASSET_ID = #{assetId}
           and HOST_TYPE is not null
     </select>
+
 
     <select id="findForOutRequest" parameterType="com.jcca.web.common.controller.req.AssetOutReq"
             resultType="com.jcca.web.asset.vo.AssetOutVo">

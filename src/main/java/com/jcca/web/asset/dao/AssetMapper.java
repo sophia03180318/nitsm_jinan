@@ -44,7 +44,6 @@ public interface AssetMapper extends BaseMapper<Asset> {
      * @param ip
      * @return
      */
-    @Select("select * from (select * from asset a where (a.ip = #{ip} or a.ip2 = #{ip} or a.ipmi_ip = #{ip}) and a.is_del = 1 and a.ip is not null) where rownum=1")
     Asset selectByIp(@Param("ip") String ip);
 
     /**
@@ -108,11 +107,9 @@ public interface AssetMapper extends BaseMapper<Asset> {
     /**
      * 根据组织ID和监控状态获取资产
      */
-    @Select("SELECT * FROM ASSET where ORG_ID=#{orgId} AND Watch=#{Watch} AND IS_DEL=1")
     List<Asset> findAssetByOrgIdAndWatch(String orgId, int Watch);
 
 
-    @Select("SELECT A.*,O.title AS orgName FROM ASSET A JOIN SYS_ORG O ON A.ORG_ID=O.ID WHERE A.IS_DEL=1")
     List<Asset> getAllAsset();
 
 
@@ -130,14 +127,11 @@ public interface AssetMapper extends BaseMapper<Asset> {
      */
     Double queryHealth();
 
-    @Select("SELECT ID FROM ASSET where ASSET_SUPPLIER = 'JCCA' AND IS_DEL=1 ")
     List<String> selectJccaAsset();
 
 
-    @Select("SELECT CONCAT(CONCAT(START_POSITION,'_'),END_POSITION) FROM ASSET_ATTACH WHERE ASSET_ID=#{assetId}")
     String getUIndex(String assetId);
 
-    @Update("update asset set MONITOR=#{status} where id=#{id} ")
     void updateMonitorStatus(String id, Integer status);
 
     /**
@@ -157,10 +151,8 @@ public interface AssetMapper extends BaseMapper<Asset> {
      */
     AssetInfoBaseVo queryBaseInfoV2(String assetId);
 
-    @Select("SELECT * FROM ASSET WHERE IS_DEL = 1 AND WATCH = 1 AND ASSET_MODE = #{assetMode}")
     List<Asset> listByAssetMode(Integer assetMode);
 
-    @Select("SELECT * FROM ASSET WHERE IS_DEL = 1 AND WATCH = 1")
     List<Asset> listAllV2();
 
     /**
@@ -172,10 +164,8 @@ public interface AssetMapper extends BaseMapper<Asset> {
      */
     List<String> listIdByUserNameV2(@Param("username") String username, @Param("watch") Integer watch);
 
-    @Select("select * from asset where is_del = 1 and org_id = #{orgId}")
     List<Asset> findListByOrgId(String orgId);
 
-    @Select("select * from asset where is_del = 1 and asset_mode = #{assetMode}")
     List<Asset> findListByAssetModeV2(Integer assetMode);
 
     List<AssetStatisticsVo> countModeV2(@Param("map") Map<String, Object> map);

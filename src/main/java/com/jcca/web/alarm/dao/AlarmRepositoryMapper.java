@@ -26,7 +26,6 @@ public interface AlarmRepositoryMapper extends BaseMapper<AlarmRepository> {
      * @param uniqueCode
      * @return
      */
-    @Select("SELECT * FROM ALARM_REPOSITORY WHERE ALARM_CODE = #{uniqueCode}")
     List<AlarmRepository> selectListByAlarmCode(@Param("uniqueCode") String uniqueCode);
 
     /**
@@ -36,7 +35,6 @@ public interface AlarmRepositoryMapper extends BaseMapper<AlarmRepository> {
      * @param originalMsg
      * @return
      */
-    @Select("select * from ALARM_REPOSITORY where ALARM_CODE = #{uniqueCode} and  regexp_like(#{originalMsg},STATUS_FLAG)")
     List<AlarmRepository> selectOrgMsgContainStatusFlg(@Param("uniqueCode") String uniqueCode, @Param("originalMsg") String originalMsg);
 
     /**
@@ -56,6 +54,5 @@ public interface AlarmRepositoryMapper extends BaseMapper<AlarmRepository> {
      */
     List<String> selectNameByAlarmId(@Param("alarmId") String alarmId);
 
-    @Select("select id, type_alias as name, event_category from alarm_event_type where asset_desks like #{assetDesk} and event_category is not null")
     List<ItemVo> listTypeByAssetDesk(String assetDesk);
 }

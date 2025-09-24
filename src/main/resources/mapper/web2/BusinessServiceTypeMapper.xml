@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.BusinessServiceTypeMapper">
+
+    <!-- 查询资产（这里方法参数有 orgId 和 type，但 SQL 里未使用，建议确认是否缺失条件） -->
+    <select id="getAssetByType" parameterType="map" resultType="com.jcca.web.asset.entity.Asset">
+        SELECT *
+        FROM ASSET
+    </select>
+
+    <!-- 查询最大排序值 -->
+    <select id="getMaxSort" resultType="java.lang.Integer">
+        SELECT MAX(sort)
+        FROM BUSINESSSERVICE_SERVICE_TYPE
+    </select>
+
+    <!-- 根据 name 查询类型 ID -->
+    <select id="getTypeByName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT id
+        FROM BUSINESSSERVICE_SERVICE_TYPE
+        WHERE name = #{name}
+    </select>
+
+</mapper>

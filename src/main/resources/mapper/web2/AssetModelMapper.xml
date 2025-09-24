@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.AssetModelMapper">
+
+    <!-- 根据厂商ID查询资产型号 -->
+    <select id="getByManufacturerId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.AssetModel">
+        SELECT *
+        FROM ASSET_MODEL
+        WHERE MANUFACTURER_ID = #{manufacturerId}
+    </select>
+
+    <!-- 根据型号名称查询资产型号 -->
+    <select id="getByName" parameterType="java.lang.String" resultType="com.jcca.web2.entity.AssetModel">
+        SELECT *
+        FROM ASSET_MODEL
+        WHERE MODEL = #{assetImage}
+    </select>
+
+</mapper>

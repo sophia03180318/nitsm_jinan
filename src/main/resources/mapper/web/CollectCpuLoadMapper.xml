@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.CollectCpuLoadMapper">
+
+    <!-- 查询指定资产的最新 CPU 负载记录 -->
+    <select id="getLastRecordByAssetId" resultType="com.jcca.web.asset.entity.CollectCpuLoad">
+        SELECT *
+        FROM COLLECT_CPU_LOAD
+        WHERE ID = (
+            SELECT MAX(ID)
+            FROM COLLECT_CPU_LOAD
+            WHERE ASSET_ID = #{assetId}
+        )
+    </select>
+
+</mapper>

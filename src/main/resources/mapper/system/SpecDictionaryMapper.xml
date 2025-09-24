@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.admin.system.dao.SpecDictionaryMapper">
+
+    <!-- 通过 Asset 查询字典 -->
+    <select id="queryDictByAsset" parameterType="com.jcca.web.asset.entity.Asset" resultType="com.jcca.admin.system.entity.SpecDictionary">
+        SELECT *
+        FROM SPEC_DICT
+        WHERE ASSET_MODE = #{assetMode}
+          AND ASSET_IMAGE = #{assetImage}
+          AND MANUFACTURER_ID = #{manufacturerId}
+          AND SYSTEM_TYPE = #{collectionType}
+    </select>
+
+    <!-- 根据厂商 ID 查询字典 -->
+    <select id="findByManufacturerId" parameterType="string" resultType="com.jcca.admin.system.entity.SpecDictionary">
+        SELECT *
+        FROM SPEC_DICT
+        WHERE MANUFACTURER_ID = #{menufactureId}
+    </select>
+
+</mapper>

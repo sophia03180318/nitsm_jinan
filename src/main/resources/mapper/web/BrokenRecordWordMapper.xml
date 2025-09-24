@@ -47,13 +47,13 @@
             </foreach>
         </if>
         <if test="assetIp != null and assetIp != ''">
-            and REGEXP_LIKE(a.asset_ip, #{assetIp})
+            and REGEXP_INSTR(a.asset_ip, #{assetIp})>0
         </if>
         <if test="assetName != null and assetName != ''">
-            and REGEXP_LIKE(a.name, #{assetName})
+            and REGEXP_INSTR(a.name, #{assetName})>0
         </if>
         <if test="title != null and title != ''">
-            and REGEXP_LIKE(a.TITLE, #{title})
+            and REGEXP_INSTR(a.TITLE, #{title})>0
         </if>
         <if test="status != null">
             and a.status = #{status}
@@ -104,19 +104,19 @@
             </foreach>
         </if>
         <if test="ip != null and ip != ''">
-            and REGEXP_LIKE(a.asset_ip, #{ip})
+            and REGEXP_INSTR(a.asset_ip, #{ip})>0
         </if>
         <if test="assetName != null and assetName != ''">
-            and REGEXP_LIKE(a.name, #{assetName})
+            and REGEXP_INSTR(a.name, #{assetName})>0
         </if>
         <if test="title != null and title != ''">
-            and REGEXP_LIKE(a.TITLE, #{title})
+            and REGEXP_INSTR(a.TITLE, #{title})>0
         </if>
         <if test="status != null">
             and a.status = #{status}
         </if>
         <if test="title != null and title != ''">
-            and REGEXP_LIKE(a.title, #{title})
+            and REGEXP_INSTR(a.title, #{title})>0
         </if>
         <if test="alarmLevel != null">
             and a.alarm_level = #{alarmLevel}

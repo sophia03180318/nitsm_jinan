@@ -15,17 +15,12 @@ import java.util.List;
  **/
 public interface QueueDataMapper extends BaseMapper<IBMQueueData> {
 
-    @Delete("delete from IBMMQ_QUEUE_DATA where monitor_id=#{monitorId} and captureTime<#{captureTime}")
     Boolean removeExpiredStatistics(String monitorId, Date captureTime);
 
-    @Select("select * from (select * from IBMMQ_QUEUE_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where rownum=1")
     IBMQueueData queryLastDate(String monitorId);
 
-
-    @Select("select * from (select * from IBMMQ_QUEUE_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where  rownum<=50")
     List<IBMQueueData> queryDetailData(String monitorId);
 
-    @Delete("delete from IBMMQ_QUEUE_DATA where monitor_id=#{monitorId}")
     Boolean removeStatistics(String monitorId);
 
 

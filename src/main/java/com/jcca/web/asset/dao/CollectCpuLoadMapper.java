@@ -12,6 +12,5 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface CollectCpuLoadMapper extends BaseMapper<CollectCpuLoad> {
 
-    @Select("SELECT * FROM COLLECT_CPU_LOAD WHERE ID = (SELECT MAX(ID) FROM COLLECT_CPU_LOAD WHERE ASSET_ID = #{assetId})")
     CollectCpuLoad getLastRecordByAssetId(String assetId);
 }
