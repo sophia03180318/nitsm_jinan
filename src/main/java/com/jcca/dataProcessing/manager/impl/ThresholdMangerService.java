@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jcca.common.bean.constant.ThresholdAutoFlagConst;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
@@ -24,12 +25,14 @@ import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.entity.ThresholdManage;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
 import com.jcca.web2.service.ThresholdManageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 阈值事件监听管理程序
@@ -40,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2023/11/16 16:48
  * @since 2.1.0.0
  */
+@Slf4j
 @Service
 public class ThresholdMangerService implements ThresholdManager {
 
@@ -113,6 +117,27 @@ public class ThresholdMangerService implements ThresholdManager {
 
         String key = "";
         List<ThresholdManage> list = thresholdManageServ.list();
+        // fix: 采集指标去重：存在新增批量阈值，无法覆盖掉普通阈值，此位置做去重，缓存只保留普通阈值
+        List<ThresholdManage> toRemove = list.stream()
+                .collect(Collectors.groupingBy(
+                                ThresholdManage::getOrgId, // 根据组织结构分
+                                Collectors.groupingBy(
+                                        ThresholdManage::getAssetId, // 根据资产id分
+                                        Collectors.groupingBy(
+                                                ThresholdManage::getCategory // 根据分类分
+                                        )
+                                )
+                        )
+                )
+
+                .values().stream()
+                .flatMap(orgMap -> orgMap.values().stream())
+                .flatMap(assetsMap -> assetsMap.values().stream())
+                .filter(group -> group.size() > 1) // 当资产id大于1 ，说明有两个阈值
+                .flatMap(group -> group.stream().filter(tm -> tm.getAutoFlag() == ThresholdAutoFlagConst.ORG_THRESHOLD)) // 去掉批量阈值
+                .collect(Collectors.toList());
+        list.removeAll(toRemove);
+        log.info("【数据阈值去重结果】 {}", JSONUtil.toJsonStr(toRemove));
         for (ThresholdManage item : list) {
             if (Objects.nonNull(item.getOnAlarm()) && item.getOnAlarm() == 0) {
                 continue;
@@ -437,13 +462,13 @@ public class ThresholdMangerService implements ThresholdManager {
     @Override
     public ThresholdBaseEntity xunjianGetThresholdValue(String code, String assetId, String flag) {
         String newCode = "";
-        if(code.contains("sectionOne")){
+        if (code.contains("sectionOne")) {
             newCode = code.replace("sectionOne", "normal");
-        }else if(code.contains("sectionTwo")){
+        } else if (code.contains("sectionTwo")) {
             newCode = code.replace("sectionTwo", "normal");
-        }else if(code.contains("sectionThree")){
+        } else if (code.contains("sectionThree")) {
             newCode = code.replace("sectionThree", "normal");
-        }else if(code.contains("section")){
+        } else if (code.contains("section")) {
             newCode = code.replace("section", "normal");
         }
 
