@@ -14,5 +14,12 @@
         ID,CAPTURETIME,HEALTHSTATE,MONITOR_ID,DTYPE
     </sql>
 
+    <!-- 删除过期统计数据 -->
+    <delete id="removeExpiredStatistics">
+        delete from IBMMQ_STATISTICS_DATA
+        where monitor_id = #{monitorId}
+          and captureTime &lt; #{captureTime}
+    </delete>
+
 
 </mapper>

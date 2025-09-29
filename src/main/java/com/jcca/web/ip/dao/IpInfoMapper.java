@@ -24,11 +24,6 @@ public interface IpInfoMapper extends BaseMapper<IpInfo> {
      * @param ipMsgList
      * @return
      */
-    @Insert({"<script>",
-            "insert into IP_INFO(ID,NET_WORK_ADDRESS_ID,IP,MAC,MASK,GATEWAY,STATUS,REMARK,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER) values",
-            "<foreach collection='ipMsgList' item='item' index='index' separator=','>",
-            "(#{item.id,#item.netWorkAddressId,#{item.ip},#{item.mac},#{item.mask},#{item.gateway},#{item.status},#{item.remark},#{item.createTime},#{item.creator},#{item.modifyTime},#{item.modifier}})",
-            "</foreach>", "</script>"})
     Integer insertAll(@Param(value = "ipMsgList") List<IpInfo> ipMsgList);
 
 
@@ -38,7 +33,6 @@ public interface IpInfoMapper extends BaseMapper<IpInfo> {
      * @param ip
      * @return
      */
-    @Select("select * from M_IP_INFO where IP=#{ip}")
     List<IpInfo> selectByIp(@Param("ip") String ip);
 
 

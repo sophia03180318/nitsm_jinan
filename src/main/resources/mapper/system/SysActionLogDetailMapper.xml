@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.admin.system.dao.SysActionLogDetailMapper">
+
+    <!-- 根据 actionLogId 查询行为日志明细 -->
+    <select id="listByActionLogId" parameterType="string" resultType="com.jcca.admin.system.entity.SysActionLogDetail">
+        SELECT *
+        FROM sys_action_log_detail
+        WHERE action_log_id = #{actionLogId}
+    </select>
+
+</mapper>

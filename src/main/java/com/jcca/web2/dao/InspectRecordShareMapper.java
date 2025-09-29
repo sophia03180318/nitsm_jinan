@@ -16,11 +16,7 @@ import java.util.List;
  */
 public interface InspectRecordShareMapper extends BaseMapper<InspectRecordShare> {
 
-    @Select("select distinct x.* from inspect_record_share s left join xunjian_schedule x on s.job_id =  x.job_id where s.viewer = #{username} and x.id is not null")
     List<XunjianSchedule> findByViewer(String username);
 
-    @Select("SELECT DISTINCT R.ID, R.INSPECT_TIME AS NAME, '2' isShare FROM INSPECT_RECORD R " +
-            "RIGHT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID " +
-            "WHERE R.INSPECT_CODE = #{jobId} AND S.VIEWER = #{username} ORDER BY R.INSPECT_TIME DESC")
     List<InspectShareVo> findShareRecord(String jobId, String username);
 }

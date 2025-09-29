@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.topo.dao.NetworkAssetMapMapper">
+
+    <!-- 查询localip链接的远端设备端口 -->
+    <select id="queryPort" parameterType="map" resultType="java.lang.String">
+        SELECT e.REMOTE_PORT
+        FROM M_NETWORK_ASSET_MAP e
+        WHERE e.LOCALHOST_IP = #{localip}
+          AND e.REMOTE_DEVICE_ID IN (
+            SELECT t.LOCAL_DEVICE_ID
+            FROM M_NETWORK_ASSET_MAP t
+            WHERE t.LOCALHOST_IP = #{remoteip}
+        )
+    </select>
+
+    <!-- 根据 assetId 统计 -->
+    <select id="countByAssetId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM M_NETWORK_ASSET_MAP e
+        WHERE e.LOCALHOST_IP = (
+            SELECT t.ip
+            FROM asset t
+            WHERE t.id = #{assetId}
+        )
+    </select>
+
+</mapper>

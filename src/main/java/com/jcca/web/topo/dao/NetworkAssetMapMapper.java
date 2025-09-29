@@ -21,10 +21,8 @@ public interface NetworkAssetMapMapper extends BaseMapper<NetworkAssetMap> {
      * @param remoteip
      * @return
      */
-    @Select("select e.REMOTE_PORT from M_NETWORK_ASSET_MAP e where e.LOCALHOST_IP=#{localip} and e.REMOTE_DEVICE_ID in (select t.LOCAL_DEVICE_ID from M_NETWORK_ASSET_MAP t where t.LOCALHOST_IP=#{remoteip})")
     String queryPort(String localip, String remoteip);
 
-    @Select("select count(*) from M_NETWORK_ASSET_MAP e where e.LOCALHOST_IP = (select t.ip from asset t where t.id=#{assetId})")
     Integer countByAssetId(@Param("assetId") String assetId);
 
 }

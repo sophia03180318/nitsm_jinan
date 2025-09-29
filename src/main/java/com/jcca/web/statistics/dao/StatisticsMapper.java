@@ -93,19 +93,6 @@ public interface StatisticsMapper {
      **/
     List<StatisticsVo> findAssetAlarmByAssetModeV2(@Param("day") String day, @Param("showJcca") String showJcca);
 
-
-    @Select("select m.name, tt.desk as id, tt.total " +
-            "from (select t.desk, count(t.desk) total " +
-            "from (select a.desk " +
-            "from alarm_info i " +
-            "join asset a  on i.asset_id = a.id " +
-            "join SYS_ORG o on i.org_id = o.id " +
-            "and o.type=2 and i.status = 1 and i.alarm_state = 1 and i.blank = 1 and\n" +
-            "a.ASSET_MODE not like '7%' " +
-            "where a.is_del = 1 " +
-            "group by a.id, a.desk) t " +
-            "group by t.desk) tt " +
-            "left join asset_mode m on tt.desk = m.code")
     List<StatisticsVo> findAssetCenterAlarmByAssetModeV2();
 
     /**
@@ -133,7 +120,6 @@ public interface StatisticsMapper {
      * @param: []
      * @return: java.util.List<com.jcca.web2.vo.BusinessAlarmVoV2>
      **/
-    @Select("select count(*) assetCount from casco_devices")
     Integer getBizAssetCountV2();
 
     /**
@@ -143,7 +129,6 @@ public interface StatisticsMapper {
      * @param: []
      * @return: java.util.List<com.jcca.web2.vo.BusinessAlarmVoV2>
      **/
-    @Select("select count(*) abnormalCount from (select business_type from broker_topo_business where alarm_status = 1 group by business_type, device_id)")
     Integer getBizAbnormalCountV2();
 
     /**
@@ -181,7 +166,5 @@ public interface StatisticsMapper {
      * @param: []
      * @return: java.util.List<com.jcca.web.statistics.vo.StatisticsAlarmVo>
      **/
-    @Select("select t.total, t.desk as id, m.name from (select count(*) total, desk from asset where is_del = 1 and desk != 0 and desk not like '7%' group by desk) t " +
-            "left join asset_mode m on t.desk = m.code group by t.total, t.desk, m.name")
     List<StatisticsAlarmVo> getModeAssetV2();
 }

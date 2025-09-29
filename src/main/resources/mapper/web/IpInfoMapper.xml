@@ -9,4 +9,24 @@
                     WHERE a.NET_WORK_ADDRESS_ID = #{netWorkId}
         </select>
 
+    <!-- 批量插入 -->
+    <insert id="insertAll" parameterType="java.util.List">
+        INSERT INTO M_IP_INFO
+        (ID, NET_WORK_ADDRESS_ID, IP, MAC, MASK, GATEWAY, STATUS, REMARK, CREATE_TIME, CREATOR, MODIFY_TIME, MODIFIER)
+        VALUES
+        <foreach collection="ipMsgList" item="item" index="index" separator=",">
+            (#{item.id}, #{item.netWorkAddressId}, #{item.ip}, #{item.mac}, #{item.mask},
+            #{item.gateway}, #{item.status}, #{item.remark}, #{item.createTime},
+            #{item.creator}, #{item.modifyTime}, #{item.modifier})
+        </foreach>
+    </insert>
+
+    <!-- 根据 IP 查询 -->
+    <select id="selectByIp" resultType="com.jcca.web.ip.entity.IpInfo">
+        SELECT *
+        FROM M_IP_INFO
+        WHERE IP = #{ip}
+    </select>
+
+
 </mapper>

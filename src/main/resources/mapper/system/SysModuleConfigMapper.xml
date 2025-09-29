@@ -14,4 +14,11 @@
         <result column="ORG_ID" property="orgId"/>
     </resultMap>
 
+
+    <!-- 更新 VALUE 值 -->
+    <update id="updateByName">
+        UPDATE SYS_MODULE_CONFIG
+        SET VALUE = #{value}
+        WHERE NAME = #{name}
+    </update>
 </mapper>

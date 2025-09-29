@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.statistics.dao.HourInterfacesItemMapper">
+
+    <!-- 查询最大的创建时间 -->
+    <select id="maxCreateDate" resultType="java.util.Date">
+        SELECT MAX(CREATE_TIME)
+        FROM HOUR_INTERFACES_ITEM
+    </select>
+
+    <!-- 端口流入量查询 -->
+    <select id="portIns" resultType="com.jcca.web.graph.vo.StatisticsInfoVo">
+        SELECT *
+        FROM (
+                 SELECT ROUND(port_in_count / 8 / 1024 / 1024, 2) AS value,
+                        COLLECT_TIME AS endTime
+                 FROM COLLECT_INTERFACES
+                 WHERE ASSET_ID = #{assetId}
+                   AND port_index = #{portName}
+                 ORDER BY COLLECT_TIME DESC
+             )
+        WHERE rownum &lt; 30
+    </select>
+
+    <!-- 端口流出量查询 -->
+    <select id="portOuts" resultType="com.jcca.web.graph.vo.StatisticsInfoVo">
+        SELECT *
+        FROM (
+                 SELECT ROUND(port_out_count / 8 / 1024 / 1024, 2) AS value,
+                        COLLECT_TIME AS endTime
+                 FROM COLLECT_INTERFACES
+                 WHERE ASSET_ID = #{assetId}
+                   AND port_index = #{portName}
+                 ORDER BY COLLECT_TIME DESC
+             )
+        WHERE rownum &lt; 30
+    </select>
+
+    <!-- 端口流入丢包数 -->
+    <select id="discardPackageIns" resultType="com.jcca.web.graph.vo.StatisticsInfoVo">
+        SELECT *
+        FROM (
+                 SELECT LOSE_PACKETS_IN_RATE AS value,
+                        COLLECT_TIME AS endTime
+                 FROM COLLECT_INTERFACES
+                 WHERE ASSET_ID = #{assetId}
+                   AND port_index = #{portName}
+                 ORDER BY COLLECT_TIME DESC
+             )
+        WHERE rownum &lt; 30
+    </select>
+
+    <!-- 端口流出丢包数 -->
+    <select id="discardPackageOuts" resultType="com.jcca.web.graph.vo.StatisticsInfoVo">
+        SELECT *
+        FROM (
+                 SELECT LOSE_PACKETS_OUT_RATE AS value,
+                        COLLECT_TIME AS endTime
+                 FROM COLLECT_INTERFACES
+                 WHERE ASSET_ID = #{assetId}
+                   AND port_index = #{portName}
+                 ORDER BY COLLECT_TIME DESC
+             )
+        WHERE rownum &lt; 30
+    </select>
+
+    <!-- 端口流入误码数 -->
+    <select id="errorCodeIns" resultType="com.jcca.web.graph.vo.StatisticsInfoVo">
+        SELECT *
+        FROM (
+                 SELECT ERRO_CODE_IN_RATE AS value,
+                        COLLECT_TIME AS endTime
+                 FROM COLLECT_INTERFACES
+                 WHERE ASSET_ID = #{assetId}
+                   AND port_index = #{portName}
+                 ORDER BY COLLECT_TIME DESC
+             )
+        WHERE rownum &lt; 30
+    </select>
+
+    <!-- 端口流出误码数 -->
+    <select id="errorCodeOuts" resultType="com.jcca.web.graph.vo.StatisticsInfoVo">
+        SELECT *
+        FROM (
+                 SELECT ERRO_CODE_OUT_RATE AS value,
+                        COLLECT_TIME AS endTime
+                 FROM COLLECT_INTERFACES
+                 WHERE ASSET_ID = #{assetId}
+                   AND port_index = #{portName}
+                 ORDER BY COLLECT_TIME DESC
+             )
+        WHERE rownum &lt; 30
+    </select>
+
+</mapper>

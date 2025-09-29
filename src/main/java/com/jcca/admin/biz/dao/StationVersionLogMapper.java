@@ -22,7 +22,6 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param orgId
      * @return
      */
-    @Select("select * from M_STATION_VERSION_LOG  where id = (select max(id) from M_STATION_VERSION_LOG where STATION_ID = #{orgId})")
     StationVersionLog selectLasterLogByStationId(@Param("orgId") String orgId);
 
     /**
@@ -31,7 +30,6 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param version
      * @return
      */
-    @Select("select e.STATION_ID from M_STATION_VERSION_LOG e where e.VERSION=#{version}")
     List<String> selectOrgIdByVersion(@Param("version") String version);
 
     /**
@@ -40,7 +38,6 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param stationId
      * @return
      */
-    @Select("select * from M_STATION_VERSION_LOG e where e.STATION_ID = #{stationId} and e.STATUS != 'UPDATE_SUCCESS' ")
     StationVersionLog selectLoadingJob(@Param("stationId") String stationId);
 
     /**
@@ -49,26 +46,23 @@ public interface StationVersionLogMapper extends BaseMapper<StationVersionLog> {
      * @param stationId
      * @return
      */
-    @Select("select JAR_NAME from M_STATION_VERSION_LOG e where e.STATION_ID = #{stationId} and e.STATUS = 'UPDATE_SUCCESS' GROUP BY JAR_NAME")
     List<String> listJarName(@Param("stationId") String stationId);
 
     /**
      * 查询jar最后一次更新记录
      *
-     * @param orgId
+     * @param stationId
      * @param jarName
      * @return
      */
-    @Select("select * from M_STATION_VERSION_LOG e where id = (select max(id) from M_STATION_VERSION_LOG t where t.STATION_ID = #{stationId} and t.STATUS = 'UPDATE_SUCCESS' and t.JAR_NAME=#{jarName})")
     StationVersionLog lastLog(@Param("stationId") String stationId, @Param("jarName") String jarName);
 
     /**
      * 查询是否有此版本成功的记录
      *
      * @param stationId
-     * @param id
+     * @param versionMsgId
      */
-    @Select("select * from M_STATION_VERSION_LOG e where id = (select max(id) from M_STATION_VERSION_LOG t where t.STATION_ID = #{stationId} and t.STATUS = 'UPDATE_SUCCESS' and t.VERSION_MSG_ID=#{versionMsgId})")
     StationVersionLog selectBySuccessLog(@Param("versionMsgId") String versionMsgId, @Param("stationId") String stationId);
 
 

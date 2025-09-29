@@ -26,7 +26,7 @@ spring:
       # 数据库架构初始化模式--never 从不进行初始化，always 每次都清空数据库进行初始化,embedded 只初始化内存数据库（默认值）
       initialize-schema: always
       # 用于初始化数据库架构的SQL文件的路径
-      schema: classpath:sql/quartz/tables_oracle.sql
+      schema: classpath:sql/quartz/tables_dm.sql
     properties:
       org:
         quartz:
@@ -59,9 +59,9 @@ spring:
       enabled: true
   datasource:
     druid:
-      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
-      username: jinanv2
-      password: jinanv2
+      url: jdbc:dm://192.168.73.177:5236/SOPHIA
+      username: SOPHIA
+      password: Sophia@123
 
       type: com.alibaba.druid.pool.DruidDataSource
       initialSize: 5
@@ -75,7 +75,7 @@ spring:
       # 配置一个连接在池中最大生存的时间，单位是毫秒
       maxEvictableIdleTimeMillis: 230000
       # 配置检测连接是否有效
-      validationQuery: SELECT 1 FROM DUAL
+      validationQuery: SELECT 1
       testWhileIdle: true
       testOnBorrow: false
       testOnReturn: false
@@ -108,11 +108,11 @@ mybatis-plus:
 
 jcca:
   redis:
-    host: 192.168.73.26
+    host: 192.168.51.121
     port: 6379
     password: jcca@123
     timeout: 5000
-    database: 7
+    database: 8
 
     jedis:
       pool1:

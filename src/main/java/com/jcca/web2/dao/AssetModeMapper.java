@@ -11,6 +11,5 @@ import org.apache.ibatis.annotations.Select;
  **/
 public interface AssetModeMapper extends BaseMapper<AssetMode> {
 
-    @Select("select * from asset_mode where code = #{code}")
     AssetMode getByCode(Integer code);
 }

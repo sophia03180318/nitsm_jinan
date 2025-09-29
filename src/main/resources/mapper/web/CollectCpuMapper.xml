@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.collect.dao.CollectCpuMapper">
+
+    <!-- 获取指定资产的实时 CPU 数据 -->
+    <select id="selectRealTimeData" resultType="com.jcca.web.collect.entity.CollectCpu">
+        SELECT *
+        FROM COLLECT_CPU b
+        WHERE b.COLLECT_CODE = (
+            SELECT MAX(to_number(COLLECT_CODE)) AS code
+            FROM COLLECT_CPU
+            WHERE ASSET_ID = #{assetId}
+        )
+    </select>
+
+    <!-- 汇总指定时间段内资产的 CPU 平均使用率 -->
+    <select id="statisticsByDate" resultType="com.jcca.web.collect.entity.CollectCpu">
+        SELECT MAX(ID)              AS ID,
+               MAX(COLLECT_TIME)    AS COLLECT_TIME,
+               MAX(to_number(COLLECT_CODE)) AS COLLECT_CODE,
+               ASSET_ID,
+               MAX(CREATE_TIME)     AS CREATE_TIME,
+               ROUND(AVG(CPU_USED_RATE), 2) AS CPU_USED_RATE
+        FROM COLLECT_CPU
+        WHERE COLLECT_TIME BETWEEN #{startDate} AND #{endDate}
+        GROUP BY ASSET_ID
+    </select>
+
+    <!-- 查询最新一条 CPU 采集记录 -->
+    <select id="selectMaxOne" resultType="com.jcca.web.collect.entity.CollectCpu">
+        select *
+        from COLLECT_CPU
+        where ID = (
+            SELECT MAX(ID)
+            from COLLECT_CPU
+        )
+    </select>
+
+</mapper>

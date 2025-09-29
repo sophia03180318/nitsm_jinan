@@ -13,10 +13,8 @@ import java.util.List;
  **/
 public interface PropertyMapper extends BaseMapper<Property> {
 
-    @Select("select * from DH_PROPERTY where  CREATE_TIME = (select max(CREATE_TIME) from DH_PROPERTY)")
     List<Property> selectProperty();
 
 
-    @Select("select * from DH_PROPERTY where (NAME like '%温度' or NAME like '%湿度' ) and CREATE_TIME = (select max(CREATE_TIME) from DH_PROPERTY)")
     List<Property> selectThreeDProperty();
 }

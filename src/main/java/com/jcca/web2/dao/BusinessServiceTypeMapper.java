@@ -14,12 +14,9 @@ import java.util.List;
  **/
 public interface BusinessServiceTypeMapper extends BaseMapper<BusinessServiceType> {
 
-    @Select("select * FROM ASSET ")
     List<Asset> getAssetByType(String orgId, String type);
 
-    @Select("select max(sort) from BUSINESSSERVICE_SERVICE_TYPE ")
     Integer getMaxSort();
 
-    @Select("select id from BUSINESSSERVICE_SERVICE_TYPE where name = #{name}")
     List<String> getTypeByName(String name);
 }

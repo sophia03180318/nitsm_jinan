@@ -57,4 +57,63 @@
         <include refid="selectRoomAssetVo"/>
         where r.id=#{roomId} and a.ID is not null order by c.row_index,c.column_index
     </select>
+
+
+    <!-- 根据组织ID获取机房列表 -->
+    <select id="listByOrgId" resultType="com.jcca.web.asset.vo.RoomVo">
+        select *
+        from room
+        where org_id = #{orgId}
+    </select>
+
+    <!-- 根据资产ID查询机房信息 -->
+    <select id="selectByAssetId" resultType="com.jcca.web.asset.vo.RoomVo">
+        select *
+        from room r
+        where r.id = (
+            select c.room_id
+            from asset_attach c
+            where c.asset_id = #{assetId}
+        )
+    </select>
+
+    <!-- 根据机柜ID查找机柜所在机房 -->
+    <select id="findByCabinetId" resultType="com.jcca.web.asset.entity.Room">
+        select *
+        from room
+        where id = (
+            select room_id
+            from cabinet
+            where id = #{cabinetId}
+        )
+    </select>
+
+    <!-- 根据组织ID查找所有机房名称 -->
+    <select id="getRoomNames" resultType="java.lang.String">
+        select name
+        from room
+        where ORG_ID = #{orgId}
+    </select>
+
+    <!-- 查询指定机房下的资产（支持两个roomId） -->
+    <select id="pushAssetByRoom" resultType="com.jcca.web.common.service.bean.ShelvesReq">
+        select aa.*,
+               c.name as cabinetName
+        from (
+                 select a.id,
+                        a.name,
+                        a.ip,
+                        a.ip2,
+                        a.ASSET_IMAGE AS threeModel,
+                        i.ROOM_ID      as areaId,
+                        i.CABINET_ID   AS cabinetId,
+                        i.START_POSITION AS startU
+                 from asset a
+                          join ASSET_ATTACH i on a.id = i.asset_id
+                 where IS_DEL = 1
+                   and (ROOM_ID = #{roomId1} or ROOM_ID = #{roomId2})
+                   and CABINET_ID is not null
+             ) aa
+                 join CABINET c on aa.cabinetId = c.id
+    </select>
 </mapper>

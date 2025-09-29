@@ -14,7 +14,6 @@ import java.util.List;
  * @create: 2023/11/30 14:02
  **/
 public interface DhAlarmMapper extends BaseMapper<Alarm> {
-    @Select("select  * from DH_ALARM where CREATE_TIME=(select max(CREATE_TIME) from DH_ALARM)")
     List<Alarm> getAlarm();
 
 }

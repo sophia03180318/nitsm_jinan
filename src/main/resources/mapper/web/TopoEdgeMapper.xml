@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.graph.dao.TopoEdgeMapper">
+
+    <!-- 删除机构下指定类型的边 -->
+    <delete id="deleteTopoEdge" parameterType="map">
+        delete from TOPO_EDGE
+        where EDGE_TYPE = #{nodeType}
+          and ORG_ID = #{orgId}
+    </delete>
+
+    <!-- 删除资产下指定类型的边 -->
+    <delete id="deleteNetWorkAssetTopoEdge" parameterType="map">
+        delete from TOPO_EDGE
+        where EDGE_TYPE = #{nodeType}
+          and ASSET_ID = #{assetId}
+    </delete>
+
+    <!-- 查询资产的指定类型的边 -->
+    <select id="queryNetWorkEdge" parameterType="map"
+            resultType="com.jcca.web.graph.entity.TopoEdge">
+        select *
+        from TOPO_EDGE
+        where EDGE_TYPE = #{nodeType}
+          and ASSET_ID = #{assetId}
+    </select>
+
+</mapper>

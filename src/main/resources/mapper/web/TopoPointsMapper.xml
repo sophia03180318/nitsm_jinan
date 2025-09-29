@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.graph.dao.TopoPointsMapper">
+
+    <!-- 删除机构下指定类型的点 -->
+    <delete id="deleteTopoPoints" parameterType="map">
+        delete from TOPO_POINTS
+        where EDGE_TYPE = #{nodeType}
+          and ORG_ID = #{orgId}
+    </delete>
+
+    <!-- 删除资产下指定类型的点 -->
+    <delete id="deleteNetWorkAssetTopoPoints" parameterType="map">
+        delete from TOPO_POINTS
+        where EDGE_TYPE = #{nodeType}
+          and ASSET_ID = #{assetId}
+    </delete>
+
+    <!-- 查询资产的指定类型点 -->
+    <select id="queryNetWorkPoints" parameterType="map"
+            resultType="com.jcca.web.graph.entity.TopoPoints">
+        select *
+        from TOPO_POINTS
+        where EDGE_TYPE = #{nodeType}
+          and ASSET_ID = #{assetId}
+    </select>
+
+</mapper>

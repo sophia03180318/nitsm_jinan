@@ -14,17 +14,13 @@ import java.util.List;
  * @date 2020-07-14 15:53:25
  **/
 public interface ChannelDataMapper extends BaseMapper<IBMChannelData> {
-    @Delete("delete from IBMMQ_CHANNEL_DATA where monitor_id=#{monitorId} and captureTime<#{captureTime}")
     Boolean removeExpiredStatistics(String monitorId, Date captureTime);
 
-    @Select("select * from (select * from IBMMQ_CHANNEL_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where rownum=1")
     IBMChannelData queryLastDate(String monitorId);
 
 
-    @Select("select * from (select * from IBMMQ_CHANNEL_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where  rownum<=50")
     List<IBMChannelData> queryDetailData(String monitorId);
 
-    @Delete("delete from IBMMQ_CHANNEL_DATA where monitor_id=#{monitorId}")
     Boolean removeStatistics(String monitorId);
 
 

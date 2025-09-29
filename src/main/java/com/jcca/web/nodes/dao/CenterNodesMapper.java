@@ -16,6 +16,5 @@ import org.apache.ibatis.annotations.Select;
 public interface CenterNodesMapper extends BaseMapper<CenterNodes> {
 
 
-    @Select("select * from center_nodes e where (e.NODE_IP1 = #{nodeIp} or e.NODE_IP2 = #{nodeIp})")
     CenterNodes selectNodes(@Param("nodeIp") String nodeIp);
 }

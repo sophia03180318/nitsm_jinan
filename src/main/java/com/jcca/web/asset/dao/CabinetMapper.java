@@ -29,7 +29,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
      * @param roomId
      * @return
      */
-    @Select(value = "select * from cabinet where room_id = #{roomId} order by code asc")
     List<CabinetVo> listByRoomId(String roomId);
 
     /**
@@ -39,7 +38,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
      * @param orgId
      * @return
      */
-    @Select(value = "select c.* from cabinet c left join room r on c.room_id = r.id where r.org_id = #{orgId} order by c.row_index,c.column_index")
     List<Cabinet> findByOrgId(Integer rowIndex, String orgId);
 
 
@@ -49,7 +47,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
      * @param orgId
      * @return
      */
-    @Select(value = "select c.*,r.name as roomName from cabinet c left join room r on c.room_id = r.id where r.org_id = #{orgId} order by c.column_index")
     List<CabinetTopoDetailVo> findByOrgIdV2(String orgId);
     /**
      * 查询
@@ -57,7 +54,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
      * @param assetId
      * @return
      */
-    @Select("select c.* from cabinet c where c.id=(select t.CABINET_ID from ASSET_ATTACH t where t.ASSET_ID=#{assetId})")
     Cabinet findByAssetId(@Param("assetId") String assetId);
 
     /**
@@ -93,7 +89,6 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
      */
     CabinetBaseInfoVo selectCabinetBaseInfoV2(CabinetBaseInfoQueryDto query);
 
-    @Select("select DISTINCT(CABINET_ID) from ASSET_ATTACH c join (select ID from asset where name like CONCAT(CONCAT('%', #{keyword}) , '%') or ip = #{keyword}) a on c.ASSET_ID=a.id where ROOM_ID =#{roomId}")
     List<String> topoCabinetByAssetStr(String roomId, String keyword);
 
     /**
@@ -102,9 +97,7 @@ public interface CabinetMapper extends BaseMapper<Cabinet> {
      * @param orgId
      * @return
      */
-    @Select(value = "select c.* from cabinet c  join room r on c.room_id = r.id where r.org_id = #{orgId} order by c.column_index")
     List<Cabinet> findCabinetByOrgId(@Param("orgId") String orgId);
 
-    @Select("select t.id itemId, t.name itemName, '96' itemType, f.view_url viewUrl from asset t left join asset_attach a on t.id = a.asset_id left join file_relate f on t.id = f.item_id where a.cabinet_id = #{cabinetId} and t.is_del = 1 order by t.name")
     List<FileRelate> findAssetInCabinet(String cabinetId);
 }

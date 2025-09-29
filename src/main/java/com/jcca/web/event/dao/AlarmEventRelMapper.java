@@ -21,10 +21,8 @@ public interface AlarmEventRelMapper extends BaseMapper<AlarmEventRel> {
      *
      * @param alarmId
      */
-    @Select("SELECT * FROM ALARM_EVENT_REL e WHERE e.ALARM_ID = #{alarmId} ORDER BY ID DESC")
     List<AlarmEventRel> selectByAlarmId(@Param("alarmId") String alarmId);
 
-    @Select("SELECT EVENT_ID FROM ALARM_EVENT_REL e WHERE e.ALARM_ID = #{alarmId}")
     List<String> selectEventIdByAlarmId(@Param("alarmId") String alarmId);
 
 }

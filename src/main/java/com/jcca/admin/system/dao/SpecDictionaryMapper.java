@@ -15,10 +15,7 @@ import java.util.List;
  */
 public interface SpecDictionaryMapper extends BaseMapper<SpecDictionary> {
 
-    @Select("SELECT * FROM SPEC_DICT WHERE ASSET_MODE = #{asset.assetMode} AND ASSET_IMAGE = #{asset.assetImage} " +
-            "AND MANUFACTURER_ID = #{asset.manufacturerId} AND SYSTEM_TYPE = #{asset.collectionType}")
     SpecDictionary queryDictByAsset(@Param("asset") Asset asset);
 
-    @Select("SELECT * FROM SPEC_DICT WHERE MANUFACTURER_ID = #{menufactureId}")
     List<SpecDictionary> findByManufacturerId(String menufactureId);
 }

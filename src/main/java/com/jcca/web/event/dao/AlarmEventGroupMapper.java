@@ -16,6 +16,5 @@ import java.util.List;
 @Mapper
 public interface AlarmEventGroupMapper extends BaseMapper<AlarmEventGroup> {
 
-    @Select("select e.STAGE_CONFIG from ALARM_EVENT_GROUP e join  ALARM_REPOSITORY r on  e.EVENT_TYPE_IDS = r.EVENT_TYPE_ID where r.ALARM_CODE = #{eventUniqueCode}")
     List<String> selectStageConfigByAlarmCode(@Param("eventUniqueCode") String eventUniqueCode);
 }

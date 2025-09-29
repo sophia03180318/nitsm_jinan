@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.ibmMQ.dao.IBMMeasurementsMapper">
+
+    <!-- 删除某个监控的采集指标 -->
+    <delete id="deleteMeasurements" parameterType="string">
+        delete from IBMMQ_MONITOR_MEASUREMENTS
+        where MONITOR_ID = #{monitorId}
+    </delete>
+
+</mapper>

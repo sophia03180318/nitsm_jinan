@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.FileRelateMapper">
+
+    <!-- 根据 fileId 查询 -->
+    <select id="getByFileId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.FileRelate">
+        SELECT *
+        FROM file_relate
+        WHERE file_id = #{fileId}
+    </select>
+
+    <!-- 根据 itemId 查询 -->
+    <select id="getByItemId" parameterType="java.lang.String" resultType="com.jcca.web2.entity.FileRelate">
+        SELECT *
+        FROM file_relate
+        WHERE item_id = #{itemId}
+    </select>
+
+</mapper>

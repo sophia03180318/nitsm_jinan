@@ -24,7 +24,6 @@ public interface RoomMapper extends BaseMapper<Room> {
      * @param orgId
      * @return
      */
-    @Select(value = "select * from room where org_id = #{orgId}")
     List<RoomVo> listByOrgId(String orgId);
 
     /**
@@ -33,7 +32,6 @@ public interface RoomMapper extends BaseMapper<Room> {
      * @param assetId
      * @return
      */
-    @Select(value = "select * from room r where r.id=(select c.room_id from asset_attach c where c.asset_id=#{assetId})")
     RoomVo selectByAssetId(@Param("assetId") String assetId);
 
     /**
@@ -42,7 +40,6 @@ public interface RoomMapper extends BaseMapper<Room> {
      * @param cabinetId
      * @return
      */
-    @Select(value = "select * from room where id = (select room_id from cabinet where id = #{cabinetId})")
     Room findByCabinetId(@Param("cabinetId") String cabinetId);
 
     /**
@@ -52,7 +49,6 @@ public interface RoomMapper extends BaseMapper<Room> {
      * @Author: syt
      * @Date: 2021/8/18/018 11:58
      */
-    @Select(value = "select name from room where ORG_ID = #{orgId}")
     List<String> getRoomNames(@Param("orgId") String orgId);
 
     /**
@@ -63,6 +59,5 @@ public interface RoomMapper extends BaseMapper<Room> {
      */
     List<SysRoomAssetMsgBean> selectRoomAssets(String roomId);
 
-    @Select("select aa.*,c.name as cabinetName from (select a.id, a.name,a.ip,a.ip2, a.ASSET_IMAGE AS threeModel,i.ROOM_ID as areaId,i.CABINET_ID AS cabinetId,i.START_POSITION AS startU from asset a join  ASSET_ATTACH  i on a.id=i.asset_id where IS_DEL=1 and  (ROOM_ID=#{roomId1} or ROOM_ID=#{roomId2} )and CABINET_ID is not null) aa join CABINET c on aa.cabinetId=c.id")
     List<ShelvesReq> pushAssetByRoom(String roomId1, String roomId2);
 }

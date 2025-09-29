@@ -18,4 +18,41 @@
     </sql>
 
 
+    <!-- 删除过期统计数据 -->
+    <delete id="removeExpiredStatistics">
+        delete from IBMMQ_QUEUE_DATA
+        where monitor_id = #{monitorId}
+          and captureTime &lt; #{captureTime}
+    </delete>
+
+    <!-- 查询最新一条数据 -->
+    <select id="queryLastDate" resultType="com.jcca.web.ibmMQ.entity.IBMQueueData">
+        select *
+        from (
+                 select *
+                 from IBMMQ_QUEUE_DATA
+                 where monitor_id = #{monitorId}
+                 order by captureTime desc
+             )
+        where rownum = 1
+    </select>
+
+    <!-- 查询最近 50 条数据 -->
+    <select id="queryDetailData" resultType="com.jcca.web.ibmMQ.entity.IBMQueueData">
+        select *
+        from (
+                 select *
+                 from IBMMQ_QUEUE_DATA
+                 where monitor_id = #{monitorId}
+                 order by captureTime desc
+             )
+        where rownum &lt;= 50
+    </select>
+
+    <!-- 删除某监控下的所有数据 -->
+    <delete id="removeStatistics">
+        delete from IBMMQ_QUEUE_DATA
+        where monitor_id = #{monitorId}
+    </delete>
+
 </mapper>

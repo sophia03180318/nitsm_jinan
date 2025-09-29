@@ -22,7 +22,6 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
      *
      * @param assetId
      */
-    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.COLLECT_CODE=(SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_NETWORK_CARD WHERE ASSET_ID=#{assetId})")
     List<CollectNetworkCard> selectRealTimeData(@Param("assetId") String assetId);
 
     /**
@@ -31,7 +30,6 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
      * @param ip
      * @return
      */
-    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.COLLECT_CODE=( SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_NETWORK_CARD WHERE IP=#{ip}) and ip=#{ip}")
     List<CollectNetworkCard> findLasterMacAddressByIp(@Param("ip") String ip);
 
     /**
@@ -40,7 +38,6 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
      * @param atPhysAddress
      * @return
      */
-    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.id=(SELECT MAX(id) AS code FROM COLLECT_NETWORK_CARD WHERE MAC_ADDRESS=#{atPhysAddress})")
     CollectNetworkCard selectByMacAddress(@Param("atPhysAddress") String atPhysAddress);
 
     /**
@@ -49,7 +46,6 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
      * @param atPhysAddress
      * @return
      */
-    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.COLLECT_CODE=(SELECT MAX(cast(COLLECT_CODE as INTEGER)) AS code FROM COLLECT_NETWORK_CARD WHERE MAC_ADDRESS=#{atPhysAddress} AND ASSET_ID=#{assetId})")
     List<CollectNetworkCard> selectByMacAddressAndAssetId(@Param("atPhysAddress") String atPhysAddress, @Param("assetId") String assetId);
 
 
@@ -57,15 +53,11 @@ public interface CollectNetworkCardMapper extends BaseMapper<CollectNetworkCard>
 
     /**
      * 更新网卡状态
-     *
      * @param assetId
      * @param ip
-     * @param code
-     * @param code2
      * @return
      */
     Integer updateNetCardStatus(@Param("assetId") String assetId, @Param("ip") String ip, @Param("status") Byte status, @Param("seachStatus") Byte seachStatus);
 
-    @Select("SELECT * FROM COLLECT_NETWORK_CARD b WHERE b.id=(SELECT MAX(id) AS code FROM COLLECT_NETWORK_CARD WHERE NAME=#{networkName} AND ASSET_ID=#{assetId}) ")
     CollectNetworkCard findByNetworkName(String networkName, String assetId);
 }

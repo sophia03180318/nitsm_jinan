@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.CollectHardwarePerformanceMapper">
+
+    <!-- 根据资产ID查询硬件性能数据，可选按 thresholdProcessId 过滤 -->
+    <select id="findByAssetId" resultType="com.jcca.web.asset.entity.CollectHardwarePerformance">
+        SELECT *
+        FROM COLLECT_HARDWARE_PERFORMANCE
+        WHERE ASSET_ID = #{assetId}
+        <if test="thresholdProcessId != null and thresholdProcessId != ''">
+            AND THRESHOLD_PROCESS_ID = #{thresholdProcessId}
+        </if>
+    </select>
+
+</mapper>

@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Delete;
  **/
 public interface IBMMeasurementsMapper extends BaseMapper<IBMMeasurements> {
 
-    @Delete("delete from IBMMQ_MONITOR_MEASUREMENTS where MONITOR_ID=#{monitorId}")
     Boolean deleteMeasurements(String monitorId);
 
 

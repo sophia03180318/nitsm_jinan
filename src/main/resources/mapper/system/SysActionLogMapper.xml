@@ -22,5 +22,37 @@
         ID,LOG_NAME,LOG_TYPE,OPER_USER_IP,LOG_CLASS,LOG_METHOD,LOG_MODEL,RECORD_ID,LOG_MSG,CREATE_TIME,CREATOR,MODIFY_TIME,MODIFIER
     </sql>
 
+        <!-- 删除所有日志信息 -->
+        <delete id="deleteAll" parameterType="java.lang.Boolean">
+            DELETE FROM sys_action_log
+        </delete>
 
+        <!-- 查询采集数据（转存为文件） -->
+        <select id="getData" parameterType="map" resultType="map">
+            SELECT *
+            FROM ${tableStr}
+            WHERE ROWNUM &lt; 5000
+              AND CREATE_TIME &lt; #{dateFormat}
+            ORDER BY CREATE_TIME
+        </select>
+
+        <!-- 删除指定日期之前的数据 -->
+        <delete id="removeData" parameterType="map">
+            DELETE FROM ${tableStr}
+            WHERE ROWNUM &lt; 5000
+              AND CREATE_TIME &lt; #{dateFormat}
+        </delete>
+
+        <!-- 查询最新的一条日志 -->
+        <select id="getLatestOne" resultType="com.jcca.admin.system.entity.SysActionLog">
+            SELECT *
+            FROM SYS_ACTION_LOG
+            WHERE ROWNUM = 1
+            ORDER BY ID DESC
+        </select>
+
+        <!-- 删除表中所有数据 -->
+        <delete id="removeAllData" parameterType="map">
+            DELETE FROM ${tableStr}
+        </delete>
 </mapper>

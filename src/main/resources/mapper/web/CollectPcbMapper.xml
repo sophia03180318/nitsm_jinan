@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.collect.dao.CollectPcbMapper">
+
+    <!-- 获取实时板卡采集数据 -->
+    <select id="selectRealTimeData" resultType="com.jcca.web.collect.entity.CollectPcb">
+        SELECT *
+        FROM COLLECT_PCB b
+        WHERE b.COLLECT_CODE = (
+            SELECT MAX(to_number(COLLECT_CODE)) AS code
+            FROM COLLECT_PCB
+            WHERE ASSET_ID = #{assetId}
+        )
+    </select>
+
+    <!-- 查询指定资产的板卡详细信息 -->
+    <select id="getPcdInfoByAsset" resultType="com.jcca.web.collect.entity.CollectPcb">
+        SELECT ID,
+               COLLECT_TIME,
+               COLLECT_CODE,
+               ASSET_ID,
+               NAME,
+               MODEL_NAME,
+               TYPE,
+               SERIAL_NUMBER_NAME,
+               SOFTWARE_VERSION,
+               HARDWATE_VERSION,
+               DESC_STR,
+               OS_VERSION,
+               PCB_INDEX,
+               CREATE_TIME,
+               ENT_PHYSICAL_INDEX,
+               ENT_PHYSICAL_CONTAINED_IN,
+               ENT_PHYSICAL_PAR_PELPOS,
+               ENT_PHYSICAL_IS_FRU,
+               CASE WHEN SERIAL_NUMBER = '--' THEN '' ELSE SERIAL_NUMBER END AS SERIAL_NUMBER
+        FROM COLLECT_PCB
+        WHERE COLLECT_CODE = (
+            SELECT MAX(COLLECT_CODE) AS CODE
+            FROM COLLECT_PCB
+            WHERE ASSET_ID = #{assetId}
+        )
+          AND ASSET_ID = #{assetId}
+        ORDER BY ENT_PHYSICAL_CONTAINED_IN, ENT_PHYSICAL_PAR_PELPOS
+    </select>
+
+</mapper>

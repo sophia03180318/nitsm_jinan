@@ -15,6 +15,5 @@ import java.util.List;
  */
 public interface SysActionLogDetailMapper extends BaseMapper<SysActionLogDetail> {
 
-    @Select("select * from sys_action_log_detail where action_log_id = #{actionLogId}")
     List<SysActionLogDetail> listByActionLogId(String actionLogId);
 }

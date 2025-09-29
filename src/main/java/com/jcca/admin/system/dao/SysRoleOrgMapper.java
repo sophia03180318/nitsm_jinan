@@ -13,10 +13,8 @@ import java.util.List;
  **/
 public interface SysRoleOrgMapper extends BaseMapper<SysRoleOrg> {
 
-    @Select("select role_id from sys_role_org where org_id = #{orgId}")
     List<String> findRoleIdsByOrgId(String orgId);
 
-    @Select("select * from sys_role_org where role_id= #{roleId} and org_id = #{orgId}")
     List<SysRoleOrg> getRoleByOrg(String roleId, String orgId);
 
 }

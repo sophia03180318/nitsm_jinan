@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.graph.dao.TopoAssetGroupMapper">
+
+    <!-- 删除指定机构和节点类型的资产组 -->
+    <delete id="deleteAssetGroup" parameterType="map">
+        delete from TOPO_ASSET_GROUP
+        where ORG_ID = #{orgId}
+          and NODE_TYPE = #{nodeType}
+    </delete>
+
+    <!-- 删除指定资产和节点类型的资产组 -->
+    <delete id="deleteNetWorkAssetGroup" parameterType="map">
+        delete from TOPO_ASSET_GROUP
+        where ASSET_ID = #{assetId}
+          and NODE_TYPE = #{nodeType}
+    </delete>
+
+    <!-- 查询机构下的资产组 -->
+    <select id="queryAssetGroup" parameterType="map"
+            resultType="com.jcca.web.graph.entity.TopoAssetGroup">
+        select *
+        from TOPO_ASSET_GROUP
+        where ORG_ID = #{orgId}
+          and NODE_TYPE = #{nodeType}
+        order by id desc
+    </select>
+
+    <!-- 查询资产的网络资产组 -->
+    <select id="queryNetWorkAssetGroup" parameterType="map"
+            resultType="com.jcca.web.graph.entity.TopoAssetGroup">
+        select *
+        from TOPO_ASSET_GROUP
+        where ASSET_ID = #{assetId}
+          and NODE_TYPE = #{nodeType}
+        order by id desc
+    </select>
+
+</mapper>

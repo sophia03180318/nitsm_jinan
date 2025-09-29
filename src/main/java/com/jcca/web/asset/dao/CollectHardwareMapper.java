@@ -12,6 +12,5 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface CollectHardwareMapper extends BaseMapper<CollectHardware> {
 
-    @Select("SELECT * FROM COLLECT_HARDWARE WHERE ASSET_ID = #{assetId}")
     CollectHardware findByAssetId(String assetId);
 }

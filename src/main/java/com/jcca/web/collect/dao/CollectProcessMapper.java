@@ -22,6 +22,5 @@ public interface CollectProcessMapper extends BaseMapper<CollectProcess> {
      * @param assetId
      * @return
      */
-    @Select("SELECT * FROM COLLECT_PROCESS b WHERE b.COLLECT_CODE=(SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_PROCESS WHERE ASSET_ID=#{assetId})")
     List<CollectProcess> selectAssetNewProcess(@Param("assetId") String assetId);
 }

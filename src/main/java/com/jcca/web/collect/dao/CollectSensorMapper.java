@@ -23,7 +23,6 @@ public interface CollectSensorMapper extends BaseMapper<CollectSensor> {
      * @param assetId
      * @return
      */
-    @Select("SELECT * FROM COLLECT_SENSOR b WHERE b.COLLECT_CODE=(SELECT MAX(to_number(COLLECT_CODE)) AS code FROM COLLECT_SENSOR WHERE ASSET_ID=#{assetId})")
     List<CollectSensor> selectRealTimeData(@Param("assetId") String assetId);
 
     /**
@@ -31,6 +30,5 @@ public interface CollectSensorMapper extends BaseMapper<CollectSensor> {
      *
      * @return
      */
-    @Select("select max(VALUE) as value,ASSET_ID as assetId from COLLECT_SENSOR where SENSOR_TYPE = 'GAUGE' GROUP BY ASSET_ID")
     List<CollectSensor> selectMaxValue();
 }

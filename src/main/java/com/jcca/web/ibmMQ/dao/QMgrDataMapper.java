@@ -14,14 +14,10 @@ import java.util.Date;
  **/
 public interface QMgrDataMapper extends BaseMapper<IBMQMgrData> {
 
-    @Delete("delete from IBMMQ_QMGR_DATA where monitor_id=#{monitorId} and captureTime<#{captureTime}")
     Boolean removeExpiredStatistics(String monitorId, Date captureTime);
 
-    @Select("select * from (select * from IBMMQ_QMGR_DATA where monitor_id=#{monitorId}  order by captureTime desc) t where rownum=1")
     IBMQMgrData queryLastDate(String monitorId);
 
-
-    @Delete("delete from IBMMQ_QMGR_DATA where monitor_id=#{monitorId}")
     Boolean removeStatistics(String monitorId);
 
 }

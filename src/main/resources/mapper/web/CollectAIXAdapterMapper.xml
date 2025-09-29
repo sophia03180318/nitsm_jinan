@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.asset.dao.CollectAIXAdapterMapper">
+
+    <!-- 查询指定资产最新的适配器采集信息 -->
+    <select id="selectLatestInfo" resultType="com.jcca.web.asset.entity.CollectAIXAdapter">
+        SELECT *
+        FROM COLLECT_AIX_ADAPTER
+        WHERE COLLECT_CODE = (
+            SELECT MAX(COLLECT_CODE) AS CODE
+            FROM COLLECT_AIX_ADAPTER
+            WHERE ASSET_ID = #{assetId}
+        )
+    </select>
+
+</mapper>

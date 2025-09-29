@@ -104,46 +104,46 @@
                a.ip2,
                a.ASSET_IMAGE,
                a.ASSET_MODE,
-               b.name                                                      as cabinetName,
-               concat(concat(b.name, c.END_POSITION), 'U')                 as cabinetPosition,
-               concat(concat(concat(d.name, b.name), c.END_POSITION), 'U') as position
+               b.name as cabinetName,
+               CONCAT(CONCAT(b.name, TO_CHAR(c.END_POSITION)), 'U') AS cabinetPosition,
+               CONCAT(CONCAT(CONCAT(d.name, b.name), TO_CHAR(c.END_POSITION)), 'U') AS position
         from asset a
-                 left join asset_attach c
-                           on c.ASSET_ID = a.id
-                 left join cabinet b on c.cabinet_id = b.id
-                 left join room d on c.ROOM_ID = d.id
+            left join asset_attach c on c.ASSET_ID = a.id
+            left join cabinet b on c.cabinet_id = b.id
+            left join room d on c.ROOM_ID = d.id
         where a.id = #{assetId}
     </select>
+
 
     <update id="calculateHealth" parameterType="com.jcca.admin.system.vo.AssetHealthDegreeModuleConf">
         update ASSET a
         set a.HEALTH_DEGREE =
                 (100 -
                  (
-                         (select DECODE(SIGN(#{oneLevelMaxScore} - count(*) * #{oneLevelScore}), 0, #{oneLevelMaxScore},
-                                        1, count(*) * #{oneLevelScore}, -1, #{oneLevelMaxScore})
-                          from ALARM_INFO r
-                          where r.ASSET_ID = a.id
-                            and r.STATUS = 1
-                            and r.ALARM_STATE = 1
-                            AND r.ALARM_LEVEL = 1)
+                     (select DECODE(SIGN(#{oneLevelMaxScore} - count(*) * #{oneLevelScore}), 0, #{oneLevelMaxScore},
+                                    1, count(*) * #{oneLevelScore}, -1, #{oneLevelMaxScore})
+                      from ALARM_INFO r
+                      where r.ASSET_ID = a.id
+                        and r.STATUS = 1
+                        and r.ALARM_STATE = 1
+                        AND r.ALARM_LEVEL = 1)
                          +
-                         (select DECODE(SIGN(#{twoLevelMaxScore} - count(*) * #{twoLevelScore}), 0, #{twoLevelMaxScore},
-                                        1, count(*) * #{twoLevelScore}, -1, #{twoLevelMaxScore})
-                          from ALARM_INFO r
-                          where r.ASSET_ID = a.id
-                            and r.STATUS = 1
-                            and r.ALARM_STATE = 1
-                            AND r.ALARM_LEVEL = 2)
+                     (select DECODE(SIGN(#{twoLevelMaxScore} - count(*) * #{twoLevelScore}), 0, #{twoLevelMaxScore},
+                                    1, count(*) * #{twoLevelScore}, -1, #{twoLevelMaxScore})
+                      from ALARM_INFO r
+                      where r.ASSET_ID = a.id
+                        and r.STATUS = 1
+                        and r.ALARM_STATE = 1
+                        AND r.ALARM_LEVEL = 2)
                          +
-                         (select DECODE(SIGN(#{threeLevelMaxScore} - count(*) * #{threeLevelScore}), 0,
-                                        #{threeLevelMaxScore}, 1, count(*) * #{threeLevelScore}, -1,
-                                        #{threeLevelMaxScore})
-                          from ALARM_INFO r
-                          where r.ASSET_ID = a.id
-                            and r.STATUS = 1
-                            and r.ALARM_STATE = 1
-                            AND r.ALARM_LEVEL = 3)
+                     (select DECODE(SIGN(#{threeLevelMaxScore} - count(*) * #{threeLevelScore}), 0,
+                                    #{threeLevelMaxScore}, 1, count(*) * #{threeLevelScore}, -1,
+                                    #{threeLevelMaxScore})
+                      from ALARM_INFO r
+                      where r.ASSET_ID = a.id
+                        and r.STATUS = 1
+                        and r.ALARM_STATE = 1
+                        AND r.ALARM_LEVEL = 3)
                      )
                     )
         where a.IS_DEL = 1
@@ -253,30 +253,29 @@
             </foreach>
         </if>
         <if test="name != null and name != ''">
-            and REGEXP_LIKE(a.name, #{name})
+            and REGEXP_INSTR(a.name, #{name})>0
         </if>
         <if test="ip != null and ip != ''">
-            and REGEXP_LIKE(a.ip, #{ip})
+            and REGEXP_INSTR(a.ip, #{ip})>0
         </if>
         <if test="desk != null">
             and a.desk = #{desk}
         </if>
         <if test="overhaul == 1">
-            and to_char(a.downline_time,'yyyy-MM-dd') >=
-            (select concat(extract(year from sysdate)-1,'-'||to_char(sysdate,'MM-dd')) endTime from dual)
+            and to_char(a.downline_time,'YYYY-MM-DD') >=
+            (select CONCAT(TO_CHAR(EXTRACT(YEAR FROM sysdate)-1), CONCAT('-', TO_CHAR(sysdate,'MM-dd'))) endTime from dual)
         </if>
     </select>
 
     <select id="getOverhaulList" parameterType="java.util.List" resultType="com.jcca.web.asset.entity.Asset">
         select * from asset
-        where is_del = 1 and to_char(downline_time,'yyyy-MM-dd') &lt;
-        (select concat(extract(year from sysdate)+1,'-'||to_char(sysdate,'MM-dd')) endTime from dual)
+        where is_del = 1 and to_char(downline_time,'YYYY-MM-DD') &lt;
+        (select CONCAT(TO_CHAR(EXTRACT(YEAR FROM sysdate)+1), CONCAT('-', TO_CHAR(sysdate,'MM-dd'))) endTime from dual)
         and org_id in
         <foreach collection="orgIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
     </select>
-
 
     <select id="getCenterNetworklList" parameterType="java.util.List" resultType="com.jcca.web.asset.entity.Asset">
         select asset.*
@@ -327,7 +326,7 @@
             and org_id = #{map.orgId}
         </if>
         <if test="map.name != null and map.name !=''">
-            and name like concat(concat('%', #{map.name}),'%')
+            and name like '%' || #{map.name} || '%'
         </if>
         <if test="map.desk != null and map.desk !=''">
             and desk = #{map.desk}
@@ -379,7 +378,7 @@
             and COLLECTION_TYPE = #{map.collectionType}
         </if>
         <if test="map.name != null and map.name !=''">
-            and name like concat(concat('%', #{map.name}),'%')
+            and name like CONCAT(CONCAT('%', #{map.name}),'%')
         </if>
         <if test="map.desk != null and map.desk !=''">
             and desk = #{map.desk}
@@ -459,6 +458,94 @@
         </if>
         order by a.name, to_number(l.port_index_rank)) t
         WHERE t.assetName is not null
+    </select>
+
+    <!-- 通过 IP 查询资产 -->
+    <select id="selectByIp" resultType="com.jcca.web.asset.entity.Asset">
+        select *
+        from (
+                 select *
+                 from asset a
+                 where (a.ip = #{ip}
+                     or a.ip2 = #{ip}
+                     or a.ipmi_ip = #{ip})
+                   and a.is_del = 1
+                   and a.ip is not null
+             )
+        where rownum = 1
+    </select>
+
+    <!-- 根据组织ID和监控状态获取资产 -->
+    <select id="findAssetByOrgIdAndWatch" resultType="com.jcca.web.asset.entity.Asset">
+        SELECT *
+        FROM ASSET
+        where ORG_ID = #{orgId}
+          AND Watch = #{Watch}
+          AND IS_DEL = 1
+    </select>
+
+    <!-- 获取所有资产（附带组织名） -->
+    <select id="getAllAsset" resultType="com.jcca.web.asset.entity.Asset">
+        SELECT A.*, O.title AS orgName
+        FROM ASSET A
+                 JOIN SYS_ORG O ON A.ORG_ID = O.ID
+        WHERE A.IS_DEL = 1
+    </select>
+
+    <!-- 查询 JCCA 厂商的资产 ID -->
+    <select id="selectJccaAsset" resultType="java.lang.String">
+        SELECT ID
+        FROM ASSET
+        where ASSET_SUPPLIER = 'JCCA'
+          AND IS_DEL = 1
+    </select>
+
+    <!-- 获取设备在机柜中的 U 位索引 -->
+    <select id="getUIndex" resultType="java.lang.String">
+        SELECT CONCAT(CONCAT(TO_CHAR(START_POSITION), '_'), TO_CHAR(END_POSITION))
+        FROM ASSET_ATTACH
+        WHERE ASSET_ID = #{assetId}
+    </select>
+
+
+    <!-- 更新设备的监控状态 -->
+    <update id="updateMonitorStatus">
+        update asset
+        set MONITOR = #{status}
+        where id = #{id}
+    </update>
+
+    <!-- 按设备类型查询 -->
+    <select id="listByAssetMode" resultType="com.jcca.web.asset.entity.Asset">
+        SELECT *
+        FROM ASSET
+        WHERE IS_DEL = 1
+          AND WATCH = 1
+          AND ASSET_MODE = #{assetMode}
+    </select>
+
+    <!-- 查询所有启用监控的设备 -->
+    <select id="listAllV2" resultType="com.jcca.web.asset.entity.Asset">
+        SELECT *
+        FROM ASSET
+        WHERE IS_DEL = 1
+          AND WATCH = 1
+    </select>
+
+    <!-- 根据组织ID查询设备 -->
+    <select id="findListByOrgId" resultType="com.jcca.web.asset.entity.Asset">
+        select *
+        from asset
+        where is_del = 1
+          and org_id = #{orgId}
+    </select>
+
+    <!-- 根据资产类型查询设备 -->
+    <select id="findListByAssetModeV2" resultType="com.jcca.web.asset.entity.Asset">
+        select *
+        from asset
+        where is_del = 1
+          and asset_mode = #{assetMode}
     </select>
 
 </mapper>

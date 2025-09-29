@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.InspectDetailMapper">
+
+    <!-- 查询巡检记录列表 -->
+    <select id="findRecordList" resultType="com.jcca.web2.vo.InspectRecordListVo">
+        SELECT INSPECT_CODE,
+               INSPECT_TIME createTime,
+               RESULT_PATH
+        FROM INSPECT_DETAIL
+        WHERE INSPECT_STATE != 1
+        GROUP BY INSPECT_CODE, INSPECT_TIME, RESULT_PATH
+        ORDER BY INSPECT_TIME DESC
+    </select>
+
+    <!-- 查询下架资产列表 -->
+    <select id="findDownList" parameterType="java.lang.String" resultType="com.jcca.web2.vo.InspectRecordListVo">
+        SELECT INSPECT_CODE,
+               ASSET_ID,
+               ASSET_NAME
+        FROM INSPECT_DETAIL
+        WHERE INSPECT_STATE != 0
+          AND INSPECT_CODE = #{inspectCode}
+        GROUP BY INSPECT_CODE, ASSET_ID, ASSET_NAME
+        ORDER BY ASSET_ID
+    </select>
+
+    <!-- 查询巡检详情 -->
+    <select id="findRecordDetail" parameterType="java.lang.String" resultType="com.jcca.web2.vo.InspectRecordListVo">
+        SELECT INSPECT_CODE,
+               ASSET_ID,
+               ASSET_NAME,
+               MAX(INSPECT_STATE) AS inspectState,
+               REMARK
+        FROM INSPECT_DETAIL
+        WHERE TARGET_STATUS = 1
+          AND ASSET_STATUS = 1
+          AND INSPECT_CODE = #{inspectCode}
+        GROUP BY INSPECT_CODE, ASSET_ID, ASSET_NAME, REMARK
+        ORDER BY ASSET_ID
+    </select>
+
+    <!-- 单个资产详情 -->
+    <select id="findAssetDetail" resultType="com.jcca.web2.entity.InspectDetail">
+        SELECT *
+        FROM INSPECT_DETAIL
+        WHERE INSPECT_CODE = #{inspectCode}
+          AND ASSET_ID = #{assetId}
+          AND TARGET_STATUS = 1
+        ORDER BY TARGET_ITEM
+    </select>
+
+    <!-- 删除巡检记录 -->
+    <delete id="deleteRecord" parameterType="java.lang.String">
+        DELETE FROM INSPECT_DETAIL WHERE INSPECT_CODE = #{inspectCode}
+    </delete>
+
+    <!-- 巡检资产总数 -->
+    <select id="totalAsset" resultType="java.lang.String">
+        SELECT asset_id
+        FROM inspect_detail
+        WHERE inspect_code = #{inspectCode}
+        GROUP BY asset_id
+    </select>
+
+    <!-- 巡检车厢列表 -->
+    <select id="deskList" resultType="com.jcca.web2.vo.ItemVo">
+        SELECT asset_desk AS id,
+               desk_name AS name
+        FROM INSPECT_DETAIL
+        WHERE INSPECT_CODE = #{inspectCode}
+        GROUP BY asset_desk, desk_name
+        ORDER BY asset_desk
+    </select>
+
+    <!-- 单车厢资产总数 -->
+    <select id="totalDesk" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+                 SELECT asset_id, asset_desk
+                 FROM inspect_detail
+                 WHERE inspect_code = #{inspectCode}
+                   AND asset_desk = #{assetDesk}
+                 GROUP BY asset_id, asset_desk
+             )
+    </select>
+
+    <!-- 单车厢指定状态资产数 -->
+    <select id="stateDesk" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+                 SELECT asset_id
+                 FROM inspect_detail
+                 WHERE inspect_code = #{inspectCode}
+                   AND asset_desk = #{assetDesk}
+                   AND inspect_state = #{inspectState}
+                 GROUP BY asset_id
+             )
+    </select>
+
+    <!-- 异常资产数 -->
+    <select id="abnormalAsset" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+                 SELECT asset_id
+                 FROM inspect_detail
+                 WHERE inspect_code = #{inspectCode}
+                   AND inspect_state = #{inspectState}
+                 GROUP BY asset_id
+             )
+    </select>
+
+    <!-- 资产详情（按车厢） -->
+    <select id="getAssetDetail" resultType="com.jcca.web2.dto.xunjian.InspectAssetDetailInfo">
+        SELECT inspect_code,
+               asset_id,
+               asset_name,
+               asset_ip1,
+               org_name,
+               room_name,
+               cabinet_name,
+               MAX(inspect_state) inspectState,
+               asset_desk
+        FROM inspect_detail
+        WHERE inspect_code = #{inspectCode}
+          AND asset_desk = #{desks}
+        GROUP BY inspect_code, asset_id, asset_name, asset_ip1, org_name, room_name, cabinet_name, asset_desk
+        ORDER BY asset_desk, asset_id
+    </select>
+
+    <!-- 目标详情 -->
+    <select id="getTargetDetail" resultType="com.jcca.web2.dto.xunjian.InspectTargetDetailInfo">
+        SELECT ID,
+               INSPECT_CODE,
+               ASSET_ID,
+               TARGET_ITEM,
+               TARGET_NAME,
+               INSPECT_STATE,
+               THRESHOLD_VALUE,
+               INSPECT_VALUE,
+               RESULT_MSG,
+               REMARK,
+               EVENT_TYPE_NAME AS eventTypeName
+        FROM INSPECT_DETAIL
+        WHERE INSPECT_CODE = #{inspectCode}
+          AND ASSET_ID = #{assetId}
+        ORDER BY ASSET_ID, TARGET_ITEM, RESULT_MSG
+    </select>
+
+    <!-- 报告数据 -->
+    <select id="getReport1" resultType="com.jcca.web2.dto.xunjian.InspectReport1">
+        SELECT d.inspect_code AS id,
+               i.asset_id,
+               i.DESCRIPTION,
+               i.title AS alarmTitle,
+               i.alarm_level,
+               i.alarm_code,
+               i.status AS alarmStatus,
+               d.asset_ip1 AS assetIp1,
+               d.asset_name,
+               d.asset_desk
+        FROM alarm_info i
+                 LEFT JOIN inspect_detail d ON i.id = d.alarm_id
+        WHERE d.inspect_code = #{inspectCode}
+        ORDER BY d.asset_ip1
+    </select>
+
+</mapper>

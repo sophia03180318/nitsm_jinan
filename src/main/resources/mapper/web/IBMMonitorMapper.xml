@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.ibmMQ.dao.IBMMonitorMapper">
+
+    <!-- 查询队列状态 -->
+    <select id="getQueueStatus" parameterType="string" resultType="com.jcca.web.ibmMQ.entity.IBMMonitor">
+        select *
+        from IBMMQ_QUEUE_DATA
+        where MONITOR_ID = #{monitorId}
+          and CAPTURETIME = (
+            select max(CAPTURETIME)
+            from IBMMQ_QUEUE_DATA
+            where MONITOR_ID = #{monitorId}
+        )
+    </select>
+
+    <!-- 查询通道状态 -->
+    <select id="getChannelStatus" parameterType="string" resultType="com.jcca.web.ibmMQ.entity.IBMMonitor">
+        select *
+        from IBMMQ_CHANNEL_DATA
+        where MONITOR_ID = #{monitorId}
+          and CAPTURETIME = (
+            select max(CAPTURETIME)
+            from IBMMQ_CHANNEL_DATA
+            where MONITOR_ID = #{monitorId}
+        )
+    </select>
+
+    <!-- 根据分组ID获取监控信息 -->
+    <select id="getMonitorById" parameterType="string" resultType="com.jcca.web.ibmMQ.entity.IBMMonitor">
+        select *
+        from IBMMQ_MONITOR
+        where GROUP_ID = #{groupId}
+    </select>
+
+</mapper>

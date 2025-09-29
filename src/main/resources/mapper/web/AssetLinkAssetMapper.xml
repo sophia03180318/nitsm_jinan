@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.collect.dao.AssetLinkAssetMapper">
+
+    <!-- 查询 3D 页面设备对端连接信息 -->
+    <select id="getThreeDLink" resultType="com.jcca.web.common.service.bean.ThreeDLinkReq">
+        select l.ASSET_ID      as assetAId,
+               PORT_INDEX      as portAId,
+               LINK_ASSET_ID   as assetBId,
+               LINK_PORT       as portBId
+        from (
+                 select asset_id
+                 from ASSET_ATTACH
+                 where ROOM_ID = #{roomId1}
+                    or ROOM_ID = #{roomId2}
+             ) a
+                 join ASSET_LINK_ASSET l on l.ASSET_ID = a.ASSET_ID
+        where LINK_ASSET_ID is not null
+    </select>
+
+</mapper>

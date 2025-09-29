@@ -10,6 +10,5 @@ import java.util.List;
 @Mapper
 public interface CollectAIXAdapterMapper extends BaseMapper<CollectAIXAdapter> {
 
-    @Select("SELECT * FROM COLLECT_AIX_ADAPTER WHERE COLLECT_CODE = (SELECT MAX(COLLECT_CODE) AS CODE FROM COLLECT_AIX_ADAPTER WHERE ASSET_ID = #{assetId})")
     List<CollectAIXAdapter> selectLatestInfo(String assetId);
 }

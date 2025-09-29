@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.statistics.dao.HourCpuMapper">
+
+    <!-- 查询最大创建时间 -->
+    <select id="maxCreateDate" resultType="java.util.Date">
+        SELECT MAX(CREATE_TIME)
+        FROM HOUR_CPU
+    </select>
+
+    <!-- 查询指定时间段CPU使用率曲线 -->
+    <select id="findLineByDate" resultType="com.jcca.web.asset.vo.AssetHistoryVo">
+        SELECT CPU_USED_RATE cpuUsedRate,
+               END_TIME collectTime
+        FROM HOUR_CPU
+        WHERE ASSET_ID = #{assetId}
+          AND END_TIME BETWEEN #{startDate} AND #{endDate}
+        ORDER BY END_TIME
+    </select>
+
+    <!-- 查询指定时间段内平均值 -->
+    <select id="findAvgByDate" resultType="com.jcca.web.asset.vo.AvgVo">
+        SELECT ROUND(AVG(m.MEM_USED_RATE), 2) avgMem,
+               ROUND(AVG(m.SWAP_USED_RATE), 2) avgSwap,
+               ROUND(AVG(c.CPU_USED_RATE), 2) avgCpu
+        FROM HOUR_MEMORY m
+                 LEFT JOIN HOUR_CPU c ON m.ASSET_ID = c.ASSET_ID
+        WHERE m.ASSET_ID = #{assetId}
+          AND m.END_TIME BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 查询某一天之后的数据 -->
+    <select id="findDataByDay" resultType="com.jcca.web.ai.vo.CpuVo">
+        SELECT CPU_USED_RATE cpuUsedRate,
+               END_TIME collectDate
+        FROM HOUR_CPU
+        WHERE ASSET_ID = #{assetId}
+          AND END_TIME >= #{endDate}
+        ORDER BY collectDate
+    </select>
+
+</mapper>

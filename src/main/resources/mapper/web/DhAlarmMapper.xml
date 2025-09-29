@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.common.dao.DhAlarmMapper">
+
+    <!-- 查询最新告警记录 -->
+    <select id="getAlarm" resultType="com.jcca.web.common.entity.Alarm">
+        select *
+        from DH_ALARM
+        where CREATE_TIME = (
+            select max(CREATE_TIME)
+            from DH_ALARM
+        )
+    </select>
+
+</mapper>

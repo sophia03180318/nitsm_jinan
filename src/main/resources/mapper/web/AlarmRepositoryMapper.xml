@@ -52,4 +52,31 @@
         </choose>
     </select>
 
+
+    <!-- 查询知识库 -->
+    <select id="selectListByAlarmCode" resultType="com.jcca.web.alarm.entity.AlarmRepository">
+        SELECT *
+        FROM ALARM_REPOSITORY
+        WHERE ALARM_CODE = #{uniqueCode}
+    </select>
+
+    <!-- 查询原始告警信息命中的所有知识库 -->
+    <select id="selectOrgMsgContainStatusFlg" resultType="com.jcca.web.alarm.entity.AlarmRepository">
+        select *
+        from ALARM_REPOSITORY
+        where ALARM_CODE = #{uniqueCode}
+          and REGEXP_INSTR(#{originalMsg}, STATUS_FLAG) &gt; 0
+    </select>
+
+
+    <!-- 根据资产Desk查询告警类型 -->
+    <select id="listTypeByAssetDesk" resultType="com.jcca.web2.vo.ItemVo">
+        select id,
+               type_alias as name,
+               event_category
+        from alarm_event_type
+        where asset_desks like #{assetDesk}
+          and event_category is not null
+    </select>
+
 </mapper>

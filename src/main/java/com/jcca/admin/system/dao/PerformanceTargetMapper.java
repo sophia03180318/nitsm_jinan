@@ -11,6 +11,5 @@ import org.apache.ibatis.annotations.Update;
  * @ Description:
  */
 public interface PerformanceTargetMapper extends BaseMapper<PerformanceTarget> {
-    @Update("update PERFORMANCE_TARGET set PING_TUNNEL=#{value} where ID=#{id}")
     void setPING(@Param("id") String id, @Param("value") Integer value);
 }

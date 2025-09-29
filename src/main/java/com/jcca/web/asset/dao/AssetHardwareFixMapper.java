@@ -23,7 +23,6 @@ public interface AssetHardwareFixMapper extends BaseMapper<AssetHardwareFix> {
 
     Long countItem(AssetHardwareFixReq req);
 
-    @Select("select * from asset_hardware_fix where asset_id =#{assetId} order by CREATE_TIME desc")
     List<AssetHardwareFix> getByListAssetId(String assetId);
 
 }

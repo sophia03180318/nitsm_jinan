@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.admin.system.dao.ImportCabinetMapper">
+
+    <!-- 删除所有导入机柜数据 -->
+    <delete id="deleteAll">
+        DELETE FROM IMPORT_CABINET
+    </delete>
+
+    <!-- 通过组织机房名称确认机房 -->
+    <select id="getRoom" resultType="com.jcca.web.asset.entity.Room">
+        SELECT *
+        FROM ROOM
+        WHERE NAME = #{roomName}
+          AND ORG_ID = (
+            SELECT ID
+            FROM sys_org
+            WHERE title = #{orgName}
+              AND STATUS = 1
+        )
+    </select>
+
+</mapper>

@@ -14,7 +14,6 @@ import java.util.List;
  * @author lyp
  */
 public interface NetWorkAddressMapper extends BaseMapper<NetWorkAddress> {
-    @Select("select * from M_NET_WORK_ADDRESS")
     List<NetWorkAddress> findAll();
 
     /**
@@ -23,7 +22,6 @@ public interface NetWorkAddressMapper extends BaseMapper<NetWorkAddress> {
      * @param id
      * @return
      */
-    @Select("select * from M_NET_WORK_ADDRESS where ORG_ID=#{id}")
     List<NetWorkAddress> selectIps(@Param("id") String id);
 
     /**

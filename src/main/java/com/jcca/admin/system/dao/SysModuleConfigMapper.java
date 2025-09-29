@@ -23,6 +23,5 @@ public interface SysModuleConfigMapper extends BaseMapper<SysModuleConfig> {
      * @param name
      * @param value
      */
-    @Update("update SYS_MODULE_CONFIG set VALUE = #{value} where name = #{name}")
     void updateByName(@Param("name") String name,@Param("value") String value);
 }

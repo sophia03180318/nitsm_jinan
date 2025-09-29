@@ -12,6 +12,5 @@ import java.util.List;
  * @ Description:
  */
 public interface IBMGroupMapper extends BaseMapper<IBMGroup> {
-    @Select("select * from IBMMQ_GROUP where name=#{name} and CONNECT_ID=#{connectId}")
     List<IBMGroup> selectByName(String name, String connectId);
 }

@@ -198,4 +198,78 @@
         order by i.occur_time desc
     </select>
 
+    <!-- 根据机房ID获取机柜列表 -->
+    <select id="listByRoomId" resultType="com.jcca.web.asset.vo.CabinetVo">
+        select *
+        from cabinet
+        where room_id = #{roomId}
+        order by code asc
+    </select>
+
+    <!-- 查询组织下的所有机柜（版本1） -->
+    <select id="findByOrgId" resultType="com.jcca.web.asset.entity.Cabinet">
+        select c.*
+        from cabinet c
+                 left join room r on c.room_id = r.id
+        where r.org_id = #{orgId}
+        order by c.row_index, c.column_index
+    </select>
+
+    <!-- 查询组织下的所有机柜（版本2，带 roomName） -->
+    <select id="findByOrgIdV2" resultType="com.jcca.web2.vo.CabinetTopoDetailVo">
+        select c.*, r.name as roomName
+        from cabinet c
+                 left join room r on c.room_id = r.id
+        where r.org_id = #{orgId}
+        order by c.column_index
+    </select>
+
+    <!-- 根据资产ID查询所属机柜 -->
+    <select id="findByAssetId" resultType="com.jcca.web.asset.entity.Cabinet">
+        select c.*
+        from cabinet c
+        where c.id = (
+            select t.CABINET_ID
+            from ASSET_ATTACH t
+            where t.ASSET_ID = #{assetId}
+        )
+    </select>
+
+    <!-- 根据关键字模糊匹配资产并查询所在机柜 -->
+    <select id="topoCabinetByAssetStr" resultType="java.lang.String">
+        select DISTINCT (CABINET_ID)
+        from ASSET_ATTACH c
+                 join (
+            select ID
+            from asset
+            where name like CONCAT(CONCAT('%', #{keyword}), '%')
+               or ip = #{keyword}
+        ) a on c.ASSET_ID = a.id
+        where ROOM_ID = #{roomId}
+    </select>
+
+    <!-- 查询组织下的所有机柜（版本3，join room） -->
+    <select id="findCabinetByOrgId" resultType="com.jcca.web.asset.entity.Cabinet">
+        select c.*
+        from cabinet c
+                 join room r on c.room_id = r.id
+        where r.org_id = #{orgId}
+        order by c.column_index
+    </select>
+
+    <!-- 查询机柜内的资产信息（带文件信息） -->
+    <select id="findAssetInCabinet" resultType="com.jcca.web2.entity.FileRelate">
+        select t.id   itemId,
+               t.name itemName,
+               '96'   itemType,
+               f.view_url viewUrl
+        from asset t
+                 left join asset_attach a on t.id = a.asset_id
+                 left join file_relate f on t.id = f.item_id
+        where a.cabinet_id = #{cabinetId}
+          and t.is_del = 1
+        order by t.name
+    </select>
+
+
 </mapper>
