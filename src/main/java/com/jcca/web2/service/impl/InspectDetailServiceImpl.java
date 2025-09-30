@@ -1,6 +1,7 @@
 package com.jcca.web2.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -143,24 +144,34 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         Integer totalAsset = list.size();
         Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
         Integer normalAsset = totalAsset - abnormalAsset;
-        String header1 = "巡检人：%s，巡检时间：%s，巡检资产总数：%s，正常资产数：%s，异常资产数：%s，告警总数：%s";
         String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
-        header1 = String.format(header1, record.getModeType(), inspectTime, totalAsset, normalAsset, abnormalAsset, alarmCount);
 
-        StringBuilder header2 = new StringBuilder();
+        JSONObject headerLineOne = new JSONObject();
+        headerLineOne.put("xjPeople", record.getModeType());
+        headerLineOne.put("xjTime", inspectTime);
+        headerLineOne.put("xjAssetTotal", totalAsset);
+        headerLineOne.put("xjAssetNormalTotal", normalAsset);
+        headerLineOne.put("xjAssetAbNormalTotal", abnormalAsset);
+        headerLineOne.put("xjAssetWarningTotal", alarmCount);
+
+        List<JSONObject> headerLineTwo = new ArrayList<>();
         List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
         for (ItemVo vo : deskList) {
+            JSONObject headerLine = new JSONObject();
             Integer desk = Integer.parseInt(vo.getId());
             Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
-            header2.append(vo.getName()).append("：").append(totalDesk).append("台，");
             Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
             Integer normalDesk = totalDesk - abnormalDesk;
-            header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
-        }
 
+            headerLine.put("name", vo.getName());
+            headerLine.put("assetTotal", totalDesk);
+            headerLine.put("normalTotal", normalDesk);
+            headerLine.put("abNormalTotal", abnormalDesk);
+            headerLineTwo.add(headerLine);
+        }
         Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("header1", header1);
-        resultMap.put("header2", header2);
+        resultMap.put("header1", headerLineOne);
+        resultMap.put("header2", headerLineTwo);
         List<Map<String, Object>> lllist = new ArrayList<>();
         for (ItemVo itemVo : deskList) {
             Map<String, Object> map = new HashMap<>();
