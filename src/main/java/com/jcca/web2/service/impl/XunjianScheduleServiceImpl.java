@@ -818,7 +818,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
 
             List<ItemVo> assetlist = new ArrayList<>();
             query = Wrappers.query();
-            query.select("id", "name", "desk");
+            query.select("id", "name", "desk","org_id");
             query.eq("DESK", mode.getId());
             query.in("ORG_ID", orgIds);
             query.eq("WATCH", 1);
@@ -832,6 +832,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 vo3.setName(asset.getName());
                 vo3.setAssetDesk(asset.getDesk() + "");
                 vo3.setFlag(true);
+                // 用于智能巡检模板 适配组织机构父子关系
+                vo3.setOrgId(asset.getOrgId());
+                vo2.setOrgId(asset.getOrgId());
                 assetlist.add(vo3);
             }
             vo2.setChildren(assetlist);
