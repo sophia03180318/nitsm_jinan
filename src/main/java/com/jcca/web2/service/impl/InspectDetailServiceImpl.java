@@ -22,10 +22,7 @@ import com.jcca.web.xunjian.entity.XunjianDetailV2;
 import com.jcca.web.xunjian.entity.bean.XunjianServerDetailBean;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectDetailMapper;
-import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
-import com.jcca.web2.dto.xunjian.InspectReport1;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
+import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
@@ -293,5 +290,14 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         return req;
     }
 
+    @Override
+    public List<InspectEcharts> getBaseEcharts(String inspectCode) {
+        return inspectDetailMapper.getBaseEcharts(inspectCode);
+    }
+
+    @Override
+    public List<InspectEventDetail> getEchartsDetail(String inspectCode, String eventTypeId) {
+        return inspectDetailMapper.getEchartsDetail(inspectCode, eventTypeId);
+    }
 
 }

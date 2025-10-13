@@ -111,7 +111,7 @@ public class InspectTemplateControllerV2 {
         }
 
         if (null == templateDto.getAssetData() || templateDto.getAssetData().isEmpty()) {
-            return ResultVoUtil.error("设备不允许为空不允许为空");
+            return ResultVoUtil.error("设备不允许为空");
         }
 
         if (templateDto.getTemplateName().length() > 32) {
