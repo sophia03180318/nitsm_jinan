@@ -592,7 +592,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 ItemVo vo1 = new ItemVo();
                 vo1.setId(org.getId());
                 vo1.setName(org.getTitle());
-
+                vo1.setFlag(OrgTypeConst.CENTER);
                 List<ItemVo> modelist = new ArrayList<>();
                 List<StatisticsAlarmVo> mlist = assetService.getModeAsset(Collections.singletonList(org.getId()));
                 getModeAssetList(resultList, Collections.singletonList(org.getId()), vo1, modelist, mlist);
@@ -813,9 +813,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 continue;
             }
             ItemVo vo2 = new ItemVo();
-            vo2.setId(mode.getId());
             vo2.setName(mode.getName());
-
+            vo2.setFlag(OrgTypeConst.ASSET);
             List<ItemVo> assetlist = new ArrayList<>();
             query = Wrappers.query();
             query.select("id", "name", "desk","org_id");
@@ -831,10 +830,11 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 vo3.setId(asset.getId());
                 vo3.setName(asset.getName());
                 vo3.setAssetDesk(asset.getDesk() + "");
-                vo3.setFlag(true);
                 // 用于智能巡检模板 适配组织机构父子关系
                 vo3.setOrgId(asset.getOrgId());
+                vo3.setFlag(OrgTypeConst.ASSET_TYPE);
                 vo2.setOrgId(asset.getOrgId());
+                vo2.setId(mode.getId() + asset.getOrgId());
                 assetlist.add(vo3);
             }
             vo2.setChildren(assetlist);
