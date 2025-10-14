@@ -16,7 +16,8 @@
     <select id="findShareRecord" resultType="com.jcca.web2.vo.InspectShareVo">
         SELECT DISTINCT R.ID,
                         R.INSPECT_TIME AS NAME,
-                        '2'            AS isShare
+                        '2'            AS isShare,
+                        R.INSPECT_STATE AS inspectStatus
         FROM INSPECT_RECORD R
                  RIGHT JOIN INSPECT_RECORD_SHARE S ON R.ID = S.INSPECT_RECORD_ID
         WHERE R.INSPECT_CODE = #{jobId}

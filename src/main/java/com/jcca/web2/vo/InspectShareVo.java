@@ -26,4 +26,11 @@ public class InspectShareVo {
     private String operator;
 
     private List<InspectShareVo> children;
+
+    /**
+     * 巡检状态
+     * add by lfp
+     * 区分当前巡检模板状态是否正在巡检中
+     */
+    private Integer inspectStatus;
 }

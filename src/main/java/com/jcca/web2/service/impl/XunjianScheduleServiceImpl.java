@@ -516,6 +516,8 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         inspectRecord.setCreator(schedule.getOperator());
         inspectRecord.setModeName(schedule.getJobName());
         inspectRecord.setModeType(schedule.getOperator());
+        // 设置当前报告状态正在巡检中
+        inspectRecord.setInspectState(Web2Const.INSPECTING);
 
         inspectRecord.setAssetId("--");
         inspectRecord.setAssetName("--");
