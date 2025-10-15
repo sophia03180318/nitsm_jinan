@@ -58,7 +58,7 @@ public class AlarmWhitelistServiceImpl extends ServiceImpl<AlarmWhitelistMapper,
 
         if (req.getTypeMark() == Web2Const.WHITE_NORMAL) {
             String assetId = req.getAssetId().get(0);
-            alarmInfoServ.recoverAlarmV2(alarmCode, assetId, flag, "【新增白名单规则，自动恢复】");
+            alarmInfoServ.recoverAlarmV2(alarmCode, assetId, flag, "【新增屏蔽清单规则，自动恢复】");
             copy.setAssetId(assetId);
             save(copy);
             return;
@@ -69,7 +69,7 @@ public class AlarmWhitelistServiceImpl extends ServiceImpl<AlarmWhitelistMapper,
             copy.setAssetId("--");
             save(copy);
             for (String assetId : assetIds) {
-                alarmInfoServ.recoverAlarmV2(alarmCode, assetId, flag, "【新增白名单规则，自动恢复】");
+                alarmInfoServ.recoverAlarmV2(alarmCode, assetId, flag, "【新增屏蔽清单规则，自动恢复】");
 
                 AlarmWhiteAsset alarmWhiteAsset = new AlarmWhiteAsset();
                 alarmWhiteAsset.setId(MyIdUtil.getId());
