@@ -1,6 +1,7 @@
 package com.jcca.web2.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,10 +22,7 @@ import com.jcca.web.xunjian.entity.XunjianDetailV2;
 import com.jcca.web.xunjian.entity.bean.XunjianServerDetailBean;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectDetailMapper;
-import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
-import com.jcca.web2.dto.xunjian.InspectReport1;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
+import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
@@ -143,24 +141,36 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         Integer totalAsset = list.size();
         Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
         Integer normalAsset = totalAsset - abnormalAsset;
-        String header1 = "巡检人：%s，巡检时间：%s，巡检资产总数：%s，正常资产数：%s，异常资产数：%s，告警总数：%s";
         String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
-        header1 = String.format(header1, record.getModeType(), inspectTime, totalAsset, normalAsset, abnormalAsset, alarmCount);
 
-        StringBuilder header2 = new StringBuilder();
+        JSONObject headerLineOne = new JSONObject();
+        headerLineOne.put("xjPeople", record.getModeType());
+        headerLineOne.put("xjTime", inspectTime);
+        headerLineOne.put("xjAssetTotal", totalAsset); // 总数
+        headerLineOne.put("xjAssetNormalTotal", normalAsset); // 正常资产数
+        headerLineOne.put("xjAssetAbNormalTotal", abnormalAsset); // 异常资产数
+        headerLineOne.put("xjAssetWarningTotal", alarmCount);  // 告警总数
+
+        List<JSONObject> headerLineTwo = new ArrayList<>();
         List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
         for (ItemVo vo : deskList) {
+            JSONObject headerLine = new JSONObject();
             Integer desk = Integer.parseInt(vo.getId());
             Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
-            header2.append(vo.getName()).append("：").append(totalDesk).append("台，");
-            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
-            Integer normalDesk = totalDesk - abnormalDesk;
-            header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
-        }
+            Integer abNormalTotal = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
+            Integer warningTotal = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
+            Integer normalDesk = totalDesk - abNormalTotal - warningTotal;
 
+            headerLine.put("name", vo.getName());
+            headerLine.put("assetTotal", totalDesk); // 总数
+            headerLine.put("normalTotal", normalDesk); // 正常资产数
+            headerLine.put("abNormalTotal", abNormalTotal); // 异常资产数
+            headerLine.put("warningTotal", warningTotal);  // 告警总数
+            headerLineTwo.add(headerLine);
+        }
         Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("header1", header1);
-        resultMap.put("header2", header2);
+        resultMap.put("header1", headerLineOne);
+        resultMap.put("header2", headerLineTwo);
         List<Map<String, Object>> lllist = new ArrayList<>();
         for (ItemVo itemVo : deskList) {
             Map<String, Object> map = new HashMap<>();
@@ -282,5 +292,14 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         return req;
     }
 
+    @Override
+    public List<InspectEcharts> getBaseEcharts(String inspectCode) {
+        return inspectDetailMapper.getBaseEcharts(inspectCode);
+    }
+
+    @Override
+    public List<InspectEventDetail> getEchartsDetail(String inspectCode, String eventTypeId) {
+        return inspectDetailMapper.getEchartsDetail(inspectCode, eventTypeId);
+    }
 
 }

@@ -33,12 +33,13 @@ public interface Web2Const {
     String STATISTICS_TOP_MSG_HANDLE = "3"; // 大屏上方滚动处理消息
     String ALARM_RIGHT_DOWN = "4"; // 原页面右下角告警消息
 
-    // 巡检指标状态 0未知，1待巡检，2正在巡检，3巡检正常，4巡检异常
+    // 巡检指标状态 0未知，1待巡检，2正在巡检，3巡检正常，4巡检异常，5巡检告警
     String UNKNOWN = "0";
     String INSPECT = "1";
     String INSPECTING = "2";
     String INSPECTED = "3";
     String INSPECT_ERROR = "4";
+    String INSPECT_ALARM = "5";
 
     // 巡检管理操作状态
     String INSPECT_NO = "NO"; // 未开始
@@ -110,5 +111,9 @@ public interface Web2Const {
             ReceiveCollectConst.RAID_SYSTEM_MSG,
             ReceiveCollectConst.DS_SYSTEM_MSG,
     };
+
+    // 屏蔽名单类型 0普通，1批量
+    Integer WHITE_NORMAL = 0;
+    Integer WHITE_BATCH = 1;
 
 }

@@ -724,4 +724,34 @@ public class XunjianFinalController {
         writer.close();
 
     }
+
+    @GetMapping("/echarts")
+    @ApiOperation("柱状图接口")
+    public ResultVo<Object> baseEcharts(String inspectCode) {
+        if (StringUtils.isEmpty(inspectCode)) {
+            return ResultVoUtil.warning("参数错误");
+        }
+
+        try {
+            return ResultVoUtil.success(inspectDetailService.getBaseEcharts(inspectCode));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultVoUtil.error("柱状图数据获取异常");
+        }
+    }
+
+    @GetMapping("/echarts/detail")
+    @ApiOperation("柱状图告警事件详情")
+    public ResultVo<Object> echartsDetail(String inspectCode, String eventTypeId) {
+        if (StringUtils.isEmpty(inspectCode)) {
+            return ResultVoUtil.warning("参数错误");
+        }
+
+        try {
+            return ResultVoUtil.success(inspectDetailService.getEchartsDetail(inspectCode, eventTypeId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultVoUtil.error("指标事件获取异常");
+        }
+    }
 }

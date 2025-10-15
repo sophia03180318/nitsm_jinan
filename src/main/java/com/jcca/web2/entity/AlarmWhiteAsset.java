@@ -1,23 +1,27 @@
 package com.jcca.web2.entity;
 
+
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 告警白名单 在此名单内的设备将不再产生此类告警
- *
- * @description: 告警白名单
- * @author: Lvyp
- * @create: 2023/11/30 10:38
+ * @author lifp
+ * @version 1.0
+ * @description: 屏蔽黑名单设备
+ * @date 2025-10-14 星期二 10:43:48
  */
-@TableName("ALARM_WHITE_LIST")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class AlarmWhitelist extends Model<AlarmWhitelist> {
+@TableName(value = "ALARM_WHITE_ASSET")
+public class AlarmWhiteAsset extends Model<InspectTemplate> implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     /**
      * ID
@@ -30,33 +34,16 @@ public class AlarmWhitelist extends Model<AlarmWhitelist> {
     @TableField("ASSET_ID")
     private String assetId;
     /**
-     * 一些告警的特殊设定值
-     * 如：进程告警：放入进程名称
-     * 端口告警 ：放入端口索引
-     * 网卡告警：放入网卡名称
+     * 用户ID
      */
-    @TableField("FLAG")
-    private String flag;
+    @TableField("USER_ID")
+    private String userId;
 
     /**
-     * 事件匹配码
+     * 黑名单列表ID
      */
-    @TableField("ALARM_CODE")
-    private String alarmCode;
-
-    /**
-     * 事件类型ID
-     */
-    @TableField(value = "EVENT_TYPE_ID")
-    private String eventTypeId;
-
-    /**
-     * 事件类型标识
-     * 0 普通
-     * 1 批量
-     */
-    @TableField(value = "TYPE_MARK")
-    private int typeMark;
+    @TableField("WHITE_ID")
+    private String whiteId;
 
     /**
      * 创建时间
@@ -69,5 +56,4 @@ public class AlarmWhitelist extends Model<AlarmWhitelist> {
      */
     @TableField(value = "CREATOR", fill = FieldFill.INSERT)
     private String creator;
-
 }

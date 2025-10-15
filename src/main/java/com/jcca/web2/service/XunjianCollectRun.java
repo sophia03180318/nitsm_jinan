@@ -81,7 +81,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                     dto.setAssetId(event.getAssetId());
                     dto.setTargetItem(event.getEventRedisKey());
                     if (event.getStatus() != null) {
-                        dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
+                        dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ALARM : Web2Const.INSPECTED);
                     }
                     if (event.getInfo() != null) {
                         dto.setInspectValue(event.getInfo().getValue() + "");
@@ -227,6 +227,8 @@ public class XunjianCollectRun implements ApplicationRunner {
             // 清空缓存
             Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
             this.clearMap(inspectRecordId);
+            // 更新当前巡检报告状态为正常
+            inspectRecordService.lambdaUpdate().eq(InspectRecord::getId,inspectRecordId).set(InspectRecord::getInspectState,Web2Const.INSPECTED).update();
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检结束", inspectRecordId);
             return;
         }

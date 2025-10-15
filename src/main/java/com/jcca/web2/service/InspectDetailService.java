@@ -1,6 +1,8 @@
 package com.jcca.web2.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jcca.web2.dto.xunjian.InspectEcharts;
+import com.jcca.web2.dto.xunjian.InspectEventDetail;
 import com.jcca.web2.dto.xunjian.InspectTargetDetailInfoVo;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
@@ -36,4 +38,21 @@ public interface InspectDetailService extends IService<InspectDetail> {
     Map<String, Object> getReport1(String inspectCode);
 
     Map<String, Object> report1Down(String inspectCode);
+
+    /**
+     * 柱状图基础数据
+     *
+     * @param inspectCode
+     * @return
+     */
+    List<InspectEcharts> getBaseEcharts(String inspectCode);
+
+    /**
+     * 柱状图事件详情数据
+     *
+     * @param inspectCode
+     * @param eventTypeId
+     * @return
+     */
+    List<InspectEventDetail> getEchartsDetail(String inspectCode, String eventTypeId);
 }

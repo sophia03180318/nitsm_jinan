@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web2.dao.InspectTemplateMapper">
+
+    <resultMap id="assetDataMap" type="com.jcca.web2.vo.InspectTemplateVo$AssetData">
+        <result property="assetId" column="assetId"/>
+        <result property="assetName" column="assetName"/>
+        <result property="modeType" column="modeType"/>
+        <result property="orgId" column="orgId"/>
+    </resultMap>
+
+    <resultMap id="inspectTemplateMap" type="com.jcca.web2.vo.InspectTemplateVo">
+        <result property="templateName" column="templateName" jdbcType="VARCHAR"/>
+        <result property="templateCode" column="templateCode" jdbcType="VARCHAR"/>
+        <result property="createTime" column="createTime"/>
+        <collection property="orgData"
+                    ofType="com.jcca.web2.vo.InspectTemplateVo$AssetData"
+                    resultMap="assetDataMap"/>
+    </resultMap>
+
+    <select id="queryInspectTemplateData" resultMap="inspectTemplateMap">
+        SELECT it.TEMPLATE_NAME AS templateName,
+               it.TEMPLATE_CODE AS templateCode,
+               it.CREATE_TIME   AS createTime,
+               it.ASSET_ID      AS assetId,
+               ass.NAME         AS assetName,
+               ass.ASSET_MODE   AS modeType,
+               ass.ORG_ID       AS orgId
+        FROM INSPECT_TEMPLATE it
+                 LEFT JOIN ASSET ass ON it.ASSET_ID = ass.ID
+        WHERE it.USER_ID = #{userId}
+        ORDER BY it.TEMPLATE_CODE, it.ASSET_ID
+    </select>
+</mapper>

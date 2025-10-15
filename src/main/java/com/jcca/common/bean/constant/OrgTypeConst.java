@@ -44,4 +44,8 @@ public interface OrgTypeConst {
      * 机柜
      */
     byte CABINET = 99;
+    /**
+     * 设备类型
+     */
+    byte ASSET_TYPE = 5;
 }

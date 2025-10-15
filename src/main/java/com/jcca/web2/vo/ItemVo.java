@@ -24,7 +24,12 @@ public class ItemVo {
 
     private String assetDesk;
     private String eventCategory;
-    private boolean flag;
+    private int flag;
+    /**
+     * add by lfp
+     * 用于智能巡检模板 适配组织机构父子关系
+     */
+    private String orgId;
 
     private List<ItemVo> children;
 }

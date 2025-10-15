@@ -1,14 +1,11 @@
 package com.jcca.web2.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jcca.web2.dto.xunjian.InspectAssetDetailInfo;
-import com.jcca.web2.dto.xunjian.InspectReport1;
-import com.jcca.web2.dto.xunjian.InspectTargetDetailInfo;
+import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.vo.InspectRecordListVo;
 import com.jcca.web2.vo.ItemVo;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -46,4 +43,21 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
     List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId);
 
     List<InspectReport1> getReport1(String inspectCode);
+
+    /**
+     * 柱状图基础数据
+     *
+     * @param inspectCode
+     * @return
+     */
+    List<InspectEcharts> getBaseEcharts(@Param(value = "inspectCode") String inspectCode);
+
+    /**
+     * 柱状图事件详情数据
+     *
+     * @param inspectCode
+     * @param eventTypeId
+     * @return
+     */
+    List<InspectEventDetail> getEchartsDetail(@Param(value = "inspectCode") String inspectCode, @Param(value = "eventTypeId") String eventTypeId);
 }

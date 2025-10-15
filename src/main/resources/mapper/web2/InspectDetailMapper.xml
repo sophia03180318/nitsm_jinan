@@ -168,4 +168,51 @@
         ORDER BY d.asset_ip1
     </select>
 
+    <!-- 获取柱状图基础数据 -->
+    <select id="getBaseEcharts" resultType="com.jcca.web2.dto.xunjian.InspectEcharts">
+        SELECT ind.EVENT_TYPE_ID                                    AS eventTypeId,
+               aet.NAME                                             AS eventTypeName,
+               COUNT(DISTINCT ind.ASSET_ID)                         AS assetCount,
+               COUNT(CASE WHEN ind.ALARM_ID IS NOT NULL THEN 1 END) AS alarmCount
+        FROM INSPECT_DETAIL ind
+                 LEFT JOIN ALARM_EVENT_TYPE aet
+                           ON
+                               ind.EVENT_TYPE_ID = aet.ID
+        WHERE ind.INSPECT_CODE = #{inspectCode}
+          AND ind.EVENT_TYPE_ID IS NOT NULL
+        GROUP BY ind.EVENT_TYPE_ID,
+                 aet.NAME
+        ORDER BY assetCount DESC
+    </select>
+
+    <!-- 获取柱状图数据详情 -->
+    <select id="getEchartsDetail" resultType="com.jcca.web2.dto.xunjian.InspectEventDetail">
+        SELECT
+        ind.ASSET_ID AS assetId,
+        ind.TARGET_STATUS AS alarmStatus,
+        ind.ASSET_NAME AS assetName,
+        ind.REMARK AS remarkStr,
+        ind.ALARM_ID AS alarmId,
+        ass.DESK AS assetMode,
+        aet.NAME,
+        ai.TITLE AS alarmTitle,
+        ai.DESCRIPTION AS alarmDescription,
+        ai.ALARM_LEVEL AS alarmLevel,
+        ai.STATUS AS solveStatus
+        FROM
+        INSPECT_DETAIL ind
+        LEFT JOIN ALARM_EVENT_TYPE aet ON
+        aet.id = ind.EVENT_TYPE_ID
+        LEFT JOIN ASSET ass ON
+        ass.ID = ind.ASSET_ID
+        LEFT JOIN ALARM_INFO ai ON
+        ai.ID = ind.ALARM_ID
+        WHERE ind.INSPECT_CODE = #{inspectCode}
+
+        <if test="eventTypeId != null and eventTypeId != ''">
+            AND ind.EVENT_TYPE_ID = #{eventTypeId}
+        </if>
+        AND ind.ALARM_ID IS NOT NULL
+    </select>
+
 </mapper>

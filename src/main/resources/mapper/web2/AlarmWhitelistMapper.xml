@@ -4,7 +4,7 @@
     <select id="pageV2" resultType="com.jcca.web2.vo.WhitePageQueryVo">
         SELECT b.NAME as assetName,c.NAME as eventTypeName,a.id,a.ASSET_ID as assetId,
         a.FLAG ,a.ALARM_CODE as alarmCode ,a.EVENT_TYPE_ID as eventTypeId,a.CREATE_TIME as createTime,
-        a.creator
+        a.creator,a.TYPE_MARK as typeMark
         FROM ALARM_WHITE_LIST a
         left join ASSET b on a.ASSET_ID = b.id
         left join ALARM_EVENT_TYPE c on c.ID =a.EVENT_TYPE_ID
@@ -36,5 +36,34 @@
             </otherwise>
         </choose>
     </select>
+
+    <!--    查询普通数据-->
+    <select id="queryAssetList" resultType="com.jcca.web2.vo.CommonAssetInfo">
+        SELECT b.NAME       AS assetName,
+               a.ASSET_ID   AS assetId,
+               a.FLAG,
+               b.ASSET_MODE AS modeType,
+               b.ORG_ID
+        FROM ALARM_WHITE_LIST a
+                 LEFT JOIN ASSET b ON
+            a.ASSET_ID = b.id
+        WHERE a.id = #{whiteId}
+    </select>
+
+    <!--    查询批量-->
+    <select id="queryAssetListBatch" resultType="com.jcca.web2.vo.CommonAssetInfo">
+        SELECT b.NAME       AS assetName,
+               awa.ASSET_ID AS assetId,
+               a.FLAG,
+               b.ASSET_MODE AS modeType,
+               b.ORG_ID
+        FROM ALARM_WHITE_ASSET awa
+                 LEFT JOIN ASSET b ON
+            awa.ASSET_ID = b.id
+                 LEFT JOIN ALARM_WHITE_LIST a ON
+            awa.WHITE_ID = a.id
+        WHERE a.id = #{whiteId}
+    </select>
+
 
 </mapper>

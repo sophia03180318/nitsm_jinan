@@ -1,12 +1,11 @@
 package com.jcca.web2.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.enums.ResultEnum;
-import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.ResultVoUtil;
-import com.jcca.dataProcessing.enums.EventEnum;
 import com.jcca.dataProcessing.manager.cache.CacheEvent;
 import com.jcca.dataProcessing.manager.cache.CacheOptEnum;
 import com.jcca.dataProcessing.support.ListenerManager;
@@ -41,8 +40,10 @@ public class AlarmWhitelistControllerV2 extends ListenerManager {
     @ApiOperation("添加白名单")
     @PostMapping("/add")
     public ResultVo add(@RequestBody @Validated AlarmWhitelistAddDto req) {
-        AlarmWhitelist copy = EntityBeanUtil.copy(req, AlarmWhitelist.class);
-        whitelistServ.addWhite(copy);
+        if (ObjectUtil.isEmpty(req.getAssetId())) {
+            return ResultVoUtil.error("资产数据为空");
+        }
+        whitelistServ.addWhite(req);
         return ResultVoUtil.success();
     }
 
@@ -57,7 +58,8 @@ public class AlarmWhitelistControllerV2 extends ListenerManager {
         if(Objects.isNull(entity)){
             return ResultVoUtil.success();
         }
-        whitelistServ.removeByIdV2(id);
+        int typeMark = entity.getTypeMark();
+        whitelistServ.removeByIdV2(id, typeMark);
 
         CacheEvent event = new CacheEvent();
         event.setOpt(CacheOptEnum.REMOVE);
@@ -74,6 +76,12 @@ public class AlarmWhitelistControllerV2 extends ListenerManager {
         IPage<WhitePageQueryVo> result = whitelistServ.pageV2(query);
 
         return ResultVoUtil.success(result);
+    }
+
+    @ApiOperation("获取屏蔽名单详情")
+    @GetMapping("/detail/{whiteId}")
+    public ResultVo add(@PathVariable(value = "whiteId") String whiteId) {
+        return ResultVoUtil.success(whitelistServ.queryDetailById(whiteId));
     }
 
 }
