@@ -9,6 +9,7 @@
         <result property="assetId" column="assetId"/>
         <result property="assetName" column="assetName"/>
         <result property="modeType" column="modeType"/>
+        <result property="orgId" column="orgId"/>
     </resultMap>
 
     <resultMap id="inspectTemplateMap" type="com.jcca.web2.vo.InspectTemplateVo">
@@ -26,7 +27,8 @@
                it.CREATE_TIME   AS createTime,
                it.ASSET_ID      AS assetId,
                ass.NAME         AS assetName,
-               ass.ASSET_MODE   AS modeType
+               ass.ASSET_MODE   AS modeType,
+               ass.ORG_ID       AS orgId
         FROM INSPECT_TEMPLATE it
                  LEFT JOIN ASSET ass ON it.ASSET_ID = ass.ID
         WHERE it.USER_ID = #{userId}

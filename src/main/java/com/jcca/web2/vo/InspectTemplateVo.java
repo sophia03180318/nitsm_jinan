@@ -34,5 +34,7 @@ public class InspectTemplateVo {
         private String assetName;
         // 资产类型
         private String modeType;
+        // 组织机构ID
+        private String orgId;
     }
 }
