@@ -146,10 +146,10 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         JSONObject headerLineOne = new JSONObject();
         headerLineOne.put("xjPeople", record.getModeType());
         headerLineOne.put("xjTime", inspectTime);
-        headerLineOne.put("xjAssetTotal", totalAsset);
-        headerLineOne.put("xjAssetNormalTotal", normalAsset);
-        headerLineOne.put("xjAssetAbNormalTotal", abnormalAsset);
-        headerLineOne.put("xjAssetWarningTotal", alarmCount);
+        headerLineOne.put("xjAssetTotal", totalAsset); // 总数
+        headerLineOne.put("xjAssetNormalTotal", normalAsset); // 正常资产数
+        headerLineOne.put("xjAssetAbNormalTotal", abnormalAsset); // 异常资产数
+        headerLineOne.put("xjAssetWarningTotal", alarmCount);  // 告警总数
 
         List<JSONObject> headerLineTwo = new ArrayList<>();
         List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
@@ -157,13 +157,15 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             JSONObject headerLine = new JSONObject();
             Integer desk = Integer.parseInt(vo.getId());
             Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
-            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
-            Integer normalDesk = totalDesk - abnormalDesk;
+            Integer abNormalTotal = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
+            Integer warningTotal = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
+            Integer normalDesk = totalDesk - abNormalTotal - warningTotal;
 
             headerLine.put("name", vo.getName());
-            headerLine.put("assetTotal", totalDesk);
-            headerLine.put("normalTotal", normalDesk);
-            headerLine.put("abNormalTotal", abnormalDesk);
+            headerLine.put("assetTotal", totalDesk); // 总数
+            headerLine.put("normalTotal", normalDesk); // 正常资产数
+            headerLine.put("abNormalTotal", abNormalTotal); // 异常资产数
+            headerLine.put("warningTotal", warningTotal);  // 告警总数
             headerLineTwo.add(headerLine);
         }
         Map<String, Object> resultMap = new HashMap<>();
