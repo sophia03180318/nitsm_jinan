@@ -56,7 +56,7 @@ public class EventPageDto extends PageDto {
      * 1、已知
      * 2、未知
      * 3、所有
-     * 4、没有配置级别的syslog事件
+     * 4、没有配置级别的所有事件
      */
     private Integer eventType;
 

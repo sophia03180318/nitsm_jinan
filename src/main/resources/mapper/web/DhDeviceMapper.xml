@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jcca.web.common.dao.DeviceMapper">
+    <!--新增所有-->
+    <insert id="savePub">
+        INSERT INTO DH_FLAG (FLAG, EVENT_ID, DEVICE_ID)
+        SELECT
+            #{flag} AS FLAG,
+            #{eventId} AS EVENT_ID,
+            d.ID AS DEVICE_ID
+        FROM DH_DEVICE d
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM DH_FLAG f
+            WHERE f.EVENT_ID = #{eventId}
+              AND f.DEVICE_ID = d.ID
+        )
+    </insert>
+
+    <!-- 判断关键字和设备是否有相关配置 -->
+    <select id="isDevice" resultType="com.jcca.web.common.entity.DhFlag">
+        SELECT  * FROM DH_FLAG
+        WHERE EVENT_ID  = #{eventId}
+        AND DEVICE_ID = #{deviceId}
+    </select>
+
+    <!-- 获取设备树 -->
+    <select id="getDeviceTree"  resultType="com.jcca.web.common.service.bean.DhNodeVo">
+        SELECT
+            id,
+            parent_id,
+            name,
+            '1' AS type
+        FROM
+            DH_STATION
+        UNION ALL
+        SELECT
+            d.id,
+            d.parent_id,
+            d.name,
+            '2' AS type
+        FROM
+            DH_DEVICE d
+    </select>
+
+
+    <select id="getProperty" resultType="com.jcca.web.common.service.bean.DhNodeVo">
+        select name from DH_PROPERTY where PARENT_ID={deviceId}
+    </select>
+
+
+    <select id="getDevices" resultType="com.jcca.web.common.service.bean.DhNodeVo">
+        SELECT DEVICE_ID as id
+        FROM DH_FLAG
+        WHERE EVENT_ID = #{eventId}
+    </select>
+
+
+</mapper>

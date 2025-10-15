@@ -16,4 +16,5 @@ import java.util.List;
 public interface DhAlarmMapper extends BaseMapper<Alarm> {
     List<Alarm> getAlarm();
 
+    List<Alarm> selectAssetAlarm();
 }

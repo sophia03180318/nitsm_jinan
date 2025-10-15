@@ -40,6 +40,7 @@ public class QuartzDhStatusJob extends QuartzJobBean {
     private AssetService assetServ;
     @Resource
     private SysModuleConfigService sysModuleConfigService;
+
     @Override
     protected void executeInternal(JobExecutionContext context) {
         SysModuleConfig config = sysModuleConfigService.getSysModuleConfig("config:dongHuan");
@@ -55,13 +56,11 @@ public class QuartzDhStatusJob extends QuartzJobBean {
             sysModuleConfigService.save(config1);
             config = config1;
         }
-        if(!"open".equals(config.getValue())){
-            return ;
+        if (!"open".equals(config.getValue())) {
+            return;
         }
-        QueryWrapper<Alarm> qw = new QueryWrapper();
-        qw.orderByDesc("OCCURRENCE_TIME");
-        qw.likeRight("DEVICE_ID", "1");
-        List<Alarm> alarmLists = this.alarmService.list(qw);
+
+        List<Alarm> alarmLists = this.alarmService.getAssetAlarm();
         int size = 20;
         if (alarmLists.size() < 20) {
             size = alarmLists.size();
@@ -79,7 +78,8 @@ public class QuartzDhStatusJob extends QuartzJobBean {
                             dongHuanEntity.setAssetId(alarm.getDeviceId());
                             dongHuanEntity.setFlag(alarm.getAlarmId());
                             dongHuanEntity.setCreateTime(alarm.getOccurrenceTime());
-                            dongHuanEntity.setOriginalMsg("动环告警: " + alarm.getDescc());
+                            dongHuanEntity.setOriginalMsg("动环告警:("+parseDataId(alarm.getStationId())+")"+alarm.getName() + "+ 状态：异常");
+                            // dongHuanEntity.setOriginalMsg(alarm.getDescc());
                             dongHuanEntity.setAssetName(asset.getAssetName());
                             log.info("动环推送告警: " + JSONUtil.toJsonStr(dongHuanEntity));
                             DongHuanAdapter dhAdapter = (DongHuanAdapter) this.dataProcessManager.getAdapater("dongHuanAdapter");
@@ -89,12 +89,26 @@ public class QuartzDhStatusJob extends QuartzJobBean {
                         }
                     }
                 }
-
                 alarm.setLevell(318);
                 this.alarmService.updateById(alarm);
             }
         }
     }
+
+
+    private  String parseDataId(String idStr) {
+        // 将字符串转换为 long
+        long id = Long.parseLong(idStr);
+
+        long AA = (id >> 27) & 0x1F;   // CSC 内 LSC 编号（5 位）
+        long BBB = (id >> 17) & 0x3FF;  // LSC 内站点编号（10 位）
+        long CC = (id >> 11) & 0x3F;   // 站内对象编号（6 位）
+        long DDD = id & 0x7FF;          // 对象下数据点编号（11 位）
+
+        return String.format("%d.%d.%d.%d", AA, BBB, CC, DDD);
+    }
+
+
 }
 
 

@@ -90,9 +90,9 @@ public class AlarmEventControllerV2 extends ListenerManager {
     @ApiOperation("规则配置")
     public ResultVo addRepo(@Validated @RequestBody AddAlarmRepoDto repo) {
         AlarmRepository copy = EntityBeanUtil.copy(repo, AlarmRepository.class);
-        repositoryServ.saveV2(copy);
+        String id = repositoryServ.saveV2(copy);
         this.dispatureEvent(new AlarmRepoEvent());
-        return ResultVoUtil.success();
+        return ResultVoUtil.success("配置成功",id);
     }
 
     @PostMapping("/updateRepo")

@@ -13,4 +13,6 @@ import java.util.List;
  **/
 public interface DhAlarmService extends IService<Alarm> {
     List<Alarm> getAlarm();
+
+    List<Alarm> getAssetAlarm();
 }

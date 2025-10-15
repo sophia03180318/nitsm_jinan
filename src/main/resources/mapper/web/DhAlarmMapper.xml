@@ -14,4 +14,18 @@
         )
     </select>
 
+
+    <!-- 联表查询告警和设备信息 -->
+    <select id="selectAssetAlarm" resultType="com.jcca.web.common.entity.Alarm">
+        SELECT
+            a.*,
+            d.PARENT_ID AS stationId
+        FROM DH_ALARM a
+                 JOIN dh_device d
+                      ON a.DEVICE_ID = d.ID
+        WHERE a.DEVICE_ID LIKE '1%'
+          AND a.ALARM_FLAG LIKE '%开始%'
+        ORDER BY a.OCCURRENCE_TIME DESC
+    </select>
+
 </mapper>

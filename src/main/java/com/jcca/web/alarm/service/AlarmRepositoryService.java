@@ -55,7 +55,7 @@ public interface AlarmRepositoryService extends IService<AlarmRepository> {
      *
      * @param copy
      */
-    void saveV2(AlarmRepository copy);
+    String saveV2(AlarmRepository copy);
 
     /**
      * 分页查询告警规则配置

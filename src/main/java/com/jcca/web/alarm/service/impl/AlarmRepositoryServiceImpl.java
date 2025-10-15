@@ -111,7 +111,7 @@ public class AlarmRepositoryServiceImpl extends ServiceImpl<AlarmRepositoryMappe
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveV2(AlarmRepository copy) {
+    public String saveV2(AlarmRepository copy) {
         //查询出所有此码的 命中关键字的更新
         QueryWrapper<AlarmEvent> queryWrapper = new QueryWrapper<AlarmEvent>();
         queryWrapper.eq("UNIQUE_CODE",copy.getAlarmCode());
@@ -128,6 +128,7 @@ public class AlarmRepositoryServiceImpl extends ServiceImpl<AlarmRepositoryMappe
         String id = MyIdUtil.getId();
         copy.setId(id);
         save(copy);
+        return id;
     }
 
     @Override

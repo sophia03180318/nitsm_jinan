@@ -62,7 +62,7 @@ public class Alarm {
     private  String alarmNumber;
 
     //告警标志
-    @TableField(exist = false)
+    @TableField("ALARM_FLAG")
     private String alarmFlag;
 
     //告警文本
@@ -72,5 +72,9 @@ public class Alarm {
     @TableField("CREATE_TIME")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
+
+    //组织ID
+    @TableField(exist = false)
+    private String stationId;
 
 }

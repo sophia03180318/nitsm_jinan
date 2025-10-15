@@ -7,6 +7,7 @@ import com.jcca.web.common.service.DhAlarmService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,5 +22,10 @@ public class DhAlarmServiceImpl extends ServiceImpl<DhAlarmMapper, Alarm> implem
     @Override
     public List<Alarm> getAlarm() {
         return alarmMapper.getAlarm();
+    }
+
+    @Override
+    public List<Alarm> getAssetAlarm() {
+        return alarmMapper.selectAssetAlarm();
     }
 }

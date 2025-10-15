@@ -17,7 +17,7 @@ public enum AlarmLevelEnum {
     LEVEL_TWO(AlarmLevelConst.MIDDLE_LEVEL, "二级告警"),
     LEVEL_THREE(AlarmLevelConst.LIGHT_LEVEL, "三级告警"),
     LEVEL_MSG(AlarmLevelConst.MSG_LEVEL, "信息通知"),
-    UN_CONFIG(AlarmLevelConst.UN_CONFIG, "未配制");
+    UN_CONFIG(AlarmLevelConst.UN_CONFIG, "未配置");
 
     private Integer code;
 

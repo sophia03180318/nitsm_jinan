@@ -966,12 +966,21 @@ public class DataProcessManager {
 
 
         //-----------------以下为事件信息处理程序----------------------------------------------------------------------
-        //事件配置
+        //查询告警配置
         IFilterHandler eventIsConfigAlarmHandler = this.getIFilterHandler("eventIsConfigAlarmHandler");
-        eventIsConfigAlarmHandler.addDataSourceListener(alarmListener);
+
+        //动环设备过滤
+        IFilterHandler eventIsFilterAlarmHandler = this.getIFilterHandler("eventIsFilterAlarmHandler");
+        eventIsConfigAlarmHandler.setNextFilter(eventIsFilterAlarmHandler);
+
+        //触发告警流程
+        IFilterHandler eventIsPushAlarmHandler = this.getIFilterHandler("eventIsPushAlarmHandler");
+        eventIsFilterAlarmHandler.setNextFilter(eventIsPushAlarmHandler);
+        eventIsPushAlarmHandler.addDataSourceListener(alarmListener);
+
         //事件保存
         IFilterHandler eventSaveAlarmHandler = this.getIFilterHandler("eventSaveAlarmHandler");
-        eventIsConfigAlarmHandler.setNextFilter(eventSaveAlarmHandler);
+        eventIsPushAlarmHandler.setNextFilter(eventSaveAlarmHandler);
 
         eventInfoHandler = eventIsConfigAlarmHandler;
 
