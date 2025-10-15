@@ -458,7 +458,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private void checkStatusTarget(String jobId, String inspectRecordId) {
         QueryWrapper<InspectAsset> query1 = Wrappers.query();
         query1.eq("JOB_ID", jobId);
-        query1.in("INSPECT_STATE", Arrays.asList("1", "2"));
+        query1.in("INSPECT_STATE", Arrays.asList("1", "2", "5"));
         List<InspectAsset> list1 = inspectAssetService.list(query1);
         for (InspectAsset inspectAsset : list1) {
             List<String> list = Arrays.asList(ALARM_TARGET_ARR);
