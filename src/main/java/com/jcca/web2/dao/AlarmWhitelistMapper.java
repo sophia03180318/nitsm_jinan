@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jcca.web2.dto.WhitePageQueryDto;
 import com.jcca.web2.entity.AlarmWhitelist;
+import com.jcca.web2.vo.CommonAssetInfo;
 import com.jcca.web2.vo.WhitePageQueryVo;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @description: 告警白名单
@@ -23,4 +26,18 @@ public interface AlarmWhitelistMapper extends BaseMapper<AlarmWhitelist> {
      * @return
      */
     IPage<WhitePageQueryVo> pageV2(Page page, @Param("query") WhitePageQueryDto query);
+
+    /**
+     * 查看黑名单设备
+     *
+     * @param whiteId
+     */
+    List<CommonAssetInfo> queryAssetList(@Param(value = "whiteId") String whiteId);
+
+    /**
+     * 查看黑名单设备
+     *
+     * @param whiteId
+     */
+    List<CommonAssetInfo> queryAssetListBatch(@Param(value = "whiteId") String whiteId);
 }

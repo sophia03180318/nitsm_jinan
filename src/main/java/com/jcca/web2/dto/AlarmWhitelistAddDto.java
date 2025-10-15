@@ -3,6 +3,7 @@ package com.jcca.web2.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * @description: 告警规则白名单添加
@@ -17,7 +18,7 @@ public class AlarmWhitelistAddDto {
      * 资产ID
      */
     @NotEmpty(message = "缺少资产ID")
-    private String assetId;
+    private List<String> assetId;
     /**
      * 一些告警的特殊设定值
      * 如：进程告警：放入进程名称
@@ -38,4 +39,10 @@ public class AlarmWhitelistAddDto {
     @NotEmpty(message = "缺少事件类型ID")
     private String eventTypeId;
 
+    /**
+     * 标识
+     * 0 普通
+     * 1 批量
+     */
+    private int typeMark;
 }
