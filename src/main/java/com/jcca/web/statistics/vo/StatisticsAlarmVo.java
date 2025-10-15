@@ -23,4 +23,6 @@ public class StatisticsAlarmVo implements Serializable {
     private String name;
 
     private String id;
+
+    private String orgId;
 }
