@@ -47,7 +47,7 @@
 
 
     <select id="getProperty" resultType="com.jcca.web.common.service.bean.DhNodeVo">
-        select name from DH_PROPERTY where PARENT_ID={deviceId}
+        select name from DH_PROPERTY where PARENT_ID=#{deviceId}
     </select>
 
 
