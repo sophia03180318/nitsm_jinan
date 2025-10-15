@@ -835,12 +835,18 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
                 // 用于智能巡检模板 适配组织机构父子关系
                 vo3.setOrgId(asset.getOrgId());
                 vo3.setFlag(OrgTypeConst.ASSET);
-                vo2.setOrgId(asset.getOrgId());
-                vo2.setId(mode.getId() + asset.getOrgId());
                 assetlist.add(vo3);
             }
             vo2.setChildren(assetlist);
-            modelist.add(vo2);
+
+            // orgId,id 用于智能巡检模板 适配组织机构父子关系
+            String orgId = mode.getOrgId();
+            vo2.setOrgId(orgId);
+            vo2.setId(mode.getId() + orgId);
+            // 筛选掉没有监控设备的指标
+            if (!list.isEmpty()) {
+                modelist.add(vo2);
+            }
         }
         vo1.setChildren(modelist);
         resultList.add(vo1);

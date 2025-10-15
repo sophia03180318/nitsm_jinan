@@ -172,7 +172,7 @@
     <!-- 20210112hanwone -->
     <select id="getModeAsset" resultType="com.jcca.web.statistics.vo.StatisticsAlarmVo"
             parameterType="java.util.List">
-        select count(a.desk) total, m.name, m.code as id
+        select count(a.desk) total, m.name, m.code as id, MIN(a.org_id) AS orgId
         from asset a
         left join asset_mode m on a.desk = m.code
         where a.desk is not null and a.is_del = 1 and m.code is not null and a.org_id in
