@@ -483,8 +483,6 @@ public class AlarmInfoController extends ListenerManager {
      */
     @PostMapping("/queryRemark")
     @ApiOperation(value = "告警历史备注分页查询")
-    @RequiresPermissions({"api:alarm:info:query"})
-    @ActionLog(name = "查询历史备注", title = "告警管理", key = LogTypeConstant.QUERY)
     ResultVo<PageBean<PageQueryRemarkResp>> pageQueryRemark(@RequestBody PageQueryRemarkReq req) {
         IPage<AlarmInfo> iPage = PagePlugin.startPageT(req.getPage(), req.getSize(), AlarmInfo.class);
         QueryWrapper<AlarmInfo> queryWrapper = new QueryWrapper<AlarmInfo>();
