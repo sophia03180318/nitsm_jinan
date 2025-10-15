@@ -75,7 +75,7 @@
                    MAX(INSPECT_STATE) AS STATUS,
                    COUNT(*) AS TOTAL,
                    SUM(CASE WHEN INSPECT_STATE = 3 THEN 1 ELSE 0 END) AS NORMAL,
-                   SUM(CASE WHEN INSPECT_STATE = 4 THEN 1 ELSE 0 END) AS ABNORMAL
+                   SUM(CASE WHEN INSPECT_STATE = 5 THEN 1 ELSE 0 END) AS ABNORMAL
             FROM INSPECT_ASSET
             WHERE JOB_ID = #{jobId}
             GROUP BY EVENT_TYPE_ID, EVENT_TYPE_NAME
@@ -96,7 +96,7 @@
             FROM INSPECT_DETAIL
             WHERE INSPECT_CODE = #{inspectRecordId}
               AND EVENT_TYPE_ID = #{eventTypeId}
-              AND INSPECT_STATE = 4
+              AND INSPECT_STATE = 5
             ORDER BY ASSET_ID
         </select>
 
@@ -106,7 +106,7 @@
             FROM INSPECT_DETAIL
             WHERE INSPECT_CODE = #{inspectRecordId}
               AND ASSET_ID = #{assetId}
-              AND INSPECT_STATE = 4
+              AND INSPECT_STATE = 5
             ORDER BY TARGET_ITEM
         </select>
 
