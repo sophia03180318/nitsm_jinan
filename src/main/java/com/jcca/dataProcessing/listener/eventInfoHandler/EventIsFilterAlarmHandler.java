@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Component("eventIsFilterAlarmHandler")
 public class EventIsFilterAlarmHandler extends IFilterHandler<IEvent> {
 
-    private static final String REPO_ID = "1743461406558396417";
+    private static final String REPO_CODE = "event:event_environment:notify";
 
     @Resource
     private DeviceService deviceService;
@@ -38,7 +38,7 @@ public class EventIsFilterAlarmHandler extends IFilterHandler<IEvent> {
         /**
          * 筛选动环设备
          */
-        if (!Objects.isNull(info.getEventAlarmLevelBaseEntity()) && REPO_ID.equals(info.getEventAlarmLevelBaseEntity().getRepoId())) {
+        if (!Objects.isNull(info.getEventAlarmLevelBaseEntity()) && REPO_CODE.equals(info.getEventAlarmLevelBaseEntity().getRepoId())) {
             EventAlarmLevelBaseEntity eventAlarmLevelBaseEntity = info.getEventAlarmLevelBaseEntity();
             String repoId = eventAlarmLevelBaseEntity.getRepoId();
             //调用方法 通过规则筛选设备

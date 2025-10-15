@@ -59,6 +59,7 @@ public class AlarmRepoManagerService implements AlarmRepoManager {
                 entity.setOpinion(alarmRepository.getPlanStr());
                 entity.setFlagType(alarmRepository.getFlagType());
                 entity.setStatusFlag(alarmRepository.getStatusFlag());
+                entity.setAlarmCode(alarmRepository.getAlarmCode());
                 entity.setCreateTime(alarmRepository.getCreateTime());
                 mapList.add(entity);
             }

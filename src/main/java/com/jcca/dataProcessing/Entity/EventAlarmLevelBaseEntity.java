@@ -19,6 +19,8 @@ public class EventAlarmLevelBaseEntity {
      * 规则库自己的ID
      */
     private String repoId;
+
+    private String alarmCode;
     /**
      * 事件类型ID
      */
