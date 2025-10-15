@@ -114,7 +114,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
 
 
         //创建事件
-        AlarmEvent event = createEvent(req.getAssetId(), repository, eventReq, occurTime);
+        AlarmEvent event = createEvent(asset, repository, eventReq, occurTime);
         //处理告警
 
         AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(alarmCode);
@@ -179,7 +179,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         DateTime occurTime = DateUtil.parse(req.getOccurTimeStr(), "yyyyMMddHHmmss");
         AlarmRepository repository = initAlarmRepo();
         //创建事件
-        AlarmEvent event = createEvent(assetId, repository, req, occurTime);
+        AlarmEvent event = createEvent(asset, repository, req, occurTime);
         //处理告警
         AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(req.getAlarmCode());
         if(Objects.nonNull(alarmInfo)){
@@ -312,20 +312,25 @@ public class StationAlarmServiceImpl implements StationAlarmService {
 
     /**
      * 创建事件
-     * @param assetId
+     * @param asset
      * @param repository
      * @param req
      * @param occurTime
      */
-    private AlarmEvent createEvent(String assetId, AlarmRepository repository, StationAlarmReqV2 req, Date occurTime){
+    private AlarmEvent createEvent(Asset asset, AlarmRepository repository, StationAlarmReqV2 req, Date occurTime){
         AlarmEvent event = new AlarmEvent();
         event.setId(MyIdUtil.getId());
-        event.setAssetId(assetId);
+        event.setAssetId(asset.getId());
         event.setEventTypeId(repository.getEventTypeId());
         event.setRepositoryId(repository.getId());
         event.setEventMsg(req.getAlarmDescription());
         event.setRepoMsg(req.getAlarmDescription());
         event.setUniqueCode(STATION_ALARM_UNIQUE);
+        if(StrUtil.isEmpty(req.getFlag())){
+            event.setFlag(asset.getIp()+"_"+asset.getId());
+        }else{
+            event.setFlag(asset.getIp()+"_"+asset.getId()+"_"+req.getFlag());
+        }
         event.setFlag(req.getFlag());
         if(req.getAlarmRecoverStatus()==1){
             event.setEventLevel(EventLevelEnum.ABNORMAL.getCode());
