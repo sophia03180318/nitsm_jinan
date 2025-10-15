@@ -81,7 +81,7 @@ public class XunjianCollectRun implements ApplicationRunner {
                     dto.setAssetId(event.getAssetId());
                     dto.setTargetItem(event.getEventRedisKey());
                     if (event.getStatus() != null) {
-                        dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
+                        dto.setInspectState(event.getStatus() == -1 ? Web2Const.INSPECT_ALARM : Web2Const.INSPECTED);
                     }
                     if (event.getInfo() != null) {
                         dto.setInspectValue(event.getInfo().getValue() + "");

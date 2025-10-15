@@ -482,7 +482,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
             }
             for (AlarmInfo info : infos) {
                 inspectAsset.setInspectValue(info.getDescription());
-                inspectAsset.setInspectState(Web2Const.INSPECT_ERROR);
+                inspectAsset.setInspectState(Web2Const.INSPECT_ALARM);
                 inspectAsset.setResultMsg(info.getDescription());
                 inspectAsset.setAlarmId(info.getId());
                 this.send2Queue(inspectAsset);
