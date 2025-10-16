@@ -1042,7 +1042,7 @@
     <select id="selectUnOverAlarm" resultType="com.jcca.web.alarm.entity.AlarmInfo">
         select * from ALARM_INFO
         where (STATUS = 1 or ALARM_STATE = 1)
-          and ALARM_CODE =#{alarmCode}
+          and ALARM_CODE =#{alarmCode}  order by OCCUR_TIME DESC
     </select>
 
     <select id="getAssetAlarmByOrg" resultType="com.jcca.web2.vo.WebAssetAlarmVo">

@@ -130,7 +130,7 @@ public class PromptInfoServiceImpl extends ServiceImpl<PromptInfoMapper, PromptI
         QueryWrapper<PromptInfo> wrapper = Wrappers.query();
         wrapper.select("PLATE_ID", "MODIFY_TIME");
         wrapper.eq("SOFTWARETYPE_ID", softwareTypeId);
-        wrapper.groupBy("PLATE_ID");
+        wrapper.groupBy("PLATE_ID", "MODIFY_TIME");
         wrapper.orderByDesc("MODIFY_TIME");
         List<PromptInfo> list = this.list(wrapper);
         for (PromptInfo type : list) {

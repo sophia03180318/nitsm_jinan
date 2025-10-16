@@ -1130,8 +1130,11 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
 
     @Override
     public AlarmInfo selectUnOverAlarm(String alarmCode) {
-
-        return alarmInfoMapper.selectUnOverAlarm(alarmCode);
+        List<AlarmInfo> alarmInfos = alarmInfoMapper.selectUnOverAlarm(alarmCode);
+        if (ObjectUtil.isNotNull(alarmInfos) && !alarmInfos.isEmpty()) {
+            return alarmInfos.get(0);
+        }
+        return null;
     }
 
     @Override

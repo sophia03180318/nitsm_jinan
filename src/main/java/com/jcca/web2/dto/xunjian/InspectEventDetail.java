@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 public class InspectEventDetail {
 
     @NotNull(message = "id 不可空")
-    private Long id;
+    private String id;
     /**
      * 资产的ID
      */
