@@ -200,7 +200,7 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      *
      * @return
      */
-    AlarmInfo selectUnOverAlarm(@Param("alarmCode") String alarmCode);
+    List<AlarmInfo> selectUnOverAlarm(@Param("alarmCode") String alarmCode);
 
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
 
