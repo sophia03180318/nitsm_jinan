@@ -188,6 +188,7 @@
     <!-- 获取柱状图数据详情 -->
     <select id="getEchartsDetail" resultType="com.jcca.web2.dto.xunjian.InspectEventDetail">
         SELECT
+        ind.id,
         ind.ASSET_ID AS assetId,
         ind.TARGET_STATUS AS alarmStatus,
         ind.ASSET_NAME AS assetName,
