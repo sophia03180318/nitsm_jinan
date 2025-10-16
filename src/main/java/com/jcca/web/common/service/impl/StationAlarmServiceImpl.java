@@ -41,10 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -56,6 +53,12 @@ import java.util.Objects;
 public class StationAlarmServiceImpl implements StationAlarmService {
 
     private static final String STATION_ALARM_UNIQUE = "STATION_PUSH_ALARM";
+    // 存储每个alarmCode对应的锁对象
+    private final Map<String, Object> lockMap = new WeakHashMap<>();
+    // 操作lockMap时的同步锁
+    private final Object mapLock = new Object();
+
+
 
     @Resource
     private AssetService assetService;
@@ -176,65 +179,90 @@ public class StationAlarmServiceImpl implements StationAlarmService {
             resp.setStatus(StationAlarmResp.PushAlarmStatusEnum.REFUSE.name());
             return resp;
         }
-        DateTime occurTime = DateUtil.parse(req.getOccurTimeStr(), "yyyyMMddHHmmss");
-        AlarmRepository repository = initAlarmRepo();
-        //创建事件
-        AlarmEvent event = createEvent(asset, repository, req, occurTime);
-        //处理告警
-        AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(req.getAlarmCode());
-        if(Objects.nonNull(alarmInfo)){
-            resp.setItsmId(alarmInfo.getId());
-        }
 
-
-        if(AlarmStateEnum.ALARM.getCode().intValue() == stationAlarmRecoverStatus){
+        String alarmCode = req.getAlarmCode();
+        Object lock = getLock(alarmCode);
+        synchronized (lock) {
+            DateTime occurTime = DateUtil.parse(req.getOccurTimeStr(), "yyyyMMddHHmmss");
+            AlarmRepository repository = initAlarmRepo();
+            //创建事件
+            AlarmEvent event = createEvent(asset, repository, req, occurTime);
+            //处理告警
+            AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(req.getAlarmCode());
             if(Objects.nonNull(alarmInfo)){
-                //历史存在已经恢复情况的告警  新建一个事件，关联此告警，并更新告警状态
-                if(AlarmStateEnum.RECOVER.getCode().intValue() == alarmInfo.getAlarmState()){
-                    alarmInfo.setAlarmState(AlarmStateEnum.ALARM.getCode());
-                    updateAlarmInfo(alarmInfo,event);
-                }
-            }else{
-                //新的告警
-                AlarmInfo newAlarmInfo = createAlarmInfo(req, asset, event.getEventTypeId(), occurTime);
-                saveAlarmInfo(newAlarmInfo,event);
-
-                resp.setItsmId(newAlarmInfo.getId());
+                resp.setItsmId(alarmInfo.getId());
             }
-        }else if(Objects.nonNull(alarmInfo) && AlarmStateEnum.ALARM.getCode().intValue() == alarmInfo.getAlarmState()){
-            //新上恢复
-            alarmInfo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
-            updateAlarmInfo(alarmInfo,event);
-        }
 
 
-        //更新资产的监控状态
-        if(StationAlarmUniqueCodeEnum.PING_STOP.name().equals(req.getUniqueCode())){
             if(AlarmStateEnum.ALARM.getCode().intValue() == stationAlarmRecoverStatus){
-                if(asset.getStatus() == StatusConst.OK){
-                    asset.setStatus(StatusConst.NO);
-                    assetService.updateById(asset);
+                if(Objects.nonNull(alarmInfo)){
+                    //历史存在已经恢复情况的告警  新建一个事件，关联此告警，并更新告警状态
+                    if(AlarmStateEnum.RECOVER.getCode().intValue() == alarmInfo.getAlarmState()){
+                        alarmInfo.setAlarmState(AlarmStateEnum.ALARM.getCode());
+                        updateAlarmInfo(alarmInfo,event);
+                    }
+                }else{
+                    //新的告警
+                    AlarmInfo newAlarmInfo = createAlarmInfo(req, asset, event.getEventTypeId(), occurTime);
+                    saveAlarmInfo(newAlarmInfo,event);
+
+                    resp.setItsmId(newAlarmInfo.getId());
                 }
-            }else{
-                if(asset.getStatus() == StatusConst.NO){
-                    asset.setStatus(StatusConst.OK);
-                    assetService.updateById(asset);
-                }
+            }else if(Objects.nonNull(alarmInfo) && AlarmStateEnum.ALARM.getCode().intValue() == alarmInfo.getAlarmState()){
+                //新上恢复
+                alarmInfo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
+                updateAlarmInfo(alarmInfo,event);
             }
-        }else if(StationAlarmUniqueCodeEnum.INTERFACES_STATUS.name().equals(req.getUniqueCode())){
-            //TOPO更新端口状态
-            if(AlarmStateEnum.ALARM.getCode().intValue() != stationAlarmRecoverStatus){
-                topoAssetPortServ.updatePortStatus(assetId, req.getFlag(),
-                        InterfaceStatus.OK.getCode().intValue());
-            } else {
-                topoAssetPortServ.updatePortStatus(assetId, req.getFlag(),
-                        InterfaceStatus.NO.getCode().intValue());
+
+
+            //更新资产的监控状态
+            if(StationAlarmUniqueCodeEnum.PING_STOP.name().equals(req.getUniqueCode())){
+                if(AlarmStateEnum.ALARM.getCode().intValue() == stationAlarmRecoverStatus){
+                    if(asset.getStatus() == StatusConst.OK){
+                        asset.setStatus(StatusConst.NO);
+                        assetService.updateById(asset);
+                    }
+                }else{
+                    if(asset.getStatus() == StatusConst.NO){
+                        asset.setStatus(StatusConst.OK);
+                        assetService.updateById(asset);
+                    }
+                }
+            }else if(StationAlarmUniqueCodeEnum.INTERFACES_STATUS.name().equals(req.getUniqueCode())){
+                //TOPO更新端口状态
+                if(AlarmStateEnum.ALARM.getCode().intValue() != stationAlarmRecoverStatus){
+                    topoAssetPortServ.updatePortStatus(assetId, req.getFlag(),
+                            InterfaceStatus.OK.getCode().intValue());
+                } else {
+                    topoAssetPortServ.updatePortStatus(assetId, req.getFlag(),
+                            InterfaceStatus.NO.getCode().intValue());
+                }
             }
         }
-
         return resp;
     }
 
+
+    /**
+     * 获取或创建alarmCode对应的锁对象
+     * @param alarmCode
+     * @return
+     */
+    private Object getLock(String alarmCode) {
+        // 先尝试直接获取
+        Object lock = lockMap.get(alarmCode);
+        if (lock == null) {
+            // 没有则创建，同步操作避免并发问题
+            synchronized (mapLock) {
+                lock = lockMap.get(alarmCode);
+                if (lock == null) {
+                    lock = new Object();
+                    lockMap.put(alarmCode, lock);
+                }
+            }
+        }
+        return lock;
+    }
 
 
     /**
@@ -390,6 +418,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         alarmInfo.setOccurTime(occurTime);
         alarmInfo.setLastTime(occurTime);
         alarmInfo.setAlarmCode(req.getAlarmCode());
+        alarmInfo.setAlarmFlag(req.getFlag());
         alarmInfo.setDescription(req.getAlarmDescription());
         alarmInfo.setContent(req.getAlarmDescription());
         alarmInfo.setBlank(blank);
