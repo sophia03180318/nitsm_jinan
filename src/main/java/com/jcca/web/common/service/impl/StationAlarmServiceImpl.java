@@ -238,8 +238,8 @@ public class StationAlarmServiceImpl implements StationAlarmService {
                             InterfaceStatus.NO.getCode().intValue());
                 }
             }
+            return resp;
         }
-        return resp;
     }
 
 
