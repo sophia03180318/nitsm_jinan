@@ -60,7 +60,7 @@ public class SysModuleConfigController {
      */
     @PostMapping("/update")
     @ApiOperation(value = "系统配置修改")
-    @RequiresPermissions({"api:config:update"})
+    //@RequiresPermissions({"api:config:update"})
     @ActionLog(name = "系统配置", title = "系统配置修改", key = LogTypeConstant.MODIFY)
     ResultVo<String> update(@RequestBody SysConfig req) {
         SysModuleConfig config = configService.getSysModuleConfig(sysConfigName);
