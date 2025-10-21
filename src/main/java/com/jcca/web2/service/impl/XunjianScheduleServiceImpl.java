@@ -292,6 +292,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private String getThreshold(InspectAsset inspectAsset, List<ThresholdProcess> thresholdProcessList) {
         ThresholdBaseEntity entity = null;
         String assetDesk = inspectAsset.getAssetDesk() + "";
+        String targetItem = inspectAsset.getTargetItem();
         if (assetDesk.contains("183")) {
             for (ThresholdProcess thresholdProcess : thresholdProcessList) {
                 entity = thresholdManager.xunjianGetThresholdValue(inspectAsset.getTargetItem(), inspectAsset.getAssetId(), thresholdProcess.getProcessName());
@@ -305,25 +306,36 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         if (Objects.isNull(entity)) {
             return "";
         }
+
+        if (targetItem.contains("sectionOne")) {
+            return entity.getOneLevelValue() + "";
+        } else if (targetItem.contains("sectionTwo")) {
+            return entity.getTwoLevelValue() + "";
+        } else if (targetItem.contains("sectionThree")) {
+            return entity.getThreeLevelValue() + "";
+        } else if (targetItem.contains("section")) {
+            return entity.getMinValue() + "_" + entity.getMaxValue();
+        }
+
         if (!entity.baseValueIsNull()) {
             return entity.getBaseValue() + "";
         }
         if (!entity.sectionValueIsNull()) {
             return entity.getMinValue() + "-" + entity.getMaxValue();
         }
-        if (!entity.oneLevelIsNull() || !entity.twoLevelIsNull() || !entity.threeLevelIsNull()) {
-            String level = "one-two-three";
-            if (!entity.oneLevelIsNull()) {
-                level = level.replace("one", entity.getOneLevelValue() + "");
-            }
-            if (!entity.twoLevelIsNull()) {
-                level = level.replace("two", entity.getTwoLevelValue() + "");
-            }
-            if (!entity.threeLevelIsNull()) {
-                level = level.replace("three", entity.getThreeLevelValue() + "");
-            }
-            return level;
-        }
+//        if (!entity.oneLevelIsNull() || !entity.twoLevelIsNull() || !entity.threeLevelIsNull()) {
+//            String level = "one-two-three";
+//            if (!entity.oneLevelIsNull()) {
+//                level = level.replace("one", entity.getOneLevelValue() + "");
+//            }
+//            if (!entity.twoLevelIsNull()) {
+//                level = level.replace("two", entity.getTwoLevelValue() + "");
+//            }
+//            if (!entity.threeLevelIsNull()) {
+//                level = level.replace("three", entity.getThreeLevelValue() + "");
+//            }
+//            return level;
+//        }
         return "";
     }
 

@@ -267,9 +267,9 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             Integer desk = Integer.parseInt(vo.getId());
             Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
             header2.append(vo.getName()).append("：").append(totalDesk).append("台，");
-            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
+            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
             Integer normalDesk = totalDesk - abnormalDesk;
-            header2.append("正常").append(normalDesk).append("台，异常").append(abnormalDesk).append("台。");
+            header2.append("正常").append(normalDesk).append("台，告警").append(abnormalDesk).append("台。");
         }
 
         Map<String, Object> resultMap = new HashMap<>();
