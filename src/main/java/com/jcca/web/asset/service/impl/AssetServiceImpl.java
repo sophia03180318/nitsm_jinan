@@ -2070,8 +2070,12 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             for (String orgId : orgIds) {
                 one = orgService.getById(orgId);
                 if (one.getType() == OrgTypeConst.LINE) {
-                    Set<SysOrg> children = orgService.getChildrenById(orgId);
-                    orgIdList.addAll(children.stream().map(SysOrg::getId).collect(Collectors.toList()));
+//                    Set<SysOrg> children = orgService.getChildrenById(orgId);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("pid", orgId);
+                    map.put("userId", ShiroUtil.getSubject().getId());
+                    List<SysOrg> levelOrg = orgService.getOrgsByUserId(map);
+                    orgIdList.addAll(levelOrg.stream().map(SysOrg::getId).collect(Collectors.toList()));
                     continue;
                 }
                 orgIdList.add(orgId);
