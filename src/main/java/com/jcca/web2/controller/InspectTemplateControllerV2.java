@@ -41,6 +41,12 @@ public class InspectTemplateControllerV2 {
 
             SysUser subject = ShiroUtil.getSubject();
             String templateCode = MyIdUtil.getId();
+
+            Integer templateCount = inspectTemplateService.lambdaQuery().eq(InspectTemplate::getUserId, subject.getId()).count();
+            if (templateCount >= 8) {
+                return ResultVoUtil.error("个人模板数不能超过8个");
+            }
+
             for (String assetId : addTemplate.getAssetData()) {
                 InspectTemplate template = new InspectTemplate();
                 template.setTemplateName(addTemplate.getTemplateName());
