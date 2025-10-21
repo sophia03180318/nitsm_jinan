@@ -293,6 +293,17 @@ public class XunjianCollectRun implements ApplicationRunner {
         }
         this.sendMsg(operator, XunjianWSDto.XUNJIANING_ASSET, jobId, assetId, assetName, assetStateMap.get(inspectRecordId).get(assetId)); // 当前巡检资产
 
+        // 更新巡检资产状态，修复实时界面和退出进入界面资产状态展示不一样补丁
+        Integer status = assetStateMap.get(inspectRecordId).get(assetId);
+        if (status < Integer.parseInt(Web2Const.INSPECT_ERROR)) {
+            inspectAssetService.lambdaUpdate()
+                    .eq(InspectAsset::getJobId, jobId)
+                    .eq(InspectAsset::getAssetId, assetId)
+                    .eq(InspectAsset::getTargetItem, dto.getTargetItem())
+                    .set(InspectAsset::getInspectState, assetStateMap.get(inspectRecordId).get(assetId))
+                    .update();
+        }
+
         if (Web2Const.INSPECT_ERROR.equals(targetState)) {
             if (targetAbnormalSet.get(inspectRecordId) == null) {
                 Set<String> sset = new HashSet<>();
