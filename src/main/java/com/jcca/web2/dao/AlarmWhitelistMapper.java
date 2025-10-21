@@ -40,4 +40,12 @@ public interface AlarmWhitelistMapper extends BaseMapper<AlarmWhitelist> {
      * @param whiteId
      */
     List<CommonAssetInfo> queryAssetListBatch(@Param(value = "whiteId") String whiteId);
+
+    /**
+     * 查看黑名单设备
+     *
+     * @param flag
+     * @param alarmCode
+     */
+    int queryWhiteCount(@Param(value = "flag") String flag, @Param(value = "alarmCode") String alarmCode);
 }

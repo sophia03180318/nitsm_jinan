@@ -43,6 +43,11 @@ public class AlarmFilterHandler extends IFilterHandler<IEvent> {
         String alarmCoded = info.getEventRedisKey();
         String flag = info.getMapKey();
 
+        int batchList = alarmWhitelistService.queryWhiteCount(flag, alarmCoded);
+        if (batchList > 0) {
+            return true;
+        }
+
         QueryWrapper<AlarmWhitelist> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ALARM_CODE",alarmCoded);
         queryWrapper.eq("FLAG",flag);

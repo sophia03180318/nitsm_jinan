@@ -1,5 +1,6 @@
 package com.jcca.web2.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -56,9 +57,20 @@ public class AlarmWhitelistServiceImpl extends ServiceImpl<AlarmWhitelistMapper,
         copy.setCreator(ShiroUtil.getSubject().getUsername());
         copy.setCreateTime(new Date());
 
+        if (ObjectUtil.isNotEmpty(flag)) {
+            String[] split = flag.split("_");
+
+            if (split.length == 2) {
+                copy.setFlag("");
+            } else {
+                copy.setFlag(split[2]);
+            }
+        }
+
         if (req.getTypeMark() == Web2Const.WHITE_NORMAL) {
             String assetId = req.getAssetId().get(0);
-            alarmInfoServ.recoverAlarmV2(alarmCode, assetId, flag, "【新增屏蔽清单规则，自动恢复】");
+            flag = copy.getFlag();
+            alarmInfoServ.recoverWhiteAlarmV2(alarmCode, assetId, flag, "【新增屏蔽清单规则，自动恢复】");
             copy.setAssetId(assetId);
             save(copy);
             return;
@@ -69,7 +81,8 @@ public class AlarmWhitelistServiceImpl extends ServiceImpl<AlarmWhitelistMapper,
             copy.setAssetId("--");
             save(copy);
             for (String assetId : assetIds) {
-                alarmInfoServ.recoverAlarmV2(alarmCode, assetId, flag, "【新增屏蔽清单规则，自动恢复】");
+                flag = copy.getFlag();
+                alarmInfoServ.recoverWhiteAlarmV2(alarmCode, assetId, flag, "【新增屏蔽清单规则，自动恢复】");
 
                 AlarmWhiteAsset alarmWhiteAsset = new AlarmWhiteAsset();
                 alarmWhiteAsset.setId(MyIdUtil.getId());
@@ -114,6 +127,11 @@ public class AlarmWhitelistServiceImpl extends ServiceImpl<AlarmWhitelistMapper,
             return whiteMapper.queryAssetListBatch(whiteId);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public int queryWhiteCount(String flag, String alarmCode) {
+        return whiteMapper.queryWhiteCount(flag, alarmCode);
     }
 
 }

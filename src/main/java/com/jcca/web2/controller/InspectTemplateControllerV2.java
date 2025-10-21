@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author lifp
@@ -42,7 +44,21 @@ public class InspectTemplateControllerV2 {
             SysUser subject = ShiroUtil.getSubject();
             String templateCode = MyIdUtil.getId();
 
-            Integer templateCount = inspectTemplateService.lambdaQuery().eq(InspectTemplate::getUserId, subject.getId()).count();
+            Integer nameCount = inspectTemplateService.lambdaQuery().eq(InspectTemplate::getTemplateName, addTemplate.getTemplateName()).count();
+            if (nameCount > 0) {
+                return ResultVoUtil.error("名字不能重复");
+            }
+
+            List<String> templateCodes = inspectTemplateService.lambdaQuery()
+                    .eq(InspectTemplate::getUserId, subject.getId())
+                    .list()
+                    .stream()
+                    .map(InspectTemplate::getTemplateCode)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            int templateCount = templateCodes.size();
+
             if (templateCount >= 8) {
                 return ResultVoUtil.error("个人模板数不能超过8个");
             }

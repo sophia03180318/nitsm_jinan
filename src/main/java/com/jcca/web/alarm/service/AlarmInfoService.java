@@ -373,6 +373,15 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
      */
     void recoverAlarmV2(String alarmCode, String assetId, String flag, String msg);
 
+    /**
+     * 符合条件的告警状态更新为恢复
+     *
+     * @param alarmCode
+     * @param assetId
+     * @param flag
+     */
+    void recoverWhiteAlarmV2(String alarmCode, String assetId, String flag, String msg);
+
 
     /**
      * 查询3D机房相关告警

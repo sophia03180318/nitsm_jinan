@@ -196,6 +196,17 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
     void recoverAlarmV2(@Param("alarmCode") String alarmCode, @Param("assetId") String assetId, @Param("flag") String flag, @Param("msg") String msg);
 
     /**
+     * 查询数量
+     * 将符合条件的告警更新为确定恢复
+     *
+     * @param alarmCode
+     * @param assetId
+     * @param flag
+     * @param msg
+     */
+    void recoverWhiteAlarmV2(@Param("alarmCode") String alarmCode, @Param("assetId") String assetId, @Param("flag") String flag, @Param("msg") String msg);
+
+    /**
      * 查询未确认或者未恢复的告警
      *
      * @return

@@ -48,4 +48,12 @@ public interface AlarmWhitelistService extends IService<AlarmWhitelist> {
      * @param whiteId
      */
     List<CommonAssetInfo> queryDetailById(String whiteId);
+
+    /**
+     * 查看黑名单详情
+     *
+     * @param flag
+     * @param alarmCode
+     */
+    int queryWhiteCount(String flag, String alarmCode);
 }

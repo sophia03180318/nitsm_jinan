@@ -13,7 +13,7 @@
                      a.ASSET_ID = b.ASSET_ID
                          AND a.EVENT_TYPE_ID = b.EVENT_TYPE_ID
                          AND b.ALARM_CODE = a.UNIQUE_CODE
-                         AND b.FLAG = a.FLAG
+                         AND (b.FLAG = '' OR a.FLAG LIKE concat('%', b.FLAG))
                  WHERE a.id = #{eventId}
                    AND b.TYPE_MARK = '0'
 
@@ -27,7 +27,7 @@
                      a.ASSET_ID = wa.ASSET_ID -- 资产来自 ALARM_WHITE_ASSET
                          AND a.EVENT_TYPE_ID = b.EVENT_TYPE_ID
                          AND b.ALARM_CODE = a.UNIQUE_CODE
-                         AND b.FLAG = a.FLAG
+                         AND (b.FLAG = '' OR a.FLAG LIKE concat('%', b.FLAG))
                  WHERE a.id = #{eventId}
                    AND b.TYPE_MARK = '1') t
     </select>
@@ -112,52 +112,44 @@
     <select id="selectLastLog" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
         select *
         from ALARM_EVENT
-        where id = (
-            select MAX(id)
-            from ALARM_EVENT
-            where ASSET_ID = #{assetId}
-              and EVENT_TYPE_ID = #{typeId}
-              and FLAG = #{flag}
-              and UNIQUE_CODE = #{uniqueCode}
-        )
+        where id = (select MAX(id)
+                    from ALARM_EVENT
+                    where ASSET_ID = #{assetId}
+                      and EVENT_TYPE_ID = #{typeId}
+                      and FLAG = #{flag}
+                      and UNIQUE_CODE = #{uniqueCode})
     </select>
 
     <!-- 查询该事件最后一次告警 -->
     <select id="selectTypeLastLog" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
         select *
         from ALARM_EVENT
-        where id = (
-            select MAX(id)
-            from ALARM_EVENT
-            where ASSET_ID = #{assetId}
-              and EVENT_TYPE_ID = #{typeId}
-              and FLAG = #{flag}
-        )
+        where id = (select MAX(id)
+                    from ALARM_EVENT
+                    where ASSET_ID = #{assetId}
+                      and EVENT_TYPE_ID = #{typeId}
+                      and FLAG = #{flag})
     </select>
 
     <!-- 查询该事件明细最后一次告警（不带flag） -->
     <select id="selectLastLogExceptFlag" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
         select *
         from ALARM_EVENT
-        where id = (
-            select MAX(id)
-            from ALARM_EVENT
-            where ASSET_ID = #{assetId}
-              and EVENT_TYPE_ID = #{typeId}
-              and UNIQUE_CODE = #{uniqueCode}
-        )
+        where id = (select MAX(id)
+                    from ALARM_EVENT
+                    where ASSET_ID = #{assetId}
+                      and EVENT_TYPE_ID = #{typeId}
+                      and UNIQUE_CODE = #{uniqueCode})
     </select>
 
     <!-- 查询该事件最后一次告警（不带flag） -->
     <select id="selectTypeLastLogExceptFlag" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
         select *
         from ALARM_EVENT
-        where id = (
-            select MAX(id)
-            from ALARM_EVENT
-            where ASSET_ID = #{assetId}
-              and EVENT_TYPE_ID = #{typeId}
-        )
+        where id = (select MAX(id)
+                    from ALARM_EVENT
+                    where ASSET_ID = #{assetId}
+                      and EVENT_TYPE_ID = #{typeId})
     </select>
 
     <!-- 按告警编码分组查询 MatchFlag -->
@@ -177,14 +169,12 @@
     <select id="getLastPingLog" parameterType="java.lang.String" resultType="com.jcca.web.event.entity.AlarmEvent">
         select *
         from ALARM_EVENT
-        where id = (
-            select MAX(id)
-            from ALARM_EVENT
-            where ASSET_ID = #{assetId}
-              and (UNIQUE_CODE = 'PING_ALL_STOP'
-                or UNIQUE_CODE = 'PING_OTHER_STOP'
-                or UNIQUE_CODE = 'PING_STOP')
-        )
+        where id = (select MAX(id)
+                    from ALARM_EVENT
+                    where ASSET_ID = #{assetId}
+                      and (UNIQUE_CODE = 'PING_ALL_STOP'
+                        or UNIQUE_CODE = 'PING_OTHER_STOP'
+                        or UNIQUE_CODE = 'PING_STOP'))
     </select>
 
     <!-- 批量更新时间类型ID -->
@@ -198,7 +188,7 @@
     <select id="selectAllEventByAlarmId" parameterType="java.lang.String"
             resultType="com.jcca.web.event.entity.AlarmEvent">
         select e.*,
-               to_char(e.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') as createTimeStr
+               to_char(e.CREATE_TIME, 'YYYY-MM-DD HH24:MI:SS') as createTimeStr
         from ALARM_EVENT e
         where id in (select l.event_id from ALARM_EVENT_REL l where l.ALARM_ID = #{alarmId})
         order by e.CREATE_TIME desc
@@ -207,13 +197,11 @@
     <!-- 查询 Syslog 日志 -->
     <select id="listSyslog" parameterType="map" resultType="com.jcca.web.event.entity.AlarmEvent">
         SELECT temp.*
-        FROM (
-                 SELECT ROWNUM, t.*
-                 FROM ALARM_EVENT t
-                 WHERE ROWNUM &lt; #{end}
-                   AND t.ASSET_ID = #{assetId}
-                   AND t.UNIQUE_CODE LIKE 'event:log%'
-             ) temp
+        FROM (SELECT ROWNUM, t.*
+              FROM ALARM_EVENT t
+              WHERE ROWNUM &lt; #{end}
+                AND t.ASSET_ID = #{assetId}
+                AND t.UNIQUE_CODE LIKE 'event:log%') temp
         WHERE ROWNUM &gt;= #{start}
     </select>
 

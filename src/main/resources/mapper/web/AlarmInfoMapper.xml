@@ -143,6 +143,24 @@
         </where>
     </update>
 
+    <update id="recoverWhiteAlarmV2">
+        update ALARM_INFO a
+        <set>
+            a.ALARM_STATE=2,
+            a.STATUS=2,
+            a.CONTENT = concat(a.CONTENT,#{msg})
+        </set>
+        <where>
+            a.ALARM_CODE = #{alarmCode}
+            <if test="assetId != null and assetId != ''">
+                and a.ASSET_ID=#{assetId}
+            </if>
+            <if test="flag != null and flag != ''">
+                AND (#{flag} = '' OR a.ALARM_FLAG LIKE concat('%', #{flag}))
+            </if>
+        </where>
+    </update>
+
     <select id="getAssetAlarmV2" resultMap="BaseResultMap">
         select * from ALARM_INFO
         <where>

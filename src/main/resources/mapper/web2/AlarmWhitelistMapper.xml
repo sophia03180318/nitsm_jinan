@@ -66,4 +66,13 @@
     </select>
 
 
+    <!--    查询批量-->
+    <select id="queryWhiteCount" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM ALARM_WHITE_LIST awa
+        where #{flag} = ''
+           OR #{alarmCode} LIKE concat('%', awa.ALARM_CODE) )
+    </select>
+
+
 </mapper>

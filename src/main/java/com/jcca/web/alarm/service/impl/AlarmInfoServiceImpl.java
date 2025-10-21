@@ -1120,6 +1120,11 @@ public class AlarmInfoServiceImpl extends ServiceImpl<AlarmInfoMapper, AlarmInfo
         alarmInfoMapper.recoverAlarmV2(alarmCode, assetId, flag, msg);
     }
 
+    @Override
+    public void recoverWhiteAlarmV2(String alarmCode, String assetId, String flag, String msg) {
+        alarmInfoMapper.recoverWhiteAlarmV2(alarmCode, assetId, flag, msg);
+    }
+
 
     @Override
     public List<ThreeDAlarmReq> getThreeDAlarm(String roomId1, String roomId2) {
