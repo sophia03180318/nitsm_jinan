@@ -44,7 +44,7 @@ public class AlarmFilterHandler extends IFilterHandler<IEvent> {
         String flag = info.getMapKey();
 
         int batchList = alarmWhitelistService.queryWhiteCount(flag, alarmCoded, info.getAssetId());
-        return batchList > 0;
+        return batchList == 0;
     }
 
     @Override
