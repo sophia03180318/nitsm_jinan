@@ -44,19 +44,7 @@ public class AlarmFilterHandler extends IFilterHandler<IEvent> {
         String flag = info.getMapKey();
 
         int batchList = alarmWhitelistService.queryWhiteCount(flag, alarmCoded, info.getAssetId());
-        if (batchList > 0) {
-            return true;
-        }
-
-        QueryWrapper<AlarmWhitelist> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("ALARM_CODE",alarmCoded);
-        queryWrapper.eq("FLAG",flag);
-        List<AlarmWhitelist> list = alarmWhitelistService.list(queryWrapper);
-        if(Objects.isNull(list)||list.isEmpty()){
-            return true;
-        }
-
-        return false;
+        return batchList > 0;
     }
 
     @Override
