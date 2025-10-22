@@ -13,6 +13,7 @@ import com.jcca.web.event.enums.EventLevelEnum;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * @description: 阶段阈值处理类
@@ -29,6 +30,9 @@ public class DbTableSpaceStageTwoFilterHandler extends IFilterHandler<CollectTab
 
     @Override
     public boolean handler(CollectTablespaceEntity info) {
+        if(Objects.nonNull(info.getHaveSpecStageEvent()) && info.getHaveSpecStageEvent()){
+            return true;
+        }
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_tablespace_usedRate.getCode() + "_" + info.getName());
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_tableSpace_sectionTwo.getCode();
@@ -56,7 +60,7 @@ public class DbTableSpaceStageTwoFilterHandler extends IFilterHandler<CollectTab
             Integer status = compare ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
             String keyWord = status.equals(EventLevelEnum.NORMAL.getCode()) ? "" : "超过";
             AlarmTempReq alarmTempReq = new AlarmTempReq();
-            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_tableSpace_sectionThree.getDescr(), info.getName(), changeInfo.getValue(), keyWord, threshold.getTwoLevelValue()));
+            alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_tableSpace_sectionTwo.getDescr(), info.getName(), changeInfo.getValue(), keyWord, threshold.getTwoLevelValue()));
             alarmTempReq.setCollectValue(changeInfo.getValue()+"%");
             alarmTempReq.setThresholdValue(threshold.getTwoLevelValue()+"%");
             alarmTempReq.setFlag(info.getName());
@@ -72,9 +76,8 @@ public class DbTableSpaceStageTwoFilterHandler extends IFilterHandler<CollectTab
             }
         }
         //一阶、二阶、三阶阈值告警信息，命中哪一个就是哪一个不会再命中其他的处理类
-        if (compare) {
-            return false;
-        }
+        info.setHaveSpecStageEvent(compare);
+
         return true;
     }
 
