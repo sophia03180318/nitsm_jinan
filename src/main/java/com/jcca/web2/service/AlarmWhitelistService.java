@@ -55,5 +55,5 @@ public interface AlarmWhitelistService extends IService<AlarmWhitelist> {
      * @param flag
      * @param alarmCode
      */
-    int queryWhiteCount(String flag, String alarmCode);
+    int queryWhiteCount(String flag, String alarmCode, String assetId);
 }

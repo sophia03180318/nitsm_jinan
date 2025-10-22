@@ -47,5 +47,7 @@ public interface AlarmWhitelistMapper extends BaseMapper<AlarmWhitelist> {
      * @param flag
      * @param alarmCode
      */
-    int queryWhiteCount(@Param(value = "flag") String flag, @Param(value = "alarmCode") String alarmCode);
+    int queryWhiteCount(@Param(value = "flag") String flag,
+                        @Param(value = "alarmCode") String alarmCode,
+                        @Param(value = "assetId") String assetId);
 }

@@ -70,8 +70,9 @@
     <select id="queryWhiteCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
         FROM ALARM_WHITE_LIST awa
-        where #{flag} = ''
-           OR #{alarmCode} LIKE concat('%', awa.ALARM_CODE) )
+        where #{alarmCode} = awa.ALARM_CODE
+          AND #{assetId} = awa.ASSET_Id
+          AND (awa.flag = '' OR #{flag} LIKE concat('%', awa.flag))
     </select>
 
 

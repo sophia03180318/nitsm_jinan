@@ -130,8 +130,8 @@ public class AlarmWhitelistServiceImpl extends ServiceImpl<AlarmWhitelistMapper,
     }
 
     @Override
-    public int queryWhiteCount(String flag, String alarmCode) {
-        return whiteMapper.queryWhiteCount(flag, alarmCode);
+    public int queryWhiteCount(String flag, String alarmCode, String assetId) {
+        return whiteMapper.queryWhiteCount(flag, alarmCode, assetId);
     }
 
 }
