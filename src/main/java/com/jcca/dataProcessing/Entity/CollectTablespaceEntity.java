@@ -60,9 +60,5 @@ public class CollectTablespaceEntity extends CommonEntity implements Serializabl
      * collect_db主键ID
      */
     private String collectDbId;
-    /**
-     * 是否已经触发阶梯阈值
-     *
-     */
-    private Boolean haveSpecStageEvent;
+
 }

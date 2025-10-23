@@ -30,10 +30,6 @@ public class DbTableSpaceStageThreeFilterHandler extends IFilterHandler<CollectT
 
     @Override
     public boolean handler(CollectTablespaceEntity info) {
-        if(Objects.nonNull(info.getHaveSpecStageEvent()) && info.getHaveSpecStageEvent()){
-            return true;
-        }
-
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_tablespace_usedRate.getCode() + "_" + info.getName());
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_tableSpace_sectionThree.getCode();
@@ -85,7 +81,7 @@ public class DbTableSpaceStageThreeFilterHandler extends IFilterHandler<CollectT
 
     @Override
     public boolean isNeedNextHandle(Boolean flag) {
-        return flag;
+        return true;
     }
 
 

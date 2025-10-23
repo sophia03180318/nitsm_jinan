@@ -30,9 +30,6 @@ public class DbTableSpaceStageTwoFilterHandler extends IFilterHandler<CollectTab
 
     @Override
     public boolean handler(CollectTablespaceEntity info) {
-        if(Objects.nonNull(info.getHaveSpecStageEvent()) && info.getHaveSpecStageEvent()){
-            return true;
-        }
         ChangeInfo changeInfo = info.getMaps().get(StatusInfoChangeTypeEnum.status_tablespace_usedRate.getCode() + "_" + info.getName());
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_tableSpace_sectionTwo.getCode();
@@ -76,7 +73,9 @@ public class DbTableSpaceStageTwoFilterHandler extends IFilterHandler<CollectTab
             }
         }
         //一阶、二阶、三阶阈值告警信息，命中哪一个就是哪一个不会再命中其他的处理类
-        info.setHaveSpecStageEvent(compare);
+        if(compare){
+            return false;
+        }
 
         return true;
     }

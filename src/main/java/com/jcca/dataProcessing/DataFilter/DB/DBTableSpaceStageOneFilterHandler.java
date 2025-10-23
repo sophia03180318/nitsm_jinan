@@ -73,7 +73,9 @@ public class DBTableSpaceStageOneFilterHandler extends IFilterHandler<CollectTab
             }
         }
         //一阶、二阶、三阶阈值告警信息，命中哪一个就是哪一个不会再命中其他的处理类
-        info.setHaveSpecStageEvent(compare);
+        if(compare){
+            return false;
+        }
 
         return true;
     }
