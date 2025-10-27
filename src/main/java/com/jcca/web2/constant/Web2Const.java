@@ -116,4 +116,11 @@ public interface Web2Const {
     Integer WHITE_NORMAL = 0;
     Integer WHITE_BATCH = 1;
 
+    // 智能巡检报告单前端筛选参数
+    // 全部
+    String TOTAL_TYPE_ALL = "-1";
+    // 告警
+    String TOTAL_TYPE_WARNING = "warningTotal";
+    // 异常
+    String TOTAL_TYPE_ABNORMAL = "abNormalTotal";
 }

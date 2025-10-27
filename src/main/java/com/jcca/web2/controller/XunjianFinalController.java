@@ -226,15 +226,16 @@ public class XunjianFinalController {
 
     @GetMapping("/record/detail")
     @ApiOperation("巡检记录详情")
-    public ResultVo<Object> recordDetail(String id) {
-        Map<String, Object> recordDetail = inspectDetailService.getRecordDetail(id);
+    public ResultVo<Object> recordDetail(String id, String type) {
+        if (StringUtils.isEmpty(id)) return ResultVoUtil.error(ResultEnum.PARAM_ERROR);
+        Map<String, Object> recordDetail = inspectDetailService.getRecordDetailByParam(id, type);
         return ResultVoUtil.success(recordDetail);
     }
 
     @GetMapping("/target/detail")
     @ApiOperation("资产指标详情")
-    public ResultVo<Object> targetDetail(String inspectCode, String assetId) {
-        InspectTargetDetailInfoVo result = inspectDetailService.getTargetDetail(inspectCode, assetId);
+    public ResultVo<Object> targetDetail(String inspectCode, String assetId, String type) {
+        InspectTargetDetailInfoVo result = inspectDetailService.getTargetDetail(inspectCode, assetId,type);
         return ResultVoUtil.success(result);
     }
 

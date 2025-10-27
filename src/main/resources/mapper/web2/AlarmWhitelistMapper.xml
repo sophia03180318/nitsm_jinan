@@ -66,23 +66,19 @@
     </select>
 
 
-    <!--    查询批量-->
-    <select id="queryWhiteCount" resultType="java.lang.Integer">
-        SELECT COUNT(1)
-        FROM ALARM_WHITE_LIST awa
-                 LEFT JOIN ALARM_WHITE_ASSET awa2
-                           ON
-                               awa2.ASSET_ID = #{assetId}
-                                   AND awa.flag IS NULL
-        WHERE #{alarmCode} = awa.ALARM_CODE
-          AND (
-            awa.ASSET_ID = #{assetId}
-                OR awa2.ASSET_ID IS NOT NULL
-            )
-          AND (
-            awa.flag = ''
-                OR #{flag} LIKE CONCAT('%', awa.flag)
-            )
+    <!--    查询是否存在黑名单-->
+    <select id="queryWhiteCount" resultType="int">
+        SELECT COUNT(*)
+        FROM DUAL
+        WHERE EXISTS (SELECT 1
+                      FROM ALARM_WHITE_LIST awl
+                      WHERE (awl.ASSET_ID = #{assetId} AND (awl.ALARM_CODE = #{alarmCode}
+                          OR #{flag} LIKE '%' || awl.flag)))
+           OR EXISTS (SELECT 1
+                      FROM ALARM_WHITE_LIST awl
+                               JOIN ALARM_WHITE_ASSET awa ON awa.WHITE_ID = awl.ID
+                      WHERE awa.ASSET_ID = #{assetId}
+                        AND (awl.ALARM_CODE = #{alarmCode} OR #{flag} LIKE '%' || awl.flag))
     </select>
 
 

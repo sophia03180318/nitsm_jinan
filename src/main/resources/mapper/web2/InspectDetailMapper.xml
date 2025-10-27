@@ -127,6 +127,9 @@
         FROM inspect_detail
         WHERE inspect_code = #{inspectCode}
           AND asset_desk = #{desks}
+        <if test="status!=-1">
+            AND INSPECT_STATE = #{status}
+        </if>
         GROUP BY inspect_code, asset_id, asset_name, asset_ip1, org_name, room_name, cabinet_name, asset_desk
         ORDER BY asset_desk, asset_id
     </select>
@@ -147,24 +150,31 @@
         FROM INSPECT_DETAIL
         WHERE INSPECT_CODE = #{inspectCode}
           AND ASSET_ID = #{assetId}
+        <if test="status!=-1">
+            AND INSPECT_STATE = #{status}
+        </if>
         ORDER BY ASSET_ID, TARGET_ITEM, RESULT_MSG
     </select>
 
     <!-- 报告数据 -->
     <select id="getReport1" resultType="com.jcca.web2.dto.xunjian.InspectReport1">
-        SELECT d.inspect_code AS id,
+        SELECT d.inspect_code                                          AS id,
                i.asset_id,
-               i.DESCRIPTION,
-               i.title AS alarmTitle,
+               COALESCE(NULLIF(TRIM(i.DESCRIPTION), ''), d.result_msg) AS description,
+               COALESCE(NULLIF(TRIM(i.title), ''), aet.name)           AS alarmTitle,
                i.alarm_level,
                i.alarm_code,
                i.status AS alarmStatus,
                d.asset_ip1 AS assetIp1,
                d.asset_name,
                d.asset_desk
-        FROM alarm_info i
-                 LEFT JOIN inspect_detail d ON i.id = d.alarm_id
+        FROM inspect_detail d
+                 LEFT JOIN alarm_info i ON
+            i.id = d.alarm_id
+                 LEFT JOIN ALARM_EVENT_TYPE aet ON
+            aet.id = d.EVENT_TYPE_ID
         WHERE d.inspect_code = #{inspectCode}
+          AND d.ALARM_ID IS NOT NULL
         ORDER BY d.asset_ip1
     </select>
 
@@ -190,14 +200,14 @@
         SELECT
         ind.id,
         ind.ASSET_ID AS assetId,
-        ind.TARGET_STATUS AS alarmStatus,
+--         ai.status AS alarmStatus,
         ind.ASSET_NAME AS assetName,
         ind.REMARK AS remarkStr,
         ind.ALARM_ID AS alarmId,
         ass.DESK AS assetMode,
         aet.NAME,
         ai.TITLE AS alarmTitle,
-        ai.DESCRIPTION AS alarmDescription,
+        COALESCE(NULLIF(TRIM(ai.DESCRIPTION), ''), ind.result_msg) AS alarmDescription,
         ai.ALARM_LEVEL AS alarmLevel,
         ai.STATUS AS solveStatus
         FROM
@@ -214,6 +224,7 @@
             AND ind.EVENT_TYPE_ID = #{eventTypeId}
         </if>
         AND ind.ALARM_ID IS NOT NULL
+        ORDER BY ind.asset_ip1
     </select>
 
 </mapper>

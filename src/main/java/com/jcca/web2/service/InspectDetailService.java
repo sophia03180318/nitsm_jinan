@@ -31,9 +31,11 @@ public interface InspectDetailService extends IService<InspectDetail> {
     void exportAssetRecord(String inspectCode, String assetId, HttpServletResponse response);
 
 
+    Map<String, Object> getRecordDetailByParam(String id, String type);
+
     Map<String, Object> getRecordDetail(String id);
 
-    InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId);
+    InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId, String type);
 
     Map<String, Object> getReport1(String inspectCode);
 

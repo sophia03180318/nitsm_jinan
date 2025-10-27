@@ -124,69 +124,122 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
 
     @Override
     public Map<String, Object> getRecordDetail(String inspectCode) {
+        return getRecordDetailByParam(inspectCode, null);
+    }
+
+    /**
+     * 根据 inspectCode 和 type 参数查询详情
+     * type 格式：[deskCode]_[totalType]，例如：183_assetTotal
+     * 若 type 为空，则查询全部
+     */
+    @Override
+    public Map<String, Object> getRecordDetailByParam(String inspectCode, String type) {
+        // 解析 deskCode 和 totalType
+        String deskCode = null;
+        String totalType = Web2Const.TOTAL_TYPE_ALL;
+
+        if (!StringUtils.isEmpty(type)) {
+            String[] parts = type.split("_", 2); // 最多分两段
+            deskCode = parts[0];
+            if (parts.length == 2) {
+                totalType = parts[1];
+            } else {
+                totalType = deskCode; // 兼容旧逻辑：若无下划线，则 totalType = deskCode
+            }
+        }
+
+        return buildRecordDetail(inspectCode, deskCode, totalType);
+    }
+
+    private Map<String, Object> buildRecordDetail(String inspectCode, String deskCode, String totalType) {
         InspectRecord record = inspectRecordService.getById(inspectCode);
         if (Objects.isNull(record)) {
             throw new ResultException(ResultEnum.CANNOT_FIND);
         }
-        List<String> list = inspectDetailMapper.totalAsset(inspectCode);
-        if (list.isEmpty()) {
+        List<String> assetList = inspectDetailMapper.totalAsset(inspectCode);
+        if (assetList.isEmpty()) {
             return new HashMap<>();
         }
 
-        QueryWrapper<InspectDetail> query = Wrappers.query();
-        query.eq("INSPECT_CODE", inspectCode);
-        query.isNotNull("ALARM_ID");
-        int alarmCount = this.count(query);
+        QueryWrapper<InspectDetail> alarmQuery = Wrappers.query();
+        alarmQuery.eq("INSPECT_CODE", inspectCode).isNotNull("ALARM_ID");
+        int alarmCount = this.count(alarmQuery);
 
-        Integer totalAsset = list.size();
-        Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
-        Integer normalAsset = totalAsset - abnormalAsset;
+        int totalAsset = assetList.size();
+        int abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        int normalAsset = totalAsset - abnormalAsset;
         String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
 
-        JSONObject headerLineOne = new JSONObject();
-        headerLineOne.put("xjPeople", record.getModeType());
-        headerLineOne.put("xjTime", inspectTime);
-        headerLineOne.put("xjAssetTotal", totalAsset); // 总数
-        headerLineOne.put("xjAssetNormalTotal", normalAsset); // 正常资产数
-        headerLineOne.put("xjAssetAbNormalTotal", abnormalAsset); // 异常资产数
-        headerLineOne.put("xjAssetWarningTotal", alarmCount);  // 告警总数
+        JSONObject header1 = new JSONObject();
+        header1.put("xjPeople", record.getModeType());
+        header1.put("xjTime", inspectTime);
+        header1.put("xjAssetTotal", totalAsset); // 总数
+        header1.put("xjAssetNormalTotal", normalAsset); // 正常资产数
+        header1.put("xjAssetAbNormalTotal", abnormalAsset); // 异常资产数
+        header1.put("xjAssetWarningTotal", alarmCount);  // 告警总数
 
-        List<JSONObject> headerLineTwo = new ArrayList<>();
-        List<ItemVo> deskList = inspectDetailMapper.deskList(inspectCode);
-        for (ItemVo vo : deskList) {
-            JSONObject headerLine = new JSONObject();
-            Integer desk = Integer.parseInt(vo.getId());
-            Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
-            Integer abNormalTotal = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
-            Integer warningTotal = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
-            Integer normalDesk = totalDesk - abNormalTotal - warningTotal;
+        List<JSONObject> header2 = new ArrayList<>();
+        List<ItemVo> allDeskList = inspectDetailMapper.deskList(inspectCode);
+        for (ItemVo vo : allDeskList) {
+            int desk = Integer.parseInt(vo.getId());
+            int totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
+            int abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
+            int warningDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
+            int normalDesk = totalDesk - abnormalDesk - warningDesk;
 
-            headerLine.put("name", vo.getName());
-            headerLine.put("assetTotal", totalDesk); // 总数
-            headerLine.put("normalTotal", normalDesk); // 正常资产数
-            headerLine.put("abNormalTotal", abNormalTotal); // 异常资产数
-            headerLine.put("warningTotal", warningTotal);  // 告警总数
-            headerLineTwo.add(headerLine);
+            JSONObject item = new JSONObject();
+            item.put("id", vo.getId());
+            item.put("name", vo.getName());
+            item.put("assetTotal", totalDesk);  // 总数
+            item.put("normalTotal", normalDesk); // 正常资产数
+            item.put("abNormalTotal", abnormalDesk); // 异常资产数
+            item.put("warningTotal", warningDesk); // 告警总数
+            header2.add(item);
         }
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("header1", headerLineOne);
-        resultMap.put("header2", headerLineTwo);
-        List<Map<String, Object>> lllist = new ArrayList<>();
-        for (ItemVo itemVo : deskList) {
+        List<Map<String, Object>> detailList = new ArrayList<>();
+        List<ItemVo> targetDesks = filterDesks(allDeskList, deskCode);
+
+        for (ItemVo itemVo : targetDesks) {
+            String status = parseStatusFromTotalType(totalType); // 转换 totalType -> 状态码
+            List<InspectAssetDetailInfo> details = inspectDetailMapper.getAssetDetail(inspectCode, itemVo.getId(), status);
+
             Map<String, Object> map = new HashMap<>();
-            List<InspectAssetDetailInfo> details = inspectDetailMapper.getAssetDetail(inspectCode, itemVo.getId());
             map.put("id", itemVo.getId());
             map.put("name", itemVo.getName());
             map.put("details", details);
-            lllist.add(map);
+            detailList.add(map);
         }
-        resultMap.put("list", lllist);
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("header1", header1);
+        resultMap.put("header2", header2);
+        resultMap.put("list", detailList);
         return resultMap;
     }
 
+    private List<ItemVo> filterDesks(List<ItemVo> allDesks, String deskCode) {
+        if (StringUtils.isEmpty(deskCode) || deskCode.equals(Web2Const.TOTAL_TYPE_ABNORMAL)) {
+            return allDesks; // 全部
+        }
+        return allDesks.stream()
+                .filter(vo -> vo.getId().equals(deskCode))
+                .collect(Collectors.toList());
+    }
+
+    private String parseStatusFromTotalType(String totalType) {
+        switch (totalType) {
+            case Web2Const.TOTAL_TYPE_ABNORMAL:
+                return Web2Const.INSPECT_ERROR;
+            case Web2Const.TOTAL_TYPE_WARNING:
+                return Web2Const.INSPECT_ALARM;
+            default:
+                return "-1"; // 查询全部状态
+        }
+    }
+
     @Override
-    public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId) {
-        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId);
+    public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId, String type) {
+        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId,!StringUtils.isEmpty(type)?Web2Const.INSPECT_ALARM:"-1");
         for (InspectTargetDetailInfo info : targetDetailInfoList) {
             info.setTargetType(info.getTargetItem().substring(0, info.getTargetItem().lastIndexOf(":")));
         }
@@ -198,11 +251,21 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         query1.eq("INSPECT_CODE", inspectCode);
         query1.eq("ASSET_ID", assetId);
         query1.isNotNull("ALARM_ID");
+
+        if (!StringUtils.isEmpty(type)) {
+            String[] param = type.split("_");
+            String deskCode = param[0];
+            query1.eq("ASSET_DESK", deskCode);
+        }
+
         List<InspectDetail> list = this.list(query1);
         if (!CollectionUtils.isEmpty(list)) {
             QueryWrapper<AlarmInfo> query = Wrappers.query();
             query.select("ID", "TITLE", "OCCUR_TIME", "REMARK", "ALARM_CODE", "DESCRIPTION", "CONTENT");
             query.in("ID", list.stream().map(InspectDetail::getAlarmId).collect(Collectors.toSet()));
+            if (!StringUtils.isEmpty(type)) {
+                query.eq("ALARM_STATE", 1);
+            }
             query.orderByDesc("CREATE_TIME", "ALARM_CODE");
             List<AlarmInfo> infos = alarmInfoService.list(query);
             vo.setAlarmInfoList(infos);
@@ -225,21 +288,30 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
                 report1.setAssetDeskStr("为定义的设备类型"+report1.getAssetDesk());
             }
 
-
-            report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel().intValue()));
-            report1.setAlarmStatusStr(AlarmStatusEnum.getMsg(report1.getAlarmStatus()));
-            List<String> infos = map.get(report1.getAlarmCode());
-            if (infos == null) {
-                infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
-                map.put(report1.getAlarmCode(), infos);
+            if(!StringUtils.isEmpty(report1.getAlarmLevel())){
+                report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel().intValue()));
             }
-            report1.setRemarks(infos);
-            if (!infos.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                for (String info : infos) {
-                    sb.append(info).append("\r\n");
+
+            if(!StringUtils.isEmpty(report1.getAlarmStatus())){
+                report1.setAlarmStatusStr(AlarmStatusEnum.getMsg(report1.getAlarmStatus()));
+            }else {
+                report1.setAlarmStatusStr(AlarmStatusEnum.getMsg((byte) 1));
+            }
+
+            if(!StringUtils.isEmpty(report1.getAlarmCode())){
+                List<String> infos = map.get(report1.getAlarmCode());
+                if (infos == null) {
+                    infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
+                    map.put(report1.getAlarmCode(), infos);
                 }
-                report1.setRemarkStr(sb.toString());
+                report1.setRemarks(infos);
+                if (!infos.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (String info : infos) {
+                        sb.append(info).append("\r\n");
+                    }
+                    report1.setRemarkStr(sb.toString());
+                }
             }
         }
 

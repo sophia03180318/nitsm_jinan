@@ -38,9 +38,9 @@ public interface InspectDetailMapper extends BaseMapper<InspectDetail> {
 
     Integer abnormalAsset(String inspectCode, int inspectState);
 
-    List<InspectAssetDetailInfo> getAssetDetail(String inspectCode, String desks);
+    List<InspectAssetDetailInfo> getAssetDetail(String inspectCode, String desks, String status);
 
-    List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId);
+    List<InspectTargetDetailInfo> getTargetDetail(String inspectCode, String assetId, String status);
 
     List<InspectReport1> getReport1(String inspectCode);
 
