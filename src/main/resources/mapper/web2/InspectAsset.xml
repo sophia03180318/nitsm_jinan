@@ -106,7 +106,7 @@
             FROM INSPECT_DETAIL
             WHERE INSPECT_CODE = #{inspectRecordId}
               AND ASSET_ID = #{assetId}
-              AND INSPECT_STATE = 5
+              AND (INSPECT_STATE IN (4, 5))
             ORDER BY TARGET_ITEM
         </select>
 
