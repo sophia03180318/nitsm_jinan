@@ -227,19 +227,20 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     }
 
     private String parseStatusFromTotalType(String totalType) {
-        switch (totalType) {
-            case Web2Const.TOTAL_TYPE_ABNORMAL:
-                return Web2Const.INSPECT_ERROR;
-            case Web2Const.TOTAL_TYPE_WARNING:
-                return Web2Const.INSPECT_ALARM;
-            default:
-                return "-1"; // 查询全部状态
-        }
+//        switch (totalType) {
+//            case Web2Const.TOTAL_TYPE_ABNORMAL:
+//                return Web2Const.INSPECT_ERROR;
+//            case Web2Const.TOTAL_TYPE_WARNING:
+//                return Web2Const.INSPECT_ALARM;
+//            default:
+//                return "-1"; // 查询全部状态
+//        }
+        return "5";
     }
 
     @Override
     public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId, String type) {
-        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId,!StringUtils.isEmpty(type)?Web2Const.INSPECT_ALARM:"-1");
+        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId,Web2Const.INSPECT_ALARM);
         for (InspectTargetDetailInfo info : targetDetailInfoList) {
             info.setTargetType(info.getTargetItem().substring(0, info.getTargetItem().lastIndexOf(":")));
         }
