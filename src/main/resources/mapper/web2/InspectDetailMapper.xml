@@ -127,7 +127,9 @@
         FROM inspect_detail
         WHERE inspect_code = #{inspectCode}
           AND asset_desk = #{desks}
-          AND INSPECT_STATE = #{status}
+        <if test="status!=-1">
+            AND INSPECT_STATE = #{status}
+        </if>
         GROUP BY inspect_code, asset_id, asset_name, asset_ip1, org_name, room_name, cabinet_name, asset_desk
         ORDER BY asset_desk, asset_id
     </select>
@@ -148,7 +150,9 @@
         FROM INSPECT_DETAIL
         WHERE INSPECT_CODE = #{inspectCode}
           AND ASSET_ID = #{assetId}
-          AND INSPECT_STATE = #{status}
+        <if test="status!=-1">
+            AND INSPECT_STATE = #{status}
+        </if>
         ORDER BY ASSET_ID, TARGET_ITEM, RESULT_MSG
     </select>
 
