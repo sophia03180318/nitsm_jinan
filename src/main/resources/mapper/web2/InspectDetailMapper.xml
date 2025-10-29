@@ -150,7 +150,9 @@
         FROM INSPECT_DETAIL
         WHERE INSPECT_CODE = #{inspectCode}
           AND ASSET_ID = #{assetId}
-          AND INSPECT_STATE = #{status}
+        <if test="status!=-1">
+            AND INSPECT_STATE = #{status}
+        </if>
         ORDER BY ASSET_ID, TARGET_ITEM, RESULT_MSG
     </select>
 
