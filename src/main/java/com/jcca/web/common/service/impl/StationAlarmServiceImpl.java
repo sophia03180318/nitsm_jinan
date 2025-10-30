@@ -359,7 +359,6 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         }else{
             event.setFlag(asset.getIp()+"_"+asset.getId()+"_"+req.getFlag());
         }
-        event.setFlag(req.getFlag());
         if(req.getAlarmRecoverStatus()==1){
             event.setEventLevel(EventLevelEnum.ABNORMAL.getCode());
         }else{
