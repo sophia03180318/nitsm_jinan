@@ -155,7 +155,7 @@
             <if test="assetId != null and assetId != ''">
                 and a.ASSET_ID=#{assetId}
             </if>
-            AND (#{flag} = '' OR a.ALARM_FLAG LIKE concat('%', #{flag}))
+            AND (#{flag} = '' OR a.ALARM_FLAG LIKE '%' || #{flag} || '%')
         </where>
     </update>
 
