@@ -53,7 +53,7 @@ public class ProcessMemoryFilterHandler extends IFilterHandler<CollectProcessEnt
         info.getMaps().put(mapKey, changeInfo);
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_process_memory.getCode();
-        String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getName();
+        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
         String redisThresholdKey = thresholdManager.getThresholdRedisKey(info.getAssetId(), info.getAssetIp());
         String thresholdMapKey = thresholdManager.getThresholdMapKey(StatusInfoChangeTypeEnum.event_process_memory.getCode(),StatusInfoChangeTypeEnum.MEM.getCode(), info.getName());
 

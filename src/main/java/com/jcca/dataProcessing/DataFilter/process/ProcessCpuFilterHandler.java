@@ -54,7 +54,7 @@ public class ProcessCpuFilterHandler extends IFilterHandler<CollectProcessEntity
         info.getMaps().put(mapKey, changeInfo);
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_process_cpu.getCode();
-        String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getName();
+        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
 
         String redisThresholdKey =thresholdManager.getThresholdRedisKey(info.getAssetId(),info.getAssetIp());
         String thresholdMapKey = thresholdManager.getThresholdMapKey(StatusInfoChangeTypeEnum.event_process_cpu.getCode(),StatusInfoChangeTypeEnum.CPU.getCode(), info.getName());
