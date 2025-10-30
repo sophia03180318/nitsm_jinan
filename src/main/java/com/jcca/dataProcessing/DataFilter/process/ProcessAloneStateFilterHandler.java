@@ -57,7 +57,7 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
 
                 Integer status = compare ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_status.getCode();
-                String eventMapKey = req.getAssetIp() + ":" + req.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = req.getAssetIp() + "_" + req.getAssetId() + "_" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 if (status == EventLevelEnum.NORMAL.getCode()) {
                     alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));

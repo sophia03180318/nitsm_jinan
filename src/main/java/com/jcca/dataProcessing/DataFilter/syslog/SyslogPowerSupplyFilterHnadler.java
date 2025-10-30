@@ -72,7 +72,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
             info.getMaps().put(mapKey, changeInfo);
 
             String eventRedisKey = StatusInfoChangeTypeEnum.event_syslog_power.getCode();
-            String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":syslog_power";
+            String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_syslog_power";
 
             AlarmTempReq tempReq = new AlarmTempReq();
             tempReq.setAssetIp(info.getAssetIp());

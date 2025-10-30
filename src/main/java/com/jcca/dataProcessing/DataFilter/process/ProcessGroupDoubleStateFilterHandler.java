@@ -65,7 +65,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_all_down.getCode();
                 Integer status = normalAsset.isEmpty() ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_all_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
@@ -94,7 +94,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_other_down.getCode();
                 Integer status = info.getProcessStatus() ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getProcessName();
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
 

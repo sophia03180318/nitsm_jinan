@@ -65,7 +65,7 @@ public class ProcessGroupSingleStateFilterHandler extends IFilterHandler<Process
                 req.getMaps().put(mapKey, changeInfo);
 
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_status.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 if (status) {
                     alarmTempReq.setOrgMsg("恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
