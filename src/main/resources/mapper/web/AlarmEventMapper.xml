@@ -11,7 +11,7 @@
                   a.ASSET_ID = b.ASSET_ID
                       AND a.EVENT_TYPE_ID = b.EVENT_TYPE_ID
                       AND b.ALARM_CODE = a.UNIQUE_CODE
-                      AND (b.FLAG = '' OR a.FLAG LIKE concat('%', b.FLAG))
+                      AND (b.FLAG = '' OR a.FLAG LIKE '%' || b.FLAG || '%')
               WHERE a.id = #{eventId}
               UNION
               SELECT 1
@@ -21,7 +21,7 @@
                   a.ASSET_ID = wa.ASSET_ID -- 资产来自 ALARM_WHITE_ASSET
                       AND a.EVENT_TYPE_ID = b.EVENT_TYPE_ID
                       AND b.ALARM_CODE = a.UNIQUE_CODE
-                      AND (b.FLAG = '' OR a.FLAG LIKE concat('%', b.FLAG))
+                      AND (b.FLAG = '' OR a.FLAG LIKE '%' || b.FLAG || '%')
               WHERE a.id = #{eventId}) t
     </select>
 
