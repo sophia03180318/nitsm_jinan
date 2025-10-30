@@ -136,7 +136,7 @@ public class AlarmInfoController extends ListenerManager {
     }
 
     @ApiOperation(value = "导出告警报告")
-    @RequiresPermissions({"api:alarm:export:report"})
+//    @RequiresPermissions({"api:alarm:export:report"})
     @PostMapping("/export/report")
     @ActionLog(name = "导出告警报告", title = "告警管理", key = LogTypeConstant.DOWNLOAD)
     ResultVo<?> exportReport(@RequestBody ExportAlarmReportReq req) {
@@ -229,7 +229,7 @@ public class AlarmInfoController extends ListenerManager {
     }
 
     @ApiOperation(value = "下载告警报告")
-    @RequiresPermissions({"api:alarm:export:report"})
+//    @RequiresPermissions({"api:alarm:export:report"})
     @GetMapping("/export/download/{key}")
     @ActionLog(name = "下载告警报告", title = "告警管理", key = LogTypeConstant.DOWNLOAD)
     void download(HttpServletResponse response, @PathVariable("key") String key) {
@@ -1047,9 +1047,9 @@ public class AlarmInfoController extends ListenerManager {
     /**
      * 导出选中告警信息
      */
-    @GetMapping("/export/{ids}")
+    @GetMapping("/export/batch/{ids}")
     @ApiOperation(value = "导出选中告警信息")
-    @RequiresPermissions({"api:alarm:info:export"})
+//    @RequiresPermissions({"api:alarm:info:export:batch"})
     @ActionLog(name = "导出选中告警", title = "告警管理", key = LogTypeConstant.DOWNLOAD)
     public void export(@PathVariable("ids") String ids, HttpServletResponse response) {
         String[] idArr = ids.split(",");

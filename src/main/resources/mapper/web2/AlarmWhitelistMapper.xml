@@ -72,13 +72,13 @@
         FROM DUAL
         WHERE EXISTS (SELECT 1
                       FROM ALARM_WHITE_LIST awl
-                      WHERE (awl.ASSET_ID = #{assetId} AND (awl.ALARM_CODE = #{alarmCode}
-                          OR #{flag} LIKE '%' || awl.flag)))
+                      WHERE (awl.ASSET_ID = #{assetId} AND awl.ALARM_CODE = #{alarmCode}
+                          AND (#{flag} LIKE '%' || awl.flag)))
            OR EXISTS (SELECT 1
                       FROM ALARM_WHITE_LIST awl
                                JOIN ALARM_WHITE_ASSET awa ON awa.WHITE_ID = awl.ID
                       WHERE awa.ASSET_ID = #{assetId}
-                        AND (awl.ALARM_CODE = #{alarmCode} OR #{flag} LIKE '%' || awl.flag))
+                        AND awl.ALARM_CODE = #{alarmCode} AND (#{flag} LIKE '%' || awl.flag))
     </select>
 
 

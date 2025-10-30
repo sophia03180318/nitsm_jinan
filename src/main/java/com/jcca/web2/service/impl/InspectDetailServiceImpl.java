@@ -134,21 +134,8 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
      */
     @Override
     public Map<String, Object> getRecordDetailByParam(String inspectCode, String type) {
-        // 解析 deskCode 和 totalType
-        String deskCode = null;
-        String totalType = Web2Const.TOTAL_TYPE_ALL;
-
-        if (!StringUtils.isEmpty(type)) {
-            String[] parts = type.split("_", 2); // 最多分两段
-            deskCode = parts[0];
-            if (parts.length == 2) {
-                totalType = parts[1];
-            } else {
-                totalType = deskCode; // 兼容旧逻辑：若无下划线，则 totalType = deskCode
-            }
-        }
-
-        return buildRecordDetail(inspectCode, deskCode, totalType);
+        TypeParseResult result = TypeParseResult.parseTypeParam(type);
+        return buildRecordDetail(inspectCode, result.getDeskCode(), result.getTotalType());
     }
 
     private Map<String, Object> buildRecordDetail(String inspectCode, String deskCode, String totalType) {
@@ -227,20 +214,24 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     }
 
     private String parseStatusFromTotalType(String totalType) {
-//        switch (totalType) {
-//            case Web2Const.TOTAL_TYPE_ABNORMAL:
-//                return Web2Const.INSPECT_ERROR;
-//            case Web2Const.TOTAL_TYPE_WARNING:
-//                return Web2Const.INSPECT_ALARM;
-//            default:
-//                return "-1"; // 查询全部状态
-//        }
-        return "5";
+        switch (totalType) {
+            case Web2Const.TOTAL_TYPE_ABNORMAL:
+                return Web2Const.INSPECT_ERROR;
+            case Web2Const.TOTAL_TYPE_WARNING:
+                return Web2Const.INSPECT_ALARM;
+            default:
+                return "-1"; // 查询全部状态
+        }
     }
 
     @Override
     public InspectTargetDetailInfoVo getTargetDetail(String inspectCode, String assetId, String type) {
-        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(inspectCode, assetId,Web2Const.INSPECT_ALARM);
+        TypeParseResult result = TypeParseResult.parseTypeParam(type);
+        String queryCode = result.getQueryStatus();
+        List<InspectTargetDetailInfo> targetDetailInfoList = inspectDetailMapper.getTargetDetail(
+                inspectCode,
+                assetId,
+                queryCode);
         for (InspectTargetDetailInfo info : targetDetailInfoList) {
             info.setTargetType(info.getTargetItem().substring(0, info.getTargetItem().lastIndexOf(":")));
         }
@@ -253,10 +244,9 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         query1.eq("ASSET_ID", assetId);
         query1.isNotNull("ALARM_ID");
 
-        if (!StringUtils.isEmpty(type)) {
-            String[] param = type.split("_");
-            String deskCode = param[0];
-            query1.eq("ASSET_DESK", deskCode);
+        // 添加 deskCode 条件
+        if (result.getDeskCode() != null) {
+            query1.eq("ASSET_DESK", result.getQueryStatus());
         }
 
         List<InspectDetail> list = this.list(query1);
@@ -283,23 +273,23 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             i++;
             report1.setIndex(i);
             AssetMode mode = assetModeService.getByCode(report1.getAssetDesk());
-            if(Objects.nonNull(mode)){
+            if (Objects.nonNull(mode)) {
                 report1.setAssetDeskStr(mode.getName());
-            }else{
-                report1.setAssetDeskStr("为定义的设备类型"+report1.getAssetDesk());
+            } else {
+                report1.setAssetDeskStr("为定义的设备类型" + report1.getAssetDesk());
             }
 
-            if(!StringUtils.isEmpty(report1.getAlarmLevel())){
+            if (!StringUtils.isEmpty(report1.getAlarmLevel())) {
                 report1.setAlarmLevelStr(AlarmLevelEnum.getMsg(report1.getAlarmLevel().intValue()));
             }
 
-            if(!StringUtils.isEmpty(report1.getAlarmStatus())){
+            if (!StringUtils.isEmpty(report1.getAlarmStatus())) {
                 report1.setAlarmStatusStr(AlarmStatusEnum.getMsg(report1.getAlarmStatus()));
-            }else {
+            } else {
                 report1.setAlarmStatusStr(AlarmStatusEnum.getMsg((byte) 1));
             }
 
-            if(!StringUtils.isEmpty(report1.getAlarmCode())){
+            if (!StringUtils.isEmpty(report1.getAlarmCode())) {
                 List<String> infos = map.get(report1.getAlarmCode());
                 if (infos == null) {
                     infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
