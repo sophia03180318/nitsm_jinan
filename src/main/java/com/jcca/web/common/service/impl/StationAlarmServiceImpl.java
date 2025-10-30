@@ -131,7 +131,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
                 }
             }else{
                 //新的告警
-                AlarmInfo newAlarmInfo = createAlarmInfo(eventReq, asset, event.getEventTypeId(), occurTime);
+                AlarmInfo newAlarmInfo = createAlarmInfo(eventReq, asset, event, occurTime);
                 saveAlarmInfo(newAlarmInfo,event);
             }
 
@@ -203,7 +203,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
                     }
                 }else{
                     //新的告警
-                    AlarmInfo newAlarmInfo = createAlarmInfo(req, asset, event.getEventTypeId(), occurTime);
+                    AlarmInfo newAlarmInfo = createAlarmInfo(req, asset, event, occurTime);
                     saveAlarmInfo(newAlarmInfo,event);
 
                     resp.setItsmId(newAlarmInfo.getId());
@@ -376,21 +376,21 @@ public class StationAlarmServiceImpl implements StationAlarmService {
      * @param req
      * @return
      */
-    private AlarmInfo createAlarmInfo(StationAlarmReqV2 req, Asset asset, String typeId, Date occurTime){
+    private AlarmInfo createAlarmInfo(StationAlarmReqV2 req, Asset asset, AlarmEvent event, Date occurTime){
         byte blank = AlarmBlankConst.NORMARL;
         boolean haveBlank = constructionRecordService.isBlank(asset.getId(), occurTime);
         if (haveBlank) {
             blank = AlarmBlankConst.BLANK;
         }
 
-        List<AlarmEventGroup> group = eventGroupServ.getAllByTypeId(typeId);
+        List<AlarmEventGroup> group = eventGroupServ.getAllByTypeId(event.getEventTypeId());
         AlarmEventGroup eventGroup = null;
         if(group.isEmpty()){
             eventGroup = new AlarmEventGroup();
             eventGroup.setId(MyIdUtil.getId());
             eventGroup.setName("车站告警");
             eventGroup.setAlarmType(AlarmTypeEnum.HARDWARE.getCode());
-            eventGroup.setEventTypeIds(typeId);
+            eventGroup.setEventTypeIds(event.getEventTypeId());
             eventGroup.setLevle(2);
             eventGroup.setMsgTemp("上送车站原始告警信息，不支持编辑");
             eventGroup.setRecoverFlag(1);
@@ -417,13 +417,14 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         alarmInfo.setOccurTime(occurTime);
         alarmInfo.setLastTime(occurTime);
         alarmInfo.setAlarmCode(req.getAlarmCode());
-        alarmInfo.setAlarmFlag(req.getFlag());
+        alarmInfo.setAlarmFlag(event.getFlag());
         alarmInfo.setDescription(req.getAlarmDescription());
         alarmInfo.setContent(req.getAlarmDescription());
         alarmInfo.setBlank(blank);
         alarmInfo.setCorrelationId(eventGroup.getId());
         alarmInfo.setCreateTime(new Date());
         alarmInfo.setCreator("openApi");
+
         return alarmInfo;
     }
 

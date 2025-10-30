@@ -50,7 +50,7 @@ public class CascoThresholdFilterHandler extends IFilterHandler<ItsmQueueEntity>
         alarmTempReq.setCollectValue(info.getCollectValue());
         alarmTempReq.setThresholdValue(info.getBaseValue());
         alarmTempReq.setFlag(mapKey);
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
         if (event != null) {
             //被事件信息截取
             event.setDescStr(String.format(StatusInfoChangeTypeEnum.event_CTC_threshold.getDescr(), info.getCollectValue(), str, info.getBaseValue()));

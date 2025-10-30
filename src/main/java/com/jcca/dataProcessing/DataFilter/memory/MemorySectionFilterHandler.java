@@ -72,7 +72,7 @@ public class MemorySectionFilterHandler extends IFilterHandler<CollectMemoryEnti
 
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_memory_section.getCode(),StatusInfoChangeTypeEnum.SECTION_VAL.getCode(),null, status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

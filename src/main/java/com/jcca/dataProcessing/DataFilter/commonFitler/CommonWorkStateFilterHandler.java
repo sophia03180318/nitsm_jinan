@@ -48,7 +48,7 @@ public class CommonWorkStateFilterHandler extends IFilterHandler<ItsmQueueEntity
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_runstate.getDescr(), info.getAssetIp(), str));
             alarmTempReq.setCollectValue(info.getAlarmState()+"");
             alarmTempReq.setFlag(mapKey);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_runstate.getCode(),StatusInfoChangeTypeEnum.RUN_STATUS.getCode(),info.getIdStr(), status, info, changeInfo);
             if (event != null) {

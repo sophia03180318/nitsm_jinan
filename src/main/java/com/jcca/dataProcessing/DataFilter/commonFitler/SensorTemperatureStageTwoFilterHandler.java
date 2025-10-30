@@ -65,7 +65,7 @@ public class SensorTemperatureStageTwoFilterHandler extends IFilterHandler<Colle
             alarmTempReq.setThresholdValue(threshold.getTwoLevelValue() + "度");
             alarmTempReq.setFlag(info.getName());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_sectionTwo.getCode(), StatusInfoChangeTypeEnum.SECTION_TWO_VAL.getCode(), info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

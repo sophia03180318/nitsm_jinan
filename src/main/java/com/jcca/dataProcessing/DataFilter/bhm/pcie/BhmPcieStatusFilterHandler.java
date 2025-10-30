@@ -63,7 +63,7 @@ public class BhmPcieStatusFilterHandler extends IFilterHandler<CollectBhmPcieEnt
                 alarmTempReq.setFlag(pcie.getName());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_bhmPcie_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), pcie.getName(), status, pcie, statusChangeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(pcie.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,pcie.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(pcie.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,pcie.getInspectRecordId(),pcie.getVersion());
                 if (event != null) {
                     //上送事件
                     statusChangeInfo.setIsEvent(true);

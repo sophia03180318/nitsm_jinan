@@ -61,7 +61,7 @@ public class BhmCpuStatusFilterHandler extends IFilterHandler<CollectBhmCpuEntit
                 alarmTempReq.setFlag(cpu.getName());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_bhmCpu_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), cpu.getName(), status, cpu, statusChangeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(cpu.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,cpu.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(cpu.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,cpu.getInspectRecordId(),cpu.getVersion());
                 if (event != null) {
                     //上送事件
                     statusChangeInfo.setIsEvent(true);

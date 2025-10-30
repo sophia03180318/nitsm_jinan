@@ -58,6 +58,10 @@ public class CommonEntity implements Serializable {
      * 巡检采集任务ID
      */
     private String inspectRecordId;
+    /**
+     * 车站数据会携带版本信息
+     */
+    private String version;
 
 
 

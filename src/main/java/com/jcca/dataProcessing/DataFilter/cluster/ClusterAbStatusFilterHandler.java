@@ -50,7 +50,7 @@ public class ClusterAbStatusFilterHandler extends IFilterHandler<CollectClusterE
             alarmTempReq.setOrgMsg(keyWord);
             alarmTempReq.setCollectValue(info.getServerRole());
             alarmTempReq.setFlag(info.getServerName());
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

@@ -101,7 +101,7 @@ public class CenterSystemTimeFilterHandler extends IFilterHandler<CollectSystemT
             alarmTempReq.setCollectValue(timeLong+"秒");
             alarmTempReq.setThresholdValue(threshold.getBaseValue() + "秒");
             this.addEventStatus(StatusInfoChangeTypeEnum.event_time_state.getCode(),StatusInfoChangeTypeEnum.NORMAL_VAL.getCode(),"", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

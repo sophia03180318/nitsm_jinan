@@ -68,6 +68,11 @@ public class IEvent {
      * 巡检描述信息
      */
     private String xunjianDesc;
+    /**
+     * 新版本车站主动采集的数据
+     * 会携带版本信息
+     */
+    private String version;
 
 
 
@@ -84,7 +89,7 @@ public class IEvent {
         this.inspectRecordId=inspectRecordId;
     }
 
-    public IEvent(String assetId, ChangeInfo info, String eventRedisKey, String mapKey, Integer status,AlarmTempReq alarmTempReq,String inspectRecordId) {
+    public IEvent(String assetId, ChangeInfo info, String eventRedisKey, String mapKey, Integer status,AlarmTempReq alarmTempReq,String inspectRecordId,String version) {
         this.info = info;
         this.eventRedisKey = eventRedisKey;
         this.mapKey = mapKey;
@@ -93,6 +98,7 @@ public class IEvent {
         this.collectTime = info.getCollectTime();
         this.alarmTempReq = alarmTempReq;
         this.inspectRecordId=inspectRecordId;
+        this.version=version;
     }
 
 

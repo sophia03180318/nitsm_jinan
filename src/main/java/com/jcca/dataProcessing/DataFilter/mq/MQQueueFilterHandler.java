@@ -62,7 +62,7 @@ public class MQQueueFilterHandler extends IFilterHandler<MQMonitorEntity> {
             tempReq.setFlag(info.getName());
 
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

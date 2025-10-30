@@ -56,7 +56,7 @@ public class AlarmJobServiceImpl extends ListenerManager implements AlarmJobServ
             alarmTempReq.setOrgMsg(msg);
             alarmTempReq.setCollectValue("断开");
             //失败 上失败事件
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_ipmi_ping.getCode(), eventMapKey, -1,alarmTempReq,null);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_ipmi_ping.getCode(), eventMapKey, -1,alarmTempReq,null,"");
             event.setDescStr(msg);
             this.dispatureEvent(event);
         }else {
@@ -64,7 +64,7 @@ public class AlarmJobServiceImpl extends ListenerManager implements AlarmJobServ
             //成功 上成功事件
             alarmTempReq.setOrgMsg(msg);
             alarmTempReq.setCollectValue("联通");
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_ipmi_ping.getCode(), eventMapKey, 1,alarmTempReq,null);
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_ipmi_ping.getCode(), eventMapKey, 1,alarmTempReq,null,"");
             event.setDescStr(msg);
             this.dispatureEvent(event);
 

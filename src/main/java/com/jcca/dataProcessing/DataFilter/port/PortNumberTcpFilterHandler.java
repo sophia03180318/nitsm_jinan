@@ -75,7 +75,7 @@ public class PortNumberTcpFilterHandler extends IFilterHandler<CollectPortUsedNu
             alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_system_tcpPort_status.getDescr(), maxPort));
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_system_tcpPort_status.getCode(), StatusInfoChangeTypeEnum.TCP_STATUS.getCode(),"", status,info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

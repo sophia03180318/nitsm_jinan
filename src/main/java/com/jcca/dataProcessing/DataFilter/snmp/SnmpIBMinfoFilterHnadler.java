@@ -69,7 +69,7 @@ public class SnmpIBMinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEntity
             tempReq.setOrgMsg(msg);
             tempReq.setAssetIp(info.getAssetIp());
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 event.setDescStr(msg);
                 changeInfo.setIsEvent(true);

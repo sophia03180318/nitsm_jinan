@@ -44,7 +44,7 @@ public class CollectNodeStatusHandler extends IFilterHandler<CollectNodeEntity> 
         alarmTempReq.setCollectValue(statusStr);
 
         Integer status = CollectNodesMsg.DOWN.equals(node.getNodeState()) ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(node.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey,status ,alarmTempReq,node.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(node.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey,status ,alarmTempReq,node.getInspectRecordId(),node.getVersion());
         if (event != null) {
             AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, descStr, "执行采集节点状态处理");
             //被事件信息截取

@@ -49,7 +49,7 @@ public class CommonVersionFilterHandler extends IFilterHandler<ItsmQueueEntity> 
                 alarmTempReq.setThresholdValue(info.getOldVersion());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_CTC_version.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), "", EventLevelEnum.ABNORMAL.getCode(), info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq,info.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 //被事件信息截取
                 changeInfo.setIsEvent(true);
                 //北洋软件的连接有collectValue描述信息

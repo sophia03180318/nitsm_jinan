@@ -75,7 +75,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_CTC_link.getDescr(), info.getCascoSoftName(), str));
         alarmTempReq.setCollectValue(info.getLinkStatus());
         alarmTempReq.setFlag(mapKey);
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq, info.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq, info.getInspectRecordId(),info.getVersion());
         if (event != null) {
             //被事件信息截取
             changeInfo.setIsEvent(true);

@@ -67,7 +67,8 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

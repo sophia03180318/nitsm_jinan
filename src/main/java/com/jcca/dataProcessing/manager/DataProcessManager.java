@@ -966,8 +966,13 @@ public class DataProcessManager {
 
 
         //-----------------以下为事件信息处理程序----------------------------------------------------------------------
+        //车站数据过滤
+        IFilterHandler eventIsFilterStationHandler = this.getIFilterHandler("eventFilterStationDataHandler");
+
         //查询告警配置
         IFilterHandler eventIsConfigAlarmHandler = this.getIFilterHandler("eventIsConfigAlarmHandler");
+        eventIsFilterStationHandler.setNextFilter(eventIsConfigAlarmHandler);
+
 
         //动环设备过滤
         IFilterHandler eventIsFilterAlarmHandler = this.getIFilterHandler("eventIsFilterAlarmHandler");
@@ -982,7 +987,7 @@ public class DataProcessManager {
         IFilterHandler eventSaveAlarmHandler = this.getIFilterHandler("eventSaveAlarmHandler");
         eventIsPushAlarmHandler.setNextFilter(eventSaveAlarmHandler);
 
-        eventInfoHandler = eventIsConfigAlarmHandler;
+        eventInfoHandler = eventIsFilterStationHandler;
 
 
         //-----------------以下为告警信息处理程序----------------------------------------------------------------------

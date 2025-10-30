@@ -59,7 +59,7 @@ public class SensorTemperatureFilterHandler extends IFilterHandler<CollectSensor
             alarmTempReq.setCollectValue(changeInfo1.getValue().toString());
             alarmTempReq.setFlag(info.getSerialNumberName());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getName(), status1, info, changeInfo1);
-            IEvent event1 = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo1, eventRedisKey1, eventMapKey1, status1, alarmTempReq,info.getInspectRecordId());
+            IEvent event1 = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo1, eventRedisKey1, eventMapKey1, status1, alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event1 != null) {
                 //被事件信息截取
                 changeInfo1.setIsEvent(true);
@@ -107,7 +107,7 @@ public class SensorTemperatureFilterHandler extends IFilterHandler<CollectSensor
         alarmTempReq.setThresholdValue(threshold.getBaseValue() + "度");
         alarmTempReq.setFlag(info.getSerialNumberName());
         this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_normal.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getName(), status, info, changeInfo);
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
         if (event != null) {
             //被事件信息截取
             changeInfo.setIsEvent(true);

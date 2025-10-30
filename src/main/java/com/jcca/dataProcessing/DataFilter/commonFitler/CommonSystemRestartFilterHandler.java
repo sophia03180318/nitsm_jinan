@@ -54,7 +54,7 @@ public class CommonSystemRestartFilterHandler extends IFilterHandler<CommonEntit
                 if (Objects.nonNull(asset) && Objects.nonNull(asset.getCollectionType()) && asset.getCollectionType() == 1) {
                     if (timeduration <= 42940800) {
                         //添加状态监控（设备监控的事件信息是否正常）
-                        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
+                        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId(),info.getVersion());
                         if (event != null) {
                             //被事件信息截取
                             changeInfo.setIsEvent(true);
@@ -63,7 +63,7 @@ public class CommonSystemRestartFilterHandler extends IFilterHandler<CommonEntit
                         }
                     }
                 } else {
-                    IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
+                    IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId(),info.getVersion());
                     if (event != null) {
                         //被事件信息截取
                         changeInfo.setIsEvent(true);

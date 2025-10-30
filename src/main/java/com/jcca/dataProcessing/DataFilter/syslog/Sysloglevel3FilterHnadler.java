@@ -182,7 +182,7 @@ public class Sysloglevel3FilterHnadler extends IFilterHandler<SyslogEventInfoEnt
         tempReq.setAssetIp(info.getAssetIp());
         tempReq.setOrgMsg(String.format(redisKeyStatus.getDescr(), contentStr));
 
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId(),info.getVersion());
         if (event != null) {
             //被事件信息截取
             changeInfo.setIsEvent(true);
