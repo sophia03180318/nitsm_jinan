@@ -195,7 +195,8 @@ public class StationAlarmServiceImpl implements StationAlarmService {
 
             int whiteCount = alarmWhitelistServ.queryWhiteCount(event.getFlag(), STATION_ALARM_UNIQUE, assetId);
             if(whiteCount > 0){
-                resp.setStatus(StationAlarmResp.PushAlarmStatusEnum.REFUSE.name());
+                resp.setStatus(StationAlarmResp.PushAlarmStatusEnum.SUCCESS.name());
+                resp.setItsmId(MyIdUtil.getId());
                 return resp;
             }
 

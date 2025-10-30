@@ -95,7 +95,7 @@ public class RaidDsStorageDriverFilterHandler extends IFilterHandler<DSEntity> {
                     status = EventLevelEnum.NORMAL.getCode();
                 }
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_storage_driver.getCode();
-                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getYindex() + "_" + info.getXindex();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getYindex() + ":" + info.getXindex();
                 String str = EventLevelEnum.NORMAL.getCode().equals(status) ? "恢复" : "异常";
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_storage_driver.getDescr(), info.getYindex() + "_" + info.getXindex(), str));
