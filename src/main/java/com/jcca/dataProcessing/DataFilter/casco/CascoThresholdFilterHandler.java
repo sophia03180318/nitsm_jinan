@@ -40,7 +40,7 @@ public class CascoThresholdFilterHandler extends IFilterHandler<ItsmQueueEntity>
         changeInfo.setCollectTime(new Date());
         info.getMaps().put(mapKey, changeInfo);
         String eventRedisKey = StatusInfoChangeTypeEnum.event_CTC_threshold.getCode();
-        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
+        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + ":" + info.getAbFlag() + ":" + info.getAttrGroupId() + ":" + info.getAttrIndex();
         Integer status = Integer.parseInt(info.getCollectValue()) > Integer.parseInt(info.getBaseValue()) ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
         String str = status == EventLevelEnum.ABNORMAL.getCode() ? "超过" : "";
         //添加状态监控（设备监控的事件信息是否正常）

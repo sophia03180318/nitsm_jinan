@@ -59,7 +59,7 @@ public class CascoLinkFitlerHandler extends IFilterHandler<ItsmQueueEntity> {
         //将所有状态全部推给事件，应为正常与异常切换的特别快，存在数据不统一的问题
         // if (flag) {
         String eventRedisKey = StatusInfoChangeTypeEnum.event_CTC_link.getCode();
-        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + "_" + info.getAbFlag() + "_" + info.getAttrGroupId() + "_" + info.getAttrIndex();
+        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEntityId() + ":" + info.getAbFlag() + ":" + info.getAttrGroupId() + ":" + info.getAttrIndex();
 
         Integer status = info.getLinkStatus().toLowerCase().equals("up") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
 
