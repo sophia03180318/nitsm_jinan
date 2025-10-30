@@ -37,6 +37,7 @@ import com.jcca.web.event.service.AlarmEventGroupService;
 import com.jcca.web.event.service.AlarmEventRelService;
 import com.jcca.web.event.service.AlarmEventService;
 import com.jcca.web.event.service.AlarmEventTypeService;
+import com.jcca.web2.service.AlarmWhitelistService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +86,9 @@ public class StationAlarmServiceImpl implements StationAlarmService {
     private StationCollectClient stationCollectClient;
     @Resource
     private CyclesInfoService cyclesInfoServ;
+    @Resource
+    private AlarmWhitelistService alarmWhitelistServ;
+
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -187,6 +191,14 @@ public class StationAlarmServiceImpl implements StationAlarmService {
             AlarmRepository repository = initAlarmRepo();
             //创建事件
             AlarmEvent event = createEvent(asset, repository, req, occurTime);
+
+
+            int whiteCount = alarmWhitelistServ.queryWhiteCount(event.getFlag(), STATION_ALARM_UNIQUE, assetId);
+            if(whiteCount > 0){
+                resp.setStatus(StationAlarmResp.PushAlarmStatusEnum.REFUSE.name());
+                return resp;
+            }
+
             //处理告警
             AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(req.getAlarmCode());
             if(Objects.nonNull(alarmInfo)){
@@ -416,7 +428,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         alarmInfo.setType(req.getAlarmType());
         alarmInfo.setOccurTime(occurTime);
         alarmInfo.setLastTime(occurTime);
-        alarmInfo.setAlarmCode(req.getAlarmCode());
+        alarmInfo.setAlarmCode(STATION_ALARM_UNIQUE);
         alarmInfo.setAlarmFlag(event.getFlag());
         alarmInfo.setDescription(req.getAlarmDescription());
         alarmInfo.setContent(req.getAlarmDescription());
