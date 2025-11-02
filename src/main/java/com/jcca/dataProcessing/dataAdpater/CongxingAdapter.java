@@ -58,13 +58,13 @@ public class CongxingAdapter extends AssetIpAdd implements IAdapter<ItsmQueueEnt
     @Override
     public void dispose(ItsmQueueEntity data) {
 
-        data.setCollectTime(data.getOccurTime().getTime());
-        eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_linkQuality.getCode(), "monitor", true);
+        data.setCollectTime(data.getAlarmTime().getTime());
+        eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_linkQuality.getCode()+":"+data.getAlarmType(), "monitor", true);
 
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                setAssetIp(data);
+                //setAssetIp(data);
                 try {
                     dataProcessManager.congXingHandlerRequest(data);
                 } catch (Exception e) {
