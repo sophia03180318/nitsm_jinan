@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.listener.eventInfoHandler;
 
+import com.jcca.common.enums.AlarmLevelEnum;
 import com.jcca.dataProcessing.manager.impl.AlarmRepoManagerService;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
@@ -30,9 +31,14 @@ public class EventIsPushAlarmHandler extends IFilterHandler<IEvent> {
          * 如果事件携带告警配置规则
          */
         if (!Objects.isNull(info.getEventAlarmLevelBaseEntity())) {
-            this.dispatureEvent(info);
-            return false;
+            if(!AlarmLevelEnum.UN_CONFIG.getCode().equals(info.getEventAlarmLevelBaseEntity().getAlarmLevel())){
+                this.dispatureEvent(info);
+                return false;
+            }
         }
+
+
+
         return true;
     }
 
