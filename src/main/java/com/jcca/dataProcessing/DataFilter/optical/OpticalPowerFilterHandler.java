@@ -59,7 +59,7 @@ public class OpticalPowerFilterHandler extends IFilterHandler<OpticalSwitchEntit
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_power_state.getDescr(), mapKey, str));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(power);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

@@ -26,7 +26,7 @@ public class CollectNodeStatusHandler extends IFilterHandler<CollectNodeEntity> 
     public boolean handler(CollectNodeEntity node) throws Exception {
         String descStr = "";
         String eventRedisKey = "";
-        String eventMapKey = node.getAssetId();
+        String eventMapKey = node.getAssetIp() + "_" + node.getAssetId();
         String statusStr = CollectNodesMsg.DOWN.equals(node.getNodeState()) ? "已掉线" : "状态正常";
 
         if (CollectNodesMsg.IS_CENTER.equals(node.getNodeType())) {
@@ -37,14 +37,14 @@ public class CollectNodeStatusHandler extends IFilterHandler<CollectNodeEntity> 
             descStr = String.format(StatusInfoChangeTypeEnum.event_jcca_station.getDescr(), node.getNodeName(),statusStr, node.getNodeIp());
         }
         AlarmTempReq alarmTempReq = new AlarmTempReq();
-        alarmTempReq.setFlag(node.getAssetId());
+        alarmTempReq.setFlag(eventMapKey);
         alarmTempReq.setAssetIp(node.getAssetIp());
         alarmTempReq.setAssetName(node.getAssetName());
         alarmTempReq.setOrgMsg(descStr);
         alarmTempReq.setCollectValue(statusStr);
 
         Integer status = CollectNodesMsg.DOWN.equals(node.getNodeState()) ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(node.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey,status ,alarmTempReq,node.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(node.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey,status ,alarmTempReq,node.getInspectRecordId(),node.getVersion());
         if (event != null) {
             AppLogUtils.buildLogInfo(LogFunctionEnum.CRON_COLLECT_STATUS, descStr, "执行采集节点状态处理");
             //被事件信息截取

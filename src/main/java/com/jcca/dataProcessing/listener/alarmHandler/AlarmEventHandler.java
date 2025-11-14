@@ -2,6 +2,7 @@ package com.jcca.dataProcessing.listener.alarmHandler;
 
 import cn.hutool.core.util.StrUtil;
 import com.jcca.common.bean.constant.AlarmBlankConst;
+import com.jcca.common.enums.AlarmLevelEnum;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.dataProcessing.Entity.ChangeInfo;
 import com.jcca.dataProcessing.manager.IDataChangeManagerService;
@@ -58,7 +59,8 @@ public class AlarmEventHandler extends IFilterHandler<IEvent> {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean handler(IEvent info) {
-        if (Objects.isNull(info.getEventAlarmLevelBaseEntity()) || Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())) {
+        if (Objects.isNull(info.getEventAlarmLevelBaseEntity()) || Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())||
+        AlarmLevelEnum.UN_CONFIG.getCode().equals(info.getEventAlarmLevelBaseEntity().getAlarmLevel())) {
             //未设定告警级别的告警不上报，只存事件
             dataChangeManagerService.saveEvent(info);
             return true;

@@ -43,7 +43,7 @@ public class CustomEventFilterHnadler extends IFilterHandler<CustomEvent> {
         if (ObjectUtil.isNotNull(info)){
             alarmTempReq.setFlag(info.getFlag());
         }
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, EventLevelEnum.ABNORMAL.getCode(),alarmTempReq,info.getInspectRecordId(),info.getVersion());
         event.setDescStr(eventInfo.getMessage());
 
 

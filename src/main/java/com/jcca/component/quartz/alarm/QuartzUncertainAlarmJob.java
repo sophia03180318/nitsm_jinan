@@ -126,7 +126,7 @@ public class QuartzUncertainAlarmJob extends QuartzJobBean {
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg("资产存在" + days_2 + "天内未确认的二级告警:" + kv.getValue().toString());
                 alarmTempReq.setCollectValue(days_2+"天");
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_unconfirmed_2.getCode(), eventMapKey, -1,alarmTempReq,null);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_unconfirmed_2.getCode(), eventMapKey, -1,alarmTempReq,null,"");
                 event.setDescStr("资产存在" + days_2 + "天内未确认的二级告警:" + kv.getValue().toString());
                 listenerManager.dispatureEvent(event);
             }
@@ -148,7 +148,7 @@ public class QuartzUncertainAlarmJob extends QuartzJobBean {
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg("资产存在" + days_3 + "天内未确认的三级告警:" + kv.getValue().toString());
                 alarmTempReq.setCollectValue(days_3+"天");
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_unconfirmed_2.getCode(), eventMapKey, -1,alarmTempReq,null);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(asset.getId(), changeInfo, StatusInfoChangeTypeEnum.event_unconfirmed_2.getCode(), eventMapKey, -1,alarmTempReq,null,"");
                 event.setDescStr("资产存在" + days_3 + "天内未确认的三级告警:" + kv.getValue().toString());
                 listenerManager.dispatureEvent(event);
             }

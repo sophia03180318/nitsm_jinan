@@ -55,7 +55,7 @@ public class SensorPowerFilterHandler extends IFilterHandler<CollectSensorEntity
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             alarmTempReq.setFlag(info.getSerialNumberName());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_power_state.getCode(),StatusInfoChangeTypeEnum.STATUS.getCode(),info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

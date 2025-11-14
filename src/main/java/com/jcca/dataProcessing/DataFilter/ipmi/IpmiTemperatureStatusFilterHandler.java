@@ -60,7 +60,7 @@ public class IpmiTemperatureStatusFilterHandler extends IFilterHandler<CollectSe
             String eventMapKey2 = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
             //添加状态监控（设备监控的事件信息是否正常）
             this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getSerialNumberName(), status, info, changeInfo2);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo2, eventRedisKey2, eventMapKey2, status,tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo2, eventRedisKey2, eventMapKey2, status,tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo2.setIsEvent(true);

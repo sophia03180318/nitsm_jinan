@@ -66,7 +66,7 @@ public class BhmFanStatusFilterHandler  extends IFilterHandler<CollectBhmFanEnti
                 alarmTempReq.setFlag(fan.getName());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_fan_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), fan.getName(), status, fan, statusChangeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(fan.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,fan.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(fan.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,fan.getInspectRecordId(),fan.getVersion());
                 if (event != null) {
                     //上送风扇类的事件
                     statusChangeInfo.setIsEvent(true);

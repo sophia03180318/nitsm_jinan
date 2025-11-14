@@ -57,7 +57,7 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
 
                 Integer status = compare ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_status.getCode();
-                String eventMapKey = req.getAssetIp() + ":" + req.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = req.getAssetIp() + "_" + req.getAssetId() + "_" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 if (status == EventLevelEnum.NORMAL.getCode()) {
                     alarmTempReq.setOrgMsg(" 恢复的进程ID:" + info.getProcessId() + " " + String.format(StatusInfoChangeTypeEnum.event_process_status.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
@@ -67,7 +67,8 @@ public class ProcessAloneStateFilterHandler extends IFilterHandler<ProcessGroupE
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, req, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(req.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

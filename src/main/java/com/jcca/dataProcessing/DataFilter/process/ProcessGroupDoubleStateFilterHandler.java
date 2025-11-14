@@ -65,13 +65,13 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_all_down.getCode();
                 Integer status = normalAsset.isEmpty() ? EventLevelEnum.ABNORMAL.getCode() : EventLevelEnum.NORMAL.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getProcessName();
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_all_down.getDescr(), info.getProcessName(), info.getAlias(), info.getProcessId()));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
                 alarmTempReq.setFlag(info.getProcessId());
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_process_all_down.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), info.getProcessName(), status, entity, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);
@@ -94,7 +94,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
 
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_other_down.getCode();
                 Integer status = info.getProcessStatus() ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getProcessName();
 
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
 
@@ -104,7 +104,7 @@ public class ProcessGroupDoubleStateFilterHandler extends IFilterHandler<Process
                     alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_process_other_down.getDescr(), info.getProcessName(),info.getAlias(), info.getProcessId()));
                 }
                 alarmTempReq.setFlag(info.getProcessId());
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

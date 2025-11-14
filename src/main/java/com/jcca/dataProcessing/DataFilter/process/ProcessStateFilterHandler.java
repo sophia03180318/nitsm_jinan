@@ -60,7 +60,7 @@ public class ProcessStateFilterHandler extends IFilterHandler<CollectProcessEnti
             alarmTempReq.setCollectValue(changeInfo.getValue().toString());
             alarmTempReq.setFlag(entity.getProcessId());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_process_status.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), entity.getName(), status, entity, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(entity.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,entity.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(entity.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,entity.getInspectRecordId(),entity.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

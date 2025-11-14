@@ -24,27 +24,15 @@ import java.util.Objects;
 @Component("alarmFilterHandler")
 public class AlarmFilterHandler extends IFilterHandler<IEvent> {
 
-    @Resource
-    private AlarmWhitelistService alarmWhitelistService;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean handler(IEvent info) {
         if(StrUtil.isEmpty(info.getAssetId())||StrUtil.isEmpty(info.getMapKey())){
-
             return false;
         }
-
-        if(Objects.isNull(info.getEventAlarmLevelBaseEntity())||Objects.isNull(info.getEventAlarmLevelBaseEntity().getAlarmLevel())||
-                AlarmLevelEnum.UN_CONFIG.getCode().equals(info.getEventAlarmLevelBaseEntity().getAlarmLevel())){
-            //未设定告警级别的告警不上报，只存事件
-            return true;
-        }
-        String alarmCoded = info.getEventRedisKey();
-        String flag = info.getMapKey();
-
-        int batchList = alarmWhitelistService.queryWhiteCount(flag, alarmCoded, info.getAssetId());
-        return batchList == 0;
+        return true;
     }
 
     @Override

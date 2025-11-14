@@ -54,7 +54,7 @@ public class ProcessCpuFilterHandler extends IFilterHandler<CollectProcessEntity
         info.getMaps().put(mapKey, changeInfo);
 
         String eventRedisKey = StatusInfoChangeTypeEnum.event_process_cpu.getCode();
-        String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getName();
+        String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getName();
 
         String redisThresholdKey =thresholdManager.getThresholdRedisKey(info.getAssetId(),info.getAssetIp());
         String thresholdMapKey = thresholdManager.getThresholdMapKey(StatusInfoChangeTypeEnum.event_process_cpu.getCode(),StatusInfoChangeTypeEnum.CPU.getCode(), info.getName());
@@ -81,7 +81,7 @@ public class ProcessCpuFilterHandler extends IFilterHandler<CollectProcessEntity
             alarmTempReq.setThresholdValue(threshold.getBaseValue()+"%");
             alarmTempReq.setFlag( info.getName());
             this.addEventStatus(StatusInfoChangeTypeEnum.event_process_cpu.getCode(),StatusInfoChangeTypeEnum.CPU_VAL.getCode(), info.getName(), status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

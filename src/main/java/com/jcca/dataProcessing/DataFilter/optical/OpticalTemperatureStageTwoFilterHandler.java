@@ -74,7 +74,7 @@ public class OpticalTemperatureStageTwoFilterHandler extends IFilterHandler<Opti
                 alarmTempReq.setThresholdValue(threshold.getTwoLevelValue()+"度");
                 alarmTempReq.setFlag(mapKey);
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_temp_state_sectionTwo.getCode(),StatusInfoChangeTypeEnum.SECTION_TWO_VAL.getCode(),"temperature" + key, status, info, changeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,alarmTempReq,info.getInspectRecordId(),info.getVersion());
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

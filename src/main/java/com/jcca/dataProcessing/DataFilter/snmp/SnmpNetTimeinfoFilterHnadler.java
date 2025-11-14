@@ -119,7 +119,7 @@ public class SnmpNetTimeinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEn
             tempReq.setOrgMsg(descStr);
 
             //是否会有恢复事件产生
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);
@@ -193,7 +193,7 @@ public class SnmpNetTimeinfoFilterHnadler extends IFilterHandler<SnmpEventInfoEn
                 AlarmTempReq tempReq = new AlarmTempReq();
                 tempReq.setOrgMsg(descStr);
 
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(strs[1], changeInfo, eventRedisKey, eventMapKey, status,tempReq,null);
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(strs[1], changeInfo, eventRedisKey, eventMapKey, status,tempReq,null, "");
                 if (event != null) {
                     //被事件信息截取
                     changeInfo.setIsEvent(true);

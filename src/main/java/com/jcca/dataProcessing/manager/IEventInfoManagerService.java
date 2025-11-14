@@ -77,7 +77,7 @@ public interface IEventInfoManagerService {
      * @param status
      * @return
      */
-    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq,String inspectRecordId);
+    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq,String inspectRecordId,String version);
 
     /**
      * 创建恢复事件

@@ -71,7 +71,7 @@ public class InterfacePortInStageOneFilterHandler extends IFilterHandler<Collect
             tempReq.setCollectValue(changeInfo.getValue()+"%");
             tempReq.setFlag(info.getPortName());
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status,tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

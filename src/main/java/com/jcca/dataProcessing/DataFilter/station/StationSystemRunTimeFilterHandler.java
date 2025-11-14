@@ -92,7 +92,7 @@ public class StationSystemRunTimeFilterHandler extends IFilterHandler<CollectSta
             alarmTempReq.setCollectValue(changeInfo.getValue()+"天");
             alarmTempReq.setThresholdValue(threshold.getBaseValue()+"天");
             this.addEventStatus(StatusInfoChangeTypeEnum.event_run_time_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), "", status, info, changeInfo);
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

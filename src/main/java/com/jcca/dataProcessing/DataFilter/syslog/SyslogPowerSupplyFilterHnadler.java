@@ -72,7 +72,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
             info.getMaps().put(mapKey, changeInfo);
 
             String eventRedisKey = StatusInfoChangeTypeEnum.event_syslog_power.getCode();
-            String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":syslog_power";
+            String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_syslog_power";
 
             AlarmTempReq tempReq = new AlarmTempReq();
             tempReq.setAssetIp(info.getAssetIp());
@@ -83,7 +83,7 @@ public class SyslogPowerSupplyFilterHnadler extends IFilterHandler<SyslogEventIn
             this.addEventStatus(StatusInfoChangeTypeEnum.event_syslog_power.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(),
                     eventMapKey, status, info, changeInfo);
 
-            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq,info.getInspectRecordId());
+            IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey, eventMapKey, status, tempReq,info.getInspectRecordId(),info.getVersion());
             if (event != null) {
                 //被事件信息截取
                 changeInfo.setIsEvent(true);

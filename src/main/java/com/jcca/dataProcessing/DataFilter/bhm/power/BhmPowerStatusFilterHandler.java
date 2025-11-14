@@ -63,7 +63,7 @@ public class BhmPowerStatusFilterHandler extends IFilterHandler<CollectBhmPowerE
                 alarmTempReq.setFlag(power.getName());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_power_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), power.getName(), status, power, statusChangeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(power.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,power.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(power.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,power.getInspectRecordId(),power.getVersion());
                 if (event != null) {
                     //上送事件
                     statusChangeInfo.setIsEvent(true);

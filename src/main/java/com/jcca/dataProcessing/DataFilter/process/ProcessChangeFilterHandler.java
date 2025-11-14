@@ -86,9 +86,9 @@ public class ProcessChangeFilterHandler extends IFilterHandler<ProcessGroupEntit
                         info.getProcessName(), EventLevelEnum.ABNORMAL.getCode(), entity, changeInfo);
 
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_process_once.getCode();
-                String eventMapKey = info.getAssetIp() + ":" + info.getAssetId() + ":" + info.getProcessName();
+                String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getProcessName();
                 IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), changeInfo, eventRedisKey,
-                        eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq,info.getInspectRecordId());
+                        eventMapKey, EventLevelEnum.ABNORMAL.getCode(), alarmTempReq,info.getInspectRecordId(),info.getVersion());
 
                 AppLogUtils.buildLogInfo(LogFunctionEnum.DATA_PROCESS_CHANGE, info.getProcessName()+info.getAssetIp() + "进程切换告警event判定", Objects.nonNull(event));
                 if (event != null) {

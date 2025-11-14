@@ -63,7 +63,7 @@ public class BhmMemoryStatusFilterHandler extends IFilterHandler<CollectBhmMemor
                 alarmTempReq.setFlag(memory.getName());
 
                 this.addEventStatus(StatusInfoChangeTypeEnum.event_bhmMemory_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), memory.getName(), status, memory, statusChangeInfo);
-                IEvent event = eventInfoChangeManagerService.creatChangeEvent(memory.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,memory.getInspectRecordId());
+                IEvent event = eventInfoChangeManagerService.creatChangeEvent(memory.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,memory.getInspectRecordId(),memory.getVersion());
                 if (event != null) {
                     //上送事件
                     statusChangeInfo.setIsEvent(true);

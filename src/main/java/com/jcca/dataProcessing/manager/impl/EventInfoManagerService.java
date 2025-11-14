@@ -123,8 +123,8 @@ public class EventInfoManagerService implements IEventInfoManagerService {
     }
 
     @Override
-    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq, String inspectRecordId) {
-        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq, inspectRecordId);
+    public IEvent creatChangeEvent(String assetId, ChangeInfo changeInfo, String redisKey, String mapKey, Integer status, AlarmTempReq alarmTempReq, String inspectRecordId,String version) {
+        IEvent event = new IEvent(assetId, changeInfo, redisKey, mapKey, status, alarmTempReq, inspectRecordId,version);
         return event;
     }
 

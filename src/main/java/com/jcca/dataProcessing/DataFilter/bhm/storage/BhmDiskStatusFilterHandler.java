@@ -65,7 +65,7 @@ public class BhmDiskStatusFilterHandler extends IFilterHandler<CollectBhmStorage
                     alarmTempReq.setFlag(disk.getName());
 
                     this.addEventStatus(StatusInfoChangeTypeEnum.event_bhmDisk_state.getCode(), StatusInfoChangeTypeEnum.STATUS.getCode(), disk.getName(), status, storage, statusChangeInfo);
-                    IEvent event = eventInfoChangeManagerService.creatChangeEvent(storage.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,storage.getInspectRecordId());
+                    IEvent event = eventInfoChangeManagerService.creatChangeEvent(storage.getAssetId(), statusChangeInfo, eventRedisKey, eventMapKey, status, alarmTempReq,storage.getInspectRecordId(),"");
                     if (event != null) {
                         //上送事件
                         statusChangeInfo.setIsEvent(true);
