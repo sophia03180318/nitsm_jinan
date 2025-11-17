@@ -1,22 +1,18 @@
 package com.jcca.web2.controller;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.ResultVo;
-import com.jcca.common.log.annotation.FieldLogAnno;
 import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.utils.enums.AssetPlaceEnum;
+import com.jcca.web.asset.utils.enums.ProductTypeEnum;
 import lombok.Data;
-import org.apache.ibatis.type.JdbcType;
-import org.hibernate.validator.constraints.Length;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,7 +57,10 @@ public class NmsController {
             List<SysOrg> lineList = sysOrgService.lambdaQuery().in(SysOrg::getId, stationList).list();
             for (SysOrg sysOrg : lineList) {
                 SysOrg parentId = sysOrgService.getById(sysOrg.getPid());
-                List<Asset> assetList = assetService.lambdaQuery().eq(Asset::getOrgId, sysOrg.getId()).list();
+                List<Asset> assetList = assetService.lambdaQuery()
+                        .eq(Asset::getOrgId, sysOrg.getId())
+                        .eq(Asset::getAssetMode, ProductTypeEnum.LYQ.getCode())
+                        .list();
                 if (assetList.isEmpty()) continue;
                 AssetResponse assetResponse = new AssetResponse();
                 assetResponse.setOrgLineName(parentId.getTitle());
