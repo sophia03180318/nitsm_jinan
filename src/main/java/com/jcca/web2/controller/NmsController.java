@@ -17,12 +17,11 @@ import org.hibernate.validator.constraints.Length;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,10 +43,10 @@ public class NmsController {
     @Resource
     private AssetService assetService;
 
-    @GetMapping("/sync")
+    @PostMapping("/sync")
     public ResultVo syncItsmAsset() {
         try {
-            Map<String, AssetResponse> stationAssetMap = new HashMap<String, AssetResponse>();
+            List<AssetResponse> assetResponses = new ArrayList<>();
 
             // 选择车站数
             List<String> stationList = sysOrgService.lambdaQuery()
@@ -61,18 +60,20 @@ public class NmsController {
             // 选择车站下面的所有线路
             List<SysOrg> lineList = sysOrgService.lambdaQuery().in(SysOrg::getId, stationList).list();
             for (SysOrg sysOrg : lineList) {
+                SysOrg parentId = sysOrgService.getById(sysOrg.getPid());
                 List<Asset> assetList = assetService.lambdaQuery().eq(Asset::getOrgId, sysOrg.getId()).list();
+                if (assetList.isEmpty()) continue;
                 AssetResponse assetResponse = new AssetResponse();
-                assetResponse.setOrgLineName(sysOrg.getTitle());
+                assetResponse.setOrgLineName(parentId.getTitle());
 
                 List<AssetVo> assetData = new ArrayList<AssetVo>();
                 assetList.forEach(i -> assetData.add(toEntity(i)));
 
                 assetResponse.setAssetData(assetData);
-                stationAssetMap.put(sysOrg.getId(), assetResponse);
+                assetResponses.add(assetResponse);
             }
 
-            return ResultVoUtil.success(stationAssetMap);
+            return ResultVoUtil.success(assetResponses);
         } catch (Exception e) {
             logger.error("", e);
             return ResultVoUtil.error("数据处理异常" + e.getMessage());
@@ -81,7 +82,9 @@ public class NmsController {
 
 
     private AssetVo toEntity(Asset asset) {
-        return EntityBeanUtil.copy(asset, AssetVo.class);
+        AssetVo assetVo = EntityBeanUtil.copy(asset, AssetVo.class);
+        assetVo.setSnmpVersion("V2");
+        return assetVo;
     }
 
 
@@ -136,5 +139,11 @@ public class NmsController {
          * 组织ID
          */
         private String orgId;
+
+        /**
+         * snmp 版本
+         * V2/V3 默认V2
+         */
+        private String snmpVersion;
     }
 }
