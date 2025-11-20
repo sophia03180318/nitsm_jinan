@@ -3,6 +3,7 @@ package com.jcca.component.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * itsm 队列请求
@@ -126,4 +127,30 @@ public class ItsmQueueReq implements Serializable {
      * 连接标识串
      */
     private String idStr;
+
+
+    /**
+     * 从兴
+     * 对象名称
+     */
+    private String sourceObject;
+
+    /**
+     * 从兴
+     * 对象IP
+     */
+    private String sourceIp;
+
+
+    /**
+     * 从兴
+     * 告警时间
+     */
+    private Date alarmTime;
+
+    /**
+     * 从兴
+     * 告警时间
+     */
+    private String eventId;
 }

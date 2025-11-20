@@ -134,7 +134,7 @@ public enum StatusInfoChangeTypeEnum {
     event_linkQuality("event:event_linkQuality", "通信质量监督状态", "", "", ""),
     event_linkQuality_state("event:event_linkQuality:state", "通信质量监督事件", "业务告警：检测到通信质量监督状态异常。", "", ""),
     //通信质量监督事件对应的状态信息
-    status_congxing("status:congxingState", "通信质量监督软件变化", "", "", ""),
+    //status_congxing("status:congxingState", "通信质量监督软件变化", "", "", ""),
 
 
     //自定义事件信息  category分类
@@ -569,7 +569,6 @@ public enum StatusInfoChangeTypeEnum {
     event_environment("event:event_environment", "动环状态", "检测到动环状态异常", "", ""),
     event_environment_notify("event:event_environment:notify", "动环通知", "接收到动环通知消息", "", ""),
     event_environment_power("event:event_environment:power", "动环电源", "接收到动环电源告警", "", ""),
-
     //对应的值
     NORMAL("NORMAL", "设定普通阈值", "", "", ""),
     SECTION("SECTION", "设定上下限阈值", "", "", ""),

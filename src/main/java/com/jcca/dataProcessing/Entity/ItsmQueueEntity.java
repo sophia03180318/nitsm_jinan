@@ -121,4 +121,30 @@ public class ItsmQueueEntity extends CommonEntity implements Serializable {
      * 连接标识串
      */
     private String idStr;
+
+    /**
+     * 从兴
+     * 对象名称
+     */
+    private String sourceObject;
+
+    /**
+     * 从兴
+     * 对象IP
+     */
+    private String sourceIp;
+
+
+    /**
+     * 从兴
+     * 告警时间
+     */
+    private Date alarmTime;
+
+
+    /**
+     * 从兴
+     * 告警时间
+     */
+    private String eventId;
 }

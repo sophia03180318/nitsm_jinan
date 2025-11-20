@@ -7,15 +7,18 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.jcca.admin.system.entity.SysModuleConfig;
 import com.jcca.admin.system.service.SysModuleConfigService;
+import com.jcca.common.bean.ResultVo;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
-import com.jcca.common.utils.EntityBeanUtil;
 import com.jcca.common.utils.MyIdUtil;
+import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.component.event.EventLogicService;
-import com.jcca.component.event.bean.CreateEventReq;
 import com.jcca.component.thresholds.bean.EventLogBean;
+import com.jcca.dataProcessing.Entity.CongxingEntity;
 import com.jcca.dataProcessing.Entity.CustomEvent;
 import com.jcca.dataProcessing.Entity.DongHuanEntity;
+import com.jcca.dataProcessing.Entity.ItsmQueueEntity;
+import com.jcca.dataProcessing.dataAdpater.CongxingAdapter;
 import com.jcca.dataProcessing.dataAdpater.DongHuanAdapter;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.DataProcessManager;
@@ -23,12 +26,13 @@ import com.jcca.dataProcessing.support.ListenerManager;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetMsgVo;
+import com.jcca.web.common.controller.bean.CongxingData;
 import com.jcca.web.common.controller.req.*;
 import com.jcca.web.common.entity.Alarm;
 import com.jcca.web.common.entity.Device;
 import com.jcca.web.common.entity.DhStation;
 import com.jcca.web.common.service.*;
-import com.jcca.web.event.enums.EventLevelEnum;
+import com.sun.org.apache.regexp.internal.RE;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -131,7 +135,7 @@ public class ApiCollectSyslogController extends ListenerManager {
 
     /**
      * 接收所有系列存储告警所用,将告警存放至告警队列
-     * */
+     */
     @PostMapping("/raid")
     public void raidSyslog(@RequestBody @Validated EventLogBean req) {
         CustomEvent customEvent = new CustomEvent();
@@ -230,5 +234,41 @@ public class ApiCollectSyslogController extends ListenerManager {
             alarmService.removeById(alarm.getId());
         }
     }
+/*
+
+    */
+/***
+     * 接收动环告警信息
+     *//*
+
+    @ApiOperation(value = "接收从兴告警信息")
+    @PostMapping("pullCongxingAlarm")
+    public void pullCongxingAlarm(@RequestBody List<CongxingData> congxingDataList) {
+        try {
+            for (CongxingData congxingData : congxingDataList) {
+                CongxingEntity congxingEntity = new CongxingEntity();
+                congxingEntity.setAssetId("20230713151515123");
+                congxingEntity.setAssetIp("18.18.18.18");
+                String sourceIp = congxingData.getSourceIp();
+                if (ObjectUtil.isNotNull(sourceIp) && !sourceIp.isEmpty()) {
+                    congxingEntity.setAssetIp(sourceIp);
+                    Asset asset = assetServ.findOneByIp(sourceIp);
+                    if (!Objects.isNull(asset)) {
+                        congxingEntity.setAssetId(asset.getId());
+                    }
+                }
+                congxingEntity.setEventId(congxingData.getEventId());
+                congxingEntity.setOccurTime(congxingData.getOccurTime());
+                congxingEntity.setAlarmContent("质监告警_告警对象: " + congxingData.getSourceObject() + "告警IP: " + congxingData.getSourceIp() + "告警标题: " + congxingData.getAlarmTitleStr() + "告警内容: " + congxingData.getAlarmDescription() + " " + congxingData.getAlarmDetails());
+                congxingEntity.setAlarmState(congxingData.getAlarmStatus());
+                CongxingAdapter congxingAdapter = (CongxingAdapter) dataProcessManager.getAdapater("congxingAdapter");
+                congxingAdapter.dispose(congxingEntity);
+            }
+        } catch (Exception e) {
+            log.error("接收从兴推送设备告警失败: ", e);
+        }
+    }
+
+*/
 
 }
