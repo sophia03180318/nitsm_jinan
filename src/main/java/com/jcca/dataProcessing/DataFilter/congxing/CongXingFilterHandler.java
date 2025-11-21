@@ -30,24 +30,19 @@ public class CongXingFilterHandler extends IFilterHandler<ItsmQueueEntity> {
     @Override
     public boolean handler(ItsmQueueEntity info) {
         String redisKey = StatusInfoChangeTypeEnum.status_congxing.getCode();
-        String mapKey = info.getIdStr();
+        String mapKey = info.getEventId();
 
-        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getCollectValue());
+        boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(),redisKey, mapKey, info.getAlarmState());
         if (flag) {
             ChangeInfo changeInfo = new ChangeInfo();
             changeInfo.setValue(info.getNowVersion());
             changeInfo.setRedisKey(redisKey);
             changeInfo.setMapKey(mapKey);
-            changeInfo.setCollectTime(info.getOccurTime());
+            changeInfo.setCollectTime(info.getAlarmTime());
             info.getMaps().put(mapKey, changeInfo);
-            String eventRedisKey = StatusInfoChangeTypeEnum.event_linkQuality_state.getCode();
-            String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getIdStr();
-            String msg = "";
-            if (StrUtil.isNotEmpty(info.getAlarmContent())) {
-                msg = info.getAlarmContent();
-            } else {
-                msg = String.format(StatusInfoChangeTypeEnum.event_linkQuality_state.getDescr());
-            }
+            String eventRedisKey = StatusInfoChangeTypeEnum.event_linkQuality.getCode()+":"+info.getAlarmType();
+            String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + info.getEventId();
+            String msg =  info.getAlarmContent();
 
             AlarmTempReq alarmTempReq = new AlarmTempReq();
             alarmTempReq.setOrgMsg(msg);

@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.dataAdpater;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.jcca.admin.system.entity.SysOrg;
 import com.jcca.admin.system.service.SysOrgService;
 import com.jcca.common.bean.constant.AssetModeConst;
@@ -27,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -59,9 +61,19 @@ public class CongxingAdapter extends AssetIpAdd implements IAdapter<ItsmQueueEnt
     public void dispose(ItsmQueueEntity data) {
 
         data.setCollectTime(data.getAlarmTime().getTime());
-        eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_linkQuality.getCode()+":"+data.getAlarmType(), "monitor", true);
+        data.setAssetId("20230713151515123");
+        data.setAssetIp("192.168.1.18");
+        String sourceIp = data.getSourceIp();
+        if (ObjectUtil.isNotNull(sourceIp) && !sourceIp.isEmpty()) {
+            data.setAssetIp(sourceIp);
+            Asset asset = assetService.findOneByIp(sourceIp);
+            if (!Objects.isNull(asset)) {
+                data.setAssetId(asset.getId());
+            }
+        }
+        eventInfoChangeManagerService.setStateValue(StatusInfoChangeTypeEnum.event_linkQuality.getCode() + ":" + data.getAlarmType(), "monitor", true);
 
-        Future<Integer> future=excutorService.submit(new Callable<Integer>() {
+        Future<Integer> future = excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
                 //setAssetIp(data);
@@ -75,7 +87,7 @@ public class CongxingAdapter extends AssetIpAdd implements IAdapter<ItsmQueueEnt
             }
         });
 
-        if(data.getInspectRecordId()!=null&&!"".equals(data.getInspectRecordId())){
+        if (data.getInspectRecordId() != null && !"".equals(data.getInspectRecordId())) {
             try {
                 future.get();
             } catch (InterruptedException e) {

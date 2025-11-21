@@ -132,9 +132,9 @@ public enum StatusInfoChangeTypeEnum {
 
     //通信质量监督状态事件
     event_linkQuality("event:event_linkQuality", "通信质量监督状态", "", "", ""),
-    event_linkQuality_state("event:event_linkQuality:state", "通信质量监督事件", "业务告警：检测到通信质量监督状态异常。", "", ""),
+    //event_linkQuality_state("event:event_linkQuality:state", "通信质量监督事件", "业务告警：检测到通信质量监督状态异常。", "", ""),
     //通信质量监督事件对应的状态信息
-    //status_congxing("status:congxingState", "通信质量监督软件变化", "", "", ""),
+    status_congxing("status:congxingState", "通信质量监督软件变化", "", "", ""),
 
 
     //自定义事件信息  category分类

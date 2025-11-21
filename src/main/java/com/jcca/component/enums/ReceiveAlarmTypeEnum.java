@@ -64,7 +64,6 @@ public enum ReceiveAlarmTypeEnum {
 
     // 通信质量监督
     CONGXING("70", "CONGXING_ALARM"), // 通信质量
-    CONGXING_API("71", "CONGXING_ALARM_API"), // 通信质量
     ;
 
 
