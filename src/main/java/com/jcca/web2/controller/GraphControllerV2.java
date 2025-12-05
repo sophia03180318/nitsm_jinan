@@ -269,6 +269,9 @@ public class GraphControllerV2 {
         if (OrgTypeEnum.GROUP.getCode() == type || OrgTypeEnum.PARENT.getCode() == type) {
             return ResultVoUtil.success(map);
         }
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+
         String category = TopoCategoryEnum.NET_TOPO.category;
         List<TopoVertexAlarmLevelVo> list;
 
@@ -307,6 +310,14 @@ public class GraphControllerV2 {
             FileRelate one = fileRelateService.getByItemId(vo.getAssetId());
             if (Objects.nonNull(one)) {
                 vo.setViewUrl(one.getViewUrl());
+            }
+            if (showJcca == 2) {
+                if (ObjectUtil.isNotNull(vo.getAssetId())) {
+                    Asset asset = assetService.getById(vo.getAssetId());
+                    if (ObjectUtil.isNotNull(asset) && "JCCA".equals(asset.getAssetSupplier())) {
+                        vo.setAlarmLevel(0);
+                    }
+                }
             }
         }
 
@@ -350,11 +361,24 @@ public class GraphControllerV2 {
         if (OrgTypeEnum.GROUP.getCode() == type || OrgTypeEnum.PARENT.getCode() == type) {
             return ResultVoUtil.success(map);
         }
+
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
         String category = TopoCategoryEnum.ALL_TOPO.category;
 
 
         // 全局拓扑
         List<TopoVertexAlarmLevelVo> topoVertexAlarmLevelVos = topoVertexService.selectAllTopoNodeAlarmLevelByAsset(category, orgId);
+        if (showJcca == 2) {
+            for (TopoVertexAlarmLevelVo vo : topoVertexAlarmLevelVos) {
+                if (ObjectUtil.isNotNull(vo.getAssetId())) {
+                    Asset asset = assetService.getById(vo.getAssetId());
+                    if (ObjectUtil.isNotNull(asset) && "JCCA".equals(asset.getAssetSupplier())) {
+                        vo.setAlarmLevel(0);
+                    }
+                }
+            }
+        }
         map.put("vertex", topoVertexAlarmLevelVos);
 
         //网络设备资产连线拓扑
@@ -432,13 +456,38 @@ public class GraphControllerV2 {
         if (Objects.isNull(orgId)) {
             return ResultVoUtil.error(ResultEnum.PARAM_ERROR.getCode(), "组织ID不能为空");
         }
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+
         String category = "pc_topo";
         Map<String, Object> map = new HashMap<>();
         List<TopoVertexAlarmLevelVo> list = topoVertexService.selectPcTopoNodeAlarmLevelByAsset(category, orgId);
-        map.put("vertex", list);
+
         if (CollectionUtils.isEmpty(list)) {
             List<TopoVertexVo> topoVertexVos = topoVertexService.selectPcTopoNodeByAsset(category, orgId);
+            if (showJcca == 2) {
+                for (TopoVertexVo topoVertexAlarmLevelVo : topoVertexVos) {
+                    if (ObjectUtil.isNotNull(topoVertexAlarmLevelVo.getAssetId())) {
+                        Asset asset = assetService.getById(topoVertexAlarmLevelVo.getAssetId());
+                        if (ObjectUtil.isNotNull(asset) && "JCCA".equals(asset.getAssetSupplier())) {
+                            topoVertexAlarmLevelVo.setAlarmLevel(0);
+                        }
+                    }
+                }
+            }
             map.put("vertex", topoVertexVos);
+        } else {
+            if (showJcca == 2) {
+                for (TopoVertexAlarmLevelVo topoVertexAlarmLevelVo : list) {
+                    if (ObjectUtil.isNotNull(topoVertexAlarmLevelVo.getAssetId())) {
+                        Asset asset = assetService.getById(topoVertexAlarmLevelVo.getAssetId());
+                        if (ObjectUtil.isNotNull(asset) && "JCCA".equals(asset.getAssetSupplier())) {
+                            topoVertexAlarmLevelVo.setAlarmLevel(0);
+                        }
+                    }
+                }
+            }
+            map.put("vertex", list);
         }
 
         // 拓扑图分组
@@ -634,6 +683,10 @@ public class GraphControllerV2 {
         if (Objects.isNull(orgId)) {
             return ResultVoUtil.error("请选择组织");
         }
+
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+
         // 获取分类
         String category = graph.getCategory();
         Map<String, Object> map = new HashMap<>();
@@ -680,10 +733,7 @@ public class GraphControllerV2 {
         if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             String roomId = graph.getRoomId();
             //  List<TopoVertexVo> list = topoVertexService.selectCabinetNodeV2(roomId);
-            SysConfig sysConfig = configServ.getSysConfig();
-            String showJcca = sysConfig.getShowJcca();
-            Integer jcca = "no".equals(showJcca) ? 2 : 1;
-            List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet2(category, roomId, roomId, jcca);
+            List<TopoVertexAlarmLevelVo> list = topoVertexService.selectNodeAlarmLevelByCabnet2(category, roomId, roomId, showJcca);
             map.put("vertex", list);
         }
         // 调度台设备
@@ -711,7 +761,7 @@ public class GraphControllerV2 {
         List<TopoAssetMark> marks;
         if (TopoCategoryEnum.CABINET_TOPO.category.equals(category)) {
             marks = topoAssetMarkService.queryAssetMark(graph.getRoomId(), category);
-        }else{
+        } else {
             marks = topoAssetMarkService.queryAssetMark(orgId, category);
         }
 
@@ -734,7 +784,7 @@ public class GraphControllerV2 {
             return;
         }
         List<String> orgIds = stations.stream().map(SysOrg::getId).collect(Collectors.toList());
-        if(orgIds.isEmpty()){
+        if (orgIds.isEmpty()) {
             orgIds.add("x");
         }
         QueryWrapper<Asset> query = Wrappers.query();

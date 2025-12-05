@@ -587,6 +587,9 @@
         </if>
         and l.OCCUR_TIME &gt;= to_date(#{startDate},'YYYY-MM-DD HH24:MI:SS')
         and l.OCCUR_TIME &lt;= to_date(#{endDate},'YYYY-MM-DD HH24:MI:SS')
+        <if test="showJcca == 2">
+            and (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
+        </if>
         order by l.OCCUR_TIME asc
     </select>
 
@@ -604,6 +607,9 @@
         and l.OCCUR_TIME &lt;= to_date(#{endDate},'YYYY-MM-DD HH24:MI:SS')
         <if test="assetMode != null">
             and a.ASSET_MODE = #{assetMode}
+        </if>
+        <if test="showJcca == 2">
+            and (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
         </if>
         and a.org_id in
         <foreach collection="orgIds" item="id" separator="," open="(" close=")">
@@ -870,14 +876,17 @@
 
     <select id="countAlarm" parameterType="com.jcca.web2.dto.AlarmPageDto" resultType="com.jcca.web2.dto.AlarmCountDto">
         SELECT COUNT(1)                                              total,
-               COUNT(CASE WHEN alarm_level = 1 THEN 1 ELSE NULL END) level1,
-               COUNT(CASE WHEN alarm_level = 2 THEN 1 ELSE NULL END) level2,
-               COUNT(CASE WHEN alarm_level = 3 THEN 1 ELSE NULL END) level3,
-               COUNT(CASE WHEN status = 1 THEN 1 ELSE NULL END)      unHandled,
-               COUNT(CASE WHEN status = 2 THEN 1 ELSE NULL END)      handled
-        FROM alarm_info
-        where occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
-          and occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
+        COUNT(CASE WHEN i.alarm_level = 1 THEN 1 ELSE NULL END) AS level1,
+        COUNT(CASE WHEN i.alarm_level = 2 THEN 1 ELSE NULL END) AS level2,
+        COUNT(CASE WHEN i.alarm_level = 3 THEN 1 ELSE NULL END) AS level3,
+        COUNT(CASE WHEN i.status = 1 THEN 1 ELSE NULL END) AS unHandled,
+        COUNT(CASE WHEN i.status = 2 THEN 1 ELSE NULL END) AS handled
+        FROM alarm_info i join asset a on i.asset_id=a.id
+        where i.occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+          and i.occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
+        <if test="showJcca == 2">
+            and (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
+        </if>
     </select>
 
     <select id="findUnhandledAlarm" parameterType="com.jcca.web2.dto.AlarmPageDto"
@@ -888,23 +897,30 @@
         where i.status = 1
           and i.occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
           and i.occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
+        <if test="showJcca==2">
+            and (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
+        </if>
         ORDER BY a.IP
     </select>
 
     <select id="find5TimesUp" parameterType="com.jcca.web2.dto.AlarmPageDto"
             resultType="com.jcca.web2.dto.AlarmUnhandledDto">
         SELECT t.*
-        FROM (SELECT a.name                                                AS assetName,
-                     a.ip                                                  AS assetIp,
-                     i.occur_time,
-                     i.content,
-                     i.description,
-                     i.opinion,
-                     COUNT(1) OVER (PARTITION BY i.asset_id, i.alarm_code) AS alarmCount
-              FROM alarm_info i
-                       LEFT JOIN asset a ON i.asset_id = a.id
-              WHERE i.occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
-                and i.occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')) t
+        FROM (SELECT a.name AS assetName,
+        a.ip AS assetIp,
+        i.occur_time,
+        i.content,
+        i.description,
+        i.opinion,
+        COUNT(1) OVER (PARTITION BY i.asset_id, i.alarm_code) AS alarmCount
+        FROM alarm_info i
+        LEFT JOIN asset a ON i.asset_id = a.id
+        WHERE i.occur_time &gt;= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+        and i.occur_time &lt; TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS')
+        <if test="showJcca==2">
+            and (a.ASSET_SUPPLIER != 'JCCA' or a.ASSET_SUPPLIER is null)
+        </if>
+        ) t
         WHERE t.alarmCount > 5
         ORDER BY t.assetIp
     </select>
