@@ -3,6 +3,7 @@ package com.jcca.web.statistics.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -31,6 +32,7 @@ import com.jcca.web.collect.service.CollectCpuService;
 import com.jcca.web.collect.service.CollectMemoryService;
 import com.jcca.web.collect.service.CollectSensorService;
 import com.jcca.web.config.vo.SysConfig;
+import com.jcca.web.graph.vo.TopoVertexAlarmLevelVo;
 import com.jcca.web.statistics.dao.StatisticsMapper;
 import com.jcca.web.statistics.entity.HourCpu;
 import com.jcca.web.statistics.entity.HourMemory;
@@ -495,6 +497,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         int abnormalCount = 0;
         List<String> assetIdList = assetList.stream().map(Asset::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(assetIdList)) {
+            SysConfig sysConfig = sysModuleConfigService.getSysConfig();
+            Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
             QueryWrapper<AlarmInfo> alarmQueryWrapper = Wrappers.query();
             alarmQueryWrapper.select("ASSET_ID");
             alarmQueryWrapper.in("ASSET_ID", assetIdList);
@@ -502,7 +506,19 @@ public class StatisticsServiceImpl implements StatisticsService {
             alarmQueryWrapper.eq("BLANK", StatusConst.OK);
             alarmQueryWrapper.eq("ALARM_STATE", AlarmStateEnum.ALARM.getCode());
             alarmQueryWrapper.groupBy("ASSET_ID");
-            abnormalCount = alarmInfoService.list(alarmQueryWrapper).size();
+            List<AlarmInfo> list = alarmInfoService.list(alarmQueryWrapper);
+            if (showJcca == 2) {
+                for (AlarmInfo alarmInfo : list) {
+                        if (ObjectUtil.isNotNull(alarmInfo.getAssetId())) {
+                            Asset asset = assetService.getById(alarmInfo.getAssetId());
+                            if (ObjectUtil.isNotNull(asset) && !"JCCA".equals(asset.getAssetSupplier())) {
+                                abnormalCount++;
+                            }
+                        }
+                }
+            }else{
+                abnormalCount = list.size();
+            }
         }
 
         // 正常设备数

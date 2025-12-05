@@ -34,4 +34,7 @@ public class QueryExportByTypeReq implements Serializable {
      */
     private Integer assetMode;
 
+
+    private Integer showJcca;
+
 }

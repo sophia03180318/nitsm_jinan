@@ -152,7 +152,9 @@ public class AlarmInfoController extends ListenerManager {
         List<List<String>> timeConfig = req.getTimeConfig();
 
         Map<String, List<ExportAlarmReportBean>> excelDataResult = new HashMap<String, List<ExportAlarmReportBean>>();
-
+        SysConfig sysConfig = configService.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+        queryByTypeReq.setShowJcca(showJcca);
         if (exportTypeFlag.equals(exportType)) {
             // 按照类型筛选
             List<Byte> typeDetail = req.getTypeDetail();
@@ -169,7 +171,6 @@ public class AlarmInfoController extends ListenerManager {
             if (Objects.isNull(req.getOrgDetail()) || req.getOrgDetail().isEmpty()) {
                 return ResultVoUtil.error("请指定生成组织范围");
             }
-
             queryByTypeReq.setOrgIds(req.getOrgDetail());
             List<ExportAlarmReportBean> reportData = alarmInfoService.getReportListByOrgIds(queryByTypeReq);
             // 根据组织分组
@@ -1233,7 +1234,31 @@ public class AlarmInfoController extends ListenerManager {
             query.setAlarmCodeList(null);
         }
         List<BrokenRecordWord> list = brokenRecordWordService.getBrokenRecordWords(query);
-        Map<String, Object> dataMap = brokenRecordWordService.getExportWordMapV2(query, list);
+        Map<String, Object> dataMap;
+        ArrayList<BrokenRecordWord> list2 = new ArrayList<>();
+        SysConfig sysConfig = configService.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+        if (showJcca == 2) {
+            for (BrokenRecordWord brokenRecordWord : list) {
+                if (!ObjectUtil.isNull(brokenRecordWord.getId())) {
+                    String assetId = alarmInfoService.getById(brokenRecordWord.getId()).getAssetId();
+                    if (!StrUtil.isEmpty(assetId)) {
+                        Asset asset = assetServ.getById(assetId);
+                        if (ObjectUtil.isNotNull(asset)&& !"JCCA".equals(asset.getAssetSupplier())) {
+                            list2.add(brokenRecordWord);
+                        }
+                    }
+
+                } else {
+                    list2.add(brokenRecordWord);
+                }
+
+            }
+            dataMap = brokenRecordWordService.getExportWordMapV2(query, list2);
+        } else {
+            dataMap = brokenRecordWordService.getExportWordMapV2(query, list);
+        }
+
         // 文件唯一名称
         String fileOnlyName = "告警分析报告_" + sdf.format(new Date()) + ".doc";
 

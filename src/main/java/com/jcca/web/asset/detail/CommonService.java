@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybatisplus.PagePlugin;
 import com.jcca.common.enums.UnitEnum;
@@ -25,6 +26,7 @@ import com.jcca.web.collect.service.CollectCpuService;
 import com.jcca.web.collect.service.CollectMemoryService;
 import com.jcca.web.collect.service.CollectSystemTimeService;
 import com.jcca.web.collect.service.bean.AssetMemoryVo;
+import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.xunjian.controller.util.XunjianReportUtil;
 import com.jcca.web2.entity.AssetManufacturer;
 import com.jcca.web2.entity.AssetMode;
@@ -55,6 +57,8 @@ public class CommonService {
     private AssetModeService assetModeService;
     @Resource
     private AssetManufacturerService assetManufacturerService;
+    @Resource
+    private SysModuleConfigService configServ;
 
     /**
      * 获取基本信息
@@ -69,13 +73,13 @@ public class CommonService {
         detailGeneral.setRoomName(assetBelong.getRoomName());
         // 细分资产类型 20210112hanwon
         AssetMode mode = assetModeService.getByCode(asset.getDesk());
-        if(Objects.nonNull(mode)){
+        if (Objects.nonNull(mode)) {
             detailGeneral.setAssetModeStr(mode.getName());
-        }else{
-            detailGeneral.setAssetModeStr(asset.getDesk()+"");
+        } else {
+            detailGeneral.setAssetModeStr(asset.getDesk() + "");
         }
         AssetManufacturer manufacturer = assetManufacturerService.getById(asset.getManufacturerId());
-        if(Objects.nonNull(manufacturer)){
+        if (Objects.nonNull(manufacturer)) {
             detailGeneral.setManufacturerStr(manufacturer.getName());
         }
         return detailGeneral;
@@ -169,7 +173,11 @@ public class CommonService {
 
         AssetAlarmReq req = new AssetAlarmReq();
         req.setAssetId(assetId);
-        resultMap.put("alarmInfo", alarmInfoService.findAssetAlarm(req));
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+        if (showJcca != 2) {
+            resultMap.put("alarmInfo", alarmInfoService.findAssetAlarm(req));
+        }
 
         this.getdetail(resultMap, asset, assetBelong);
 

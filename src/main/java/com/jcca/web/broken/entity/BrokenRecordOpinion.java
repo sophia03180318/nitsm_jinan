@@ -60,4 +60,7 @@ public class BrokenRecordOpinion extends Model<BrokenRecordOpinion> implements S
      */
     @TableField(value = "MODIFIER", fill = FieldFill.INSERT_UPDATE)
     private String modifier;
+
+    @TableField(exist = false)
+    private String assetId;
 }

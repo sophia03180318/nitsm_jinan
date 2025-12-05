@@ -470,6 +470,9 @@ public class AlarmControllerV2 {
             throw new ResultException(ResultEnum.PARAM_ERROR.getCode(), "请选择起止时间");
         }
 
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+        req.setShowJcca(showJcca);
         ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.setColumnWidth(0, 18);
         writer.setColumnWidth(1, 16);
