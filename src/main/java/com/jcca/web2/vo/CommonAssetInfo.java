@@ -21,4 +21,7 @@ public class CommonAssetInfo {
     private String flag;
     // 组织ID
     private String orgId;
+    // 配合前端模糊搜索
+    private String ip2;
+    private String ip;
 }

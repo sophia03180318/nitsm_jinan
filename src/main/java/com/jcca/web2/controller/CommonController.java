@@ -88,6 +88,8 @@ public class CommonController {
                         .select(
                                 Asset::getId,
                                 Asset::getName,
+                                Asset::getIp,
+                                Asset::getIp2,
                                 Asset::getAssetMode,
                                 Asset::getOrgId)
                         .eq(Asset::getOrgId, orgId)
@@ -152,6 +154,8 @@ public class CommonController {
         organizations.setAssetMode(asset.getAssetMode());
         organizations.setOrgId(asset.getOrgId());
         organizations.setAssetId(asset.getId());
+        organizations.setIp(asset.getIp());
+        organizations.setIp2(asset.getIp2());
         return organizations;
     }
 }
