@@ -289,21 +289,22 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
                 report1.setAlarmStatusStr(AlarmStatusEnum.getMsg((byte) 1));
             }
 
-            if (!StringUtils.isEmpty(report1.getAlarmCode())) {
-                List<String> infos = map.get(report1.getAlarmCode());
-                if (infos == null) {
-                    infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
-                    map.put(report1.getAlarmCode(), infos);
-                }
-                report1.setRemarks(infos);
-                if (!infos.isEmpty()) {
-                    StringBuilder sb = new StringBuilder();
-                    for (String info : infos) {
-                        sb.append(info).append("\r\n");
-                    }
-                    report1.setRemarkStr(sb.toString());
-                }
-            }
+            // 只拿取巡检表的告警备注，不取告警表，建议需要保持一致
+//            if (!StringUtils.isEmpty(report1.getAlarmCode())) {
+//                List<String> infos = map.get(report1.getAlarmCode());
+//                if (infos == null) {
+//                    infos = alarmInfoService.getRemarksByAlarmCode(report1.getAlarmCode());
+//                    map.put(report1.getAlarmCode(), infos);
+//                }
+//                report1.setRemarks(infos);
+//                if (!infos.isEmpty()) {
+//                    StringBuilder sb = new StringBuilder();
+//                    for (String info : infos) {
+//                        sb.append(info).append("\r\n");
+//                    }
+//                    report1.setRemarkStr(sb.toString());
+//                }
+//            }
         }
 
         QueryWrapper<InspectDetail> query = Wrappers.query();

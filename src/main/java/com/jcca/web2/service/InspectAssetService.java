@@ -33,7 +33,7 @@ public interface InspectAssetService extends IService<InspectAsset> {
 
     List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String targetItem);
 
-    List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId);
+    List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId, String status);
 
     void xunjianCollect(InspectAsset asset);
 }

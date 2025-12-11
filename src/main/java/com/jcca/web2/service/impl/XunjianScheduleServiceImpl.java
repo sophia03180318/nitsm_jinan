@@ -26,7 +26,6 @@ import com.jcca.dataProcessing.Entity.ThresholdBaseEntity;
 import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.entity.AlarmRepository;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
@@ -38,16 +37,19 @@ import com.jcca.web.event.entity.AlarmEventType;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
 import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.constant.XunJianConst;
 import com.jcca.web2.dao.XunjianScheduleDao;
-import com.jcca.web2.dto.xunjian.XunjianDataDto;
-import com.jcca.web2.dto.xunjian.XunjianJobDto;
-import com.jcca.web2.dto.xunjian.XunjianTask;
-import com.jcca.web2.dto.xunjian.XunjianWSDto;
+import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
 import com.jcca.web2.entity.XunjianSchedule;
+import com.jcca.web2.enums.xunjian.InspectionMode;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.*;
+import com.jcca.web2.service.xunjian.InspectSessionManager;
+import com.jcca.web2.service.xunjian.XunJianEventHandler;
+import com.jcca.web2.service.xunjian.XunjianNotifier;
 import com.jcca.web2.util.TimeToCronConverter;
 import com.jcca.web2.vo.ItemVo;
 import lombok.extern.slf4j.Slf4j;
@@ -61,14 +63,11 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.service.XunjianCollectRun.*;
 
 /**
  * @author: hhw
@@ -102,6 +101,14 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     @Resource
     private AlarmInfoService alarmInfoService;
 
+    @Resource
+    private XunjianNotifier notifier;
+
+    @Resource
+    private InspectSessionManager sessionManager;
+
+    @Resource
+    private XunJianEventHandler eventHandler;
 
     /**
      * 保存巡检任务
@@ -372,151 +379,149 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     public void beginXunjian(XunjianJobDto dto) {
         String id = dto.getId();
         XunjianSchedule schedule = this.getById(id);
-        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(schedule.getJobId());
-        if (dto.getAutoFlag() == 2) {
-            // 巡检前让采集器推送一次进程状态数据
-            try {
-                collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
-            } catch (CollectAgencyException e) {
-                AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto);
-                return;
-            }
-
-            // 将任务设置为正在巡检
-            schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
-            schedule.setLastTime(new Date());
-            this.updateById(schedule);
-
-            // 将指标设置为最初状态
-            for (InspectAsset asset : assetList) {
-                asset.setInspectState(Web2Const.INSPECT);
-            }
-            inspectAssetService.updateBatchById(assetList);
-
-            Web2Const.XUNJIAN_JOB_RECORD.put(schedule.getJobId(), dto.getInspectRecordId());
+        if (schedule == null) {
+            AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检", "基础数据缺失，退出巡检");
+            return;
         }
 
-        // 保存巡检记录
-        schedule.setInspectRecordId(dto.getInspectRecordId());
-        schedule.setLastTime(new Date());
-        this.saveInspectRecord(schedule);
-        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "保存巡检记录", "任务名称：" + schedule.getJobName() + ",记录ID：" + dto.getInspectRecordId());
-
-        Set<String> assetIdSet = new HashSet<>();
-        Set<String> collect = assetList.stream().map(InspectAsset::getAssetId).collect(Collectors.toSet());
-        int totalTarget = collect.size();
+        String jobId = schedule.getJobId();
+        List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
+        String inspectRecordId = dto.getInspectRecordId();
 
         try {
-            // 开始巡检采集
-            for (InspectAsset inspectAsset : assetList) {
-                if (assetIdSet.contains(inspectAsset.getAssetId())) {
-                    continue;
-                }
-                assetIdSet.add(inspectAsset.getAssetId());
-
-                String flag = XUNJIAN_JOB_RECORD.get(schedule.getJobId());
-                if (flag == null) {
+            if (Objects.equals(dto.getAutoFlag(), InspectionMode.SCHEDULED.getCode())) {
+                // 巡检前让采集器推送一次进程状态数据
+                try {
+                    collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
+                } catch (CollectAgencyException e) {
+                    AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", dto);
                     return;
                 }
-                currentAssetIdMap.put(schedule.getInspectRecordId(), inspectAsset.getAssetId()); // 当前巡检资产
-                this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.XUNJIANING_ASSET, schedule.getJobId(), inspectAsset.getAssetId(), inspectAsset.getAssetName(), 2); // 当前巡检资产
 
-                inspectAsset.setInspectRecordId(schedule.getInspectRecordId());
+                // 将任务设置为正在巡检(定时巡检)
+                schedule.setJobState(Integer.parseInt(InspectionStatus.INSPECTING.getCode()));
+                schedule.setLastTime(new Date());
+                this.updateById(schedule);
+
+                // 将指标设置为最初状态
+                for (InspectAsset asset : assetList) {
+                    asset.setInspectState(InspectionStatus.INSPECT.getCode());
+                }
+                inspectAssetService.updateBatchById(assetList);
+
+                //记录任务状态(定时巡检)
+                XunJianConst.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
+            }
+
+            // 保存巡检记录
+            schedule.setInspectRecordId(inspectRecordId);
+            schedule.setLastTime(new Date());
+            this.saveInspectRecord(schedule);
+            AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "保存巡检记录", "任务名称：" + schedule.getJobName() + ",记录ID：" + inspectRecordId);
+
+            // 创建巡检 session
+            sessionManager.getOrCreateSession(inspectRecordId, () -> new InspectSession(inspectRecordId, schedule, assetList));
+            InspectSession session = sessionManager.getSession(inspectRecordId);
+
+            // 初始化队列
+            XunJianConst.initXunJianCollectQueue(inspectRecordId);
+
+            Set<String> assetIdSet = new HashSet<>();
+            // 开始巡检(设备)采集
+            for (InspectAsset inspectAsset : assetList) {
+                String assetId = inspectAsset.getAssetId();
+                if (!assetIdSet.add(assetId)) {
+                    continue;
+                }
+
+                // 检查任务是否已被取消
+                if (XunJianConst.XUNJIAN_JOB_RECORD.get(jobId) == null) {
+                    AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检任务被取消", jobId);
+                    return;
+                }
+
+                // 记录/更新当前巡检资产
+                XunJianConst.currentAssetIdMap.put(inspectRecordId, assetId);
+                String assetName = inspectAsset.getAssetName();
+                session.updateLatestAsset(assetId, assetName, Integer.parseInt(InspectionStatus.INSPECTING.getCode()));
+
+                // 如果任务已被停止，那么有可能上一次采集任务有遗留脏数据未处理完，需过滤
+                if (!XunJianConst.hasXunJianCollectQueue(inspectRecordId)) {
+                    log.info("当前任务<{}>已停止运行，属于上一次任务脏数据", inspectRecordId);
+                    return;
+                }
+
+                // 推送设备采集中
+                InspectBaseDataWsVo snapshot = session.buildSnapshot(session.getSchedule().getJobId(), false, true);
+                notifier.sendSnapshot(snapshot, session.getSchedule().getOperator());
+
+                // 开始采集
+                inspectAsset.setInspectRecordId(inspectRecordId);
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检资产 " + inspectAsset.getAssetName(), dto);
                 inspectAssetService.xunjianCollect(inspectAsset);
 
-                TimeUnit.SECONDS.sleep(2L);
-                if (assetStateMap.get(schedule.getInspectRecordId()) != null
-                        && assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId()) != null) {
-                    this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.ASSET_STATUS, schedule.getJobId(), inspectAsset.getAssetId(),
-                            inspectAsset.getAssetName(), assetStateMap.get(schedule.getInspectRecordId()).get(inspectAsset.getAssetId())); // 资产状态
-                }
+                Thread.sleep(1000);// 等待时间，保障 xunjianCollect 方法中得指标都存入到队列-非必须
 
-                BigDecimal process = new BigDecimal(assetIdSet.size()).divide(new BigDecimal(totalTarget), 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
-                if (process.intValue() < 100) {
-                    currentProcessMap.put(schedule.getInspectRecordId(), process.intValue());
-                    this.sendMsg(inspectAsset.getCreator(), XunjianWSDto.WHOLE_PROCESS, schedule.getJobId(), "100", "进度条", process.intValue());
+                // 发送当前设备结束标识
+                IEvent info = new IEvent();
+                info.setStatus(XunJianConst.FINISH_FLAG);
+                info.setAssetId(assetId);
+                info.setInspectRecordId(inspectRecordId);
+
+                // 入队列即开始消费队列 ，否则是上一次执行任务脏数据
+                if (XunJianConst.putXunJianCollectQueue(inspectRecordId, info)) {
+                    // 同步消费队列数据
+                    consumeLoop(inspectRecordId);
                 }
             }
 
-            checkStatusTarget(schedule.getJobId(), schedule.getInspectRecordId());
+            // 整个job任务巡检结束
+            inspectRecordService.lambdaUpdate()
+                    .eq(InspectRecord::getId, inspectRecordId)
+                    .set(InspectRecord::getInspectState, InspectionStatus.INSPECTED.getCode())
+                    .update();
 
-            IEvent event = new IEvent();
-            event.setXunjianIsFinish(1);
-            event.setInspectRecordId(schedule.getInspectRecordId());
-            Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
+            schedule.setJobState(Integer.parseInt(InspectionStatus.INSPECT.getCode()));
+            schedule.setLastTime(new Date());
+            this.updateById(schedule);
+
+            XunJianConst.INSPECT_THREAD_MAP.remove(schedule.getJobId());
+            XunJianConst.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
+            sessionManager.removeSession(inspectRecordId);
+
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "发送巡检结束标记，用户：" + schedule.getOperator()
                     + "，任务名称：" + schedule.getJobName(), schedule.getInspectRecordId());
         } catch (Exception e) {
+            e.printStackTrace();
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集执行中异常:" + e.getMessage(), dto);
+            // 异常清理
+            sessionManager.removeSession(inspectRecordId);
         }
     }
 
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
-        XunjianWSDto wsDto = new XunjianWSDto();
-        wsDto.setUsername(operator);
-        wsDto.setMsgType(msgType);
-        XunjianWSDto msg = new XunjianWSDto();
-        msg.setJobId(jobId);
-        msg.setId(id);
-        msg.setName(name);
-        msg.setStatus(status);
-        msg.setCount(0);
-        wsDto.setMessage(msg);
-        this.sendWsMsg(wsDto);
-    }
+    /**
+     * 同步处理队列数据
+     *
+     * @param inspectRecordId
+     */
+    private void consumeLoop(String inspectRecordId) {
+        BlockingQueue<IEvent> queue = XunJianConst.XUNJIAN_COLLECT_QUEUE.get(inspectRecordId);
+        if (queue == null) return;
 
-    // 状态类单独处理
-    private void checkStatusTarget(String jobId, String inspectRecordId) {
-        QueryWrapper<InspectAsset> query1 = Wrappers.query();
-        query1.eq("JOB_ID", jobId);
-        query1.in("INSPECT_STATE", Arrays.asList("1", "2", "5"));
-        List<InspectAsset> list1 = inspectAssetService.list(query1);
-        for (InspectAsset inspectAsset : list1) {
-            List<String> list = Arrays.asList(ALARM_TARGET_ARR);
-            if (!list.contains(inspectAsset.getTargetItem())) {
-                continue;
-            }
-            inspectAsset.setInspectRecordId(inspectRecordId);
+        IEvent event;
+        while ((event = queue.poll()) != null) {
+            try {
+                boolean isFinish = eventHandler.handleEvent(event);
+                log.info("资产：{} 响应值：{}", event.getAssetId(), isFinish);
 
-            QueryWrapper<AlarmInfo> query = Wrappers.query();
-            query.eq("ASSET_ID", inspectAsset.getAssetId());
-            query.eq("ALARM_CODE", inspectAsset.getTargetItem());
-            query.eq("ALARM_STATE", 1);
-            query.eq("BLANK", 1);
-            List<AlarmInfo> infos = alarmInfoService.list(query);
-            if (infos.isEmpty()) {
-                inspectAsset.setInspectValue("1");
-                inspectAsset.setInspectState(Web2Const.INSPECTED);
-                inspectAsset.setResultMsg("正常");
-                this.send2Queue(inspectAsset);
-                continue;
-            }
-            for (AlarmInfo info : infos) {
-                inspectAsset.setInspectValue(info.getDescription());
-                inspectAsset.setInspectState(Web2Const.INSPECT_ALARM);
-                inspectAsset.setResultMsg(info.getDescription());
-                inspectAsset.setAlarmId(info.getId());
-                this.send2Queue(inspectAsset);
+//                if (isFinish) {
+//                    // 结束标志
+//                    break;
+//                }
+            } catch (Exception e) {
+                AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检事件处理异常", e.getMessage());
             }
         }
-    }
-
-    private void send2Queue(InspectAsset asset) {
-        XunjianDataDto dto = new XunjianDataDto();
-        dto.setInspectRecordId(asset.getInspectRecordId());
-        dto.setAssetId(asset.getAssetId());
-        dto.setTargetItem(asset.getTargetItem());
-        dto.setInspectValue(asset.getInspectValue());
-        dto.setInspectState(asset.getInspectState());
-        dto.setResultMsg(asset.getResultMsg());
-        dto.setAlarmId(asset.getAlarmId());
-        dto.setEventTypeId(asset.getEventTypeId());
-        IEvent event = new IEvent();
-        event.setInspectRecordId(asset.getInspectRecordId());
-        event.setStatus(Web2Const.INSPECT_ERROR.equals(asset.getInspectState()) ? -1 : 1);
-        event.setXunjianDataDto(dto);
-        Web2Const.XUNJIAN_COLLECT_QUEUE.add(event);
     }
 
     private void saveInspectRecord(XunjianSchedule schedule) {
@@ -795,9 +800,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         inspectDetailService.remove(update);
 
         // 清空缓存
-        XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
-        XunjianCollectRun collectRun = SpringContextUtil.getBean(XunjianCollectRun.class);
-        collectRun.clearMap(inspectRecordId);
+        XunJianConst.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
+        XunJianConst.XUNJIAN_COLLECT_QUEUE.remove(inspectRecordId);
+
     }
 
     @Override

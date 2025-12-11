@@ -31,7 +31,7 @@ public interface InspectAssetMapper extends BaseMapper<InspectAsset> {
 
     List<InspectTargetDetailInfo> getTargetAssetInfo(String inspectRecordId, String eventTypeId);
 
-    List<InspectTargetDetailInfo> getAssetTargetInfo(String inspectRecordId, String assetId);
+    List<InspectTargetDetailInfo> getAssetTargetInfo(String inspectRecordId, String assetId, String status);
 
     List<String> getCategoryList(String assetId, String jobId);
 }

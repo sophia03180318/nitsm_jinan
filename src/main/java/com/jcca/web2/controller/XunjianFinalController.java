@@ -28,9 +28,12 @@ import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.db.service.ManageDbService;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.constant.XunJianConst;
 import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.*;
 import com.jcca.web2.enums.ThresholdCategoryEnum;
+import com.jcca.web2.enums.xunjian.InspectionMode;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.*;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.InspectShareVo;
@@ -50,14 +53,11 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.service.XunjianCollectRun.targetAbnormalSet;
-import static com.jcca.web2.service.XunjianCollectRun.targetNormalSet;
 
 /**
  * @author: hhw
@@ -94,8 +94,6 @@ public class XunjianFinalController {
     private AssetService assetService;
     @Resource
     private InspectRecordShareService inspectRecordShareService;
-
-    public static final Map<String, Thread> INSPECT_THREAD_MAP = new ConcurrentHashMap<>();
 
     @PostMapping("/record/share")
     @ApiOperation("分享巡检记录")
@@ -248,8 +246,8 @@ public class XunjianFinalController {
 
     @GetMapping("/asset/target")
     @ApiOperation("资产下异常指标详情")
-    public ResultVo<Object> assetTarget(String jobId, String assetId) {
-        List<InspectTargetDetailInfo> resultList = inspectAssetService.getAssetTargetInfo(jobId, assetId);
+    public ResultVo<Object> assetTarget(String jobId, String assetId, String status) {
+        List<InspectTargetDetailInfo> resultList = inspectAssetService.getAssetTargetInfo(jobId, assetId, status);
         return ResultVoUtil.success(resultList);
     }
 
@@ -305,7 +303,7 @@ public class XunjianFinalController {
 
         // 巡检前让采集器推送一次进程状态数据
         try {
-            collectAgent.sendPostToCenter(XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
+            collectAgent.sendPostToCenter(XunJianConst.XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", jobId);
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
@@ -313,20 +311,21 @@ public class XunjianFinalController {
 
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
         Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
+        AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检 - 初始化数据", "jobId: " + jobId + " inspectRecordId: " + inspectRecordId);
 
         // 将任务设置为正在巡检
-        schedule.setJobState(Integer.parseInt(Web2Const.INSPECTING));
+        schedule.setJobState(Integer.valueOf(InspectionStatus.INSPECTING.getCode()));
         xunjianScheduleService.updateById(schedule);
         // 将指标设置为最初状态
         List<InspectAsset> assetList = inspectAssetService.getAllByJobId(jobId);
         for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
+            asset.setInspectState(InspectionStatus.INSPECT.getCode());
         }
         inspectAssetService.updateBatchById(assetList);
 
         ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
         XunjianJobDto dto = new XunjianJobDto();
-        dto.setAutoFlag(1);
+        dto.setAutoFlag(InspectionMode.MANUAL.getCode());
         dto.setId(schedule.getId());
         dto.setOperator(schedule.getOperator());
         dto.setInspectRecordId(inspectRecordId);
@@ -391,10 +390,10 @@ public class XunjianFinalController {
 
         xunjianScheduleService.resetJob(schedule);
 
-        Thread thread = INSPECT_THREAD_MAP.get(jobId);
+        Thread thread = XunJianConst.INSPECT_THREAD_MAP.get(jobId);
         if (Objects.nonNull(thread)) {
             thread.interrupt();
-            INSPECT_THREAD_MAP.remove(jobId);
+            XunJianConst.INSPECT_THREAD_MAP.remove(jobId);
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "手动结束线程", thread.getName());
         }
 
@@ -406,7 +405,7 @@ public class XunjianFinalController {
                     XunjianTask task = (XunjianTask) runnable;
                     if (task.getJobId().equals(jobId)) {
                         queue.poll();
-                        INSPECT_THREAD_MAP.remove(jobId);
+                        XunJianConst.INSPECT_THREAD_MAP.remove(jobId);
                         break;
                     }
                 }
@@ -641,7 +640,7 @@ public class XunjianFinalController {
             detail.select("ASSET_ID");
             detail.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
             detail.eq("INSPECT_CODE", record.getId());
-            detail.eq("INSPECT_STATE", INSPECT_ERROR);
+            detail.eq("INSPECT_STATE", InspectionStatus.INSPECT_ALARM.getCode());
             detail.groupBy("ASSET_ID");
             vo.setAbnormal(inspectDetailService.list(detail).size());
             resultList.add(vo);
@@ -653,9 +652,10 @@ public class XunjianFinalController {
         query.groupBy("EVENT_TYPE_ID");
         int totalCount = inspectAssetService.list(query).size();
 
+        // 这两个字段值业务去掉，没用到
         int normalCount = 0, abnormalCount = 0;
-        normalCount = targetNormalSet.get(inspectRecordId) == null ? 0 : targetNormalSet.get(inspectRecordId).size();
-        abnormalCount = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
+//        normalCount = targetNormalSet.get(inspectRecordId) == null ? 0 : targetNormalSet.get(inspectRecordId).size();
+//        abnormalCount = targetAbnormalSet.get(inspectRecordId) == null ? 0 : targetAbnormalSet.get(inspectRecordId).size();
 
         Map<String, Object> map = new HashMap<>();
         map.put("totalCount", totalCount);

@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.redis.service.RedisService;
-import com.jcca.common.shiro.util.ShiroUtil;
 import com.jcca.common.utils.AppLogUtils;
 import com.jcca.component.client.CollectAgent;
 import com.jcca.component.client.exception.CollectAgencyException;
@@ -17,12 +16,15 @@ import com.jcca.component.dto.ReceiveCollectDto;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
 import com.jcca.dataProcessing.support.IEvent;
-import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.constant.XunJianConst;
 import com.jcca.web2.dao.InspectAssetMapper;
 import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.InspectAsset;
+import com.jcca.web2.enums.xunjian.CollectionStatus;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.InspectAssetService;
-import com.jcca.web2.service.XunjianScheduleService;
+import com.jcca.web2.service.xunjian.InspectSessionManager;
+import com.jcca.web2.service.xunjian.XunjianNotifier;
 import com.jcca.web2.vo.InspectAssetAndTarget;
 import com.jcca.web2.vo.ItemVo;
 import org.springframework.stereotype.Service;
@@ -30,14 +32,10 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.jcca.web2.constant.Web2Const.*;
-import static com.jcca.web2.service.XunjianCollectRun.*;
 
 /**
  * @author HanHW
@@ -59,7 +57,10 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
     @Resource
-    private XunjianScheduleService xunjianScheduleService;
+    private InspectSessionManager sessionManager;
+
+    @Resource
+    private XunjianNotifier notifier;
 
     @Override
     public List<InspectAsset> getInspectAssets(List<String> assetIds) {
@@ -83,57 +84,27 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<ItemVo> getAllCheckedAsset(String jobId) {
-        String username = ShiroUtil.getSubject().getUsername();
         String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
         if (!StringUtils.isEmpty(inspectRecordId)) {
-            Integer i = currentProcessMap.get(inspectRecordId);
-            i = i == null ? 0 : i;
-            this.sendMsg(username, XunjianWSDto.WHOLE_PROCESS, jobId, i);
-
-            if (currentAssetIdMap.get(inspectRecordId) != null && assetStateMap.get(inspectRecordId) != null) {
-                this.sendMsg(username, XunjianWSDto.XUNJIANING_ASSET, jobId, inspectRecordId, assetIdName.get(currentAssetIdMap.get(inspectRecordId)),
-                        assetStateMap.get(inspectRecordId).get(currentAssetIdMap.get(inspectRecordId))); // 当前巡检资产
+            InspectSession session = sessionManager.getSession(inspectRecordId);
+            if (null != session) {
+                InspectBaseDataWsVo snapshot = session.buildSnapshot(session.getSchedule().getJobId(), false, false);
+                notifier.sendSnapshot(snapshot, session.getSchedule().getOperator());
             }
         }
 
+        // 查询当前所有job下的巡检的资产，以及状态
         List<ItemVo> list = inspectAssetMapper.getAllCheckedAsset(jobId);
-        if (!StringUtils.isEmpty(inspectRecordId) && currentAssetIdMap.get(inspectRecordId) != null) {
+        if (!StringUtils.isEmpty(inspectRecordId) && XunJianConst.currentAssetIdMap.get(inspectRecordId) != null) {
             for (ItemVo itemVo : list) {
-                if (itemVo.getId().equals(currentAssetIdMap.get(inspectRecordId))) {
-                    itemVo.setStatus(2);
+                // 如果缓存中还存在，则设置为巡检中
+                if (itemVo.getId().equals(XunJianConst.currentAssetIdMap.get(inspectRecordId))) {
+                    itemVo.setStatus(Integer.valueOf(InspectionStatus.INSPECTING.getCode()));
                     break;
                 }
             }
         }
         return list;
-    }
-
-    private void sendMsg(String operator, Integer msgType, String jobId, String id, String name, Integer status) {
-        XunjianWSDto wsDto = new XunjianWSDto();
-        wsDto.setUsername(operator);
-        wsDto.setMsgType(msgType);
-        XunjianWSDto msg = new XunjianWSDto();
-        msg.setJobId(jobId);
-        msg.setId(id);
-        msg.setName(name);
-        msg.setStatus(status);
-        msg.setCount(0);
-        wsDto.setMessage(msg);
-        xunjianScheduleService.sendWsMsg(wsDto);
-    }
-
-    private void sendMsg(String operator, Integer msgType, String jobId, Integer status) {
-        XunjianWSDto wsDto = new XunjianWSDto();
-        wsDto.setUsername(operator);
-        wsDto.setMsgType(msgType);
-        XunjianWSDto msg = new XunjianWSDto();
-        msg.setJobId(jobId);
-        msg.setId("100");
-        msg.setName("进度条");
-        msg.setStatus(status);
-        msg.setCount(0);
-        wsDto.setMessage(msg);
-        xunjianScheduleService.sendWsMsg(wsDto);
     }
 
     @Override
@@ -182,12 +153,12 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     @Override
-    public List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId) {
+    public List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId, String status) {
         String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
         if (StringUtils.isEmpty(inspectRecordId)) {
             return new ArrayList<>();
         }
-        return inspectAssetMapper.getAssetTargetInfo(inspectRecordId, assetId);
+        return inspectAssetMapper.getAssetTargetInfo(inspectRecordId, assetId, status);
     }
 
     private List<String> getCategoryList(String assetId, String jobId) {
@@ -236,15 +207,16 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         Set<String> ipSet = new HashSet<>();
         Set<String> assetIdSet = new HashSet<>();
         Set<String> idFlagSet = new HashSet<>();
-        ExecutorService executor = Executors.newFixedThreadPool(execRespList.size());
-
+        ExecutorService executor = null;
         try {
+            executor = Executors.newFixedThreadPool(execRespList.size());
             CountDownLatch latch = new CountDownLatch(execRespList.size());
 
             for (CollectExecResult execResult : execRespList) {
                 AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集返回数据", execResult);
                 Integer code = execResult.getCode();
-                if (code == 2) {
+
+                if (code == CollectionStatus.IS_ERROR.getCode()) {
                     latch.countDown();
                     if (!assetIdSet.contains(asset.getAssetId())) {
                         assetIdSet.add(asset.getAssetId());
@@ -258,7 +230,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
                     continue;
                 }
 
-                if (code == 3 || code == 4) {
+                if (code == CollectionStatus.IS_FAIL.getCode() || code == CollectionStatus.IS_FAIL_DOUBLE.getCode()) {
                     latch.countDown();
                     String flag = assetId + dto.getCategory();
                     if (idFlagSet.contains(flag) || !Arrays.asList(SYSPORT_DS_ARR).contains(dto.getCategory())) {
@@ -296,13 +268,15 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         } catch (Exception ignored) {
 
         } finally {
-            executor.shutdownNow();
-            try {
-                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
+            if (null != executor) {
+                executor.shutdownNow();
+                try {
+                    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                        executor.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage(), e);
                 }
-            } catch (InterruptedException e) {
-                log.error(e.getMessage(), e);
             }
         }
     }
@@ -328,14 +302,14 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             dto.setAssetId(asset.getAssetId());
             dto.setTargetItem(inspectAsset.getTargetItem());
             dto.setInspectValue("--");
-            dto.setInspectState(Web2Const.INSPECT_ERROR);
+            dto.setInspectState(InspectionStatus.INSPECT_ERROR.getCode());
             dto.setResultMsg(msg);
             dto.setEventTypeId(inspectAsset.getEventTypeId());
             IEvent event = new IEvent();
             event.setXunjianDataDto(dto);
             try {
-                Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            } catch (InterruptedException ignored) {
+                XunJianConst.putXunJianCollectQueue(asset.getInspectRecordId(), event);
+            } catch (Exception ignored) {
 
             }
         }
@@ -356,14 +330,14 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             dto.setAssetId(asset.getAssetId());
             dto.setTargetItem(inspectAsset.getTargetItem());
             dto.setInspectValue("--");
-            dto.setInspectState(Web2Const.INSPECT_ERROR);
+            dto.setInspectState(InspectionStatus.INSPECT_ERROR.getCode());
             dto.setResultMsg(msg);
             dto.setEventTypeId(inspectAsset.getEventTypeId());
             IEvent event = new IEvent();
             event.setXunjianDataDto(dto);
             try {
-                Web2Const.XUNJIAN_COLLECT_QUEUE.put(event);
-            } catch (InterruptedException ignored) {
+                XunJianConst.putXunJianCollectQueue(asset.getInspectRecordId(), event);
+            } catch (Exception ignored) {
 
             }
         }

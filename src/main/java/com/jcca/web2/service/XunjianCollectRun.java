@@ -7,6 +7,7 @@ import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.enums.ThreadPoolEnum;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.constant.XunJianConst;
 import com.jcca.web2.dto.xunjian.XunjianDataDto;
 import com.jcca.web2.dto.xunjian.XunjianWSDto;
 import com.jcca.web2.entity.InspectAsset;
@@ -25,15 +26,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jcca.web2.controller.XunjianFinalController.INSPECT_THREAD_MAP;
 
 /**
  * @author: hhw
  * @description: XunjianCollectRun 主要是用来处理巡检采集数据
  * @date: 2025-05-27  16:16
  * @since: 2.1.6.0
+ * @Des：停掉V1 版本
  */
-@Component
+//@Component
 public class XunjianCollectRun implements ApplicationRunner {
 
     private InspectAssetService inspectAssetService;
@@ -222,13 +223,13 @@ public class XunjianCollectRun implements ApplicationRunner {
             } catch (InterruptedException ignored) {
             }
 
-            INSPECT_THREAD_MAP.remove(schedule.getJobId());
+            XunJianConst.INSPECT_THREAD_MAP.remove(schedule.getJobId());
             this.sendMsg(operator, XunjianWSDto.WHOLE_PROCESS, jobId, "100", "进度条", 100);
             // 清空缓存
-            Web2Const.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
+            XunJianConst.XUNJIAN_JOB_RECORD.remove(schedule.getJobId());
             this.clearMap(inspectRecordId);
             // 更新当前巡检报告状态为正常
-            inspectRecordService.lambdaUpdate().eq(InspectRecord::getId,inspectRecordId).set(InspectRecord::getInspectState,Web2Const.INSPECTED).update();
+            inspectRecordService.lambdaUpdate().eq(InspectRecord::getId, inspectRecordId).set(InspectRecord::getInspectState, Web2Const.INSPECTED).update();
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, "巡检结束", inspectRecordId);
             return;
         }

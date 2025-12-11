@@ -1,9 +1,8 @@
 package com.jcca.web2.dto.xunjian;
 
+import com.jcca.web2.constant.XunJianConst;
 import com.jcca.web2.service.XunjianScheduleService;
 import lombok.Data;
-
-import static com.jcca.web2.controller.XunjianFinalController.INSPECT_THREAD_MAP;
 
 /**
  * @author: hhw
@@ -27,7 +26,7 @@ public class XunjianTask implements Runnable {
     public void run() {
         Thread thread = Thread.currentThread();
         thread.setName(jobId);
-        INSPECT_THREAD_MAP.put(jobId, thread);
+        XunJianConst.INSPECT_THREAD_MAP.put(jobId, thread);
         xunjianScheduleService.beginXunjian(dto);
     }
 }

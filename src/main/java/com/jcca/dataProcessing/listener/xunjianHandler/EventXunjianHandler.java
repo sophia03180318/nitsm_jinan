@@ -6,12 +6,11 @@ import com.jcca.dataProcessing.manager.IEventInfoManagerService;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.dataProcessing.support.IFilterHandler;
 import com.jcca.web.event.enums.EventLevelEnum;
+import com.jcca.web2.constant.XunJianConst;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Objects;
-
-import static com.jcca.web2.constant.Web2Const.XUNJIAN_COLLECT_QUEUE;
 
 @Component("eventXunjianHandler")
 public class EventXunjianHandler extends IFilterHandler<IEvent> {
@@ -93,7 +92,7 @@ public class EventXunjianHandler extends IFilterHandler<IEvent> {
             }
             //如果不在往下层提交，那么就在这个地方进行保存
             if(returnflag==false){
-                XUNJIAN_COLLECT_QUEUE.put(info);
+                XunJianConst.putXunJianCollectQueue(info.getInspectRecordId(), info);
             }
 
             return returnflag;

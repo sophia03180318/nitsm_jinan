@@ -167,23 +167,24 @@
                i.status AS alarmStatus,
                d.asset_ip1 AS assetIp1,
                d.asset_name,
-               d.asset_desk
+               d.asset_desk,
+               d.remark AS remarkStr
         FROM inspect_detail d
                  LEFT JOIN alarm_info i ON
             i.id = d.alarm_id
                  LEFT JOIN ALARM_EVENT_TYPE aet ON
             aet.id = d.EVENT_TYPE_ID
         WHERE d.inspect_code = #{inspectCode}
-          AND d.ALARM_ID IS NOT NULL
+          AND d.INSPECT_STATE  = 5
         ORDER BY d.asset_ip1
     </select>
 
     <!-- 获取柱状图基础数据 -->
     <select id="getBaseEcharts" resultType="com.jcca.web2.dto.xunjian.InspectEcharts">
-        SELECT ind.EVENT_TYPE_ID                                    AS eventTypeId,
-               aet.NAME                                             AS eventTypeName,
-               COUNT(DISTINCT ind.ASSET_ID)                         AS assetCount,
-               COUNT(CASE WHEN ind.ALARM_ID IS NOT NULL THEN 1 END) AS alarmCount
+        SELECT ind.EVENT_TYPE_ID                                 AS eventTypeId,
+               aet.NAME                                          AS eventTypeName,
+               COUNT(DISTINCT ind.ASSET_ID)                      AS assetCount,
+               COUNT(CASE WHEN ind.INSPECT_STATE = 5 THEN 1 END) AS alarmCount
         FROM INSPECT_DETAIL ind
                  LEFT JOIN ALARM_EVENT_TYPE aet
                            ON
@@ -200,14 +201,14 @@
         SELECT
         ind.id,
         ind.ASSET_ID AS assetId,
---         ai.status AS alarmStatus,
+        -- ai.status AS alarmStatus,
         ind.ASSET_NAME AS assetName,
         ind.REMARK AS remarkStr,
         ind.ALARM_ID AS alarmId,
         ass.DESK AS assetMode,
         aet.NAME,
         ai.TITLE AS alarmTitle,
-        COALESCE(NULLIF(TRIM(ai.DESCRIPTION), ''), ind.result_msg) AS alarmDescription,
+        COALESCE(NULLIF(TRIM(ind.result_msg), ''), ai.DESCRIPTION) AS alarmDescription,
         ai.ALARM_LEVEL AS alarmLevel,
         ai.STATUS AS solveStatus
         FROM
@@ -223,7 +224,7 @@
         <if test="eventTypeId != null and eventTypeId != ''">
             AND ind.EVENT_TYPE_ID = #{eventTypeId}
         </if>
-        AND ind.ALARM_ID IS NOT NULL
+        AND ind.INSPECT_STATE = 5
         ORDER BY ind.asset_ip1
     </select>
 
