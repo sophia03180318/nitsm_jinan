@@ -18,6 +18,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 public final class XunJianConst {
     // 当前指标结束标识
     public static final int FINISH_FLAG = 9999;
+    // 巡检超时时间 5分钟
+    public static final int XUNJIAN_TIME_OUT = 300 * 1000;
+    // 巡检数据采集接口
+    public static final String XUNJIAN_CENTER_URI = "/business/exeCollect";
     // 巡检状态数据接口
     public static final String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
 

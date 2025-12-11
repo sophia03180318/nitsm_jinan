@@ -33,14 +33,6 @@ public interface Web2Const {
     String STATISTICS_TOP_MSG_HANDLE = "3"; // 大屏上方滚动处理消息
     String ALARM_RIGHT_DOWN = "4"; // 原页面右下角告警消息
 
-    // 巡检指标状态 0未知，1待巡检，2正在巡检，3巡检正常，4巡检异常，5巡检告警
-    String UNKNOWN = "0";
-    String INSPECT = "1";
-    String INSPECTING = "2";
-    String INSPECTED = "3";
-    String INSPECT_ERROR = "4";
-    String INSPECT_ALARM = "5";
-
     // 巡检管理操作状态
     String INSPECT_NO = "NO"; // 未开始
     String INSPECT_BEGIN = "BEGIN"; // 开始
@@ -65,16 +57,8 @@ public interface Web2Const {
     String TARGET_INTERVAL = "INTERVAL";
 
     // 巡检实时采集队列
-    LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
+//    LinkedBlockingQueue<IEvent> XUNJIAN_COLLECT_QUEUE = new LinkedBlockingQueue<>(20000);
 
-    // 巡检超时时间 5分钟
-    int XUNJIAN_TIME_OUT = 300 * 1000;
-    // 巡检数据采集接口
-    String XUNJIAN_CENTER_URI = "/business/exeCollect";
-    // 巡检状态数据接口
-    String XUNJIAN_PROCESS_URI = "/business/exeProcessStatusPush";
-    // 用于重置任务状态 <jobId, recordId>
-    Map<String, String> XUNJIAN_JOB_RECORD = new ConcurrentHashMap<>();
     // 巡检需要查询的指标
     String[] ALARM_TARGET_ARR = {
             StatusInfoChangeTypeEnum.event_clock_state.getCode(),

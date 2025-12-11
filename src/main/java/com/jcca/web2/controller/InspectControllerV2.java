@@ -31,6 +31,7 @@ import com.jcca.web.xunjian.entity.XunjianDetail;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.InspectDetailService;
 import com.jcca.web2.service.InspectRecordService;
 import com.jcca.web2.vo.InspectOrgAssetVo;
@@ -409,8 +410,8 @@ public class InspectControllerV2 {
             if (nset.contains(assetId)) {
                 continue;
             }
-            if (!(Web2Const.INSPECTED.equals(detail.getInspectState())
-                    || Web2Const.UNKNOWN.equals(detail.getInspectState()))) {
+            if (!(InspectionStatus.INSPECTED.getCode().equals(detail.getInspectState())
+                    || InspectionStatus.UNKNOWN.getCode().equals(detail.getInspectState()))) {
                 exceptionNum += 1;
                 nset.add(assetId);
             }

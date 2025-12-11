@@ -303,14 +303,14 @@ public class XunjianFinalController {
 
         // 巡检前让采集器推送一次进程状态数据
         try {
-            collectAgent.sendPostToCenter(XunJianConst.XUNJIAN_PROCESS_URI, "", XUNJIAN_TIME_OUT);
+            collectAgent.sendPostToCenter(XunJianConst.XUNJIAN_PROCESS_URI, "", XunJianConst.XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "巡检采集获取状态数据异常", jobId);
             throw new ResultException(ResultEnum.INSPECT_COLLECT_ERROR, "向采集器获取状态数据异常");
         }
 
         String inspectRecordId = MyIdUtil.getId(); // 巡检记录ID
-        Web2Const.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
+        XunJianConst.XUNJIAN_JOB_RECORD.put(jobId, inspectRecordId);
         AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_MANAGE, "开始巡检 - 初始化数据", "jobId: " + jobId + " inspectRecordId: " + inspectRecordId);
 
         // 将任务设置为正在巡检
@@ -603,7 +603,7 @@ public class XunjianFinalController {
 
         }
 
-        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        String inspectRecordId = XunJianConst.XUNJIAN_JOB_RECORD.get(jobId);
         if (StringUtils.isEmpty(inspectRecordId)) {
             ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) SpringContextUtil.getBean(ThreadPoolEnum.xunjianAsync);
             BlockingQueue<Runnable> queue = executor.getThreadPoolExecutor().getQueue();

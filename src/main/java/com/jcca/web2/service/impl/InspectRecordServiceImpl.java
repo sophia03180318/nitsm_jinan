@@ -31,6 +31,7 @@ import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.dao.InspectRecordMapper;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.InspectDetailService;
 import com.jcca.web2.service.InspectRecordService;
@@ -117,7 +118,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
                     ca.setId(cabinetId);
                     ca.setName(cord2.getCabinetName());
                     ca.setType("2");
-                    ca.setState(Objects.isNull(state) ? Web2Const.INSPECT : state);
+                    ca.setState(Objects.isNull(state) ? InspectionStatus.INSPECT.getCode() : state);
                     cabinetList.add(ca);
                 }
             }
@@ -224,7 +225,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (!ping) {
             UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
             wrapper.eq("ASSET_ID", assetId);
-            wrapper.set("INSPECT_STATE", Web2Const.INSPECT_ERROR);
+            wrapper.set("INSPECT_STATE", InspectionStatus.INSPECT_ERROR.getCode());
             wrapper.set("INSPECT_VALUE", "网络不通");
             this.update(wrapper);
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "3:" + ResultEnum.INSPECT_PING_ERROR.getMessage());
@@ -258,8 +259,8 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             // 更新未巡检到的结果为  未知
             UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
             wrapper.eq("ASSET_ID", assetId);
-            wrapper.notIn("INSPECT_STATE", Arrays.asList(Web2Const.INSPECTED, Web2Const.INSPECT_ERROR));
-            wrapper.set("INSPECT_STATE", Web2Const.UNKNOWN);
+            wrapper.notIn("INSPECT_STATE", Arrays.asList(InspectionStatus.INSPECTED.getCode(), InspectionStatus.INSPECT_ERROR.getCode()));
+            wrapper.set("INSPECT_STATE", InspectionStatus.UNKNOWN.getCode());
             this.update(wrapper);
             AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_MANAGE, assetId, "2:" + ResultEnum.INSPECT_NO_DATA.getMessage());
             return new ArrayList<>();
@@ -314,8 +315,8 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (Web2Const.INSPECT_TARGET.equals(inspectType)) {
             query.eq("TARGET_STATUS", StatusConst.OK);
         }
-        wrapper.notIn("INSPECT_STATE", Arrays.asList(Web2Const.INSPECTED, Web2Const.INSPECT_ERROR));
-        wrapper.set("INSPECT_STATE", Web2Const.UNKNOWN);
+        wrapper.notIn("INSPECT_STATE", Arrays.asList(InspectionStatus.INSPECTED.getCode(), InspectionStatus.INSPECT_ERROR.getCode()));
+        wrapper.set("INSPECT_STATE", InspectionStatus.UNKNOWN.getCode());
         this.update(wrapper);
 
         Date date = new Date();
@@ -474,11 +475,11 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
      */
     private void getStringBuilder(StringBuilder successAssetOrgStr, StringBuilder errorAssetOrgStr, List<InspectRecord> records) {
         for (InspectRecord recor : records) {
-            if (Web2Const.INSPECTED.equals(recor.getInspectState())) {
+            if (InspectionStatus.INSPECTED.getCode().equals(recor.getInspectState())) {
                 gather(successAssetOrgStr, recor, "系统提示结果：【正常✓】");
-            } else if (Web2Const.INSPECT_ERROR.equals(recor.getInspectState())) {
+            } else if (InspectionStatus.INSPECT_ERROR.getCode().equals(recor.getInspectState())) {
                 gather(errorAssetOrgStr, recor, "系统提示结果：【【★★异常★★】】");
-            } else if (Web2Const.UNKNOWN.equals(recor.getInspectState())) {
+            } else if (InspectionStatus.UNKNOWN.getCode().equals(recor.getInspectState())) {
                 gather(errorAssetOrgStr, recor, "系统提示结果：【【★★需要二次确认★★】】");
             }
         }
@@ -616,7 +617,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
                 vo.setCabinetId(cabinetId);
                 vo.setCabinetName(record.getCabinetName());
                 vo.setAssetId(assetId);
-                vo.setState(Objects.isNull(state) ? Web2Const.INSPECT : state);
+                vo.setState(Objects.isNull(state) ? InspectionStatus.INSPECT.getCode() : state);
                 vo.setAssetName(record.getAssetName());
                 vo.setIp(record.getAssetIp1());
                 vo.setIp2(record.getAssetIp2());
@@ -634,7 +635,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
                     continue;
                 }
                 String state = assetStateList.get(0).getInspectState();
-                cabinetVo.setState(Objects.isNull(state) ? Web2Const.INSPECT : state);
+                cabinetVo.setState(Objects.isNull(state) ? InspectionStatus.INSPECT.getCode() : state);
                 cabinetVo.setCabinetId(cabinetId);
                 resList.add(cabinetVo);
             }
@@ -672,7 +673,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         if (Web2Const.INSPECT_TARGET.equals(inspectType)) {
             query.eq("TARGET_STATUS", StatusConst.OK);
         }
-        query.in("INSPECT_STATE", Arrays.asList(Web2Const.INSPECT_ERROR, Web2Const.UNKNOWN));
+        query.in("INSPECT_STATE", Arrays.asList(InspectionStatus.INSPECT_ERROR.getCode(), InspectionStatus.UNKNOWN.getCode()));
         return this.list(query);
     }
 
@@ -703,8 +704,8 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
 
         // 将正在巡检的状态修改为结束状态
         UpdateWrapper<InspectRecord> wrapper = Wrappers.update();
-        wrapper.notIn("INSPECT_STATE", Arrays.asList(Web2Const.INSPECTED, Web2Const.INSPECT_ERROR));
-        wrapper.set("INSPECT_STATE", Web2Const.UNKNOWN);
+        wrapper.notIn("INSPECT_STATE", Arrays.asList(InspectionStatus.INSPECTED.getCode(), InspectionStatus.INSPECT_ERROR.getCode()));
+        wrapper.set("INSPECT_STATE", InspectionStatus.UNKNOWN.getCode());
         wrapper.set("RESULT_MSG", msg);
         this.update(wrapper);
 
@@ -765,7 +766,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             throw new ResultException(ResultEnum.PARAM_ERROR);
         }
         InspectRecord targetState = inspectRecordMapper.findTargetState(assetId, targetItem, modeType);
-        if (Web2Const.INSPECT.equals(targetState.getInspectState())) {
+        if (InspectionStatus.INSPECT.getCode().equals(targetState.getInspectState())) {
             this.getTargetState(assetId);
             targetState = inspectRecordMapper.findTargetState(assetId, targetItem, modeType);
         }
@@ -891,7 +892,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             for (InspectRecord record : readyRecords) {
                 one = this.findOneByAssetAndTarget(record.getAssetId(), record.getModeType(), record.getTargetItem());
                 if (Objects.isNull(one)) {
-                    record.setInspectState(Web2Const.UNKNOWN);
+                    record.setInspectState(InspectionStatus.UNKNOWN.getCode());
                     nlist.add(record); // 添加新的
                     continue;
                 }
@@ -1012,7 +1013,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
             return;
         }
         record.setInspectType(1);
-        record.setInspectState(Web2Const.INSPECT);
+        record.setInspectState(InspectionStatus.INSPECT.getCode());
         record.setTargetStatus((int) StatusConst.OK);
         record.setAssetStatus((int) StatusConst.OK);
         record.setRemark("");
@@ -1039,7 +1040,7 @@ public class InspectRecordServiceImpl extends ServiceImpl<InspectRecordMapper, I
         String inspectType = inspectRecordMapper.findNowInspectType();
         QueryWrapper<InspectRecord> query = Wrappers.query();
         query.eq("ASSET_ID", assetId);
-        query.eq("INSPECT_STATE", Web2Const.INSPECTED);
+        query.eq("INSPECT_STATE", InspectionStatus.INSPECTED.getCode());
         if (Web2Const.INSPECT_ASSET.equals(inspectType)) {
             query.eq("ASSET_STATUS", StatusConst.OK);
         }

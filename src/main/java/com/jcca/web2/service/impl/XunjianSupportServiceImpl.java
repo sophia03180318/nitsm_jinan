@@ -15,7 +15,7 @@ import com.jcca.web.common.service.impl.OutServiceImpl;
 import com.jcca.web.event.enums.EventLevelEnum;
 import com.jcca.web.xunjian.adapter.v2.XunjianV2Handler;
 import com.jcca.web.xunjian.entity.XunjianDetailV2;
-import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.XunjianSupportService;
 import com.jcca.web2.vo.InspectResultVo;
 import com.jcca.web2.vo.InspectVo;
@@ -137,7 +137,7 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
             inspectResultVo.setTargetItem(split[0]);
             String str = split.length == 1 ? "" : split[1];
             inspectResultVo.setTargetName(StatusInfoChangeTypeEnum.getXunjianName(split[0]) + ":" + str);
-            inspectResultVo.setInspectState(status == EventLevelEnum.NORMAL.getCode() ? Web2Const.INSPECTED : Web2Const.INSPECT_ERROR);
+            inspectResultVo.setInspectState(status == EventLevelEnum.NORMAL.getCode() ? InspectionStatus.INSPECTED.getCode() : InspectionStatus.INSPECT_ERROR.getCode());
             inspectResultVo.setResultMsg(String.format("巡检结果：%s", status == EventLevelEnum.NORMAL.getCode() ? "正常" : "异常"));
             mapResult.put(key, inspectResultVo);
         }
@@ -237,7 +237,7 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
                 inspectResultVo.setThresholdValue(xunjianV2Handler.getMaxValue(xunjianKey));
                 try {
                     result = xunjianV2Handler.xunjian(xunjianKey, asset, assetId, orgMsg);
-                    inspectResultVo.setInspectState(1 == result.getNormalFlag() ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
+                    inspectResultVo.setInspectState(1 == result.getNormalFlag() ? InspectionStatus.INSPECT_ERROR.getCode() : InspectionStatus.INSPECTED.getCode());
                     inspectResultVo.setResultMsg(result.getNormalFlagStr());
                     inspectResultVo.setInspectValue(result.getInputOrgStr());
                     if (OutServiceImpl.ERROR_FLAG.equals(result.getInputOrgStr())) {
@@ -245,11 +245,11 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
                         if (StrUtil.isNotEmpty(result.getInputErrorStr())) {
                             inspectResultVo.setResultMsg(result.getInputErrorStr());
                         }
-                        inspectResultVo.setInspectState(Web2Const.INSPECT_ERROR);
+                        inspectResultVo.setInspectState(InspectionStatus.INSPECT_ERROR.getCode());
                         inspectResultVo.setInspectValue("网络不通或用户名密码错误");
                     }
                 } catch (Exception e) {
-                    inspectResultVo.setInspectState(Web2Const.INSPECT_ERROR);
+                    inspectResultVo.setInspectState(InspectionStatus.INSPECT_ERROR.getCode());
                     inspectResultVo.setResultMsg("异常");
                 }
 
@@ -278,16 +278,16 @@ public class XunjianSupportServiceImpl implements XunjianSupportService {
             try {
                 result = xunjianV2Handler.xunjian(xunjianKey, asset, assetId, "");
 
-                inspectResultVo.setInspectState(1 == result.getNormalFlag() ? Web2Const.INSPECT_ERROR : Web2Const.INSPECTED);
+                inspectResultVo.setInspectState(1 == result.getNormalFlag() ? InspectionStatus.INSPECT_ERROR.getCode() : InspectionStatus.INSPECTED.getCode());
                 inspectResultVo.setResultMsg(result.getNormalFlagStr());
                 inspectResultVo.setInspectValue(result.getInputOrgStr());
                 if (OutServiceImpl.ERROR_FLAG.equals(result.getInputOrgStr())) {
-                    inspectResultVo.setInspectState(Web2Const.INSPECT_ERROR);
+                    inspectResultVo.setInspectState(InspectionStatus.INSPECT_ERROR.getCode());
                     inspectResultVo.setResultMsg(result.getNormalFlagStr());
                     inspectResultVo.setInspectValue("");
                 }
             } catch (Exception e) {
-                inspectResultVo.setInspectState(Web2Const.INSPECT_ERROR);
+                inspectResultVo.setInspectState(InspectionStatus.INSPECT_ERROR.getCode());
                 inspectResultVo.setResultMsg("异常");
             }
             list.add(inspectResultVo);

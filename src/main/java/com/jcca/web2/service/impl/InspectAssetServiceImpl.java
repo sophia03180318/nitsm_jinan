@@ -84,7 +84,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<ItemVo> getAllCheckedAsset(String jobId) {
-        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        String inspectRecordId = XunJianConst.XUNJIAN_JOB_RECORD.get(jobId);
         if (!StringUtils.isEmpty(inspectRecordId)) {
             InspectSession session = sessionManager.getSession(inspectRecordId);
             if (null != session) {
@@ -145,7 +145,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<InspectTargetDetailInfo> getTargetAssetInfo(String jobId, String eventTypeId) {
-        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        String inspectRecordId = XunJianConst.XUNJIAN_JOB_RECORD.get(jobId);
         if (StringUtils.isEmpty(inspectRecordId)) {
             return new ArrayList<>();
         }
@@ -154,7 +154,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
 
     @Override
     public List<InspectTargetDetailInfo> getAssetTargetInfo(String jobId, String assetId, String status) {
-        String inspectRecordId = XUNJIAN_JOB_RECORD.get(jobId);
+        String inspectRecordId = XunJianConst.XUNJIAN_JOB_RECORD.get(jobId);
         if (StringUtils.isEmpty(inspectRecordId)) {
             return new ArrayList<>();
         }
@@ -181,7 +181,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
             req.setInspectRecordId(asset.getInspectRecordId());
             req.setAssetId(assetId);
             req.setCategoryList(categoryList);
-            respBody = collectAgent.sendPostToCenter(XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), XUNJIAN_TIME_OUT);
+            respBody = collectAgent.sendPostToCenter(XunJianConst.XUNJIAN_CENTER_URI, JSONUtil.toJsonStr(req), XunJianConst.XUNJIAN_TIME_OUT);
         } catch (CollectAgencyException e) {
             this.sendAll2Queue(asset, e.getMsg());
             AppLogUtils.buildLogError(LogFunctionEnum.XUNJIAN_REALTIME, "巡检采集异常", e);
@@ -284,7 +284,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     private final List<String> targets = Arrays.asList(SYSPORT_TARGET_ARR);
 
     private void send2Queue(InspectAsset asset, String msg) {
-        String flag = XUNJIAN_JOB_RECORD.get(asset.getJobId());
+        String flag = XunJianConst.XUNJIAN_JOB_RECORD.get(asset.getJobId());
         if (flag == null) {
             return;
         }
@@ -316,7 +316,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
     }
 
     private void sendAll2Queue(InspectAsset asset, String msg) {
-        String flag = XUNJIAN_JOB_RECORD.get(asset.getJobId());
+        String flag = XunJianConst.XUNJIAN_JOB_RECORD.get(asset.getJobId());
         if (flag == null) {
             return;
         }

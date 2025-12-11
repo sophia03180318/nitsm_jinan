@@ -2,6 +2,7 @@ package com.jcca.web2.dto.xunjian;
 
 
 import com.jcca.web2.constant.Web2Const;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -62,9 +63,9 @@ public class TypeParseResult {
     private static String parseStatusFromTotalType(String totalType) {
         switch (totalType) {
             case Web2Const.TOTAL_TYPE_ABNORMAL:
-                return Web2Const.INSPECT_ERROR;
+                return InspectionStatus.INSPECT_ERROR.getCode();
             case Web2Const.TOTAL_TYPE_WARNING:
-                return Web2Const.INSPECT_ALARM;
+                return InspectionStatus.INSPECT_ALARM.getCode();
             default:
                 return "-1"; // 查询全部
         }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.entity.InspectAsset;
 import com.jcca.web2.entity.XunjianSchedule;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.InspectAssetService;
 import com.jcca.web2.service.XunjianScheduleService;
 import org.springframework.beans.BeansException;
@@ -34,7 +35,7 @@ public class JobStart implements ApplicationContextAware {
         InspectAssetService inspectAssetService = applicationContext.getBean(InspectAssetService.class);
         List<InspectAsset> assetList = inspectAssetService.list();
         for (InspectAsset asset : assetList) {
-            asset.setInspectState(Web2Const.INSPECT);
+            asset.setInspectState(InspectionStatus.INSPECT.getCode());
         }
         if (!assetList.isEmpty()) {
             inspectAssetService.updateBatchById(assetList, 900);

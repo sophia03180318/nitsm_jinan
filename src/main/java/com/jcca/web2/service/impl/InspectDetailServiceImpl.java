@@ -26,6 +26,7 @@ import com.jcca.web2.dto.xunjian.*;
 import com.jcca.web2.entity.AssetMode;
 import com.jcca.web2.entity.InspectDetail;
 import com.jcca.web2.entity.InspectRecord;
+import com.jcca.web2.enums.xunjian.InspectionStatus;
 import com.jcca.web2.service.AssetModeService;
 import com.jcca.web2.service.InspectDetailService;
 import com.jcca.web2.service.InspectRecordService;
@@ -111,7 +112,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             XunjianDetailV2 v2 = new XunjianDetailV2();
             v2.setXunjianTargetItem(record.getTargetName());
             v2.setCommand(record.getCommand());
-            v2.setNormalFlagStr(record.getInspectState().equals(Web2Const.INSPECTED) ? "正常" : "异常");
+            v2.setNormalFlagStr(record.getInspectState().equals(InspectionStatus.INSPECTED.getCode()) ? "正常" : "异常");
             v2.setInputErrorStr(record.getResultMsg());
             list.add(v2);
         }
@@ -153,7 +154,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         int alarmCount = this.count(alarmQuery);
 
         int totalAsset = assetList.size();
-        int abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        int abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(InspectionStatus.INSPECT_ERROR.getCode()));
         int normalAsset = totalAsset - abnormalAsset;
         String inspectTime = DateUtil.format(record.getInspectTime(), "yyyy-MM-dd HH:mm:ss");
 
@@ -170,8 +171,8 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         for (ItemVo vo : allDeskList) {
             int desk = Integer.parseInt(vo.getId());
             int totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
-            int abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ERROR));
-            int warningDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
+            int abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(InspectionStatus.INSPECT_ERROR.getCode()));
+            int warningDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(InspectionStatus.INSPECT_ALARM.getCode()));
             int normalDesk = totalDesk - abnormalDesk - warningDesk;
 
             JSONObject item = new JSONObject();
@@ -216,9 +217,9 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
     private String parseStatusFromTotalType(String totalType) {
         switch (totalType) {
             case Web2Const.TOTAL_TYPE_ABNORMAL:
-                return Web2Const.INSPECT_ERROR;
+                return InspectionStatus.INSPECT_ERROR.getCode();
             case Web2Const.TOTAL_TYPE_WARNING:
-                return Web2Const.INSPECT_ALARM;
+                return InspectionStatus.INSPECT_ALARM.getCode();
             default:
                 return "-1"; // 查询全部状态
         }
@@ -318,7 +319,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
         query.groupBy("ASSET_ID");
         List<InspectDetail> list1 = this.list(query);
         Integer totalAsset = list1.size();
-        Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(Web2Const.INSPECT_ERROR));
+        Integer abnormalAsset = inspectDetailMapper.abnormalAsset(inspectCode, Integer.parseInt(InspectionStatus.INSPECT_ERROR.getCode()));
         Integer normalAsset = totalAsset - abnormalAsset;
         InspectRecord record = inspectRecordService.getById(inspectCode);
         String header1 = "巡检人：%s，巡检时间：%s，巡检资产总数：%s，正常资产数：%s，异常资产数：%s，告警总数：%s";
@@ -331,7 +332,7 @@ public class InspectDetailServiceImpl extends ServiceImpl<InspectDetailMapper, I
             Integer desk = Integer.parseInt(vo.getId());
             Integer totalDesk = inspectDetailMapper.totalDesk(inspectCode, desk);
             header2.append(vo.getName()).append("：").append(totalDesk).append("台，");
-            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(Web2Const.INSPECT_ALARM));
+            Integer abnormalDesk = inspectDetailMapper.stateDesk(inspectCode, desk, Integer.parseInt(InspectionStatus.INSPECT_ALARM.getCode()));
             Integer normalDesk = totalDesk - abnormalDesk;
             header2.append("正常").append(normalDesk).append("台，告警").append(abnormalDesk).append("台。");
         }
