@@ -38,7 +38,7 @@ public class EventIsFilterAlarmHandler extends IFilterHandler<IEvent> {
         /**
          * 筛选动环设备
          */
-        if (!Objects.isNull(info.getEventAlarmLevelBaseEntity()) && DH_CODE.equals(info.getEventAlarmLevelBaseEntity().getAlarmCode())) {
+/*        if (!Objects.isNull(info.getEventAlarmLevelBaseEntity()) && DH_CODE.equals(info.getEventAlarmLevelBaseEntity().getAlarmCode())) {
             EventAlarmLevelBaseEntity eventAlarmLevelBaseEntity = info.getEventAlarmLevelBaseEntity();
             String repoId = eventAlarmLevelBaseEntity.getRepoId();
             //调用方法 通过规则筛选设备
@@ -48,7 +48,7 @@ public class EventIsFilterAlarmHandler extends IFilterHandler<IEvent> {
                eventAlarmLevelBaseEntity.setRepoId("1743461406558396417");
                eventAlarmLevelBaseEntity.setAlarmLevel(null);
             }
-        }
+        }*/
         return true;
     }
 

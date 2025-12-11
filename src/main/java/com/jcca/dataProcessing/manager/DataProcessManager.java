@@ -845,11 +845,11 @@ public class DataProcessManager {
 
 
         //动环业务事件
-        IFilterHandler dongHuan = this.getIFilterHandler("dongHuanNotifyHandler");
-        //IFilterHandler dongHuanPower = this.getIFilterHandler("DongHuanPowerHandler");
-        dongHuan.addDataSourceListener(eventInfoListener);
-        donghuanHandler = dongHuan;
-
+        IFilterHandler dongHuanStatus = this.getIFilterHandler("dongHuanNotifyHandler");
+        dongHuanStatus.addDataSourceListener(eventInfoListener);
+        IFilterHandler donghuanLinkSave = this.getIFilterHandler("saveFilterHandler");
+        dongHuanStatus.setNextFilter(donghuanLinkSave);
+        donghuanHandler = dongHuanStatus;
 
         //采集器掉线事件
         IFilterHandler nodeStatusHandler = this.getIFilterHandler("collectNodeStatusHandler");
@@ -1254,8 +1254,8 @@ public class DataProcessManager {
 
     }
 
-    public void donghuanHandlerRequest(DongHuanEntity dongHuanEntity) throws Exception {
-        donghuanHandler.handleRequest(dongHuanEntity, true);
+    public void donghuanHandlerRequest(ItsmQueueEntity itsmQueueReq) throws Exception {
+        donghuanHandler.handleRequest(itsmQueueReq, true);
     }
 
     public void cascoThreshOldHandlerRequest(ItsmQueueEntity itsmQueueReq) throws Exception {

@@ -64,9 +64,9 @@ spring:
       #username: SOPHIA
       #password: Sophia@123
 
-      url: jdbc:oracle:thin:@192.168.73.26:1521/bhm
-      username: jinanv2
-      password: jinanv2
+      url: jdbc:oracle:thin:@192.168.73.27:1521/bhm
+      username: sophia21
+      password: sophia21
 
       type: com.alibaba.druid.pool.DruidDataSource
       initialSize: 5
@@ -113,11 +113,11 @@ mybatis-plus:
 
 jcca:
   redis:
-    host: 192.168.73.26
+    host: 192.168.51.121
     port: 6379
     password: jcca@123
     timeout: 5000
-    database: 8
+    database: 2
 
     jedis:
       pool1:

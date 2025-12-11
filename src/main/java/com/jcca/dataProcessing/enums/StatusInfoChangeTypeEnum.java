@@ -132,6 +132,25 @@ public enum StatusInfoChangeTypeEnum {
 
     //通信质量监督状态事件
     event_linkQuality("event:event_linkQuality", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1001("event:event_linkQuality:1001", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1003("event:event_linkQuality:1003", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1005("event:event_linkQuality:1005", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1006("event:event_linkQuality:1006", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1007("event:event_linkQuality:1007", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1008("event:event_linkQuality:1008", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1009("event:event_linkQuality:1009", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1010("event:event_linkQuality:1010", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1011("event:event_linkQuality:1011", "通信质量监督状态", "", "", ""),
+    event_linkQuality_1012("event:event_linkQuality:1012", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2001("event:event_linkQuality:2001", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2002("event:event_linkQuality:2002", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2003("event:event_linkQuality:2003", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2004("event:event_linkQuality:2004", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2005("event:event_linkQuality:2005", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2007("event:event_linkQuality:2007", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2008("event:event_linkQuality:2008", "通信质量监督状态", "", "", ""),
+    event_linkQuality_2009("event:event_linkQuality:2009", "通信质量监督状态", "", "", ""),
+
     //event_linkQuality_state("event:event_linkQuality:state", "通信质量监督事件", "业务告警：检测到通信质量监督状态异常。", "", ""),
     //通信质量监督事件对应的状态信息
     status_congxing("status:congxingState", "通信质量监督软件变化", "", "", ""),
@@ -568,7 +587,6 @@ public enum StatusInfoChangeTypeEnum {
     //动环事件 environment
     event_environment("event:event_environment", "动环状态", "检测到动环状态异常", "", ""),
     event_environment_notify("event:event_environment:notify", "动环通知", "接收到动环通知消息", "", ""),
-    event_environment_power("event:event_environment:power", "动环电源", "接收到动环电源告警", "", ""),
     //对应的值
     NORMAL("NORMAL", "设定普通阈值", "", "", ""),
     SECTION("SECTION", "设定上下限阈值", "", "", ""),
