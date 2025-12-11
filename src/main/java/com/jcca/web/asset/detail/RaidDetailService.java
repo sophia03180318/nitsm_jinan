@@ -3,6 +3,7 @@ package com.jcca.web.asset.detail;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.bean.constant.AssetModeConst;
 import com.jcca.common.utils.ResultVoUtil;
@@ -16,12 +17,12 @@ import com.jcca.web.collect.entity.CollectDS;
 import com.jcca.web.collect.entity.CollectRaid;
 import com.jcca.web.collect.service.CollectDsService;
 import com.jcca.web.collect.service.CollectRaidService;
+import com.jcca.web.config.vo.SysConfig;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,6 +38,8 @@ public class RaidDetailService  implements DetailAdapter {
     private CollectDsService dsService;
     @Resource
     private AlarmInfoService alarmInfoService;
+    @Resource
+    private SysModuleConfigService configServ;
 
     @Override
     public String getCode() {
@@ -51,12 +54,15 @@ public class RaidDetailService  implements DetailAdapter {
 
     @Override
     public ResultVo getAssetGeneralInfo(Asset asset) {
+        SysConfig sysConfig = configServ.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
         JSONObject respJson = new JSONObject();
         //查询设备的信息
         AssetAlarmReq req = new AssetAlarmReq();
         req.setAssetId(asset.getId());
-        respJson.put("alarmInfo", alarmInfoService.findAssetAlarm(req));
-
+        if (showJcca!=2){
+            respJson.put("alarmInfo", alarmInfoService.findAssetAlarm(req));
+        }
         if(asset.getAssetImage().toUpperCase().startsWith("V")){
             List<CollectRaid> capacitys = raidService.findByType(asset.getId(), null, 3);
             if (ObjectUtil.isNotNull(capacitys) && !capacitys.isEmpty()) {

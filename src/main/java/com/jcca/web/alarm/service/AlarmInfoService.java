@@ -397,8 +397,8 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     AlarmInfo selectUnOverAlarm(String alarmCode);
 
     /**
-    * 获取组织下资产的最大告警级别
-    * */
+     * 获取组织下资产的最大告警级别
+     */
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
 
     AlarmCountDto countAlarm(AlarmPageDto req);

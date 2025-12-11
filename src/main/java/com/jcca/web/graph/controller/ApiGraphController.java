@@ -2,6 +2,7 @@ package com.jcca.web.graph.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -31,6 +32,7 @@ import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.collect.entity.CollectInterfaces;
 import com.jcca.web.collect.service.CollectInterfacesService;
 import com.jcca.web.collect.service.CollectRouteService;
+import com.jcca.web.config.vo.SysConfig;
 import com.jcca.web.graph.entity.TopoAssetGroup;
 import com.jcca.web.graph.entity.TopoAssetMark;
 import com.jcca.web.graph.entity.TopoEdge;
@@ -278,6 +280,8 @@ public class ApiGraphController {
     @PostMapping("/topoVertexStatus")
     @ApiOperation(value = "获取拓扑图节点状态")
     public ResultVo topoVertexStatus(@RequestBody SysTopoGraph graph) {
+        SysConfig sysConfig = configService.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
         // 获取组织结构Id
         String orgId = graph.getOrgId();
         if (Objects.isNull(orgId)) {
@@ -300,21 +304,18 @@ public class ApiGraphController {
         List<TopoVertex> topoVertexs = topoVertexService.list(queryWrapper);
         for (TopoVertex topoVertex : topoVertexs) {
             String assetId = topoVertex.getAssetId();
-
             Integer maxLevel = alarmInfoServ.queryMaxLevel(assetId);
-
+            if (showJcca==2){
+                Asset asset = assetService.getById(assetId);
+               if (ObjectUtil.isNotNull(asset)&&"JCCA".equals(asset.getAssetSupplier())){
+                   maxLevel=0;
+               }
+            }
             TopoVertexAlarmStatusVo resp = new TopoVertexAlarmStatusVo();
             resp.setNodeId(topoVertex.getNodeId());
             resp.setAlarmLevel(maxLevel);
             respList.add(resp);
         }
-
-        /**
-         *
-         * 网络设备 List<TopoVertexAlarmStatusVo> list =
-         * topoVertexService.topoVertexStatus("net_topo", orgId);
-         */
-
         return ResultVoUtil.success(respList);
     }
 

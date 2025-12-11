@@ -1,10 +1,12 @@
 package com.jcca.web.asset.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.enums.AlarmStateEnum;
 import com.jcca.common.enums.AlarmStatusEnum;
 import com.jcca.common.log.enums.LogFunctionEnum;
@@ -21,6 +23,7 @@ import com.jcca.web.asset.service.AssetAppServerService;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CollectCpuLoadService;
 import com.jcca.web.asset.vo.AssetAppServerVo;
+import com.jcca.web.config.vo.SysConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -50,6 +53,8 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
     private AssetService assetService;
     @Resource
     private RedisService redisService;
+    @Resource
+    private SysModuleConfigService configService;
 
 
     @Override
@@ -57,6 +62,17 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
 
         List<AssetAppServerVo> list = assetAppServerMapper.getAppServerList();
         List<AssetAppServerVo> resList = this.setAppServerInfo(list);
+        SysConfig sysConfig = configService.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+        if (showJcca == 2) {
+            for (AssetAppServerVo assetAppServerVo : resList) {
+                String assetId1 = assetAppServerVo.getAssetId();
+                String assetSupplier = assetService.getById(assetId1).getAssetSupplier();
+                if (ObjectUtil.isNotNull(assetSupplier) && assetSupplier.equals("JCCA")) {
+                    assetAppServerVo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
+                }
+            }
+        }
         return resList;
     }
 
@@ -208,6 +224,17 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
     public List<AssetAppServerVo> getAppServerInfo(String assetId) {
         List<AssetAppServerVo> voList = assetAppServerMapper.getAppServerInfo(assetId);
         List<AssetAppServerVo> resList = this.setAppServerInfo(voList);
+        SysConfig sysConfig = configService.getSysConfig();
+        Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+        if (showJcca == 2) {
+            for (AssetAppServerVo assetAppServerVo : resList) {
+                String assetId1 = assetAppServerVo.getAssetId();
+                String assetSupplier = assetService.getById(assetId1).getAssetSupplier();
+                if (ObjectUtil.isNotNull(assetSupplier) && assetSupplier.equals("JCCA")) {
+                    assetAppServerVo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
+                }
+            }
+        }
         return resList;
     }
 

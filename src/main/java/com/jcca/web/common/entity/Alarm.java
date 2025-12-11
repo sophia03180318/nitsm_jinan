@@ -28,6 +28,18 @@ public class Alarm {
     @TableField("LEVELL")
     private Integer levell;
 
+    /**
+     * 告警等级
+     * NOALARM＝0	正常数据
+     * FATAL＝1	严重告警
+     * MAIN＝2	主要告警
+     * NORMAL＝3	一般告警
+     * OPEVENT＝4	操作事件
+     * INVALID＝5	无效数据
+     * */
+    @TableField("STATUS")
+    private Integer status;
+
     //告警描述
     @TableField("DESCC")
     private String descc;
@@ -40,7 +52,7 @@ public class Alarm {
     @TableField("ALARM_ID")
     private String alarmId;
 
-    //设备?名称
+    //设备名称
     @TableField("NAME")
     private String name;
 
@@ -50,18 +62,21 @@ public class Alarm {
     private Date occurrenceTime;
 
     //ID描述
-    @TableField(exist = false)
+    @TableField("ID_DESC")
     private String idDesc;
 
     //告警级别描述
-    @TableField(exist = false)
+    @TableField("LEVEL_STR")
     private String levelStr;
 
     //告警号
-    @TableField(exist = false)
+    @TableField("ALARM_NUMBER")
     private  String alarmNumber;
 
-    //告警标志
+    /**
+     //告警标志
+     * 开始 确认 取消 结束
+     * */
     @TableField("ALARM_FLAG")
     private String alarmFlag;
 
@@ -73,8 +88,6 @@ public class Alarm {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
-    //组织ID
-    @TableField(exist = false)
-    private String stationId;
+
 
 }
