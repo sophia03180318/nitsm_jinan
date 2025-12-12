@@ -11,6 +11,9 @@ import com.jcca.web2.entity.InspectTemplate;
 import com.jcca.web2.service.InspectTemplateService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
 @Api(tags = "巡检管理V2")
 public class InspectTemplateControllerV2 {
 
+    private final static Logger logger = LoggerFactory.getLogger(InspectTemplateControllerV2.class);
+
     @Resource
     private InspectTemplateService inspectTemplateService;
 
@@ -44,7 +49,7 @@ public class InspectTemplateControllerV2 {
             SysUser subject = ShiroUtil.getSubject();
             String templateCode = MyIdUtil.getId();
 
-            Integer nameCount = inspectTemplateService.lambdaQuery().eq(InspectTemplate::getTemplateName, addTemplate.getTemplateName()).count();
+            Integer nameCount = inspectTemplateService.lambdaQuery().eq(InspectTemplate::getUserId, subject.getId()).eq(InspectTemplate::getTemplateName, addTemplate.getTemplateName()).count();
             if (nameCount > 0) {
                 return ResultVoUtil.error("名字不能重复");
             }
@@ -89,12 +94,28 @@ public class InspectTemplateControllerV2 {
                 return resultVo;
             }
 
+            if (StringUtils.isEmpty(updateTemplate.getTemplateCode())) {
+                return ResultVoUtil.error("修改模板失败，缺少关键参数[templateCode]");
+            }
+
+            SysUser subject = ShiroUtil.getSubject();
+
+            // 名称重复校验：同用户下，排除自己
+            long nameCount = inspectTemplateService.lambdaQuery()
+                    .eq(InspectTemplate::getUserId, subject.getId())
+                    .ne(InspectTemplate::getTemplateCode, updateTemplate.getTemplateCode())
+                    .eq(InspectTemplate::getTemplateName, updateTemplate.getTemplateName())
+                    .count();
+            if (nameCount > 0) {
+                return ResultVoUtil.error("模板名称不能重复");
+            }
+
             inspectTemplateService.removeInspectTemplate(updateTemplate);
+            return ResultVoUtil.success();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("更新模板失败, templateCode: {}", updateTemplate.getTemplateCode(), e);
             return ResultVoUtil.error("模板修改失败");
         }
-        return ResultVoUtil.success();
     }
 
     @DeleteMapping("/remove/{templateCode}")
