@@ -22,6 +22,7 @@ import com.jcca.web.asset.service.AssetAttachService;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.asset.vo.RoomVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -38,6 +39,7 @@ import java.util.concurrent.*;
  * @date 2023/10/20 16:17
  * @since 2.1.0.0
  */
+@Slf4j
 @Component("congxingAdapter")
 public class CongxingAdapter extends AssetIpAdd implements IAdapter<ItsmQueueEntity> {
     @Resource(name = "dataProcessManager")
@@ -63,6 +65,7 @@ public class CongxingAdapter extends AssetIpAdd implements IAdapter<ItsmQueueEnt
         data.setCollectTime(data.getAlarmTime().getTime());
         data.setAssetId("20230713151515123");
         data.setAssetIp("192.168.1.18");
+        log.info("接收到通信质量监督事件:"+data.getAlarmContent());
         String sourceIp = data.getSourceIp();
         if (ObjectUtil.isNotNull(sourceIp) && !sourceIp.isEmpty()) {
             data.setAssetIp(sourceIp);
