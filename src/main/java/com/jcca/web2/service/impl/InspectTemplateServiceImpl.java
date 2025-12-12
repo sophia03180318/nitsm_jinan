@@ -40,7 +40,6 @@ public class InspectTemplateServiceImpl extends ServiceImpl<InspectTemplateMappe
 
         List<InspectTemplate> list = new ArrayList<>();
         SysUser subject = ShiroUtil.getSubject();
-        String templateCode = MyIdUtil.getId();
         for (String assetId : updateTemplate.getAssetData()) {
             InspectTemplate template = new InspectTemplate();
             template.setTemplateName(updateTemplate.getTemplateName());
@@ -48,7 +47,7 @@ public class InspectTemplateServiceImpl extends ServiceImpl<InspectTemplateMappe
             template.setUserId(subject.getId());
             template.setCreator(subject.getUsername());
             template.setCreateTime(new Date());
-            template.setTemplateCode(templateCode);
+            template.setTemplateCode(updateTemplate.getTemplateCode());
             list.add(template);
         }
 
