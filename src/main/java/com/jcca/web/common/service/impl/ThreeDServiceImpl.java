@@ -1,14 +1,17 @@
 package com.jcca.web.common.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jcca.admin.system.service.SysModuleConfigService;
 import com.jcca.common.redis.service.RedisService;
 import com.jcca.web.alarm.entity.AlarmInfo;
 import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.AssetAttach;
 import com.jcca.web.asset.service.AssetAttachService;
+import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.service.CabinetService;
 import com.jcca.web.asset.service.RoomService;
 import com.jcca.web.collect.service.AssetLinkAssetService;
@@ -18,6 +21,7 @@ import com.jcca.web.common.service.PropertyService;
 import com.jcca.web.common.service.ThreeDService;
 import com.jcca.web.common.service.bean.*;
 import com.jcca.web.common.util.MQUtil;
+import com.jcca.web.config.vo.SysConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.MessageProperties;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +60,10 @@ public class ThreeDServiceImpl implements ThreeDService {
     private PropertyService propertyService;
     @Resource
     private AssetLinkAssetService linkAssetService;
+    @Resource
+    private SysModuleConfigService configServ;
+    @Resource
+    private AssetService assetService;
 
     @Value("${threeD.roomId1}")
     private String roomId1;
@@ -242,13 +250,27 @@ public class ThreeDServiceImpl implements ThreeDService {
         ThreeDResult threeDResult = new ThreeDResult();
         log.info("3D机房开始同步设备" );
         try {
-            List<ThreeDAlarmReq> threeDAlarms = alarmInfoService.getThreeDAlarm(roomId1, roomId2);
-            if (ObjectUtil.isNull(threeDAlarms) || threeDAlarms.isEmpty()) {
-                threeDAlarms = new ArrayList<>();
+            ArrayList<ThreeDAlarmReq> threeDAlarms2 = new ArrayList<>();
+            SysConfig sysConfig = configServ.getSysConfig();
+            Integer showJcca = "no".equals(sysConfig.getShowJcca()) ? 2 : 1;
+            List<ThreeDAlarmReq> alarms = alarmInfoService.getThreeDAlarm(roomId1, roomId2);
+            if(showJcca==2){
+                for (ThreeDAlarmReq threeDAlarm : alarms) {
+                    String assetId = threeDAlarm.getAssetId();
+                    if (!StrUtil.isEmpty(assetId)) {
+                        Asset asset = assetService.getById(assetId);
+                        if (ObjectUtil.isNotNull(asset)&& !"JCCA".equals(asset.getAssetSupplier())) {
+                            threeDAlarms2.add(threeDAlarm);
+                        }
+                    }
+                }
+            }
+            if (ObjectUtil.isNull(threeDAlarms2) || threeDAlarms2.isEmpty()) {
+                threeDAlarms2 = new ArrayList<>();
             }
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("key", "pushAlarm");
-            jsonObject.put("value", threeDAlarms);
+            jsonObject.put("value", threeDAlarms2);
             String s1 = jsonObject.toString();
             Channel channel = getChannel();
             channel.basicPublish("dcim_3d", "dcim_3d", MessageProperties.PERSISTENT_TEXT_PLAIN, s1.getBytes());
