@@ -1503,7 +1503,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             byte owatch = oldAsset.getWatch();
             byte watch = req.getWatch();
             if (owatch == AssetWatchStatusEnum.WATCH_STATUS_NO.getCode() && watch == AssetWatchStatusEnum.WATCH_STATUS_YES.getCode()) {
-                outService.notifyOnChange(OutConst.DEL_ASSET, req);
+                outService.notifyOnChange(OutConst.ADD_ASSET, req);
                 return;
             }
 
@@ -1518,9 +1518,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 }
             }
 
-            // 由未监控->监控  向采集器增加 采集任务
+            // 监控->不监控  向采集器增加 采集任务
             if (owatch != watch) {
-                this.notifySubjectV2(req, OutConst.ADD_ASSET);
+                this.notifySubjectV2(req, OutConst.DEL_ASSET);
             } else if (this.assectChange(req, oldAsset)) {
                 // 由监控->监控
                 this.notifySubjectV2(req, OutConst.ALL_ASSET_UPDATE);
