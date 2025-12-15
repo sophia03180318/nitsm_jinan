@@ -77,102 +77,107 @@
 
     </select>
 
-    <select id="getBrokenRecordWords" resultMap="BaseResultMap"
+    <select id="getBrokenRecordWords"
+            resultMap="BaseResultMap"
             parameterType="com.jcca.web.alarm.controller.bean.AlarmInfoPageQuery">
-        select a.id BORKEN_ID,a.ALARM_STATE borken_alarm_state,a.status as alarm_status,
 
-        a.content borken_content,d.broken_record_id list_id,a.TITLE as title,A.ALARM_LEVEL AS ALARM_LEVEL,
+        SELECT
+        a.id               AS BORKEN_ID,
+        a.ALARM_STATE      AS borken_alarm_state,
+        a.status           AS alarm_status,
+        a.content          AS borken_content,
+        d.broken_record_id AS list_id,
+        a.TITLE            AS title,
+        a.ALARM_LEVEL      AS ALARM_LEVEL,
         d.solve_status,
-        d.opinion list_opinion,d.create_time list_createTime,d.creator list_creator
-        from (
-        select alarm_info.*,asset.name,asset.asset_mode from alarm_info,asset where alarm_info.asset_id=asset.id
+        d.opinion          AS list_opinion,
+        d.create_time      AS list_createTime,
+        d.creator          AS list_creator
+        FROM (
+        SELECT
+        alarm_info.*,
+        asset.name,
+        asset.asset_mode
+        FROM alarm_info
+        JOIN asset ON alarm_info.asset_id = asset.id
         <if test="assetMode != null and assetMode != ''">
-            and asset.asset_mode = #{assetMode}
+            AND asset.asset_mode = #{assetMode}
         </if>
         ) a
-        left join
-        (select b.alarm_id,b.status as solve_status, c.* from BROKEN_RECORD b
-        left join BROKEN_RECORD_OPINION c on b.id=c.BROKEN_RECORD_ID) d on a.id=d.alarm_id
-        where rownum &lt; 20000
+        LEFT JOIN (
+        SELECT
+        b.alarm_id,
+        b.status AS solve_status,
+        c.*
+        FROM BROKEN_RECORD b
+        LEFT JOIN BROKEN_RECORD_OPINION c
+        ON b.id = c.BROKEN_RECORD_ID
+        ) d
+        ON a.id = d.alarm_id
+        WHERE rownum &lt; 20000
+
+        <!-- 组织 -->
         <if test="orgId != null and orgId != ''">
-            and a.org_id = #{orgId}
+            AND a.org_id = #{orgId}
         </if>
-        <if test="orgIds != null">
-            and a.org_id in
-            <foreach collection="orgIds" item="id" separator="," open="(" close=")">
+
+        <if test="orgIds != null and orgIds.size() > 0">
+            AND a.org_id IN
+            <foreach collection="orgIds" item="id" open="(" close=")" separator=",">
                 #{id}
             </foreach>
         </if>
+
+        <!-- IP -->
         <if test="ip != null and ip != ''">
-            and REGEXP_INSTR(a.asset_ip, #{ip})>0
+            AND REGEXP_INSTR(a.asset_ip, #{ip}) &gt; 0
         </if>
+
+        <!-- 资产名称 -->
         <if test="assetName != null and assetName != ''">
-            and REGEXP_INSTR(a.name, #{assetName})>0
+            AND REGEXP_INSTR(a.name, #{assetName}) &gt; 0
         </if>
+
+        <!-- 标题 -->
         <if test="title != null and title != ''">
-            and REGEXP_INSTR(a.TITLE, #{title})>0
+            AND REGEXP_INSTR(a.TITLE, #{title}) &gt; 0
         </if>
+
+        <!-- 状态 -->
         <if test="status != null">
-            and a.status = #{status}
+            AND a.status = #{status}
         </if>
-        <if test="title != null and title != ''">
-            and REGEXP_INSTR(a.title, #{title})>0
+
+        <!-- 告警级别 -->
+        <if test="alarmLevelList != null and alarmLevelList.size() > 0">
+            AND a.ALARM_LEVEL IN
+            <foreach collection="alarmLevelList" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
         </if>
-        <if test="alarmLevel != null">
-            and a.alarm_level = #{alarmLevel}
+
+        <!-- 告警编码 -->
+        <if test="alarmCodeList != null and alarmCodeList.size() > 0">
+            AND a.ALARM_CODE IN
+            <foreach collection="alarmCodeList" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
         </if>
+
+        <!-- 类型 -->
         <if test="type != null">
-            and a.type = #{type}
+            AND a.type = #{type}
         </if>
+
+        <!-- 时间范围 -->
         <if test="startDate != null and endDate != null">
-            and a.occur_time between #{startDate} and #{endDate}
-        </if>
-        <if test="assetMode != null">
-            and a.asset_mode = #{assetMode}
+            AND a.occur_time BETWEEN #{startDate} AND #{endDate}
         </if>
 
-        <if test="alarmLevelList != null">
-            and (i.ALARM_LEVEL IN
-            <trim suffixOverrides=" a.ALARM_LEVEL IN()">
-                <!-- 表示删除最后一个条件 -->
-                <foreach collection="alarmLevelList" item="Id" index="index" open="(" close=")">
-                    <if test="index != 0">
-                        <choose>
-                            <when test="index % 1000 == 600">
-                                ) OR i.ALARM_LEVEL IN (
-                            </when>
-                            <otherwise>,</otherwise>
-                        </choose>
-                    </if>
-                    #{Id}
-                </foreach>
-            </trim>
-            )
-        </if>
-
-        <if test="alarmCodeList != null">
-            and (i.ALARM_CODE IN
-            <trim suffixOverrides=" a.ALARM_CODE IN()">
-                <!-- 表示删除最后一个条件 -->
-                <foreach collection="alarmCodeList" item="Id" index="index" open="(" close=")">
-                    <if test="index != 0">
-                        <choose>
-                            <when test="index % 1000 == 600">
-                                ) OR i.ALARM_LEVEL IN (
-                            </when>
-                            <otherwise>,</otherwise>
-                        </choose>
-                    </if>
-                    #{Id}
-                </foreach>
-            </trim>
-            )
-        </if>
-
-
-        order by a.occur_time desc
+        ORDER BY a.occur_time DESC
 
     </select>
+
 
     <select id="listByAlarmId" parameterType="java.lang.String" resultType="com.jcca.web2.vo.DialogsAlarmListVo">
         select c.TYPE            as orgType,
