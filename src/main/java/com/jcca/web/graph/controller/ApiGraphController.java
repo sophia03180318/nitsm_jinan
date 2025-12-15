@@ -357,7 +357,6 @@ public class ApiGraphController {
      */
     @PostMapping("/search")
     @ApiOperation(value = "拓扑图设备搜索")
-    @RequiresPermissions("api:graph:search")
     @ActionLog(name = "搜索拓扑图设备", title = "首页", key = LogTypeConstant.QUERY)
     public ResultVo search(@RequestBody GraphQueryByNameReq req) {
         if (StrUtil.isEmpty(req.getAssetName())) {
