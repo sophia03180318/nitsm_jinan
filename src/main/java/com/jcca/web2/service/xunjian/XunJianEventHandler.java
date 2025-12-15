@@ -160,11 +160,6 @@ public class XunJianEventHandler {
             return;
         }
 
-        // 指标项去重
-        String uniqueKey = assetId + "_" + targetItem;
-        if (!session.getProcessedUniqueItems().add(uniqueKey)) {
-            return;
-        }
 
         // 更新资产状态
         updateAssetState(session, assetId, stateInt, targetItem);

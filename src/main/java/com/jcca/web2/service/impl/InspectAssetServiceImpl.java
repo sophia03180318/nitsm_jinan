@@ -203,6 +203,7 @@ public class InspectAssetServiceImpl extends ServiceImpl<InspectAssetMapper, Ins
         JSONObject body = JSONUtil.parseObj(o.toString());
         CollectExecResp collectExecResp = JSONUtil.toBean(body.toString(), CollectExecResp.class);
         List<CollectExecResult> execRespList = collectExecResp.getExecRespList();
+        AppLogUtils.buildLogInfo(LogFunctionEnum.XUNJIAN_REALTIME, "巡检结果值", "jobId：" + asset.getJobId() + "|inspectRecordId：" + asset.getInspectRecordId() + "|assetId：" + asset.getAssetId() + "|size：" + execRespList.size());
         execRespList.sort(Comparator.comparing(CollectExecResult::getCode));
         Set<String> ipSet = new HashSet<>();
         Set<String> assetIdSet = new HashSet<>();
