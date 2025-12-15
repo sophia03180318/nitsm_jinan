@@ -337,7 +337,7 @@
         <if test="map.ip != null and map.ip !=''">
             and ip = #{map.ip} or ip2 = #{map.ip} or IPMI_IP = #{map.ip}
         </if>
-        <if test="map.orgIds != null">
+        <if test="map.orgIds != null and map.orgIds.size() > 0">
             and org_id in
             <foreach collection="map.orgIds" open="(" close=")" separator="," item="id" index="idx">
                 <if test="idx != 0 and idx % 999 == 0 and idx != map.orgIds.size() - 1">
@@ -389,7 +389,7 @@
         <if test="map.ip != null and map.ip !=''">
             and ip = #{map.ip} or ip2 = #{map.ip} or IPMI_IP = #{map.ip}
         </if>
-        <if test="map.orgIds != null">
+        <if test="map.orgIds != null and map.orgIds.size() > 0">
             and org_id in
             <foreach collection="map.orgIds" open="(" close=")" separator="," item="id" index="idx">
                 <if test="idx != 0 and idx % 999 == 0 and idx != map.orgIds.size() - 1">
