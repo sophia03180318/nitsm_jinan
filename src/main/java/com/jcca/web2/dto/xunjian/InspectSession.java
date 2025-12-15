@@ -34,10 +34,7 @@ public class InspectSession {
     private final XunjianSchedule schedule;
     private final List<InspectAsset> assetList;
 
-    /**
-     * 已处理的唯一指标项（格式：assetId_targetItem），防止重复处理
-     */
-    private final Set<String> processedUniqueItems = ConcurrentHashMap.newKeySet();
+
     /**
      * 资产最终聚合状态（取最严重状态）
      */
