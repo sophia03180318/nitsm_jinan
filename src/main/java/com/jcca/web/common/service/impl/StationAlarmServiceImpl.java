@@ -201,7 +201,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
             }
 
             //处理告警
-            AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(req.getAlarmCode());
+            AlarmInfo alarmInfo = alarmInfoServ.selectStationUnOverAlarmByFlag(req.getFlag());
             if(Objects.nonNull(alarmInfo)){
                 resp.setItsmId(alarmInfo.getId());
             }
