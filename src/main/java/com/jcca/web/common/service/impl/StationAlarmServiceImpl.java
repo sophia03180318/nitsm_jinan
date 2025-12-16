@@ -430,7 +430,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         alarmInfo.setOccurTime(occurTime);
         alarmInfo.setLastTime(occurTime);
         alarmInfo.setAlarmCode(STATION_ALARM_UNIQUE);
-        alarmInfo.setAlarmFlag(req.getFlag());
+        alarmInfo.setAlarmFlag(req.getAlarmCode());
         alarmInfo.setDescription(req.getAlarmDescription());
         alarmInfo.setContent(req.getAlarmDescription());
         alarmInfo.setBlank(blank);
