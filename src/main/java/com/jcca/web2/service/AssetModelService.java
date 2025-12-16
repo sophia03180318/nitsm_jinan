@@ -32,4 +32,11 @@ public interface AssetModelService extends IService<AssetModel> {
      * @return 型号
      */
     AssetModel getByName(String assetImage);
+
+    /**
+     * 获取所有得型号
+     *
+     * @return
+     */
+    List<AssetModel> getAllModelList();
 }

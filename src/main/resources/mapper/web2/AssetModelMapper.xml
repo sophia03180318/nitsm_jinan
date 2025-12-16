@@ -19,4 +19,14 @@
         WHERE MODEL = #{assetImage}
     </select>
 
+
+    <!-- 查询资产类型 -->
+    <select id="getModeList" resultType="com.jcca.web2.entity.AssetModel">
+        SELECT aml.*， am.CODE AS assetCode
+        FROM ASSET_MODEL aml
+                 LEFT JOIN ASSET_MODE am ON
+            aml.ASSET_MODE_ID = am.ID
+        ORDER BY aml.MODEL DESC
+    </select>
+
 </mapper>
