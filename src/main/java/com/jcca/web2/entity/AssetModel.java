@@ -187,4 +187,10 @@ public class AssetModel extends Model<AssetModel> {
     @TableField(value = "MODIFIER", fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
+    /**
+     * 资产类型
+     */
+    @TableField(exist = false)
+    private String assetCode;
+
 }

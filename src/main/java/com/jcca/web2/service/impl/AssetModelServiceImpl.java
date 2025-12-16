@@ -51,4 +51,9 @@ public class AssetModelServiceImpl extends ServiceImpl<AssetModelMapper, AssetMo
     public AssetModel getByName(String assetImage) {
         return modelMapper.getByName(assetImage);
     }
+
+    @Override
+    public List<AssetModel> getAllModelList() {
+        return modelMapper.getModeList();
+    }
 }

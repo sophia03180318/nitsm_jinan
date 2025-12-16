@@ -18,4 +18,6 @@ public interface AssetModelMapper extends BaseMapper<AssetModel> {
     List<AssetModel> getByManufacturerId(String manufacturerId);
 
     AssetModel getByName(String assetImage);
+
+    List<AssetModel> getModeList();
 }
