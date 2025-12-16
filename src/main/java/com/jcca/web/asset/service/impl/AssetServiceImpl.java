@@ -1820,14 +1820,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
             if (OrgTypeConst.LINE == org.getType()) {
                 Set<SysOrg> set = orgService.getChildrenById(orgId.toString());
-                if (CollectionUtils.isEmpty(set)) {
-                    throw new ResultException(ResultEnum.CANNOT_FIND);
+                if (!CollectionUtils.isEmpty(set)) {
+                    List<String> collect = set.stream().map(SysOrg::getId).collect(Collectors.toList());
+                    List<String> collect1 = collect.stream().filter(orgIds::contains).collect(Collectors.toList());
+                    map.put("orgIds", collect1);
                 }
-                List<String> collect = set.stream().map(SysOrg::getId).collect(Collectors.toList());
-                List<String> collect1 = collect.stream().filter(orgIds::contains).collect(Collectors.toList());
-                map.put("orgIds", collect1);
-
-                map.remove("orgId");
             }
         }
     }
