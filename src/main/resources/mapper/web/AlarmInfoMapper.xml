@@ -1077,6 +1077,14 @@
           and ALARM_CODE =#{alarmCode}  order by OCCUR_TIME DESC
     </select>
 
+
+    <!-- 查询未确认或者未恢复的告警 -->
+    <select id="selectStationUnOverAlarmByFlag" resultType="com.jcca.web.alarm.entity.AlarmInfo">
+        select * from ALARM_INFO
+        where (STATUS = 1 or ALARM_STATE = 1)
+          and ALARM_FLAG =#{alarmFlag}  order by OCCUR_TIME DESC
+    </select>
+
     <select id="getAssetAlarmByOrg" resultType="com.jcca.web2.vo.WebAssetAlarmVo">
         select min(ALARM_LEVEL) as alarmLevel,
                ASSET_ID as assetId

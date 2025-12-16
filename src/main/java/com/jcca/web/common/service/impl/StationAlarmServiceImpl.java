@@ -201,7 +201,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
             }
 
             //处理告警
-            AlarmInfo alarmInfo = alarmInfoServ.selectUnOverAlarm(req.getAlarmCode());
+            AlarmInfo alarmInfo = alarmInfoServ.selectStationUnOverAlarmByFlag(req.getAlarmCode());
             if(Objects.nonNull(alarmInfo)){
                 resp.setItsmId(alarmInfo.getId());
             }
@@ -430,7 +430,7 @@ public class StationAlarmServiceImpl implements StationAlarmService {
         alarmInfo.setOccurTime(occurTime);
         alarmInfo.setLastTime(occurTime);
         alarmInfo.setAlarmCode(STATION_ALARM_UNIQUE);
-        alarmInfo.setAlarmFlag(event.getFlag());
+        alarmInfo.setAlarmFlag(req.getAlarmCode());
         alarmInfo.setDescription(req.getAlarmDescription());
         alarmInfo.setContent(req.getAlarmDescription());
         alarmInfo.setBlank(blank);

@@ -397,6 +397,14 @@ public interface AlarmInfoService extends IService<AlarmInfo> {
     AlarmInfo selectUnOverAlarm(String alarmCode);
 
     /**
+     * 查找未确定或者未恢复告警通过告警码
+     *
+     * @param alarmFlag
+     * @return
+     */
+    AlarmInfo selectStationUnOverAlarmByFlag(String alarmFlag);
+
+    /**
      * 获取组织下资产的最大告警级别
      */
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);

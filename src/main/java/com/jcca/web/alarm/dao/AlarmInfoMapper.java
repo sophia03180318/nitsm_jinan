@@ -213,6 +213,13 @@ public interface AlarmInfoMapper extends BaseMapper<AlarmInfo> {
      */
     List<AlarmInfo> selectUnOverAlarm(@Param("alarmCode") String alarmCode);
 
+    /**
+     * 查询车站未确认或者未恢复的告警
+     * @param alarmFlag 唯一标识
+     * @return
+     */
+    List<AlarmInfo> selectStationUnOverAlarmByFlag(@Param("alarmFlag") String alarmFlag);
+
     List<WebAssetAlarmVo> getAssetAlarmByOrg(String orgId);
 
     AlarmCountDto countAlarm(AlarmPageDto req);
