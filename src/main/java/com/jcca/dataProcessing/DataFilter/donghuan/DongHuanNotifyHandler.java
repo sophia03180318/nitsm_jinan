@@ -36,7 +36,7 @@ public class DongHuanNotifyHandler extends IFilterHandler<DongHuanEntity> {
         alarmTempReq.setAssetIp(info.getAssetIp());
         alarmTempReq.setAssetName(info.getAssetName());
 
-        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey, null,alarmTempReq,info.getInspectRecordId(),info.getVersion());
+        IEvent event = eventInfoChangeManagerService.creatChangeEvent(info.getAssetId(), new ChangeInfo(), eventRedisKey, eventMapKey, -1,alarmTempReq,info.getInspectRecordId(),info.getVersion());
         if (event != null) {
             //被事件信息截取
             event.setDescLog(info.getOriginalMsg());
