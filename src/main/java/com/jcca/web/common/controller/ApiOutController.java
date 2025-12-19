@@ -457,8 +457,8 @@ public class ApiOutController {
         AppLogUtils.buildLogInfo(LogFunctionEnum.OUT_API, "ITSM接收采集器PING告警，采集器IP：" + ip, dto);
         redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(dto));
 
-        Asset asset = assetSeerv.findOneByIp(dto.getAssetIp());
-        if(Objects.nonNull(asset)){
+        if(Objects.nonNull(dto.getAssetIp())){
+            Asset asset = assetSeerv.findOneByIp(dto.getAssetIp());
             stationCollectClient.notifyStationPingStatus(asset.getId(),dto.getFlag(),"PING_STOP");
         }
 
