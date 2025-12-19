@@ -38,17 +38,17 @@ public class EventIsFilterAlarmHandler extends IFilterHandler<IEvent> {
         /**
          * 筛选动环设备
          */
-/*        if (!Objects.isNull(info.getEventAlarmLevelBaseEntity()) && DH_CODE.equals(info.getEventAlarmLevelBaseEntity().getAlarmCode())) {
+        if (!Objects.isNull(info.getEventAlarmLevelBaseEntity()) && DH_CODE.equals(info.getEventAlarmLevelBaseEntity().getAlarmCode())) {
             EventAlarmLevelBaseEntity eventAlarmLevelBaseEntity = info.getEventAlarmLevelBaseEntity();
             String repoId = eventAlarmLevelBaseEntity.getRepoId();
             //调用方法 通过规则筛选设备
             DhFlag device = deviceService.isDevice(repoId, info.getAssetId());
             if (Objects.isNull(device)) {
                 //没这个设备 就把告警规则踢出去
-               eventAlarmLevelBaseEntity.setRepoId("1743461406558396417");
-               eventAlarmLevelBaseEntity.setAlarmLevel(null);
+                eventAlarmLevelBaseEntity.setRepoId("1743461406558396417");
+                eventAlarmLevelBaseEntity.setAlarmLevel(null);
             }
-        }*/
+        }
         return true;
     }
 
