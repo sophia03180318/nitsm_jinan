@@ -35,6 +35,7 @@ import com.jcca.common.utils.AppLogUtils;
 import com.jcca.common.utils.EncryptUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.common.utils.file.config.properties.UploadProjectProperties;
+import com.jcca.component.client.StationCollectClient;
 import com.jcca.component.constants.RedisQueueConst;
 import com.jcca.component.dto.ReceiveAlarmDto;
 import com.jcca.web.alarm.entity.AlarmInfo;
@@ -143,6 +144,9 @@ public class ApiOutController {
     private UploadProjectProperties fileProp;
     @Resource
     private AssetManufacturerService assetManufacturerService;
+
+    @Resource
+    private StationCollectClient stationCollectClient;
 
 
     /**
@@ -452,6 +456,12 @@ public class ApiOutController {
         String ip = request.getRemoteHost() + ":" + request.getRemotePort();
         AppLogUtils.buildLogInfo(LogFunctionEnum.OUT_API, "ITSM接收采集器PING告警，采集器IP：" + ip, dto);
         redisService.convertAndSend(RedisQueueConst.ALARM_QUEUE, JSONUtil.toJsonStr(dto));
+
+        if(Objects.nonNull(dto.getAssetIp())){
+            Asset asset = assetSeerv.findOneByIp(dto.getAssetIp());
+            stationCollectClient.notifyStationPingStatus(asset.getId(),dto.getFlag(),"PING_STOP");
+        }
+
         return ResultVoUtil.success();
     }
 
