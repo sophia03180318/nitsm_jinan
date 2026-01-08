@@ -48,6 +48,14 @@ public class CollectPcbEntity extends CommonEntity implements Serializable {
      */
     private String entPhysicalIsFRU;
     /**
+     * 板卡状态采集
+     * 1: unknown (未知)
+     * 2: up (正常工作)
+     * 3: disabled (禁用)
+     * 4: okButDiagFailed (诊断失败但基本功能正常)
+     */
+    private String entPhysicalCardStatusRev;
+    /**
      * 序列号
      */
     private String serialNumber;

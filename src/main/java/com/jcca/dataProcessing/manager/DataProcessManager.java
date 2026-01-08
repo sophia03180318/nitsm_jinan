@@ -103,6 +103,7 @@ public class DataProcessManager {
     private IFilterHandler pingGeneralHandler;
 
     private IFilterHandler pcbHandler;
+    private IFilterHandler pcbInfoHandler;
     private IFilterHandler opticalHandler;
 
     private IFilterHandler mqHandler;
@@ -756,8 +757,15 @@ public class DataProcessManager {
         pingGeneralHandler = createHandler(pingGeneralHandlerList, pingGeneralEventHandlerList, eventInfoListener);
 
         //板卡
-        IFilterHandler pcb1 = this.getIFilterHandler("pCBSaveFilterHandler");
-        pcbHandler = pcb1;
+        List<String> pcbHandlerList = Arrays.asList(
+                "pCBSaveFilterHandler",
+                "pCBFilterHandler"
+        );
+        List<String> pcbEventHandlerList = Arrays.asList(
+                "pCBFilterHandler");
+        pcbHandler = createHandler(pcbHandlerList, pcbEventHandlerList, eventInfoListener);
+
+        pcbInfoHandler = getIFilterHandler("saveFilterHandler");
         //光纤交换机
 
         List<String> opticalHandlerList = Arrays.asList(
@@ -1129,6 +1137,16 @@ public class DataProcessManager {
      */
     public void interfaceHandlerRequest(CollectInterfaceEntity list) throws Exception {
         interfaceHander.handleRequest(list, true);
+
+    }
+
+    /**
+     * pcb 板卡信息处理
+     *
+     * @param list
+     */
+    public void pcbHandlerRequest(CollectPcbEntity list) throws Exception {
+        pcbInfoHandler.handleRequest(list, true);
 
     }
 

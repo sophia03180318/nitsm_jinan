@@ -617,6 +617,10 @@ public enum StatusInfoChangeTypeEnum {
     TCP_STATUS("TCP_STATUS", "TCP端口占用状态", "", "", ""),
     UDP_STATUS("UDP_STATUS", "UDP端口占用状态", "", "", ""),
     MASTER_CHANGE("MASTER_CHANGE", "主备切换", "", "", ""),
+
+    // 板卡状态
+    PCB_STATUS("PCB_STATUS", "板卡状态", "", "", ""),
+    event_pcb_state("event:status:pcb", "板卡状态事件", "", "", ""),
     ;
 
 
