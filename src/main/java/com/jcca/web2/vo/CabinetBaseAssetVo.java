@@ -41,5 +41,13 @@ public class CabinetBaseAssetVo {
      * 维护手册资料预览地址
      */
     private String viewUrl;
+    /**
+     * 设备IP1
+     */
+    private String assetIp1;
+    /**
+     * 设备iP2
+     */
+    private String assetIp2;
 
 }

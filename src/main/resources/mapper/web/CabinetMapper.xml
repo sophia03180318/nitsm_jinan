@@ -23,6 +23,8 @@
         <result column="USED_SEAT" property="usedSeat" jdbcType="BIGINT"/>
         <result column="ASSET_SIZE" property="assetSize" jdbcType="BIGINT"/>
         <result column="POSITION" property="position" jdbcType="VARCHAR"/>
+        <result column="IP" property="assetIp1" jdbcType="VARCHAR"/>
+        <result column="IP2" property="assetIp2" jdbcType="VARCHAR"/>
         <collection property="assetList" javaType="java.util.List" resultMap="assetResultV2"/>
     </resultMap>
 
@@ -50,7 +52,7 @@
         as USED_SEAT,
         (select COUNT(*) from ASSET_ATTACH v where v.CABINET_ID=#{cabinetId}) as ASSET_SIZE ,
         (concat(concat(concat(c.ROW_INDEX,'行'),c.COLUMN_INDEX),'列')) as POSITION,
-        a.ASSET_ID,b.name as asset_name,b.ASSET_MODE ,a.START_POSITION,a.END_POSITION,
+        a.ASSET_ID,b.name as asset_name,b.ASSET_MODE,b.ip,b.ip2 ,a.START_POSITION,a.END_POSITION,
         (
         select count(*) from ALARM_INFO d where d.ASSET_ID = a.ASSET_ID
         <if test="statusLogical==1">
