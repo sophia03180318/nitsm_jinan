@@ -5,9 +5,6 @@ import com.jcca.admin.system.entity.SysActionLogDetail;
 import com.jcca.admin.system.service.SysActionLogDetailService;
 import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogDetailItemIdType;
-import com.jcca.web.ibmMQ.domain.vo.WarningVo;
-import com.jcca.web.ibmMQ.entity.IBMMonitor;
-import com.jcca.web.ibmMQ.service.IBMMonitorService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -21,29 +18,29 @@ import javax.annotation.Resource;
  * @since 2.1.0.0
  */
 @Service
-public class DevLogThresholdMQImpl implements DevLogService {
-
+public class DevLogThresholdMQImpl  {
+/*
     @Resource
     private IBMMonitorService ibmMonitorService;
     @Resource
     private SysActionLogDetailService sysActionLogDetailService;
 
-    /**
+    *//**
      * 运维日志分类
      *
      * @return DevLogConstant
-     */
+     *//*
     @Override
     public String getDevType() {
         return DevLogConstant.THRESHOLD_MQ;
     }
 
-    /**
+    *//**
      * 设置运维日志内容
      *
      * @param actionLog 日志
      * @param args      参数
-     */
+     *//*
     @Override
     public void setDevLog(SysActionLog actionLog, Object[] args) {
         Object arg = args[0];
@@ -65,5 +62,5 @@ public class DevLogThresholdMQImpl implements DevLogService {
         SysActionLogDetail detail = sysActionLogDetailService.setDetail(actionLog.getId(),
                 "", id, LogDetailItemIdType.MQ, description);
         sysActionLogDetailService.save(detail);
-    }
+    }*/
 }

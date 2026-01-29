@@ -10,8 +10,8 @@ import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.db.entity.ManageDb;
 import com.jcca.web.db.service.ManageDbService;
-import com.jcca.web.ibmMQ.entity.IBMConnection;
-import com.jcca.web.ibmMQ.service.ConnectionService;
+import com.jcca.web.mq.entity.MqConnection;
+import com.jcca.web.mq.service.MqConnectionService;
 import com.jcca.web2.vo.MiddlewareVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +36,7 @@ public class MiddlewareControllerV2 {
     @Resource
     private ManageDbService dbServ;
     @Resource
-    private ConnectionService connServ;
+    private MqConnectionService connServ;
     @Resource
     private AssetService assetService;
 
@@ -44,7 +44,7 @@ public class MiddlewareControllerV2 {
     @ApiOperation("中间件列表")
     public ResultVo<Object> list(String name) {
         List<ManageDb> list = dbServ.list();
-        List<IBMConnection> mqList = connServ.list();
+        List<MqConnection> mqList = connServ.list();
         List<MiddlewareVo> respList = new ArrayList<>();
         for (ManageDb manageDb : list) {
             MiddlewareVo vo = new MiddlewareVo();
@@ -59,7 +59,7 @@ public class MiddlewareControllerV2 {
             respList.add(vo);
         }
 
-        for (IBMConnection ibmConnection : mqList) {
+        for (MqConnection ibmConnection : mqList) {
             MiddlewareVo vo = new MiddlewareVo();
             vo.setId(ibmConnection.getId());
             vo.setName(ibmConnection.getConnectName());
@@ -91,7 +91,7 @@ public class MiddlewareControllerV2 {
             }
             return ResultVoUtil.success(db);
         }else{
-            IBMConnection mq = connServ.getById(id);
+            MqConnection mq = connServ.getById(id);
             return ResultVoUtil.success(mq);
         }
 
