@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ Author：sophia
@@ -51,6 +52,6 @@ public class MqGroup extends Model<MqGroup> implements java.io.Serializable {
      * 组内包含的monitor
      */
     @TableField(exist = false)
-    private List<MqMonitor> monitorList;
+    private Map<String,MqMonitor> monitors;
 
 }

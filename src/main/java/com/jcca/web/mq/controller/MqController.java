@@ -16,6 +16,7 @@ import com.jcca.common.utils.MyIdUtil;
 import com.jcca.common.utils.ResultVoUtil;
 import com.jcca.web.mq.controller.bean.MqWarningVo;
 import com.jcca.web.mq.entity.*;
+import com.jcca.web.mq.service.CollectMqService;
 import com.jcca.web.mq.service.MqConnectionService;
 import com.jcca.web.mq.service.MqGroupService;
 import com.jcca.web.mq.service.MqMonitorService;
@@ -28,6 +29,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author sophia
@@ -44,6 +48,8 @@ public class MqController {
     private MqConnectionService mqConnectionService;
     @Resource
     private MqGroupService mqGroupService;
+    @Resource
+    private CollectMqService collectMqService;
 
 
     @PostMapping("/createConnection")
@@ -155,9 +161,34 @@ public class MqController {
         List<MqGroup> mqGroups = mqGroupService.selectByConnectId(connectId);
         for (MqGroup mqGroup : mqGroups) {
             List<MqMonitor> monitorByGroupId = mqMonitorService.getMonitorByGroupId(mqGroup.getId());
-            mqGroup.setMonitorList(monitorByGroupId);
+            Map<String, MqMonitor> monitorMap =
+                    monitorByGroupId.stream()
+                            .collect(Collectors.toMap(
+                                    MqMonitor::getCategory,
+                                    Function.identity(),
+                                    (oldVal, newVal) -> oldVal   // category 重复时取第一个
+                            ));
+            mqGroup.setMonitors(monitorMap);
         }
         return ResultVoUtil.success(mqGroups);
+    }
+
+
+    @GetMapping("/getMonitors/{connectId}")
+    @ApiOperation(value = "获取队列管理器下可选的数据")
+    public ResultVo getMonitors(@PathVariable("connectId") String connectId) {
+        QueryWrapper<CollectMq> qw = new QueryWrapper<>();
+        qw.eq("CONNECTION_ID", connectId).select("CATEGORY", "NAME");
+        ;
+        List<CollectMq> collectMqs = collectMqService.list(qw);
+        Map<String, CollectMq> monitorMap =
+                collectMqs.stream()
+                        .collect(Collectors.toMap(
+                                CollectMq::getCategory,
+                                Function.identity(),
+                                (oldVal, newVal) -> oldVal   // category 重复时取第一个
+                        ));
+        return ResultVoUtil.success(monitorMap);
     }
 
     @PostMapping("/updateGroup")
@@ -200,6 +231,7 @@ public class MqController {
     }
 
 
+/*
     @GetMapping("/getMonitor/{groupId}")
     @ApiOperation(value = "获取业务组下所有队列和通道")
     public ResultVo getMonitor(@PathVariable("groupId") String groupId) {
@@ -207,6 +239,7 @@ public class MqController {
         wrapper.eq("GROUP_ID", groupId);
         return ResultVoUtil.success(mqMonitorService.list(wrapper));
     }
+*/
 
 
     @GetMapping("/removeMonitor/{id}")
