@@ -1522,7 +1522,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
 
             // 监控->不监控  向采集器增加 采集任务
-            if (owatch != watch) {
+            if (owatch == AssetWatchStatusEnum.WATCH_STATUS_YES.getCode() && watch == AssetWatchStatusEnum.WATCH_STATUS_NO.getCode()) {
                 this.notifySubjectV2(req, OutConst.DEL_ASSET);
             } else if (this.assectChange(req, oldAsset)) {
                 // 由监控->监控
