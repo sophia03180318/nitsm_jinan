@@ -115,12 +115,8 @@ public class NotifyDelAssetImpl {
      * 0新增，1删除，2修改
      *
      * @param asset 变动的资产
-     * @param state 0新增，1删除，2修改
      */
-    public void assetChange(Asset asset, Integer state) throws AddAssetException {
-        if (OutConst.DEL_ASSET.intValue() != state) {
-            return;
-        }
+    public void assetChange(Asset asset) throws AddAssetException {
         String assetId = asset.getId();
 
         //资产附属数据
