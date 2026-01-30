@@ -19,9 +19,6 @@ public interface MqMonitorMapper extends BaseMapper<MqMonitor> {
     @Select("select * from MQ_MONITOR where category like '%CHANNEL' and CONNECT_ID=#{connectionId}")
     List<MqMonitor> getChannelByConnectionId(String connectionId);
 
-    @Select("select * from MQ_MONITOR where category like '%CHANNEL' and GROUP_ID=#{groupId}")
-    List<MqMonitor> getChannelByGroupId(String groupId);
-
-    @Select("select * from MQ_MONITOR where category like 'MQQT%' and GROUP_ID=#{groupId}")
-    List<MqMonitor> getQueueByGroupId(String groupId);
+    @Select("select * from MQ_MONITOR where GROUP_ID=#{groupId}")
+    List<MqMonitor> getMonitorByGroupId(String groupId);
 }

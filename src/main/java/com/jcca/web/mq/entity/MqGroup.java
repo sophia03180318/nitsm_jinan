@@ -47,4 +47,10 @@ public class MqGroup extends Model<MqGroup> implements java.io.Serializable {
     @TableField("REMARK")
     private String remark;
 
+    /**
+     * 组内包含的monitor
+     */
+    @TableField(exist = false)
+    private List<MqMonitor> monitorList;
+
 }

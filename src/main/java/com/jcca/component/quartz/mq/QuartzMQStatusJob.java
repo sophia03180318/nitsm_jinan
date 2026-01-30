@@ -72,6 +72,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                     agent = newAgent(ip, port, channel, qmgr);
                     inquireQmgrStatus(agent, connection, asset);
                     if ("RUNNING".equals(connection.getStatus())) {
+                        collectMqService.removeCollectData(id);
                         inquireAllQueues(agent, id);
                         inquireAllChannels(agent, id);
 
@@ -242,6 +243,9 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                         MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH
                 });
                 PCFMessage[] resp = agent.send(req);
+                if (ObjectUtil.isNull(resp) || resp.length == 0){
+                    continue;
+                }
                 q.setDepths(resp[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH));
 
                 if (ObjectUtil.isNotNull(q.getRuleValue()) && q.getRuleValue() > 0) {
@@ -277,6 +281,9 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                         MQConstants.MQIACH_BYTES_RCVD
                 });
                 PCFMessage[] resp = agent.send(req);
+                if (ObjectUtil.isNull(resp) || resp.length == 0){
+                    continue;
+                }
                 PCFMessage r = resp[0];
                 int st = r.getIntParameterValue(MQConstants.MQIACH_CHANNEL_STATUS);
                 ch.setState(String.valueOf(st));

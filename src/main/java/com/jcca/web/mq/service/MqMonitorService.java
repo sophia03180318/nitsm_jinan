@@ -13,9 +13,7 @@ import java.util.List;
 public interface MqMonitorService extends IService<MqMonitor> {
 
 
-    List<MqMonitor> getQueueByGroupId(String groupId);
-
-    List<MqMonitor> getChannelByGroupId(String groupId);
+    List<MqMonitor> getMonitorByGroupId(String groupId);
 
     List<MqMonitor> getQueueByConnectionId(String connectionId);
 

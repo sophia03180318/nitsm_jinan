@@ -20,13 +20,8 @@ public class MqonitorImpl extends ServiceImpl<MqMonitorMapper, MqMonitor> implem
     MqMonitorMapper mqMonitorMapper;
 
     @Override
-    public List<MqMonitor> getQueueByGroupId(String groupId) {
-        return mqMonitorMapper.getQueueByGroupId(groupId);
-    }
-
-    @Override
-    public List<MqMonitor> getChannelByGroupId(String groupId) {
-        return mqMonitorMapper.getChannelByGroupId(groupId);
+    public List<MqMonitor> getMonitorByGroupId(String groupId) {
+        return mqMonitorMapper.getMonitorByGroupId(groupId);
     }
 
 

@@ -152,7 +152,12 @@ public class MqController {
     @GetMapping("/getGroups/{connectId}")
     @ApiOperation(value = "获取队列管理器下的所有业务组")
     public ResultVo getGroups(@PathVariable("connectId") String connectId) {
-        return ResultVoUtil.success(mqGroupService.selectByConnectId(connectId));
+        List<MqGroup> mqGroups = mqGroupService.selectByConnectId(connectId);
+        for (MqGroup mqGroup : mqGroups) {
+            List<MqMonitor> monitorByGroupId = mqMonitorService.getMonitorByGroupId(mqGroup.getId());
+            mqGroup.setMonitorList(monitorByGroupId);
+        }
+        return ResultVoUtil.success(mqGroups);
     }
 
     @PostMapping("/updateGroup")
@@ -235,9 +240,6 @@ public class MqController {
         MqMonitor mqMonitor = mqMonitorService.getById(id);
         return ResultVoUtil.success("", mqMonitor.getRuleValue());
     }
-
-
-
 
 
 }
