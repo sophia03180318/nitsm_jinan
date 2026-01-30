@@ -28,12 +28,14 @@
 
     <resultMap id="assetResultV2" type="com.jcca.web2.vo.CabinetBaseAssetVo">
         <id column="ASSET_ID" property="assetId" jdbcType="VARCHAR"/>
-        <id column="asset_name" property="name" jdbcType="VARCHAR"/>
-        <id column="START_POSITION" property="startPosition" jdbcType="BIGINT"/>
-        <id column="END_POSITION" property="endPosition" jdbcType="BIGINT"/>
-        <id column="alarm_size" property="alarmSize" jdbcType="BIGINT"/>
-        <id column="alarm_level" property="alarmLevel" jdbcType="BIGINT"/>
-        <id column="ASSET_MODE" property="assetMode" jdbcType="BIGINT"/>
+        <result column="asset_name" property="name" jdbcType="VARCHAR"/>
+        <result column="START_POSITION" property="startPosition" jdbcType="BIGINT"/>
+        <result column="END_POSITION" property="endPosition" jdbcType="BIGINT"/>
+        <result column="alarm_size" property="alarmSize" jdbcType="BIGINT"/>
+        <result column="alarm_level" property="alarmLevel" jdbcType="BIGINT"/>
+        <result column="ASSET_MODE" property="assetMode" jdbcType="BIGINT"/>
+        <result column="IP" property="assetIp1" jdbcType="VARCHAR"/>
+        <result column="IP2" property="assetIp2" jdbcType="VARCHAR"/>
     </resultMap>
 
 
@@ -50,7 +52,7 @@
         as USED_SEAT,
         (select COUNT(*) from ASSET_ATTACH v where v.CABINET_ID=#{cabinetId}) as ASSET_SIZE ,
         (concat(concat(concat(c.ROW_INDEX,'行'),c.COLUMN_INDEX),'列')) as POSITION,
-        a.ASSET_ID,b.name as asset_name,b.ASSET_MODE ,a.START_POSITION,a.END_POSITION,
+        a.ASSET_ID,b.name as asset_name,b.ASSET_MODE,b.ip ,b.ip2 ,a.START_POSITION,a.END_POSITION,
         (
         select count(*) from ALARM_INFO d where d.ASSET_ID = a.ASSET_ID
         <if test="statusLogical==1">

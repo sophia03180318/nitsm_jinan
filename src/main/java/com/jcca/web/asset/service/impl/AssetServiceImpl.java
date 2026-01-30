@@ -617,6 +617,9 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
     @Transactional(rollbackFor = Exception.class)
     public int deleteAsset(String assetId) throws Exception {
         Asset asset = this.getById(assetId);
+        //删除
+        NotifyDelAssetImpl delAsset = SpringContextUtil.getBean(NotifyDelAssetImpl.class);
+        delAsset.assetChange(asset);
         // 通知外部应用
         this.notifySubjectV2(asset, OutConst.DEL_ASSET);
 
@@ -1519,7 +1522,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             }
 
             // 监控->不监控  向采集器增加 采集任务
-            if (owatch != watch) {
+            if (owatch == AssetWatchStatusEnum.WATCH_STATUS_YES.getCode() && watch == AssetWatchStatusEnum.WATCH_STATUS_NO.getCode()) {
                 this.notifySubjectV2(req, OutConst.DEL_ASSET);
             } else if (this.assectChange(req, oldAsset)) {
                 // 由监控->监控
@@ -1677,8 +1680,6 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
      */
     @Override
     public void notifySubjectV2(Asset asset, Integer state) throws AddAssetException {
-        NotifyDelAssetImpl delAsset = SpringContextUtil.getBean(NotifyDelAssetImpl.class);
-        delAsset.assetChange(asset, state);
         AppLogUtils.buildLogInfo(LogFunctionEnum.ASSET_CHANGE, asset.getIp(), "资产修改成功");
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
