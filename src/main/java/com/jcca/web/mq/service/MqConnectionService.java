@@ -10,5 +10,6 @@ import com.jcca.web.mq.entity.MqConnection;
  **/
 public interface MqConnectionService extends IService<MqConnection> {
 
-    public void removeConnection(String connectionId, String connectionName);
+    boolean existsByHostAndPort(String host, int port);
+
 }

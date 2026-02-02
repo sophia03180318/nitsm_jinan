@@ -127,7 +127,7 @@ public class QuartzConfig {
      * MQ连接状态检查
      * @return
      */
-    /*@Bean
+    @Bean
     public JobDetail MQStatusJobTask() {
         return JobBuilder.newJob(QuartzMQStatusJob.class).withIdentity(new JobKey("QuartzMQStatusJob", "MQ_GROUP"))
                 .storeDurably().build();
@@ -135,11 +135,11 @@ public class QuartzConfig {
 
     @Bean
     public Trigger MQStatusJobTaskConf() {
-        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(300)
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(120)
                 .repeatForever();
         return TriggerBuilder.newTrigger().forJob(MQStatusJobTask()).withIdentity("QuartzMQStatusJob", "MQ_GROUP")
                 .withSchedule(scheduleBuilder).build();
-    }*/
+    }
 
     /***
      * 删除日志数据

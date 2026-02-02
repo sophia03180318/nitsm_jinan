@@ -57,11 +57,18 @@ public class MqController {
     @RequiresPermissions({"api:mqMonitor:createConnection"})
     @ActionLog(name = "创建连接", title = "中间件", key = LogTypeConstant.ADD)
     public ResultVo createConnection(@Validated @RequestBody MqConnection connection) {
+
         if (Strings.isNullOrEmpty(connection.getConnectHost())) {
             return ResultVoUtil.warning("IP/主机不可为空");
         }
         if (connection.getConnectPort() < 1 || connection.getConnectPort() > 65535) {
             return ResultVoUtil.warning("端口范围为:[1-65535]!");
+        }
+
+        if (mqConnectionService.existsByHostAndPort(
+                connection.getConnectHost(),
+                connection.getConnectPort())) {
+            return ResultVoUtil.warning("该主机和端口的 MQ 连接已存在");
         }
         //给予连接通道默认值
         if (Strings.isNullOrEmpty(connection.getChannelName())) {
@@ -75,6 +82,7 @@ public class MqController {
             props.put(MQConstants.PORT_PROPERTY, connection.getConnectPort());
             props.put(MQConstants.CHANNEL_PROPERTY, connection.getChannelName());
             props.put(MQConstants.TRANSPORT_PROPERTY, CMQC.TRANSPORT_MQSERIES_CLIENT);
+            props.put(MQConstants.USER_ID_PROPERTY, connection.getUserId());
             qm = new MQQueueManager(connection.getConnectName(), props);
             pcf = new PCFMessageAgent(qm);
 
@@ -118,10 +126,10 @@ public class MqController {
     }
 
 
-    @GetMapping("/getConnection")
-    @ApiOperation(value = "获取所有队列管理器连接")
-    public ResultVo getConnection() {
-        return ResultVoUtil.success(mqConnectionService.list());
+    @GetMapping("/getConnection/{id}")
+    @ApiOperation(value = "获取队列管理器连接详情")
+    public ResultVo getConnection(@PathVariable String id) {
+        return ResultVoUtil.success(mqConnectionService.getById(id));
     }
 
 
@@ -161,13 +169,11 @@ public class MqController {
         List<MqGroup> mqGroups = mqGroupService.selectByConnectId(connectId);
         for (MqGroup mqGroup : mqGroups) {
             List<MqMonitor> monitorByGroupId = mqMonitorService.getMonitorByGroupId(mqGroup.getId());
-            Map<String, MqMonitor> monitorMap =
+            // category -> monitors
+            Map<String, List<MqMonitor>> monitorMap =
                     monitorByGroupId.stream()
-                            .collect(Collectors.toMap(
-                                    MqMonitor::getCategory,
-                                    Function.identity(),
-                                    (oldVal, newVal) -> oldVal   // category 重复时取第一个
-                            ));
+                            .collect(Collectors.groupingBy(MqMonitor::getCategory));
+
             mqGroup.setMonitors(monitorMap);
         }
         return ResultVoUtil.success(mqGroups);
@@ -181,13 +187,10 @@ public class MqController {
         qw.eq("CONNECTION_ID", connectId).select("CATEGORY", "NAME");
         ;
         List<CollectMq> collectMqs = collectMqService.list(qw);
-        Map<String, CollectMq> monitorMap =
+        // category -> collect list
+        Map<String, List<CollectMq>> monitorMap =
                 collectMqs.stream()
-                        .collect(Collectors.toMap(
-                                CollectMq::getCategory,
-                                Function.identity(),
-                                (oldVal, newVal) -> oldVal   // category 重复时取第一个
-                        ));
+                        .collect(Collectors.groupingBy(CollectMq::getCategory));
         return ResultVoUtil.success(monitorMap);
     }
 

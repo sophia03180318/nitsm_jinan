@@ -52,6 +52,6 @@ public class MqGroup extends Model<MqGroup> implements java.io.Serializable {
      * 组内包含的monitor
      */
     @TableField(exist = false)
-    private Map<String,MqMonitor> monitors;
+    private Map<String, List<MqMonitor>> monitors;
 
 }

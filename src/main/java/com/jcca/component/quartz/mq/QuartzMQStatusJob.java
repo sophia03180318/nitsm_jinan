@@ -27,10 +27,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * MQ队列管理器状态
@@ -52,6 +49,13 @@ public class QuartzMQStatusJob extends QuartzJobBean {
     private AssetService assetServ;
     @Resource
     private DataProcessManager dataProcessManager;
+    private final Map<String, ChannelFlowSnapshot> channelFlowCache = new HashMap<>();
+
+    private static class ChannelFlowSnapshot {
+        long sentBytes;
+        long rcvdBytes;
+        long ts;
+    }
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -62,14 +66,17 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 if (Objects.isNull(asset)) {
                     log.error("MQ未录入关联资产" + connection.getConnectHost());
                 }
-                PCFMessageAgent agent = null;
+                MqPcfHolder holder = null;
                 try {
                     String ip = connection.getConnectHost();
                     Integer port = connection.getConnectPort();
                     String qmgr = connection.getConnectName();
                     String channel = connection.getChannelName();
                     String id = connection.getId();
-                    agent = newAgent(ip, port, channel, qmgr);
+                    String userId = connection.getUserId();
+                    holder = newAgent(ip, port, channel, qmgr, userId);
+                    PCFMessageAgent agent = holder.agent;
+
                     inquireQmgrStatus(agent, connection, asset);
                     if ("RUNNING".equals(connection.getStatus())) {
                         collectMqService.removeCollectData(id);
@@ -90,67 +97,87 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 } catch (Exception e) {
                     log.error("MQ采集结果解析异常", e);
                 } finally {
-                    if (agent != null) {
+                    if (holder != null) {
                         try {
-                            agent.disconnect();
+                            if (holder.agent != null) holder.agent.disconnect();
+                        } catch (Exception ignore) {
+                        }
+                        try {
+                            if (holder.qm != null) holder.qm.disconnect();
                         } catch (Exception ignore) {
                         }
                     }
                 }
-
-
             }
         }
-
     }
+
 
     /**
      * 获取连接
      */
-    private PCFMessageAgent newAgent(String host, int port, String channel, String qmgr) throws Exception {
+    private MqPcfHolder newAgent(String host, int port, String channel, String qmgr,String userId) throws Exception {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put(MQConstants.HOST_NAME_PROPERTY, host);
         props.put(MQConstants.PORT_PROPERTY, port);
         props.put(MQConstants.CHANNEL_PROPERTY, channel);
         props.put(MQConstants.TRANSPORT_PROPERTY, CMQC.TRANSPORT_MQSERIES_CLIENT);
-        MQQueueManager qm = new MQQueueManager(qmgr, props);
-        return new PCFMessageAgent(qm);
+        props.put(MQConstants.USER_ID_PROPERTY, userId);
+        MqPcfHolder h = new MqPcfHolder();
+        h.qm = new MQQueueManager(qmgr, props);
+        h.agent = new PCFMessageAgent(h.qm);
+        return h;
     }
 
     /**
      * 获取连接状态和连接数
      */
     private void inquireQmgrStatus(PCFMessageAgent agent, MqConnection bean, Asset asset) {
-        bean.setStatus("UNKNOWN");
+        String oldStatus = bean.getStatus();
         try {
             PCFMessage req = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_MGR_STATUS);
             req.addParameter(MQConstants.MQIACF_Q_MGR_STATUS_ATTRS, new int[]{
                     MQConstants.MQIACF_Q_MGR_STATUS,
                     MQConstants.MQIACF_CONNECTION_COUNT
             });
+
             PCFMessage[] resp = agent.send(req);
-            bean.setConnectionCount(0);
+            if (resp == null || resp.length == 0) {
+                // 不明确：不更新、不告警（按你规则当正常）
+                return;
+            }
+
             PCFMessage r = resp[0];
-            // 1) QMgr 状态（值是 int 枚举）
+
+            // 能拿到 st 才算“明确”
             int st = r.getIntParameterValue(MQConstants.MQIACF_Q_MGR_STATUS);
-            if (st == 2) {
-                bean.setStatus("RUNNING");
-            } else {
-                bean.setStatus("STOPPING");//不在运行状态就统称为关闭
-            }
-            // 2) 连接数
+            String newStatus = (st == 2) ? "RUNNING" : "STOPPED";
+
             int cc = r.getIntParameterValue(MQConstants.MQIACF_CONNECTION_COUNT);
+
+            bean.setStatus(newStatus);
             bean.setConnectionCount(cc);
-            //推送告警
-            if (ObjectUtil.isNotNull(asset)) {
-                sendConnectionAlarm(bean, asset);
+
+            // 只有“明确不运行”才推告警；明确运行可推恢复
+            if (ObjectUtil.isNotNull(asset) && ObjectUtil.isNotNull(oldStatus) && !oldStatus.equals(newStatus)) {
+                MQMonitorEntity monitorEntity = new MQMonitorEntity();
+                monitorEntity.setCollectTime(System.currentTimeMillis());
+                monitorEntity.setAssetId(asset.getId());
+                monitorEntity.setAssetIp(asset.getIp());
+                monitorEntity.setMessage("队列管理器状态:" + newStatus);
+                monitorEntity.setStatus("RUNNING".equals(newStatus)
+                        ? EventLevelEnum.NORMAL.getCode()
+                        : EventLevelEnum.ABNORMAL.getCode());
+                ((MQAdapter) dataProcessManager.getAdapater("MQAdapter")).dispose(monitorEntity);
             }
-            //存储连接
             connectionService.updateById(bean);
+
         } catch (Exception e) {
-            log.error("MQ队列管理采集失败", e);
+            bean.setStatus("STOPPED");
+            log.warn("MQ队列管理器状态采集异常: {}", bean.getConnectHost(), e);
         }
     }
+
 
     /**
      * 所有队列
@@ -166,6 +193,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
             PCFMessage[] resp = agent.send(req);
             if (resp == null) return;
 
+            ArrayList<CollectMq> collectMqs = new ArrayList<>();
             for (PCFMessage m : resp) {
                 CollectMq collectMq = new CollectMq();
                 collectMq.setId(MyIdUtil.getId());
@@ -180,11 +208,14 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                     } else {
                         collectMq.setCategory("MQQT_LOCAL");
                     }
-                    collectMqService.save(collectMq);
+                    collectMqs.add(collectMq);
                 } else if (qType == MQConstants.MQQT_REMOTE) {
                     collectMq.setCategory("MQQT_REMOTE");
-                    collectMqService.save(collectMq);
+                    collectMqs.add(collectMq);
                 }
+            }
+            if (!collectMqs.isEmpty()) {
+                collectMqService.saveBatch(collectMqs);
             }
         } catch (Exception e) {
             log.error("MQ队列列表获取失败", e);
@@ -198,7 +229,6 @@ public class QuartzMQStatusJob extends QuartzJobBean {
     private void inquireAllChannels(PCFMessageAgent agent, String connectionId) {
         try {
             PCFMessage req = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
-            // 必选：通道名（支持通配）
             req.addParameter(MQConstants.MQCACH_CHANNEL_NAME, "*");
             // 返回哪些“定义属性”
             req.addParameter(MQConstants.MQIACF_CHANNEL_ATTRS, new int[]{
@@ -208,7 +238,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
 
             PCFMessage[] resp = agent.send(req);
             if (resp == null || resp.length == 0) return;
-
+            ArrayList<CollectMq> collectMqs = new ArrayList<>();
             for (PCFMessage m : resp) {
                 String ch = m.getStringParameterValue(MQConstants.MQCACH_CHANNEL_NAME).trim();
                 int t = m.getIntParameterValue(MQConstants.MQIACH_CHANNEL_TYPE);
@@ -220,12 +250,16 @@ public class QuartzMQStatusJob extends QuartzJobBean {
 
                 if (t == MQConstants.MQCHT_SENDER || t == MQConstants.MQCHT_CLUSSDR) {
                     collectMq.setCategory("SEND_CHANNEL");
-                    collectMqService.save(collectMq);
+                    collectMqs.add(collectMq);
                 } else if (t == MQConstants.MQCHT_RECEIVER || t == MQConstants.MQCHT_CLUSRCVR) {
                     collectMq.setCategory("RECEIVER_CHANNEL");
-                    collectMqService.save(collectMq);
+                    collectMqs.add(collectMq);
                 }
             }
+            if (!collectMqs.isEmpty()) {
+                collectMqService.saveBatch(collectMqs);
+            }
+
         } catch (Exception e) {
             log.error("MQ通道列表获取失败", e);
         }
@@ -243,7 +277,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                         MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH
                 });
                 PCFMessage[] resp = agent.send(req);
-                if (ObjectUtil.isNull(resp) || resp.length == 0){
+                if (ObjectUtil.isNull(resp) || resp.length == 0) {
                     continue;
                 }
                 q.setDepths(resp[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH));
@@ -259,10 +293,11 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                         sendQueueAlarm(q, asset);
                     }
                 }
+                monitorService.updateById(q);
             } catch (Exception e) {
                 log.error("MQ队列深度采集失败", e);
             }
-            monitorService.updateById(q);
+
         }
     }
 
@@ -281,22 +316,51 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                         MQConstants.MQIACH_BYTES_RCVD
                 });
                 PCFMessage[] resp = agent.send(req);
-                if (ObjectUtil.isNull(resp) || resp.length == 0){
+                if (ObjectUtil.isNull(resp) || resp.length == 0) {
                     continue;
                 }
                 PCFMessage r = resp[0];
                 int st = r.getIntParameterValue(MQConstants.MQIACH_CHANNEL_STATUS);
                 ch.setState(String.valueOf(st));
-                ch.setSentKb(safeLong(r, MQConstants.MQIACH_BYTES_SENT) / 1024);
-                ch.setRcvdKb(safeLong(r, MQConstants.MQIACH_BYTES_RCVD) / 1024);
+                long now = System.currentTimeMillis();
+
+                long sentBytes = safeLong(r, MQConstants.MQIACH_BYTES_SENT);
+                long rcvdBytes = safeLong(r, MQConstants.MQIACH_BYTES_RCVD);
+
+                String key = ch.getConnectId() + "|" + ch.getName();
+                ChannelFlowSnapshot last = channelFlowCache.get(key);
+
+                long sentSpeedKb = 0;
+                long rcvdSpeedKb = 0;
+
+                if (last != null) {
+                    long dt = now - last.ts;
+                    if (dt > 0) {
+                        sentSpeedKb = (sentBytes - last.sentBytes) * 1000 / dt / 1024;
+                        rcvdSpeedKb = (rcvdBytes - last.rcvdBytes) * 1000 / dt / 1024;
+                    }
+                }
+
+// 更新缓存
+                ChannelFlowSnapshot snap = new ChannelFlowSnapshot();
+                snap.sentBytes = sentBytes;
+                snap.rcvdBytes = rcvdBytes;
+                snap.ts = now;
+                channelFlowCache.put(key, snap);
+
+// 你真正要的“速度”
+                ch.setSentKb(Math.max(sentSpeedKb, 0));
+                ch.setRcvdKb(Math.max(rcvdSpeedKb, 0));
             } catch (Exception e) {
                 ch.setState("UNKNOWN");
                 ch.setSentKb(0);
                 ch.setRcvdKb(0);
+                log.error("通道状态采集失败: {}", ch.getName(), e);
             }
             monitorService.updateById(ch);
         }
     }
+
     private long safeLong(PCFMessage msg, int paramId) {
         try {
             return msg.getInt64ParameterValue(paramId);
@@ -305,26 +369,10 @@ public class QuartzMQStatusJob extends QuartzJobBean {
         }
     }
 
-    protected void sendConnectionAlarm(MqConnection connection, Asset asset) {
-        MqConnection oldConnection = connectionService.getById(connection.getId());
-        if (ObjectUtil.isNotNull(oldConnection) && ObjectUtil.isNotNull(oldConnection.getStatus())) {
-            if (!oldConnection.getStatus().equals(connection.getStatus())) {
-                MQMonitorEntity monitorEntity = new MQMonitorEntity();
-                monitorEntity.setCollectTime(new Date().getTime());
-                monitorEntity.setAssetId(asset.getId());
-                monitorEntity.setAssetIp(asset.getIp());
-                monitorEntity.setMessage("队列管理器状态:" + connection.getStatus());
-                monitorEntity.setStatus(connection.getStatus().equals("RUNNING") ? EventLevelEnum.NORMAL.getCode() : EventLevelEnum.ABNORMAL.getCode());
-
-                MQAdapter mqAdapter = (MQAdapter) dataProcessManager.getAdapater("MQAdapter");
-                mqAdapter.dispose(monitorEntity);
-            }
-        }
-    }
 
     protected void sendQueueAlarm(MqMonitor queue, Asset asset) {
         MqMonitor oldQueue = monitorService.getById(queue.getId());
-        if (ObjectUtil.isNotNull(oldQueue.getState()) && !oldQueue.getState().equals(queue.getState())) {
+        if (ObjectUtil.isNotNull(oldQueue) && ObjectUtil.isNotNull(oldQueue.getState()) && !oldQueue.getState().equals(queue.getState())) {
             MQMonitorEntity monitorEntity = new MQMonitorEntity();
             monitorEntity.setCollectTime(new Date().getTime());
             monitorEntity.setAssetId(asset.getId());
@@ -344,6 +392,10 @@ public class QuartzMQStatusJob extends QuartzJobBean {
         }
     }
 
+    private static class MqPcfHolder {
+        MQQueueManager qm;
+        PCFMessageAgent agent;
+    }
 }
 
 
