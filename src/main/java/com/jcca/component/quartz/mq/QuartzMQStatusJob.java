@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.CMQC;
 import com.ibm.mq.constants.MQConstants;
+import com.ibm.mq.headers.pcf.PCFException;
 import com.ibm.mq.headers.pcf.PCFMessage;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
 import com.jcca.common.utils.MyIdUtil;
@@ -68,13 +69,8 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 }
                 MqPcfHolder holder = null;
                 try {
-                    String ip = connection.getConnectHost();
-                    Integer port = connection.getConnectPort();
-                    String qmgr = connection.getConnectName();
-                    String channel = connection.getChannelName();
                     String id = connection.getId();
-                    String userId = connection.getUserId();
-                    holder = newAgent(ip, port, channel, qmgr, userId);
+                    holder = newAgent(connection, asset);
                     PCFMessageAgent agent = holder.agent;
 
                     inquireQmgrStatus(agent, connection, asset);
@@ -94,6 +90,10 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                         }
                     }
 
+                } catch (com.ibm.mq.MQException e) {
+                    log.warn("MQ连接失败: host={}, qmgr={}, channel={}, reasonCode={}",
+                            connection.getConnectHost(), connection.getConnectName(),
+                            connection.getChannelName(), e.reasonCode, e);
                 } catch (Exception e) {
                     log.error("MQ采集结果解析异常", e);
                 } finally {
@@ -116,7 +116,13 @@ public class QuartzMQStatusJob extends QuartzJobBean {
     /**
      * 获取连接
      */
-    private MqPcfHolder newAgent(String host, int port, String channel, String qmgr,String userId) throws Exception {
+    private MqPcfHolder newAgent(MqConnection connection, Asset asset) throws Exception {
+        String oldStatus = connection.getStatus();
+        String host = connection.getConnectHost();
+        Integer port = connection.getConnectPort();
+        String qmgr = connection.getConnectName();
+        String channel = connection.getChannelName();
+        String userId = connection.getUserId();
         Hashtable<String, Object> props = new Hashtable<>();
         props.put(MQConstants.HOST_NAME_PROPERTY, host);
         props.put(MQConstants.PORT_PROPERTY, port);
@@ -124,9 +130,21 @@ public class QuartzMQStatusJob extends QuartzJobBean {
         props.put(MQConstants.TRANSPORT_PROPERTY, CMQC.TRANSPORT_MQSERIES_CLIENT);
         props.put(MQConstants.USER_ID_PROPERTY, userId);
         MqPcfHolder h = new MqPcfHolder();
-        h.qm = new MQQueueManager(qmgr, props);
-        h.agent = new PCFMessageAgent(h.qm);
-        return h;
+        try {
+            h.qm = new MQQueueManager(qmgr, props);
+            h.agent = new PCFMessageAgent(h.qm);
+            return h;
+        } catch (com.ibm.mq.MQException e) {
+            if (e.reasonCode != 2540) {
+                connection.setStatus("STOPPED");
+                connectionService.updateById(connection);
+                if (ObjectUtil.isNotNull(asset)) {
+                    sendAlarm(oldStatus, connection, asset);
+                }
+
+            }
+            throw e;
+        }
     }
 
     /**
@@ -143,13 +161,11 @@ public class QuartzMQStatusJob extends QuartzJobBean {
 
             PCFMessage[] resp = agent.send(req);
             if (resp == null || resp.length == 0) {
-                // 不明确：不更新、不告警（按你规则当正常）
                 return;
             }
 
             PCFMessage r = resp[0];
 
-            // 能拿到 st 才算“明确”
             int st = r.getIntParameterValue(MQConstants.MQIACF_Q_MGR_STATUS);
             String newStatus = (st == 2) ? "RUNNING" : "STOPPED";
 
@@ -158,17 +174,8 @@ public class QuartzMQStatusJob extends QuartzJobBean {
             bean.setStatus(newStatus);
             bean.setConnectionCount(cc);
 
-            // 只有“明确不运行”才推告警；明确运行可推恢复
-            if (ObjectUtil.isNotNull(asset) && ObjectUtil.isNotNull(oldStatus) && !oldStatus.equals(newStatus)) {
-                MQMonitorEntity monitorEntity = new MQMonitorEntity();
-                monitorEntity.setCollectTime(System.currentTimeMillis());
-                monitorEntity.setAssetId(asset.getId());
-                monitorEntity.setAssetIp(asset.getIp());
-                monitorEntity.setMessage("队列管理器状态:" + newStatus);
-                monitorEntity.setStatus("RUNNING".equals(newStatus)
-                        ? EventLevelEnum.NORMAL.getCode()
-                        : EventLevelEnum.ABNORMAL.getCode());
-                ((MQAdapter) dataProcessManager.getAdapater("MQAdapter")).dispose(monitorEntity);
+            if (ObjectUtil.isNotNull(asset)) {
+                sendAlarm(oldStatus, bean, asset);
             }
             connectionService.updateById(bean);
 
@@ -294,6 +301,11 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                     }
                 }
                 monitorService.updateById(q);
+            } catch (PCFException e) {
+                if (e.reasonCode != 3014) {
+                    log.error("MQ队列深度采集失败:" + e.reasonCode, e);
+                }
+
             } catch (Exception e) {
                 log.error("MQ队列深度采集失败", e);
             }
@@ -306,6 +318,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
      */
     private void inquireChannelFlows(PCFMessageAgent agent, List<MqMonitor> channelList) {
         for (MqMonitor ch : channelList) {
+            boolean updated = false;
             try {
                 PCFMessage req = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL_STATUS);
                 req.addParameter(MQConstants.MQCACH_CHANNEL_NAME, ch.getName());
@@ -317,6 +330,10 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 });
                 PCFMessage[] resp = agent.send(req);
                 if (ObjectUtil.isNull(resp) || resp.length == 0) {
+                    ch.setState("UNKNOWN");
+                    ch.setSentKb(0);
+                    ch.setRcvdKb(0);
+                    updated = true;
                     continue;
                 }
                 PCFMessage r = resp[0];
@@ -336,28 +353,55 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 if (last != null) {
                     long dt = now - last.ts;
                     if (dt > 0) {
-                        sentSpeedKb = (sentBytes - last.sentBytes) * 1000 / dt / 1024;
-                        rcvdSpeedKb = (rcvdBytes - last.rcvdBytes) * 1000 / dt / 1024;
+                        long dSent = sentBytes - last.sentBytes;
+                        long dRcvd = rcvdBytes - last.rcvdBytes;
+
+                        if (dSent < 0) {
+                            sentSpeedKb = 0;
+                        } else {
+                            sentSpeedKb = dSent * 1000 / dt / 1024;
+                        }
+                        if (dRcvd < 0) {
+                            rcvdSpeedKb = 0;
+                        } else {
+                            rcvdSpeedKb = dRcvd * 1000 / dt / 1024;
+                        }
                     }
                 }
-
-// 更新缓存
                 ChannelFlowSnapshot snap = new ChannelFlowSnapshot();
                 snap.sentBytes = sentBytes;
                 snap.rcvdBytes = rcvdBytes;
                 snap.ts = now;
                 channelFlowCache.put(key, snap);
 
-// 你真正要的“速度”
                 ch.setSentKb(Math.max(sentSpeedKb, 0));
                 ch.setRcvdKb(Math.max(rcvdSpeedKb, 0));
+                updated = true;
+            } catch (PCFException e) {
+                // 3065: MQRCCF_CHL_STATUS_NOT_FOUND => 没有运行态实例（不活跃/未启动）
+                if (e.reasonCode == 3065) {
+                    ch.setState("STOPPED");
+                    ch.setSentKb(0);
+                    ch.setRcvdKb(0);
+                    updated = true;
+                } else {
+                    ch.setSentKb(0);
+                    ch.setRcvdKb(0);
+                    ch.setState("ERROE:" + e.reasonCode);
+                    updated = true;
+                    log.error("通道状态采集失败: {} reason={}", ch.getName(), e.reasonCode, e);
+                }
             } catch (Exception e) {
-                ch.setState("UNKNOWN");
+                ch.setState("ERROE");
                 ch.setSentKb(0);
                 ch.setRcvdKb(0);
+                updated = true;
                 log.error("通道状态采集失败: {}", ch.getName(), e);
+            } finally {
+                if (updated) {
+                    monitorService.updateById(ch);
+                }
             }
-            monitorService.updateById(ch);
         }
     }
 
@@ -369,6 +413,21 @@ public class QuartzMQStatusJob extends QuartzJobBean {
         }
     }
 
+
+    protected void sendAlarm(String oldStatus, MqConnection connection, Asset asset) {
+        String newStatus = connection.getStatus();
+        if (ObjectUtil.isNotNull(asset) && ObjectUtil.isNotNull(oldStatus) && !oldStatus.equals(newStatus)) {
+            MQMonitorEntity monitorEntity = new MQMonitorEntity();
+            monitorEntity.setCollectTime(System.currentTimeMillis());
+            monitorEntity.setAssetId(asset.getId());
+            monitorEntity.setAssetIp(asset.getIp());
+            monitorEntity.setMessage("队列管理器:"+connection.getConnectName()+"状态" + newStatus);
+            monitorEntity.setStatus("RUNNING".equals(newStatus)
+                    ? EventLevelEnum.NORMAL.getCode()
+                    : EventLevelEnum.ABNORMAL.getCode());
+            ((MQAdapter) dataProcessManager.getAdapater("MQAdapter")).dispose(monitorEntity);
+        }
+    }
 
     protected void sendQueueAlarm(MqMonitor queue, Asset asset) {
         MqMonitor oldQueue = monitorService.getById(queue.getId());
@@ -388,6 +447,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 monitorEntity.setMessage(messageFormat);
             }
             MQAdapter mqAdapter = (MQAdapter) dataProcessManager.getAdapater("MQAdapter");
+            log.info(messageFormat);
             mqAdapter.dispose(monitorEntity);
         }
     }

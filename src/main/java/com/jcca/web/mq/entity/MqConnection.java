@@ -68,5 +68,11 @@ public class MqConnection extends Model<MqConnection> implements java.io.Seriali
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     private Date createTime;
 
+    /**
+     * 修改时间
+     */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(value = "MODIFY_TIME", fill = FieldFill.INSERT_UPDATE)
+    private Date modifyTime;
 
 }
