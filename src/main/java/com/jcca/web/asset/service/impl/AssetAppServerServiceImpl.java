@@ -85,7 +85,7 @@ public class AssetAppServerServiceImpl extends ServiceImpl<AssetAppServerMapper,
             vo.setAssetId(assetId);
             vo.setItemName(assetAppServers.get(0).getItemName());
             vo.setAlarmState(AlarmStateEnum.RECOVER.getCode());
-
+            vo.setIp(assetService.getById(assetId).getIp());
             this.setAlarmState(assetId, vo);
             this.setCpuLoad(assetId, vo);
 
