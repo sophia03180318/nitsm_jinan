@@ -135,7 +135,7 @@ public class QuartzConfig {
 
     @Bean
     public Trigger MQStatusJobTaskConf() {
-        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(300)
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(120)
                 .repeatForever();
         return TriggerBuilder.newTrigger().forJob(MQStatusJobTask()).withIdentity("QuartzMQStatusJob", "MQ_GROUP")
                 .withSchedule(scheduleBuilder).build();
