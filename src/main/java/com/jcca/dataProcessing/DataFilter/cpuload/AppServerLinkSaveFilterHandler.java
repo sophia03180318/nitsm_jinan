@@ -88,6 +88,21 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
         }
         return true;
     }
+    private void saveApp(String assetId, int serverPort, String linkIp, Asset asset) {
+        Asset one = assetService.findOneByIp(linkIp);
+        AssetAppServer assetAppServer = new AssetAppServer();
+        assetAppServer.setId(MyIdUtil.getId());
+        assetAppServer.setAssetId(assetId);
+        assetAppServer.setAssetName(asset.getName());
+        assetAppServer.setLinkAssetName(linkIp);
+        assetAppServer.setLinkIp(linkIp);
+        assetAppServer.setLinkStatus(1);
+        if (Objects.nonNull(one)) {
+            assetAppServer.setLinkAssetName(one.getName());
+        }
+        assetAppServer.setServerPort(serverPort);
+        assetAppServerService.save(assetAppServer);
+    }
 
     private void handleEvent(CollectCpuLoadBean info, String oip, String redisKey, String mapKey, int linkStatus, String redisValue) {
         ChangeInfo changeInfo = new ChangeInfo();
@@ -123,20 +138,7 @@ public class AppServerLinkSaveFilterHandler extends IFilterHandler<CollectCpuLoa
         }
     }
 
-    private void saveApp(String assetId, int serverPort, String linkIp, Asset asset) {
-        Asset one = assetService.findOneByIp(linkIp);
-        AssetAppServer assetAppServer = new AssetAppServer();
-        assetAppServer.setId(MyIdUtil.getId());
-        assetAppServer.setAssetId(assetId);
-        assetAppServer.setAssetName(asset.getName());
-        assetAppServer.setLinkAssetName(linkIp);
-        assetAppServer.setLinkIp(linkIp);
-        if (Objects.nonNull(one)) {
-            assetAppServer.setLinkAssetName(one.getName());
-        }
-        assetAppServer.setServerPort(serverPort);
-        assetAppServerService.save(assetAppServer);
-    }
+
 
     private Set<String> getDifference(Set<String> set, Set<String> value) {
         Set<String> difference = new HashSet<>(set);
