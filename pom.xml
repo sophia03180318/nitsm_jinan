@@ -275,69 +275,10 @@
             <systemPath>${plugs-path}/syslog4j-0.946.jar</systemPath>
         </dependency>
 
-        <!-- WMQ -->
         <dependency>
             <groupId>com.ibm.mq</groupId>
-            <artifactId>commonservices</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/com.ibm.mq.commonservices.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>headers</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/com.ibm.mq.headers.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>mq</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/com.ibm.mq.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>pcf</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/com.ibm.mq.pcf.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>jmqi</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/com.ibm.mq.jmqi.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>mqjms</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/com.ibm.mqjms.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>connector</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/connector.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>dhbcore</artifactId>
-            <version>${wmq-version}</version>
-            <scope>system</scope>
-            <systemPath>${plugs-path}/dhbcore.jar</systemPath>
+            <artifactId>com.ibm.mq.allclient</artifactId>
+            <version>9.2.5.0</version>
         </dependency>
 
         <dependency>

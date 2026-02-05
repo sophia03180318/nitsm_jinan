@@ -78,6 +78,9 @@ public class AssetInfoBaseVo {
      * ip2
      */
     private String ip2;
+
+
+    private String ipmiIp;
     /**
      * 0非应用服务器，1应用服务器
      */
