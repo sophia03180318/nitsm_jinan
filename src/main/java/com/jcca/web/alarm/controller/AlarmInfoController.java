@@ -487,14 +487,11 @@ public class AlarmInfoController extends ListenerManager {
     @ApiOperation(value = "告警历史备注分页查询")
     ResultVo<PageBean<PageQueryRemarkResp>> pageQueryRemark(@RequestBody PageQueryRemarkReq req) {
         AlarmInfo alarmInfo = alarmInfoService.getById(req.getAlarmId());
-        String alarmFlag = alarmInfo.getAlarmFlag();
         IPage<AlarmInfo> iPage = PagePlugin.startPageT(req.getPage(), req.getSize(), AlarmInfo.class);
         QueryWrapper<AlarmInfo> queryWrapper = new QueryWrapper<AlarmInfo>();
-        queryWrapper.eq("ALARM_FLAG", alarmFlag);
+        queryWrapper.eq("ALARM_FLAG", alarmInfo.getAlarmFlag());
         queryWrapper.isNotNull("REMARK");
-        queryWrapper.ne("REMARK", "");
         queryWrapper.eq("ALARM_CODE", req.getAlarmCode());
-        queryWrapper.apply("TRIM(REMARK) <> ''");
         queryWrapper.lt("OCCUR_TIME", alarmInfo.getOccurTime());
         queryWrapper.orderByDesc("OCCUR_TIME");
         IPage<AlarmInfo> page = alarmInfoService.page(iPage, queryWrapper);
