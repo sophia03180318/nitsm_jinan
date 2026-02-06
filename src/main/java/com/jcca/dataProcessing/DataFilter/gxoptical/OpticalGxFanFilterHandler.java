@@ -30,10 +30,9 @@ public class OpticalGxFanFilterHandler extends IFilterHandler<OpticalSwitchV2Bea
 
         List<TSensor> fanStateMap1 = info.getFanStateMap();
         for (TSensor fan : fanStateMap1) {
-            String value = fan.getValue();
-            Integer fanState = Integer.parseInt(value);
+            int fanState = fan.getStatus();
             String mapKey = "FAN" + fan.getSerialNumberName();
-            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisKey, mapKey, value);
+            boolean flag = eventInfoChangeManagerService.infoIschange(info.getInspectRecordId(), redisKey, mapKey, fanState);
             if (flag) {
                 ChangeInfo changeInfo = new ChangeInfo();
                 changeInfo.setValue(fanState);
@@ -44,7 +43,7 @@ public class OpticalGxFanFilterHandler extends IFilterHandler<OpticalSwitchV2Bea
                 String eventRedisKey = StatusInfoChangeTypeEnum.event_fan_state.getCode();
                 String eventMapKey = info.getAssetIp() + "_" + info.getAssetId() + "_" + mapKey;
 
-                String str = (fanState.equals(EventLevelEnum.ABNORMAL.getCode())) ? "异常。" : "恢复。";
+                String str = (fanState == EventLevelEnum.ABNORMAL.getCode()) ? "异常。" : "恢复。";
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
                 alarmTempReq.setOrgMsg(String.format(StatusInfoChangeTypeEnum.event_fan_state.getDescr(), mapKey, str));
                 alarmTempReq.setCollectValue(changeInfo.getValue().toString());
