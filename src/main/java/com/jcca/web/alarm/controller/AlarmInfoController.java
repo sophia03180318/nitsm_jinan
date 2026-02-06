@@ -29,6 +29,7 @@ import com.jcca.common.input.ErrorCodeEnum;
 import com.jcca.common.input.LogInputUtils;
 import com.jcca.common.input.ServerTypeEnum;
 import com.jcca.common.log.annotation.ActionLog;
+import com.jcca.common.log.annotation.ActionLogAop;
 import com.jcca.common.log.annotation.DevLog;
 import com.jcca.common.log.constant.DevLogConstant;
 import com.jcca.common.log.constant.LogTypeConstant;
@@ -485,13 +486,16 @@ public class AlarmInfoController extends ListenerManager {
     @PostMapping("/queryRemark")
     @ApiOperation(value = "告警历史备注分页查询")
     ResultVo<PageBean<PageQueryRemarkResp>> pageQueryRemark(@RequestBody PageQueryRemarkReq req) {
+        AlarmInfo alarmInfo = alarmInfoService.getById(req.getAlarmId());
+        String alarmFlag = alarmInfo.getAlarmFlag();
         IPage<AlarmInfo> iPage = PagePlugin.startPageT(req.getPage(), req.getSize(), AlarmInfo.class);
         QueryWrapper<AlarmInfo> queryWrapper = new QueryWrapper<AlarmInfo>();
-        if (StrUtil.isNotEmpty(req.getAlarmCode())) {
-            queryWrapper.eq("ALARM_CODE", req.getAlarmCode());
-            queryWrapper.isNotNull("REMARK");
-        }
-
+        queryWrapper.eq("ALARM_FLAG", alarmFlag);
+        queryWrapper.isNotNull("REMARK");
+        queryWrapper.ne("REMARK", "");
+        queryWrapper.eq("ALARM_CODE", req.getAlarmCode());
+        queryWrapper.apply("TRIM(REMARK) <> ''");
+        queryWrapper.lt("OCCUR_TIME", alarmInfo.getOccurTime());
         queryWrapper.orderByDesc("OCCUR_TIME");
         IPage<AlarmInfo> page = alarmInfoService.page(iPage, queryWrapper);
         List<AlarmInfo> records = page.getRecords();

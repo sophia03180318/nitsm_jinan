@@ -13,4 +13,6 @@ public class PageQueryRemarkReq extends PageQuery {
 
     private String alarmCode;
 
+    private String alarmId;
+
 }

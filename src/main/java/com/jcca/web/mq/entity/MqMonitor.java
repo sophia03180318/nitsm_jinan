@@ -52,6 +52,12 @@ public class MqMonitor extends Model<MqMonitor> implements java.io.Serializable 
     private long sentKb;
 
     /**
+     * 发
+     */
+    @TableField("CON_NAME")
+    private String conName;
+
+    /**
      * 收
      */
     @TableField("RCVD_KB")

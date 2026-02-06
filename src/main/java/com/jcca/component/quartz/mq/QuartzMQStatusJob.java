@@ -50,14 +50,7 @@ public class QuartzMQStatusJob extends QuartzJobBean {
     private AssetService assetServ;
     @Resource
     private DataProcessManager dataProcessManager;
-    private final Map<String, ChannelFlowSnapshot> channelFlowCache = new HashMap<>();
-
-    private static class ChannelFlowSnapshot {
-        long sentBytes;
-        long rcvdBytes;
-        long ts;
-    }
-
+    
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         List<MqConnection> connections = connectionService.list();
@@ -312,9 +305,8 @@ public class QuartzMQStatusJob extends QuartzJobBean {
 
         }
     }
-
     /**
-     * 通道数据
+     * 通道数据：把 setSentKb / setRcvdKb 直接存 “累计消息条数”
      */
     private void inquireChannelFlows(PCFMessageAgent agent, List<MqMonitor> channelList) {
         for (MqMonitor ch : channelList) {
@@ -325,9 +317,15 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                 req.addParameter(MQConstants.MQIACH_CHANNEL_INSTANCE_TYPE, MQConstants.MQOT_CURRENT_CHANNEL);
                 req.addParameter(MQConstants.MQIACH_CHANNEL_INSTANCE_ATTRS, new int[]{
                         MQConstants.MQIACH_CHANNEL_STATUS,
-                        MQConstants.MQIACH_BYTES_SENT,
-                        MQConstants.MQIACH_BYTES_RCVD
+                /*        MQConstants.MQIACH_MSGS,
+                        MQConstants.MQIACH_MSGS_RECEIVED,*/
+
+                   /*     MQConstants.MQCACH_CHANNEL_START_DATE,   // CHSTADA
+                        MQConstants.MQCACH_CHANNEL_START_TIME,   // CHSTATI*/
+                        MQConstants.MQCACH_CONNECTION_NAME       // CONNAME
                 });
+
+
                 PCFMessage[] resp = agent.send(req);
                 if (ObjectUtil.isNull(resp) || resp.length == 0) {
                     ch.setState("UNKNOWN");
@@ -336,67 +334,46 @@ public class QuartzMQStatusJob extends QuartzJobBean {
                     updated = true;
                     continue;
                 }
+
+
                 PCFMessage r = resp[0];
+
+
                 int st = r.getIntParameterValue(MQConstants.MQIACH_CHANNEL_STATUS);
                 ch.setState(String.valueOf(st));
-                long now = System.currentTimeMillis();
 
-                long sentBytes = safeLong(r, MQConstants.MQIACH_BYTES_SENT);
-                long rcvdBytes = safeLong(r, MQConstants.MQIACH_BYTES_RCVD);
 
-                String key = ch.getConnectId() + "|" + ch.getName();
-                ChannelFlowSnapshot last = channelFlowCache.get(key);
+                String conName   = safeString(r, MQConstants.MQCACH_CONNECTION_NAME);
+                ch.setConName(conName);
+         /*       long sentMsgs = safeLong(r, MQConstants.MQIACH_MSGS);
+                long rcvdMsgs = safeLong(r, MQConstants.MQIACH_MSGS_RECEIVED);
 
-                long sentSpeedKb = 0;
-                long rcvdSpeedKb = 0;
+                ch.setSentKb(Math.max(sentMsgs, 0));
+                ch.setRcvdKb(Math.max(rcvdMsgs, 0));*/
 
-                if (last != null) {
-                    long dt = now - last.ts;
-                    if (dt > 0) {
-                        long dSent = sentBytes - last.sentBytes;
-                        long dRcvd = rcvdBytes - last.rcvdBytes;
-
-                        if (dSent < 0) {
-                            sentSpeedKb = 0;
-                        } else {
-                            sentSpeedKb = dSent * 1000 / dt / 1024;
-                        }
-                        if (dRcvd < 0) {
-                            rcvdSpeedKb = 0;
-                        } else {
-                            rcvdSpeedKb = dRcvd * 1000 / dt / 1024;
-                        }
-                    }
-                }
-                ChannelFlowSnapshot snap = new ChannelFlowSnapshot();
-                snap.sentBytes = sentBytes;
-                snap.rcvdBytes = rcvdBytes;
-                snap.ts = now;
-                channelFlowCache.put(key, snap);
-
-                ch.setSentKb(Math.max(sentSpeedKb, 0));
-                ch.setRcvdKb(Math.max(rcvdSpeedKb, 0));
+                ch.setSentKb(0);
+                ch.setRcvdKb(0);
                 updated = true;
+
             } catch (PCFException e) {
-                // 3065: MQRCCF_CHL_STATUS_NOT_FOUND => 没有运行态实例（不活跃/未启动）
+                // 3065: 没有运行态实例（不活跃/未启动）
                 if (e.reasonCode == 3065) {
                     ch.setState("STOPPED");
-                    ch.setSentKb(0);
-                    ch.setRcvdKb(0);
-                    updated = true;
                 } else {
-                    ch.setSentKb(0);
-                    ch.setRcvdKb(0);
-                    ch.setState("ERROE:" + e.reasonCode);
-                    updated = true;
+                    ch.setState("ERROR:" + e.reasonCode);
                     log.error("通道状态采集失败: {} reason={}", ch.getName(), e.reasonCode, e);
                 }
+                ch.setSentKb(0);
+                ch.setRcvdKb(0);
+                updated = true;
+
             } catch (Exception e) {
-                ch.setState("ERROE");
+                ch.setState("ERROR");
                 ch.setSentKb(0);
                 ch.setRcvdKb(0);
                 updated = true;
                 log.error("通道状态采集失败: {}", ch.getName(), e);
+
             } finally {
                 if (updated) {
                     monitorService.updateById(ch);
@@ -404,12 +381,22 @@ public class QuartzMQStatusJob extends QuartzJobBean {
             }
         }
     }
-
+    private String safeString(PCFMessage r, int key) {
+        try {
+            return r.getStringParameterValue(key);
+        } catch (Exception e) {
+            return null;
+        }
+    }
     private long safeLong(PCFMessage msg, int paramId) {
         try {
             return msg.getInt64ParameterValue(paramId);
         } catch (Exception ignore) {
-            return 0;
+            try {
+                return msg.getIntParameterValue(paramId);
+            } catch (Exception ignore2) {
+                return 0L;
+            }
         }
     }
 
