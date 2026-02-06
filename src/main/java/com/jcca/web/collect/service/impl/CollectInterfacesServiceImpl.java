@@ -159,16 +159,23 @@ public class CollectInterfacesServiceImpl extends ServiceImpl<CollectInterfacesM
     public List<CollectInterfaces> filterPort(String assetId) {
         List<CollectInterfaces> portList = new ArrayList<>();
         List<CollectInterfaces> realTimeData = this.getRealTimeData(assetId);
-        List<Integer> portType = Arrays.asList(6, 18, 22);
+        List<Integer> portType = Arrays.asList(6, 18, 22, 56);
         Asset asset = assetService.getById(assetId);
         for (CollectInterfaces item : realTimeData) {
             if (!portType.contains(item.getPortType())) {
                 continue;
             }
-            if (!assetService.isStationAsset(assetId) && !AssetModeConst.B24.equals(asset.getAssetImage())) {
+            if (!assetService.isStationAsset(assetId)
+                    && !AssetModeConst.B24.equals(asset.getAssetImage())
+                    && !AssetModeConst.DB610S.equals(asset.getAssetImage())
+            ) {
                 if ( ObjectUtil.isNull(item.getPortLinkType()) || 1 != item.getPortLinkType()){
                     continue;
                 }
+            }
+            // 拓扑端口增加名称拼写：FC/0/1
+            if (AssetModeConst.DB610S.equals(asset.getAssetImage())) {
+                item.setPortName((item.getPortAlias() == null ? "" : item.getPortAlias() + "/") + item.getPortName());
             }
             portList.add(item);
         }

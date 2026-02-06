@@ -98,5 +98,8 @@ public class TopoPortInfoVo {
      */
     private List<StatisticsInfoVo> dbmOut;
 
-
+    /**
+     * 端口别名
+     */
+    private String portAlias;
 }

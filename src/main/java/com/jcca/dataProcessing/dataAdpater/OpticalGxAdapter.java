@@ -1,15 +1,18 @@
 package com.jcca.dataProcessing.dataAdpater;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.jcca.common.log.annotation.MyLogback;
 import com.jcca.common.log.constant.LogFunctionConstant;
 import com.jcca.common.log.enums.LogFunctionEnum;
 import com.jcca.common.utils.AppLogUtils;
-import com.jcca.dataProcessing.Entity.CollectPcbEntity;
-import com.jcca.dataProcessing.enums.CollectConst;
+import com.jcca.common.utils.MyIdUtil;
+import com.jcca.component.constants.ReceiveCollectConst;
+import com.jcca.component.thresholds.bean.OpticalSwitchV2Bean;
 import com.jcca.dataProcessing.manager.DataProcessManager;
 import com.jcca.dataProcessing.support.IAdapter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -17,14 +20,11 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * @author Zhaozheng
- * @description TODO 板卡信息适配器
- * @className PCBAdapter
- * @date 2023/10/20 16:08
- * @since 2.1.0.0
+ * 光纤交换机适配器
  */
-@Component("PCBAdapter")
-public class PCBAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
+@Slf4j
+@Component("opticalGxAdapter")
+public class OpticalGxAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
 
     @Resource(name = "dataProcessManager")
     private DataProcessManager dataProcessManager;
@@ -32,34 +32,38 @@ public class PCBAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
     /**
-     * 处理板卡采集数据
+     * 处理数据
      *
-     * @param data
+     * @param data 采集到的数据
      */
-
     @Override
     public void dispose(JSONArray data) {
-        List<CollectPcbEntity> collectList = JSONUtil.toList(data, CollectPcbEntity.class);
+        List<OpticalSwitchV2Bean> beanList = JSONUtil.toList(data, OpticalSwitchV2Bean.class);
+        if (CollectionUtil.isEmpty(beanList)) {
+            log.error("光交换机采集数据处理失败，空的序列集合");
+            return;
+        }
 
 
         Future<Integer> future=excutorService.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                try {
-                    // 循环赋值IP
-                    for (CollectPcbEntity collectPcbEntity : collectList) {
-                        setAssetIp(collectPcbEntity);
+                String collectCode = MyIdUtil.getId();
+                for (OpticalSwitchV2Bean OpticalSwitchV2Bean : beanList) {
+                    setAssetIp(OpticalSwitchV2Bean);
+                    OpticalSwitchV2Bean.setCollectCode(collectCode);
+                    try {
+                        dataProcessManager.opticalGxHandlerRequest(OpticalSwitchV2Bean);
+                    } catch (Exception e) {
+                        AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "设备" + OpticalSwitchV2Bean.getAssetIp() + "opticalHandlerRequest 抛出异常", e);
                     }
-                    dataProcessManager.PCBHandlerRequest(collectList);
-                } catch (Exception e) {
-                    AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "PCBHandlerRequest 抛出异常", e);
 
                 }
                 return 1;
             }
         });
 
-        if(collectList.get(0).getInspectRecordId()!=null&&!"".equals(collectList.get(0).getInspectRecordId())){
+        if(beanList.get(0).getInspectRecordId()!=null&&!"".equals(beanList.get(0).getInspectRecordId())){
             try {
                 future.get();
             } catch (InterruptedException e) {
@@ -68,12 +72,16 @@ public class PCBAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
+    /**
+     * 获取对应的KEY
+     *
+     * @return
+     */
     @Override
     public String getCode() {
-        return CollectConst.PCB;
+        return ReceiveCollectConst.OPTICAL_SWITCH_H3C;
     }
 
     @Override
@@ -81,5 +89,4 @@ public class PCBAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
     public String dataProcess(){
         return "当前剩余处理数量：" + excutorService.getQueue().size();
     }
-
 }

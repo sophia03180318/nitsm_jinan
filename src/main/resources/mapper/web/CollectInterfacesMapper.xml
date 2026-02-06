@@ -54,7 +54,8 @@
                link_phy_address as phyAddress,
                round(port_speed/1000/1000) as portSpeed,
                b.TX_POWER as txPower,
-               b.RX_POWER as rxPower
+               b.RX_POWER as rxPower,
+               b.PORT_ALIAS as portAlias
         FROM COLLECT_INTERFACES b
         WHERE b.COLLECT_CODE = #{collectCode}
           AND (b.PORT_INDEX = #{portName} OR b.PORT_NAME = #{portName})
