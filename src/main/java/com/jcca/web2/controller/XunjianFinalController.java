@@ -633,7 +633,7 @@ public class XunjianFinalController {
             detail.select("ASSET_ID");
             detail.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
             detail.eq("INSPECT_CODE", record.getId());
-            detail.groupBy("ASSET_ID");
+//            detail.groupBy("ASSET_ID");
             vo.setTotal(inspectDetailService.list(detail).size());
 
             detail = Wrappers.query();
@@ -641,7 +641,7 @@ public class XunjianFinalController {
             detail.eq("EVENT_TYPE_ID", inspectAsset.getEventTypeId());
             detail.eq("INSPECT_CODE", record.getId());
             detail.eq("INSPECT_STATE", InspectionStatus.INSPECT_ALARM.getCode());
-            detail.groupBy("ASSET_ID");
+//            detail.groupBy("ASSET_ID");
             vo.setAbnormal(inspectDetailService.list(detail).size());
             resultList.add(vo);
         }

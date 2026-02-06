@@ -2,6 +2,7 @@ package com.jcca.dataProcessing.manager;
 
 import com.jcca.common.utils.SpringContextUtil;
 import com.jcca.component.quartz.alarm.AlarmJobService;
+import com.jcca.component.thresholds.bean.OpticalSwitchV2Bean;
 import com.jcca.dataProcessing.Entity.*;
 import com.jcca.dataProcessing.support.*;
 import com.jcca.web.alarm.controller.AlarmInfoController;
@@ -103,7 +104,11 @@ public class DataProcessManager {
     private IFilterHandler pingGeneralHandler;
 
     private IFilterHandler pcbHandler;
+    private IFilterHandler pcbInfoHandler;
     private IFilterHandler opticalHandler;
+
+    // 光纤处理器
+    private IFilterHandler opticalGxHandler;
 
     private IFilterHandler mqHandler;
     private IFilterHandler eventInfoHandler;
@@ -756,8 +761,15 @@ public class DataProcessManager {
         pingGeneralHandler = createHandler(pingGeneralHandlerList, pingGeneralEventHandlerList, eventInfoListener);
 
         //板卡
-        IFilterHandler pcb1 = this.getIFilterHandler("pCBSaveFilterHandler");
-        pcbHandler = pcb1;
+        List<String> pcbHandlerList = Arrays.asList(
+                "pCBSaveFilterHandler",
+                "pCBFilterHandler"
+        );
+        List<String> pcbEventHandlerList = Arrays.asList(
+                "pCBFilterHandler");
+        pcbHandler = createHandler(pcbHandlerList, pcbEventHandlerList, eventInfoListener);
+
+        pcbInfoHandler = getIFilterHandler("saveFilterHandler");
         //光纤交换机
 
         List<String> opticalHandlerList = Arrays.asList(
@@ -786,6 +798,34 @@ public class DataProcessManager {
         );
 
         opticalHandler = createHandler(opticalHandlerList, opticalEventHandlerList, eventInfoListener);
+
+        //光纤交换机(DB610S,CN6660B)
+        List<String> opticalGxHandlerList = Arrays.asList(
+                "opticalGxSaveFilterHandler",
+                "opticalGxInterfaceUpDownFilterHandler",
+                "opticalGxBandWithFilterHandler",
+                "opticalGxFanFilterHandler",
+                "opticalGxTemperatureFilterHandler",
+                "opticalGxTemperatureStageOneFilterHandler",
+                "opticalGxTemperatureStageTwoFilterHandler",
+                "opticalGxTemperatureStageThreeFilterHandler",
+                "opticalGxPowerFilterHandler",
+                "opticalGxVoMapFilterHandler",
+                "saveFilterHandler"
+        );
+        List<String> opticalGxEventHandlerList = Arrays.asList(
+                "opticalGxInterfaceUpDownFilterHandler",
+                "opticalGxBandWithFilterHandler",
+                "opticalGxFanFilterHandler",
+                "opticalGxTemperatureFilterHandler",
+                "opticalGxTemperatureStageOneFilterHandler",
+                "opticalGxTemperatureStageTwoFilterHandler",
+                "opticalGxTemperatureStageThreeFilterHandler",
+                "opticalGxPowerFilterHandler",
+                "opticalGxVoMapFilterHandler"
+        );
+
+        opticalGxHandler = createHandler(opticalGxHandlerList, opticalGxEventHandlerList, eventInfoListener);
 
         //传感器
         List<String> sensorHandlerList = Arrays.asList(
@@ -1132,6 +1172,16 @@ public class DataProcessManager {
 
     }
 
+    /**
+     * pcb 板卡信息处理
+     *
+     * @param list
+     */
+    public void pcbHandlerRequest(CollectPcbEntity list) throws Exception {
+        pcbInfoHandler.handleRequest(list, true);
+
+    }
+
     public void ipmiHandlerRequest(CollectSensorEntity collectSensorEntity) throws Exception {
         ipmiHandler.handleRequest(collectSensorEntity, true);
     }
@@ -1161,6 +1211,15 @@ public class DataProcessManager {
      */
     public void opticalHandlerRequest(OpticalSwitchEntity entity) throws Exception {
         opticalHandler.handleRequest(entity, true);
+    }
+
+    /**
+     * 光交
+     *
+     * @param
+     */
+    public void opticalGxHandlerRequest(OpticalSwitchV2Bean entity) throws Exception {
+        opticalGxHandler.handleRequest(entity, true);
     }
 
     public void PCBHandlerRequest(List<CollectPcbEntity> list) throws Exception {

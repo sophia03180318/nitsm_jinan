@@ -136,6 +136,7 @@ public class AssetModelControllerV2 {
         }
         QueryWrapper<Asset> qw = new QueryWrapper<>();
         qw.eq("ASSET_IMAGE", model.getModel());
+        qw.eq("MANUFACTURER_ID", model.getManufacturerId());
         qw.eq("IS_DEL", StatusConst.OK);
         List<Asset> list = assetService.list(qw);
         if (!list.isEmpty()) {
@@ -145,6 +146,7 @@ public class AssetModelControllerV2 {
         //验证是否存在指标
         QueryWrapper<SpecDictionary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ASSET_IMAGE", model.getModel());
+        queryWrapper.eq("MANUFACTURER_ID", model.getManufacturerId());
         List<SpecDictionary> modelList = specDictionaryService.list(queryWrapper);
 
         if (!modelList.isEmpty()) {
@@ -238,6 +240,7 @@ public class AssetModelControllerV2 {
     private Boolean checkName(AssetModel model) {
         QueryWrapper<AssetModel> query = Wrappers.query();
         query.eq("MODEL", model.getModel());
+        query.eq("MANUFACTURER_ID", model.getManufacturerId());
         if (!StringUtils.isEmpty(model.getId())) {
             query.ne("ID", model.getId());
         }

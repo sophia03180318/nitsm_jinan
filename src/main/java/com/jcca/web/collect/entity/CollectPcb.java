@@ -113,4 +113,14 @@ public class CollectPcb extends Model<CollectPcb> {
      */
     @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     private Date createTime;
+
+    /**
+     * 板卡状态采集
+     * 1: unknown (未知)
+     * 2: up (正常工作)
+     * 3: disabled (禁用)
+     * 4: okButDiagFailed (诊断失败但基本功能正常)
+     */
+    @TableField("ENT_PHYSICAL_CARD_STATUS_REV")
+    private String entPhysicalCardStatusRev;
 }

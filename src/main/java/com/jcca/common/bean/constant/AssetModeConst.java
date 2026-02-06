@@ -70,4 +70,9 @@ public interface AssetModeConst {
     Integer VIR = 7017;
 
     String B24 = "2498-B24";
+
+    /**
+     * DB610S 光纤交换机
+     */
+    String DB610S = "DB610S";
 }
