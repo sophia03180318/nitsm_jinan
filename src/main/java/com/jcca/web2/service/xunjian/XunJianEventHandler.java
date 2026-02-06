@@ -195,10 +195,16 @@ public class XunJianEventHandler {
     public void saveDetailAsync(XunjianDataDto dto, List<InspectAsset> assetList, boolean isUpdate) {
         for (InspectAsset asset : assetList) {
             if (asset.getAssetId().equals(dto.getAssetId()) && asset.getTargetItem().equals(dto.getTargetItem())) {
-                asset.setInspectState(dto.getInspectState());
-                asset.setInspectValue(dto.getInspectValue());
-                asset.setResultMsg(dto.getResultMsg());
-                inspectAssetService.updateById(asset);
+
+                InspectAsset byId = inspectAssetService.getById(asset.getId());
+                String inspectState = byId.getInspectState();
+                // 巡检资产状态指标只有告警的时候才更新
+                if (Integer.parseInt(inspectState) < Integer.parseInt(dto.getInspectState())) {
+                    asset.setInspectState(dto.getInspectState());
+                    asset.setInspectValue(dto.getInspectValue());
+                    asset.setResultMsg(dto.getResultMsg());
+                    inspectAssetService.updateById(asset);
+                }
 
                 // 保存巡检详情
                 InspectDetail inspectDetail = new InspectDetail();

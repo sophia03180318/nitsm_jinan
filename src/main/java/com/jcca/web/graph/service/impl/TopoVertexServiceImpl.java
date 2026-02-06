@@ -58,8 +58,9 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
 
     @Override
     public List<TopoVertexVo> selectNodeByAsset(String nodeType, String orgId) {
+        //去掉磁盘阵列 AssetModeConst.RAID
         List<TopoVertexVo> list = topoVertexMapper.selectNodeByAsset(nodeType, orgId, Arrays.asList(AssetModeConst.ROUTER,
-                AssetModeConst.SWITCH, AssetModeConst.RAID), null);
+                AssetModeConst.SWITCH), null);
         return list;
     }
 
@@ -72,8 +73,9 @@ public class TopoVertexServiceImpl extends ServiceImpl<TopoVertexMapper, TopoVer
 
     @Override
     public List<TopoVertexVo> selectNodeByAssetName(String nodeType, String orgId, String name) {
+        //去掉磁盘阵列 AssetModeConst.RAID
         List<TopoVertexVo> list = topoVertexMapper.selectNodeByAsset(nodeType, orgId, Arrays.asList(AssetModeConst.ROUTER,
-                AssetModeConst.SWITCH, AssetModeConst.RAID), name);
+                AssetModeConst.SWITCH), name);
         return list;
     }
 

@@ -46,6 +46,10 @@ public class PCBAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             @Override
             public Integer call() throws Exception {
                 try {
+                    // 循环赋值IP
+                    for (CollectPcbEntity collectPcbEntity : collectList) {
+                        setAssetIp(collectPcbEntity);
+                    }
                     dataProcessManager.PCBHandlerRequest(collectList);
                 } catch (Exception e) {
                     AppLogUtils.buildLogError(LogFunctionEnum.DATA_PROCESS, "PCBHandlerRequest 抛出异常", e);

@@ -117,7 +117,7 @@ jcca:
     port: 6379
     password: jcca@123
     timeout: 5000
-    database: 2
+    database: 4
 
     jedis:
       pool1:
@@ -157,7 +157,7 @@ project:
     static-path: /upload                     #上传文件静态访问路径
     static-url: http://127.0.0.1:5502     #静态文件访问路径
   syslog_snmp:
-    host: 192.168.20.66
+    host: 192.168.20.184
 
 # 专家知识库
 kbUrl:

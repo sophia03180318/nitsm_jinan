@@ -16,6 +16,7 @@ public class AssetAppServerVo {
     private String id;
     private String itemName;
     private String assetId;
+    private String ip;
     private String serverPort;
     private String linkAssetName;
     private String linkIp;
