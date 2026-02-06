@@ -122,6 +122,7 @@ public class DisposeInterfaceAdapterImpl implements CollectAdapter {
             copy.setErrorCodeOutCount(item.getErrorCodeOut());
             copy.setDiscardPacketsInCount(item.getDiscardPacketsIn());
             copy.setDiscardPacketsOutCount(item.getDiscardPacketsOut());
+            copy.setPortAlias(item.getPortAlias());
             //计算
             calculate(copy, item);
 

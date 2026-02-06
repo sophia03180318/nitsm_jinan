@@ -94,4 +94,9 @@ public interface ReceiveCollectConst {
 
     String CLUSTER = "20";
 
+    /**
+     * 光交换机
+     */
+    String OPTICAL_SWITCH_H3C = "89";
+
 }
