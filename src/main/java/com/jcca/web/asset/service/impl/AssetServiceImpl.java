@@ -1824,6 +1824,7 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
                 if (!CollectionUtils.isEmpty(set)) {
                     List<String> collect = set.stream().map(SysOrg::getId).collect(Collectors.toList());
                     List<String> collect1 = collect.stream().filter(orgIds::contains).collect(Collectors.toList());
+                    collect1.add("x");
                     map.put("orgIds", collect1);
                     map.remove("orgId");
                 }
