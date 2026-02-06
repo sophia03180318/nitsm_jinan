@@ -1990,6 +1990,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetMapper, Asset> implements
             String rate = AppMathUtil.div(Long.parseLong(switchUsed.toString()), Long.parseLong(switchTotal.toString()), 2);
             vo.setSwitchMemUsedRate(Double.parseDouble(rate));
         }
+        // 光交只能采集到使用率
+        if (asset.getAssetImage().equals(AssetModeConst.DB610S)) {
+            vo.setMemUsedRate(Double.parseDouble(memUsed.toString())/100);
+            vo.setMemoryUsed("");
+        }
         if (Objects.nonNull(raidTotal)) {
             vo.setRaidTotal(UnitEnum.getNetFileSizeDescription(Long.parseLong(raidTotal.toString())));
         }
