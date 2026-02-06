@@ -27,7 +27,6 @@ import com.jcca.dataProcessing.enums.StatusInfoChangeTypeEnum;
 import com.jcca.dataProcessing.manager.threshold.ThresholdManager;
 import com.jcca.dataProcessing.support.IEvent;
 import com.jcca.web.alarm.entity.AlarmRepository;
-import com.jcca.web.alarm.service.AlarmInfoService;
 import com.jcca.web.alarm.service.AlarmRepositoryService;
 import com.jcca.web.asset.entity.Asset;
 import com.jcca.web.asset.entity.ThresholdProcess;
@@ -36,7 +35,6 @@ import com.jcca.web.asset.service.ThresholdProcessService;
 import com.jcca.web.event.entity.AlarmEventType;
 import com.jcca.web.event.service.AlarmEventTypeService;
 import com.jcca.web.statistics.vo.StatisticsAlarmVo;
-import com.jcca.web2.constant.Web2Const;
 import com.jcca.web2.constant.XunJianConst;
 import com.jcca.web2.dao.XunjianScheduleDao;
 import com.jcca.web2.dto.xunjian.*;
@@ -98,8 +96,6 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     private ThresholdManager thresholdManager;
     @Resource
     private ThresholdProcessService thresholdProcessService;
-    @Resource
-    private AlarmInfoService alarmInfoService;
 
     @Resource
     private XunjianNotifier notifier;
@@ -107,8 +103,9 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
     @Resource
     private InspectSessionManager sessionManager;
 
-    @Resource
-    private XunJianEventHandler eventHandler;
+    private XunJianEventHandler getEventHandler() {
+        return SpringContextUtil.getBean(XunJianEventHandler.class);
+    }
 
     /**
      * 保存巡检任务
@@ -511,7 +508,7 @@ public class XunjianScheduleServiceImpl extends ServiceImpl<XunjianScheduleDao, 
         IEvent event;
         while ((event = queue.poll()) != null) {
             try {
-                boolean isFinish = eventHandler.handleEvent(event);
+                boolean isFinish =  getEventHandler().handleEvent(event);;
                 log.info("资产：{} 响应值：{}", event.getAssetId(), isFinish);
 
 //                if (isFinish) {
