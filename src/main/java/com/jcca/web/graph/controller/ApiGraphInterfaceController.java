@@ -202,7 +202,7 @@ public class ApiGraphInterfaceController {
     @ResponseBody
     public ResultVo portInfoBase(@RequestBody TopoPortIndexReq topoPortIndexReq) {
         if (StrUtil.isEmpty(topoPortIndexReq.getPortName())) {
-            return ResultVoUtil.error("未配置端口信息");
+            return ResultVoUtil.success("");  //为了前端渲染 直接返回成功
         }
         Asset asset = assetService.getById(topoPortIndexReq.getAssetId());
         if (asset.getAssetMode() == 183) {
