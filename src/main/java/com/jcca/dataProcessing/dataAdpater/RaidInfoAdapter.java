@@ -1,5 +1,6 @@
 package com.jcca.dataProcessing.dataAdpater;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
@@ -225,7 +226,7 @@ public class RaidInfoAdapter extends AssetIpAdd implements IAdapter<JSONArray> {
             }
         });
 
-        if(collectRaidSystemFattenEntity.getDrives().get(0).getInspectRecordId()!=null&&!"".equals(collectRaidSystemFattenEntity.getDrives().get(0).getInspectRecordId())){
+        if(ObjectUtil.isNotNull(collectRaidSystemFattenEntity.getDrives())&&collectRaidSystemFattenEntity.getDrives().get(0).getInspectRecordId()!=null&&!"".equals(collectRaidSystemFattenEntity.getDrives().get(0).getInspectRecordId())){
             try {
                 future.get();
             } catch (InterruptedException e) {
