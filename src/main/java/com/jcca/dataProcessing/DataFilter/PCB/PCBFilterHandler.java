@@ -86,7 +86,7 @@ public class PCBFilterHandler extends IFilterHandler<List<CollectPcbEntity>> {
 
                 String msg = buildOriginalMsg(pcb.getName(), pcb.getEntPhysicalCardStatusRev());
                 AlarmTempReq alarmTempReq = new AlarmTempReq();
-                alarmTempReq.setOrgMsg(msg);
+                alarmTempReq.setOrgMsg("板卡状态发生变化，请及时关注板卡状态！");
                 alarmTempReq.setCollectValue(pcb.getEntPhysicalCardStatusRev());
 
                 alarmTempReq.setFlag(pcb.getPcbIndex());

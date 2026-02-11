@@ -72,7 +72,7 @@ public interface AssetModeConst {
     String B24 = "2498-B24";
 
     /**
-     * DB610S 光纤交换机
+     * DB610S 光纤交换机(B80)
      */
     String DB610S = "DB610S";
 }
