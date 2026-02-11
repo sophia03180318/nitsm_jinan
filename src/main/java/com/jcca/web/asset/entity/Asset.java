@@ -529,6 +529,13 @@ public class Asset extends Model<Asset> implements java.io.Serializable {
     @TableField(exist = false)
     private String lifeContent;
 
+
+    /**
+     * 厂商名称
+     */
+    @TableField(exist = false)
+    private String manufacturerName;
+
     /**
      * 判定是不是主机
      * @return

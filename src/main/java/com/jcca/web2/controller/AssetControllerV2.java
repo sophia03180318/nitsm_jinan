@@ -22,6 +22,8 @@ import com.jcca.web.asset.service.AssetService;
 import com.jcca.web.asset.vo.AssetBelong;
 import com.jcca.web.collect.entity.AssetLinkAsset;
 import com.jcca.web.collect.service.AssetLinkAssetService;
+import com.jcca.web2.entity.AssetManufacturer;
+import com.jcca.web2.service.AssetManufacturerService;
 import com.jcca.web2.vo.AssetStatisticsVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -53,6 +55,9 @@ public class AssetControllerV2 extends AssetIpAdd{
     @Resource
     private AssetService assetServ;
 
+    @Resource
+    private AssetManufacturerService manufacturerService;
+
     @ApiOperation("资产字段详细")
     @GetMapping("/content/{id}")
     public ResultVo<Object> content(@PathVariable String id) {
@@ -63,6 +68,8 @@ public class AssetControllerV2 extends AssetIpAdd{
         if (Objects.isNull(belong)) {
             throw new ResultException(ResultEnum.CANNOT_FIND.getCode(), "未查询到资产附属信息");
         }
+
+        AssetManufacturer manufacturer = manufacturerService.getById(asset.getManufacturerId());
         asset.setRoomId(belong.getRoomId());
         asset.setCabinetId(belong.getCabinetId());
         asset.setStartPosition(belong.getStartPosition());
@@ -70,6 +77,7 @@ public class AssetControllerV2 extends AssetIpAdd{
         asset.setOsPassword(EncryptUtil.aesDecryptStr(asset.getOsPassword()));
         asset.setLoginPwd(EncryptUtil.aesDecryptStr(asset.getLoginPwd()));
         asset.setIpmiPwd(EncryptUtil.aesDecryptStr(asset.getIpmiPwd()));
+        asset.setManufacturerName(manufacturer.getName());
         if (!StringUtils.isEmpty(belong.getCabinetId())) {
             asset.setAssetUnit(asset.getEndPosition() - asset.getStartPosition() + 1);
         }
